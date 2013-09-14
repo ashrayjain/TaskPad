@@ -24,7 +24,7 @@ void MainWindow::customisedUi(){
 	ui.TaskList->setFrameStyle(QFrame::NoFrame);
 	ui.TaskList->header()->setStretchLastSection(false);
 	ui.TaskList->header()->setSectionResizeMode(1, QHeaderView::Stretch);
-	ui.TaskList->header()->resizeSection(0, 50);
+	ui.TaskList->header()->resizeSection(0, 80);
 	ui.TaskList->header()->resizeSection(2, 150);
 	ui.TaskList->header()->resizeSection(3, 150);
 }

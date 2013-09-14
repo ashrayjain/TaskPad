@@ -54,7 +54,7 @@
 }</string>
     </property>
     <property name="text">
-     <string>Results for 'CG2271'</string>
+     <string>Inbox</string>
     </property>
    </widget>
    <widget class="QTreeWidget" name="TaskList">
@@ -69,7 +69,7 @@
     <property name="maximumSize">
      <size>
       <width>16777215</width>
-      <height>301</height>
+      <height>298</height>
      </size>
     </property>
     <property name="styleSheet">
@@ -88,7 +88,33 @@ QTreeWidget#TaskList:Item {
 	background-color:#9ac3fa;
 	margin-bottom: 1px;
 	padding: 10px 10px 10px 10px;
-} r</string>
+}
+
+QTreeWidget#TaskList QScrollBar:vertical {
+	opacity: 0.6;
+	border: none;
+	background-color: transparent;
+	margin-left: 1px;
+	width: 5px;
+}
+
+QTreeWidget#TaskList QScrollBar::handle:vertical {
+	border: none;
+	background-color: #CAE1FF;
+}
+
+QTreeWidget#TaskList QScrollBar::add-line:vertical {
+	visibility: hidden;
+	background-color: transparent;
+}
+
+QTreeWidget#TaskList QScrollBar::sub-line:vertical {
+	visibility: hidden;
+	background-color: transparent;
+}</string>
+    </property>
+    <property name="verticalScrollBarPolicy">
+     <enum>Qt::ScrollBarAsNeeded</enum>
     </property>
     <attribute name="headerVisible">
      <bool>false</bool>
@@ -118,7 +144,7 @@ QTreeWidget#TaskList:Item {
     </column>
     <item>
      <property name="text">
-      <string>#1</string>
+      <string>1</string>
      </property>
      <property name="text">
       <string>Project A</string>
@@ -132,7 +158,51 @@ QTreeWidget#TaskList:Item {
     </item>
     <item>
      <property name="text">
-      <string>#3</string>
+      <string>2</string>
+     </property>
+     <property name="text">
+      <string>CG2222 HW</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>3</string>
+     </property>
+     <property name="text">
+      <string>CS2121</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="text">
+      <string>ENG E4</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>4</string>
+     </property>
+     <property name="text">
+      <string>Project DD2</string>
+     </property>
+     <property name="text">
+      <string>01/09/14</string>
+     </property>
+     <property name="text">
+      <string>FASS</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>5</string>
+     </property>
+     <property name="text">
+      <string>CCD</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>6</string>
      </property>
      <property name="text">
       <string>Project AC</string>
@@ -146,7 +216,7 @@ QTreeWidget#TaskList:Item {
     </item>
     <item>
      <property name="text">
-      <string>#2</string>
+      <string>7</string>
      </property>
      <property name="text">
       <string>Project AB</string>
@@ -165,7 +235,7 @@ QTreeWidget#TaskList:Item {
       <x>9</x>
       <y>454</y>
       <width>782</width>
-      <height>37</height>
+      <height>35</height>
      </rect>
     </property>
     <property name="font">
@@ -179,13 +249,23 @@ QTreeWidget#TaskList:Item {
 	background-color: #fff;
 	border: 1px solid #9ac3fa;
 	border-color: #9ac3fa;
-	padding-top: 2px;
+	padding-top: 4px;
+	padding-bottom: 4px;
 	padding-left: 5px;
 	padding-right: 5px;
 	margin-left: 65px;
 	margin-right: 65px;
 	max-height: 33px;
 }</string>
+    </property>
+    <property name="verticalScrollBarPolicy">
+     <enum>Qt::ScrollBarAlwaysOff</enum>
+    </property>
+    <property name="horizontalScrollBarPolicy">
+     <enum>Qt::ScrollBarAlwaysOff</enum>
+    </property>
+    <property name="lineWrapMode">
+     <enum>QTextEdit::NoWrap</enum>
     </property>
    </widget>
    <widget class="QLabel" name="StatusBar">
