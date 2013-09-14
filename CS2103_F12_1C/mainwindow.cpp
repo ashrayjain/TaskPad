@@ -12,7 +12,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
-//hhhhhdasdsadasdhai
+
 }
 
 void MainWindow::customisedUi(){
