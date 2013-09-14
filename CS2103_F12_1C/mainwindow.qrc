@@ -1,4 +1,6 @@
 <RCC>
-    <qresource prefix="MainWindow">
+    <qresource prefix="/MainWindow">
+        <file>Resources/TaskPad_bg.png</file>
+        <file>Resources/WinButton_Close.png</file>
     </qresource>
 </RCC>
