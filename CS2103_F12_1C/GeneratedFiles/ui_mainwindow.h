@@ -69,9 +69,13 @@ public:
         new QTreeWidgetItem(TaskList);
         new QTreeWidgetItem(TaskList);
         new QTreeWidgetItem(TaskList);
+        new QTreeWidgetItem(TaskList);
+        new QTreeWidgetItem(TaskList);
+        new QTreeWidgetItem(TaskList);
+        new QTreeWidgetItem(TaskList);
         TaskList->setObjectName(QStringLiteral("TaskList"));
         TaskList->setGeometry(QRect(9, 135, 782, 154));
-        TaskList->setMaximumSize(QSize(16777215, 301));
+        TaskList->setMaximumSize(QSize(16777215, 298));
         TaskList->setStyleSheet(QLatin1String("QTreeWidget#TaskList {\n"
 "	margin-top: 10px;\n"
 "	margin-left:65px;\n"
@@ -87,12 +91,36 @@ public:
 "	background-color:#9ac3fa;\n"
 "	margin-bottom: 1px;\n"
 "	padding: 10px 10px 10px 10px;\n"
-"} r"));
+"}\n"
+"\n"
+"QTreeWidget#TaskList QScrollBar:vertical {\n"
+"	opacity: 0.6;\n"
+"	border: none;\n"
+"	background-color: transparent;\n"
+"	margin-left: 1px;\n"
+"	width: 5px;\n"
+"}\n"
+"\n"
+"QTreeWidget#TaskList QScrollBar::handle:vertical {\n"
+"	border: none;\n"
+"	background-color: #CAE1FF;\n"
+"}\n"
+"\n"
+"QTreeWidget#TaskList QScrollBar::add-line:vertical {\n"
+"	visibility: hidden;\n"
+"	background-color: transparent;\n"
+"}\n"
+"\n"
+"QTreeWidget#TaskList QScrollBar::sub-line:vertical {\n"
+"	visibility: hidden;\n"
+"	background-color: transparent;\n"
+"}"));
+        TaskList->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
         TaskList->header()->setVisible(false);
         TaskList->header()->setDefaultSectionSize(105);
         CommandBar = new QTextEdit(centralWidget);
         CommandBar->setObjectName(QStringLiteral("CommandBar"));
-        CommandBar->setGeometry(QRect(9, 454, 782, 37));
+        CommandBar->setGeometry(QRect(9, 454, 782, 35));
         QFont font1;
         font1.setFamily(QStringLiteral("Segoe UI Light"));
         font1.setPointSize(14);
@@ -101,13 +129,17 @@ public:
 "	background-color: #fff;\n"
 "	border: 1px solid #9ac3fa;\n"
 "	border-color: #9ac3fa;\n"
-"	padding-top: 2px;\n"
+"	padding-top: 4px;\n"
+"	padding-bottom: 4px;\n"
 "	padding-left: 5px;\n"
 "	padding-right: 5px;\n"
 "	margin-left: 65px;\n"
 "	margin-right: 65px;\n"
 "	max-height: 33px;\n"
 "}"));
+        CommandBar->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        CommandBar->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        CommandBar->setLineWrapMode(QTextEdit::NoWrap);
         StatusBar = new QLabel(centralWidget);
         StatusBar->setObjectName(QStringLiteral("StatusBar"));
         StatusBar->setGeometry(QRect(9, 497, 72, 66));
@@ -137,7 +169,7 @@ public:
     {
         MainWindowClass->setWindowTitle(QApplication::translate("MainWindowClass", "MainWindow", 0));
         action_Exit->setText(QApplication::translate("MainWindowClass", "&Exit", 0));
-        Navigation->setText(QApplication::translate("MainWindowClass", "Results for 'CG2271'", 0));
+        Navigation->setText(QApplication::translate("MainWindowClass", "Inbox", 0));
         QTreeWidgetItem *___qtreewidgetitem = TaskList->headerItem();
         ___qtreewidgetitem->setText(3, QApplication::translate("MainWindowClass", "Location", 0));
         ___qtreewidgetitem->setText(2, QApplication::translate("MainWindowClass", "Due Date", 0));
@@ -150,17 +182,32 @@ public:
         ___qtreewidgetitem1->setText(3, QApplication::translate("MainWindowClass", "LT27, NUS", 0));
         ___qtreewidgetitem1->setText(2, QApplication::translate("MainWindowClass", "08/09/12", 0));
         ___qtreewidgetitem1->setText(1, QApplication::translate("MainWindowClass", "Project A", 0));
-        ___qtreewidgetitem1->setText(0, QApplication::translate("MainWindowClass", "#1", 0));
+        ___qtreewidgetitem1->setText(0, QApplication::translate("MainWindowClass", "1", 0));
         QTreeWidgetItem *___qtreewidgetitem2 = TaskList->topLevelItem(1);
-        ___qtreewidgetitem2->setText(3, QApplication::translate("MainWindowClass", "BIZ2 B1-17", 0));
-        ___qtreewidgetitem2->setText(2, QApplication::translate("MainWindowClass", "02/09/13", 0));
-        ___qtreewidgetitem2->setText(1, QApplication::translate("MainWindowClass", "Project AC", 0));
-        ___qtreewidgetitem2->setText(0, QApplication::translate("MainWindowClass", "#3", 0));
+        ___qtreewidgetitem2->setText(1, QApplication::translate("MainWindowClass", "CG2222 HW", 0));
+        ___qtreewidgetitem2->setText(0, QApplication::translate("MainWindowClass", "2", 0));
         QTreeWidgetItem *___qtreewidgetitem3 = TaskList->topLevelItem(2);
-        ___qtreewidgetitem3->setText(3, QApplication::translate("MainWindowClass", "COM1 0113", 0));
-        ___qtreewidgetitem3->setText(2, QApplication::translate("MainWindowClass", "02/09/13", 0));
-        ___qtreewidgetitem3->setText(1, QApplication::translate("MainWindowClass", "Project AB", 0));
-        ___qtreewidgetitem3->setText(0, QApplication::translate("MainWindowClass", "#2", 0));
+        ___qtreewidgetitem3->setText(3, QApplication::translate("MainWindowClass", "ENG E4", 0));
+        ___qtreewidgetitem3->setText(1, QApplication::translate("MainWindowClass", "CS2121", 0));
+        ___qtreewidgetitem3->setText(0, QApplication::translate("MainWindowClass", "3", 0));
+        QTreeWidgetItem *___qtreewidgetitem4 = TaskList->topLevelItem(3);
+        ___qtreewidgetitem4->setText(3, QApplication::translate("MainWindowClass", "FASS", 0));
+        ___qtreewidgetitem4->setText(2, QApplication::translate("MainWindowClass", "01/09/14", 0));
+        ___qtreewidgetitem4->setText(1, QApplication::translate("MainWindowClass", "Project DD2", 0));
+        ___qtreewidgetitem4->setText(0, QApplication::translate("MainWindowClass", "4", 0));
+        QTreeWidgetItem *___qtreewidgetitem5 = TaskList->topLevelItem(4);
+        ___qtreewidgetitem5->setText(1, QApplication::translate("MainWindowClass", "CCD", 0));
+        ___qtreewidgetitem5->setText(0, QApplication::translate("MainWindowClass", "5", 0));
+        QTreeWidgetItem *___qtreewidgetitem6 = TaskList->topLevelItem(5);
+        ___qtreewidgetitem6->setText(3, QApplication::translate("MainWindowClass", "BIZ2 B1-17", 0));
+        ___qtreewidgetitem6->setText(2, QApplication::translate("MainWindowClass", "02/09/13", 0));
+        ___qtreewidgetitem6->setText(1, QApplication::translate("MainWindowClass", "Project AC", 0));
+        ___qtreewidgetitem6->setText(0, QApplication::translate("MainWindowClass", "6", 0));
+        QTreeWidgetItem *___qtreewidgetitem7 = TaskList->topLevelItem(6);
+        ___qtreewidgetitem7->setText(3, QApplication::translate("MainWindowClass", "COM1 0113", 0));
+        ___qtreewidgetitem7->setText(2, QApplication::translate("MainWindowClass", "02/09/13", 0));
+        ___qtreewidgetitem7->setText(1, QApplication::translate("MainWindowClass", "Project AB", 0));
+        ___qtreewidgetitem7->setText(0, QApplication::translate("MainWindowClass", "7", 0));
         TaskList->setSortingEnabled(__sortingEnabled);
 
         StatusBar->setText(QApplication::translate("MainWindowClass", "Ready", 0));
