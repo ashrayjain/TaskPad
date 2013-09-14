@@ -1,29 +1,247 @@
-<UI version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <author>XIE KAI</author>
  <class>MainWindowClass</class>
- <widget class="QMainWindow" name="MainWindowClass" >
-  <property name="objectName" >
-   <string notr="true">MainWindowClass</string>
+ <widget class="QMainWindow" name="MainWindowClass">
+  <property name="windowModality">
+   <enum>Qt::NonModal</enum>
   </property>
-  <property name="geometry" >
+  <property name="geometry">
    <rect>
-	<x>0</x>
-	<y>0</y>
-	<width>600</width>
-	<height>400</height>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>572</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>MainWindow</string>
   </property>
-  <widget class="QMenuBar" name="menuBar" />
-  <widget class="QToolBar" name="mainToolBar" />
-  <widget class="QWidget" name="centralWidget" />
-  <widget class="QStatusBar" name="statusBar" />
+  <property name="styleSheet">
+   <string notr="true">QMainWindow#MainWindowClass {
+	Background-color: #fff;
+}</string>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <property name="styleSheet">
+    <string notr="true">QWidget#centralWidget {
+	background-color: transparent;
+	background-image: url(./Resources/TaskPad_bg.png);
+}</string>
+   </property>
+   <widget class="QLabel" name="Navigation">
+    <property name="geometry">
+     <rect>
+      <x>9</x>
+      <y>9</y>
+      <width>280</width>
+      <height>120</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Segoe UI Light</family>
+      <pointsize>18</pointsize>
+      <weight>50</weight>
+      <bold>false</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QLabel#Navigation {
+	margin-top: 88px;
+	margin-left: 72px;
+	color: #565656;
+}</string>
+    </property>
+    <property name="text">
+     <string>Results for 'CG2271'</string>
+    </property>
+   </widget>
+   <widget class="QTreeWidget" name="TaskList">
+    <property name="geometry">
+     <rect>
+      <x>9</x>
+      <y>135</y>
+      <width>782</width>
+      <height>154</height>
+     </rect>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>16777215</width>
+      <height>301</height>
+     </size>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QTreeWidget#TaskList {
+	margin-top: 10px;
+	margin-left:65px;
+	margin-right:65px;
+	background: transparent;
+	border: none;
+	font-size: 18px;
+	height: 100%;
+}
+
+QTreeWidget#TaskList:Item {
+	color: #fff;
+	background-color:#9ac3fa;
+	margin-bottom: 1px;
+	padding: 10px 10px 10px 10px;
+} r</string>
+    </property>
+    <attribute name="headerVisible">
+     <bool>false</bool>
+    </attribute>
+    <attribute name="headerDefaultSectionSize">
+     <number>105</number>
+    </attribute>
+    <column>
+     <property name="text">
+      <string>ID</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Task Name</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Due Date</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Location</string>
+     </property>
+    </column>
+    <item>
+     <property name="text">
+      <string>#1</string>
+     </property>
+     <property name="text">
+      <string>Project A</string>
+     </property>
+     <property name="text">
+      <string>08/09/12</string>
+     </property>
+     <property name="text">
+      <string>LT27, NUS</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>#3</string>
+     </property>
+     <property name="text">
+      <string>Project AC</string>
+     </property>
+     <property name="text">
+      <string>02/09/13</string>
+     </property>
+     <property name="text">
+      <string>BIZ2 B1-17</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>#2</string>
+     </property>
+     <property name="text">
+      <string>Project AB</string>
+     </property>
+     <property name="text">
+      <string>02/09/13</string>
+     </property>
+     <property name="text">
+      <string>COM1 0113</string>
+     </property>
+    </item>
+   </widget>
+   <widget class="QTextEdit" name="CommandBar">
+    <property name="geometry">
+     <rect>
+      <x>9</x>
+      <y>454</y>
+      <width>782</width>
+      <height>37</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Segoe UI Light</family>
+      <pointsize>14</pointsize>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QTextEdit#CommandBar {
+	background-color: #fff;
+	border: 1px solid #9ac3fa;
+	border-color: #9ac3fa;
+	padding-top: 2px;
+	padding-left: 5px;
+	padding-right: 5px;
+	margin-left: 65px;
+	margin-right: 65px;
+	max-height: 33px;
+}</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="StatusBar">
+    <property name="geometry">
+     <rect>
+      <x>9</x>
+      <y>497</y>
+      <width>72</width>
+      <height>66</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QLabel#StatusBar {
+	color: #fff;
+	font-size: 14px;
+	margin-left:25px;
+	margin-top: 22px;
+	margin-bottom:27px;
+}</string>
+    </property>
+    <property name="text">
+     <string>Ready</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="CloseButton">
+    <property name="geometry">
+     <rect>
+      <x>742</x>
+      <y>25</y>
+      <width>32</width>
+      <height>32</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton#CloseButton {
+	background-image: url(Resources/WinButton_Close.png);
+	border-style: flat;
+}</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+  </widget>
+  <action name="action_Exit">
+   <property name="text">
+    <string>&amp;Exit</string>
+   </property>
+  </action>
  </widget>
- <layoutDefault spacing="6" margin="11" />
- <pixmapfunction></pixmapfunction>
+ <tabstops>
+  <tabstop>CommandBar</tabstop>
+  <tabstop>TaskList</tabstop>
+ </tabstops>
  <resources>
-   <include location="mainwindow.qrc"/>
+  <include location="mainwindow.qrc"/>
  </resources>
  <connections/>
-</UI>
+</ui>
