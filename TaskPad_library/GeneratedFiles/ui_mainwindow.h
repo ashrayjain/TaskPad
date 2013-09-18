@@ -49,7 +49,7 @@ public:
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         centralWidget->setStyleSheet(QLatin1String("QWidget#centralWidget {\n"
 "	background-color: transparent;\n"
-"	background-image: url(./Resources/TaskPad_bg.png);\n"
+"	background-image: url(:/MainWindow/Resources/TaskPad_bg.png);\n"
 "}"));
         Navigation = new QLabel(centralWidget);
         Navigation->setObjectName(QStringLiteral("Navigation"));
@@ -154,7 +154,7 @@ public:
         CloseButton->setObjectName(QStringLiteral("CloseButton"));
         CloseButton->setGeometry(QRect(742, 25, 32, 32));
         CloseButton->setStyleSheet(QLatin1String("QPushButton#CloseButton {\n"
-"	background-image: url(Resources/WinButton_Close.png);\n"
+"	background-image: url(:/MainWindow/Resources/WinButton_Close.png);\n"
 "	border-style: flat;\n"
 "}"));
         MainWindowClass->setCentralWidget(centralWidget);
