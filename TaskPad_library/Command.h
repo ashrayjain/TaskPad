@@ -12,6 +12,42 @@
  * =====================================================================================
  */
 
+
+/*
+ *		How to use these classes
+ *
+ *		1. in class Interpreter
+ *		once you know it's certain command, like command Add, you need to 'new Command_Add()', then
+ *		set its properties/fields according to user input, e.g.:
+ *		
+ *		Command_Add* cmd_add = new Command_Add();
+ *		cmd_add->setName(taskName);//name in command Add is compulsory
+ *		if( user input contains dueDate )
+ *			cmd_add->setDueDate(dueDate);
+ *
+ *		at the end, you will return this cmd_add pointer.
+ *
+ * = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+ *
+ *		in class Executor:
+ *		first you need to check command's commandType, then dynamically cast it down to certain command, e.g.:
+ *
+ *		Command_Add* cmd_add;
+ *		//cmd's class is Command
+ *		if( cmd->getCommandType() == Command::ADD )
+ *			cmd_add = dynamic_cast<Command_Add*>(cmd);
+ *		
+ *		then you need to check its certain flag, and get certain field data, e.g.:
+ *
+ *		std::time_t dueDate;
+ *		if( cmd_add->getFlagDue() )
+ *			dueDate = cmd_add->getDueDate();
+ *
+ *		at the end, you must *DELETE* its pointer.
+ *		delete cmd;
+ *
+ */
+
 #include <string>
 #include <ctime>
 
