@@ -21,6 +21,7 @@ void Command::init()
 	std::time_t currentTime = std::time(NULL);
 
 	//flags init
+	FLAG_index = false;
 	FLAG_exact = false;
 	FLAG_name = false;
 	FLAG_due = false;
@@ -36,6 +37,7 @@ void Command::init()
 
 	//fields init
 	_type = UNDEFINED;
+	_index = -1;
 	_name = "";
 	_optName = "";
 	_dueDate = currentTime;

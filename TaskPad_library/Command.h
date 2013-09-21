@@ -76,6 +76,7 @@ protected:
 	void setCommandType(COMMAND_TYPE type){ _type = type; }
 	
 	//flags
+	bool FLAG_index;
 	bool FLAG_exact;
 	bool FLAG_name;
 	bool FLAG_due;
@@ -91,6 +92,7 @@ protected:
 
 	//fields
 	COMMAND_TYPE	_type;
+	int				_index;
 	std::string		_name;
 	std::string		_optName;
 	std::time_t		_dueDate;
@@ -169,6 +171,7 @@ public:
 	~Command_Mod(){};
 	
 	//getter for fields
+	int				getIndex()						{ return _index; }
 	std::string		getName()						{ return _name; }
 	std::string		getOptName()					{ return _optName; }
 	std::time_t		getDueDate()					{ return _dueDate; }
@@ -183,6 +186,7 @@ public:
 	bool			getTaskState()					{ return _taskState; }
 	
 	//setter for fields
+	void setIndex(int idx)							{ _index = idx;			FLAG_index = true; }
 	void setName(std::string name)					{ _name = name; }
 	void setOptName(std::string name)				{ _optName = name;		FLAG_name = true; }
 	void setDueDate(std::time_t dueDate)			{ _dueDate = dueDate;	FLAG_due = true; }
@@ -197,6 +201,7 @@ public:
 	void setTaskState(bool state)					{ _taskState = state;	FLAG_taskState = true; }
 	
 	//getter for flags
+	bool getFlagIndex()								{ return FLAG_index; }
 	bool getFlagExact()								{ return FLAG_exact; }
 	bool getFlagName()								{ return FLAG_name; }
 	bool getFlagDue()								{ return FLAG_due; }
@@ -228,12 +233,15 @@ public:
 	~Command_Del(){};
 	
 	//getter for fields
+	int				getIndex()						{ return _index; }
 	std::string		getName()						{ return _name; }
 	
 	//setter for fields
+	void setIndex(int idx)							{ _index = idx;			FLAG_index = true; }
 	void setName(std::string name)					{ _name = name; }
 	
 	//getter for flags
+	bool getFlagIndex()								{ return FLAG_index; }
 	bool getFlagExact()								{ return FLAG_exact; }
 	
 	//setter for flags
@@ -254,6 +262,7 @@ public:
 	~Command_Find(){};
 	
 	//getter for fields
+	int				getIndex()						{ return _index; }
 	std::string		getOptName()					{ return _optName; }
 	std::time_t		getDueDate()					{ return _dueDate; }
 	std::time_t		getFromDate()					{ return _fromDate; }
@@ -267,6 +276,7 @@ public:
 	bool			getTaskState()					{ return _taskState; }
 	
 	//setter for fields
+	void setIndex(int idx)							{ _index = idx;			FLAG_index = true; }
 	void setOptName(std::string name)				{ _optName = name;		FLAG_name = true; }
 	void setDueDate(std::time_t dueDate)			{ _dueDate = dueDate;	FLAG_due = true; }
 	void setFromDate(std::time_t fromDate)			{ _fromDate = fromDate;	FLAG_from = true; }
@@ -280,6 +290,7 @@ public:
 	void setTaskState(bool state)					{ _taskState = state;	FLAG_taskState = true; }
 	
 	//getter for flags
+	bool getFlagIndex()								{ return FLAG_index; }
 	bool getFlagExact()								{ return FLAG_exact; }
 	bool getFlagName()								{ return FLAG_name; }
 	bool getFlagDue()								{ return FLAG_due; }
