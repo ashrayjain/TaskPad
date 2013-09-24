@@ -21,8 +21,8 @@ Messenger::Messenger(string errorMsg, STATUS status, list<Task> result)
 }
 
 //getter methods
-		
-string Messenger::getErrorMsg()
+
+string Messenger::getErrorMsg() 
 {
 	return this->_errorMsg;
 }
