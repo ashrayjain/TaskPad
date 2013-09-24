@@ -3,7 +3,16 @@
 
 using namespace std;
 
-// constructors
+// constructor
+Messenger::Messenger()
+{
+	list<Task> tempList;
+	this->_resultList = tempList;
+	this->_errorMsg = "";
+	this->_index = -1;
+	this->_status = SUCCESS;
+}
+
 Messenger::Messenger(string errorMsg, STATUS status, list<Task> result)
 {
 	this->_errorMsg = errorMsg;
@@ -17,22 +26,23 @@ string Messenger::getErrorMsg()
 {
 	return this->_errorMsg;
 }
+
 STATUS Messenger::getStatus()
 {
 	return this->_status;
 }
-list<Task> Messenger::getIntermediateList()
+
+list<Task> Messenger::getList()
 {
 	return this->_resultList;
 }
-list<Task> Messenger::getResultList()
+
+int Messenger::getIndex()
 {
-	return this->getIntermediateList();
+	return this->_index;
 }
-list<Task> Messenger::getList()
-{
-	return this->getIntermediateList();
-}
+
+//setter methods
 
 bool Messenger::setErrorMsg(string errorMsg)
 {
@@ -50,9 +60,29 @@ bool Messenger::setErrorMsg(string errorMsg)
 bool Messenger::setStatus(STATUS status)
 {
 	this->_status = status;
+	return true;
 }
+
 bool Messenger::setList(list<Task> result)
 {
 	this->_resultList = result;
 	return true;
+}
+
+bool Messenger::setInt(int index)
+{
+	if (isValidIndex(index))
+	{
+		this->_index = index;
+		return true;
+	}
+	return false;
+}
+
+bool Messenger::isValidIndex (int index)
+{
+	if(index > 0)
+		return true;
+
+	return false;
 }
