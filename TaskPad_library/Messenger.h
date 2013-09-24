@@ -8,7 +8,7 @@
 using namespace std;
 
 enum STATUS{
-	ERROR, SUCCESS, INTERMEDIATE, SUCCESS_CWI
+	ERROR, SUCCESS, INTERMEDIATE, SUCCESS_CWI, DISPLAY
 };
 
 class Messenger
