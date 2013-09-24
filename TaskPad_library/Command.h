@@ -66,7 +66,9 @@ class Command
 public:
 	enum COMMAND_TYPE	{ ADD, MOD, DEL, FIND, UNDO, REDO, SYNC, UNDEFINED};
 	enum PRIORITY		{ HIGH, MEDIUM, LOW };
-	static std::string defaultSyncProvider;
+	enum TASK_STATE		{ UNDONE = false, DONE = true };
+	enum TASK_TYPE		{ TIMED, DEADLINE, FLOATING };
+	enum FLAG			{ UNCHANGED = false, EDITED = true };
 
 	virtual			~Command() = 0  {};
 	COMMAND_TYPE	getCommandType(){ return _type; }
@@ -74,11 +76,22 @@ public:
 protected:
 	void init();
 	void setCommandType(COMMAND_TYPE type){ _type = type; }
+
+	//default values
+	static const bool			DEFAULT_FLAG;
+	static const COMMAND_TYPE	DEFAULT_COMMAND_TYPE;
+	static const PRIORITY		DEFAULT_PRIORITY;
+	static const bool			DEFAULT_TASK_STATE;
+	static const TASK_TYPE		DEFAULT_TASK_TYPE;
+	static const std::string	DEFAULT_STRING;
+	static const std::time_t	DEFAULT_TIME;
+	static const int			DEFAULT_INDEX;
 	
 	//flags
 	bool FLAG_index;
 	bool FLAG_exact;
 	bool FLAG_name;
+	bool FLAG_optName;
 	bool FLAG_due;
 	bool FLAG_from;
 	bool FLAG_to;
@@ -89,9 +102,12 @@ protected:
 	bool FLAG_tags;
 	bool FLAG_remindTime;
 	bool FLAG_taskState;
+	bool FLAG_createdTime;
+	bool FLAG_taskType;
+	bool FLAG_syncProviderName;
 
 	//fields
-	COMMAND_TYPE	_type;
+	COMMAND_TYPE	_type;//add | mod | del | find | undo | redo | sync | undefined
 	int				_index;
 	std::string		_name;
 	std::string		_optName;
@@ -101,11 +117,13 @@ protected:
 	std::string		_location;
 	std::string		_participants;
 	std::string		_note;
-	PRIORITY		_priority;
+	PRIORITY		_priority;//high | medium | low
 	std::string		_tags;
 	std::time_t		_remindTime;
 	std::string		_syncProviderName;
-	bool			_taskState;
+	bool			_taskState;//done | undone
+	std::time_t		_createdTime;
+	TASK_TYPE		_taskType;//timed | deadline | floating
 };
 
 /*
@@ -134,18 +152,19 @@ public:
 	std::time_t		getRemindTime()					{ return _remindTime; }
 	
 	//setter for fields
-	void setName(std::string name)					{ _name = name; }
-	void setDueDate(std::time_t dueDate)			{ _dueDate = dueDate;	FLAG_due = true; }
-	void setFromDate(std::time_t fromDate)			{ _fromDate = fromDate;	FLAG_from = true; }
-	void setToDate(std::time_t toDate)				{ _toDate = toDate;		FLAG_to = true; }
-	void setLocation(std::string location)			{ _location = location;	FLAG_location = true; }
-	void setParticipants(std::string ppl)			{ _participants = ppl;	FLAG_location = true; }
-	void setNote(std::string note)					{ _note = note;			FLAG_note = true; }
-	void setPriority(PRIORITY priority)				{ _priority = priority;	FLAG_priority = true; }
-	void setTags(std::string tags)					{ _tags = tags;			FLAG_tags = true; }
-	void setRemindTime(std::time_t time)			{ _remindTime = time;	FLAG_remindTime = true; }
+	void setName(std::string name)					{ _name = name;			FLAG_name = EDITED; }
+	void setDueDate(std::time_t dueDate)			{ _dueDate = dueDate;	FLAG_due = EDITED; }
+	void setFromDate(std::time_t fromDate)			{ _fromDate = fromDate;	FLAG_from = EDITED; }
+	void setToDate(std::time_t toDate)				{ _toDate = toDate;		FLAG_to = EDITED; }
+	void setLocation(std::string location)			{ _location = location;	FLAG_location = EDITED; }
+	void setParticipants(std::string ppl)			{ _participants = ppl;	FLAG_location = EDITED; }
+	void setNote(std::string note)					{ _note = note;			FLAG_note = EDITED; }
+	void setPriority(PRIORITY priority)				{ _priority = priority;	FLAG_priority = EDITED; }
+	void setTags(std::string tags)					{ _tags = tags;			FLAG_tags = EDITED; }
+	void setRemindTime(std::time_t time)			{ _remindTime = time;	FLAG_remindTime = EDITED; }
 	
 	//getter for flags
+	bool getFlagName()								{ return FLAG_name; }
 	bool getFlagDue()								{ return FLAG_due; }
 	bool getFlagFrom()								{ return FLAG_from; }
 	bool getFLagTo()								{ return FLAG_to; }
@@ -184,21 +203,23 @@ public:
 	std::string		getTags()						{ return _tags; }
 	std::time_t		getRemindTime()					{ return _remindTime; }
 	bool			getTaskState()					{ return _taskState; }
+	std::time_t		getCreatedTime()				{ return _createdTime; }
 	
 	//setter for fields
-	void setIndex(int idx)							{ _index = idx;			FLAG_index = true; }
-	void setName(std::string name)					{ _name = name; }
-	void setOptName(std::string name)				{ _optName = name;		FLAG_name = true; }
-	void setDueDate(std::time_t dueDate)			{ _dueDate = dueDate;	FLAG_due = true; }
-	void setFromDate(std::time_t fromDate)			{ _fromDate = fromDate;	FLAG_from = true; }
-	void setToDate(std::time_t toDate)				{ _toDate = toDate;		FLAG_to = true; }
-	void setLocation(std::string location)			{ _location = location;	FLAG_location = true; }
-	void setParticipants(std::string ppl)			{ _participants = ppl;	FLAG_location = true; }
-	void setNote(std::string note)					{ _note = note;			FLAG_note = true; }
-	void setPriority(PRIORITY priority)				{ _priority = priority;	FLAG_priority = true; }
-	void setTags(std::string tags)					{ _tags = tags;			FLAG_tags = true; }
-	void setRemindTime(std::time_t time)			{ _remindTime = time;	FLAG_remindTime = true; }
-	void setTaskState(bool state)					{ _taskState = state;	FLAG_taskState = true; }
+	void setIndex(int idx)							{ _index = idx;			FLAG_index = EDITED; }
+	void setName(std::string name)					{ _name = name;			FLAG_name = EDITED; }
+	void setOptName(std::string name)				{ _optName = name;		FLAG_optName = EDITED; }
+	void setDueDate(std::time_t dueDate)			{ _dueDate = dueDate;	FLAG_due = EDITED; }
+	void setFromDate(std::time_t fromDate)			{ _fromDate = fromDate;	FLAG_from = EDITED; }
+	void setToDate(std::time_t toDate)				{ _toDate = toDate;		FLAG_to = EDITED; }
+	void setLocation(std::string location)			{ _location = location;	FLAG_location = EDITED; }
+	void setParticipants(std::string ppl)			{ _participants = ppl;	FLAG_location = EDITED; }
+	void setNote(std::string note)					{ _note = note;			FLAG_note = EDITED; }
+	void setPriority(PRIORITY priority)				{ _priority = priority;	FLAG_priority = EDITED; }
+	void setTags(std::string tags)					{ _tags = tags;			FLAG_tags = EDITED; }
+	void setRemindTime(std::time_t time)			{ _remindTime = time;	FLAG_remindTime = EDITED; }
+	void setTaskState(bool state)					{ _taskState = state;	FLAG_taskState = EDITED; }
+	void setCreatedTime(std::time_t time)			{ _createdTime = time;	FLAG_createdTime = EDITED; }
 	
 	//getter for flags
 	bool getFlagIndex()								{ return FLAG_index; }
@@ -214,9 +235,10 @@ public:
 	bool getFlagTags()								{ return FLAG_tags; }
 	bool getFlagRemindTime()						{ return FLAG_remindTime; }
 	bool getFlagTaskState()							{ return FLAG_taskState; }
+	bool getFlagCreatedTime()						{ return FLAG_createdTime; }
 	
 	//setter for flags
-	void setFlagExact()								{ FLAG_exact = true; }
+	void setFlagExact()								{ FLAG_exact = EDITED; }
 };
 
 /*
@@ -235,17 +257,20 @@ public:
 	//getter for fields
 	int				getIndex()						{ return _index; }
 	std::string		getName()						{ return _name; }
+	std::time_t		getCreatedTime()				{ return _createdTime; }
 	
 	//setter for fields
-	void setIndex(int idx)							{ _index = idx;			FLAG_index = true; }
-	void setName(std::string name)					{ _name = name; }
+	void setIndex(int idx)							{ _index = idx;			FLAG_index = EDITED; }
+	void setName(std::string name)					{ _name = name;			FLAG_name = EDITED; }
+	void setCreatedTime(std::time_t time)			{ _createdTime = time;	FLAG_createdTime = EDITED; }
 	
 	//getter for flags
 	bool getFlagIndex()								{ return FLAG_index; }
 	bool getFlagExact()								{ return FLAG_exact; }
+	bool getFlagCreatedTime()						{ return FLAG_createdTime; }
 	
 	//setter for flags
-	void setFlagExact()								{ FLAG_exact = true; }
+	void setFlagExact()								{ FLAG_exact = EDITED; }
 };
 
 /*
@@ -274,20 +299,22 @@ public:
 	std::string		getTags()						{ return _tags; }
 	std::time_t		getRemindTime()					{ return _remindTime; }
 	bool			getTaskState()					{ return _taskState; }
+	TASK_TYPE		getTaskType()					{ return _taskType; }
 	
 	//setter for fields
-	void setIndex(int idx)							{ _index = idx;			FLAG_index = true; }
-	void setOptName(std::string name)				{ _optName = name;		FLAG_name = true; }
-	void setDueDate(std::time_t dueDate)			{ _dueDate = dueDate;	FLAG_due = true; }
-	void setFromDate(std::time_t fromDate)			{ _fromDate = fromDate;	FLAG_from = true; }
-	void setToDate(std::time_t toDate)				{ _toDate = toDate;		FLAG_to = true; }
-	void setLocation(std::string location)			{ _location = location;	FLAG_location = true; }
-	void setParticipants(std::string ppl)			{ _participants = ppl;	FLAG_location = true; }
-	void setNote(std::string note)					{ _note = note;			FLAG_note = true; }
-	void setPriority(PRIORITY priority)				{ _priority = priority;	FLAG_priority = true; }
-	void setTags(std::string tags)					{ _tags = tags;			FLAG_tags = true; }
-	void setRemindTime(std::time_t time)			{ _remindTime = time;	FLAG_remindTime = true; }
-	void setTaskState(bool state)					{ _taskState = state;	FLAG_taskState = true; }
+	void setIndex(int idx)							{ _index = idx;			FLAG_index = EDITED; }
+	void setOptName(std::string name)				{ _optName = name;		FLAG_optName = EDITED; }
+	void setDueDate(std::time_t dueDate)			{ _dueDate = dueDate;	FLAG_due = EDITED; }
+	void setFromDate(std::time_t fromDate)			{ _fromDate = fromDate;	FLAG_from = EDITED; }
+	void setToDate(std::time_t toDate)				{ _toDate = toDate;		FLAG_to = EDITED; }
+	void setLocation(std::string location)			{ _location = location;	FLAG_location = EDITED; }
+	void setParticipants(std::string ppl)			{ _participants = ppl;	FLAG_location = EDITED; }
+	void setNote(std::string note)					{ _note = note;			FLAG_note = EDITED; }
+	void setPriority(PRIORITY priority)				{ _priority = priority;	FLAG_priority = EDITED; }
+	void setTags(std::string tags)					{ _tags = tags;			FLAG_tags = EDITED; }
+	void setRemindTime(std::time_t time)			{ _remindTime = time;	FLAG_remindTime = EDITED; }
+	void setTaskState(bool state)					{ _taskState = state;	FLAG_taskState = EDITED; }
+	void setTaskType(TASK_TYPE type)				{ _taskType = type;		FLAG_taskType = EDITED; }
 	
 	//getter for flags
 	bool getFlagIndex()								{ return FLAG_index; }
@@ -303,9 +330,10 @@ public:
 	bool getFlagTags()								{ return FLAG_tags; }
 	bool getFlagRemindTime()						{ return FLAG_remindTime; }
 	bool getFlagTaskState()							{ return FLAG_taskState; }
+	bool getFlagTaskType()							{ return FLAG_taskType; }
 	
 	//setter for flags
-	void setFlagExact()								{ FLAG_exact = true; }
+	void setFlagExact()								{ FLAG_exact = EDITED; }
 };
 
 /*
@@ -353,7 +381,10 @@ public:
 	std::string		getSyncProviderName()			{ return _syncProviderName; }
 	
 	//setter for fields
-	void setSyncProviderName(std::string syncName)	{ _syncProviderName = syncName; }
+	void setSyncProviderName(std::string syncName)	{ _syncProviderName = syncName; FLAG_syncProviderName = EDITED; }
+
+	//getter for flags
+	bool getFlagSyncProviderName()					{ return FLAG_syncProviderName; }
 };
 
 #endif
