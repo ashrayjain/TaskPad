@@ -8,7 +8,7 @@
 using namespace std;
 
 enum STATUS{
-	SUCCESS, INTERMEDIATE, ERROR
+	ERROR, SUCCESS, INTERMEDIATE, SUCCESS_CWI, DISPLAY
 };
 
 class Messenger
@@ -17,17 +17,27 @@ class Messenger
 		string _errorMsg;
 		STATUS _status;
 		list<Task> _resultList;
+		int _index;
+
+		bool isValidIndex (int index);
 	public:
 		// constructor
+		Messenger();
 		Messenger(string errorMsg, STATUS status, list<Task> result);
 
 		//getter methods
 		
 		string getErrorMsg();
 		STATUS getStatus();
-		list<Task> getIntermediateList();
-		list<Task> getResultList();
 		list<Task> getList();
+		int getIndex();
+
+		//setter functions
+
+		bool setErrorMsg(string errorMsg);
+		bool setStatus(STATUS status);
+		bool setList(list<Task> result);
+		bool setInt(int index);
 };
 
 #endif
