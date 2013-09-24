@@ -33,3 +33,26 @@ list<Task> Messenger::getList()
 {
 	return this->getIntermediateList();
 }
+
+bool Messenger::setErrorMsg(string errorMsg)
+{
+	if(errorMsg != "")
+	{
+		this->_errorMsg = errorMsg;
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool Messenger::setStatus(STATUS status)
+{
+	this->_status = status;
+}
+bool Messenger::setList(list<Task> result)
+{
+	this->_resultList = result;
+	return true;
+}

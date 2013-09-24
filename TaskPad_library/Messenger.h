@@ -28,6 +28,12 @@ class Messenger
 		list<Task> getIntermediateList();
 		list<Task> getResultList();
 		list<Task> getList();
+
+		//setter functions
+
+		bool setErrorMsg(string errorMsg);
+		bool setStatus(STATUS status);
+		bool setList(list<Task> result);
 };
 
 #endif
