@@ -16,18 +16,29 @@
 
 
 void Task::defaultTaskInit() {
-	time(&_taskCreatedTime);
-	
-	_taskName = "";
-	_taskDueDate = _taskCreatedTime;
-	_taskFromDate = _taskCreatedTime;
-	_taskToDate = _taskCreatedTime;
-	_taskLocation = "";
-	_taskParticipants = "";
-	_taskNote = "";
-	_taskPriority = MEDIUM;
-	_taskTags = "";
-	_taskRemindTime = _taskCreatedTime;
-	_taskState = UNDONE;
-	_taskIndex = 0;
+
+	flagName		= false;
+	flagDueDate		= false;
+	flagFromDate	= false;
+	flagToDate		= false;
+	flagLocation	= false;
+	flagParticipant = false;
+	flagNote		= false;
+	flagPriority	= false;
+	flagTags		= false;
+	flagRemindTime	= false;
+	flagState		= false;
+
+	_taskName			= "";
+	_taskDueDate		= 0;
+	_taskFromDate		= 0;
+	_taskToDate			= 0;
+	_taskLocation		= "";
+	_taskParticipants	= "";
+	_taskNote			= "";
+	_taskPriority		= MEDIUM;
+	_taskTags			= "";
+	_taskRemindTime		= 0;
+	_taskState			= UNDONE;
+	_taskIndex			= int(time(NULL));
 }
