@@ -60,18 +60,18 @@ public:
 	unsigned	taskIndex()			{ return _taskIndex;		}
 
 	// Setter Functions
-	std::string	taskName(std::string newName)					{ _taskName			= newName;			}	
-	std::time_t	taskDueDate(std::time_t newDueDate)				{ _taskDueDate		= newDueDate;		}
-	std::time_t	taskFromDate(std::time_t newFromDate)			{ _taskFromDate		= newFromDate;		}
-	std::time_t	taskToDate(std::time_t newToDate)				{ _taskToDate		= newToDate;		}
-	std::string	taskLocation(std::string newLocation)			{ _taskLocation		= newLocation;		}
-	std::string	taskParticipants(std::string newParticipants)	{ _taskParticipants = newParticipants;	}
-	std::string	taskNote(std::string newNote)					{ _taskNote			= newNote;			}
-	PRIORITY	taskPriority(PRIORITY newPriority)				{ _taskPriority		= newPriority;		}
-	std::string	taskTags(std::string newTags)					{ _taskTags			= newTags;			}
-	std::time_t	taskRemindTime(std::time_t newRemindTime)		{ _taskRemindTime	= newRemindTime;	}
+	void taskName(std::string newName)					{ _taskName			= newName;			}	
+	void taskDueDate(std::time_t newDueDate)			{ _taskDueDate		= newDueDate;		}
+	void taskFromDate(std::time_t newFromDate)			{ _taskFromDate		= newFromDate;		}
+	void taskToDate(std::time_t newToDate)				{ _taskToDate		= newToDate;		}
+	void taskLocation(std::string newLocation)			{ _taskLocation		= newLocation;		}
+	void taskParticipants(std::string newParticipants)	{ _taskParticipants = newParticipants;	}
+	void taskNote(std::string newNote)					{ _taskNote			= newNote;			}
+	void taskPriority(PRIORITY newPriority)				{ _taskPriority		= newPriority;		}
+	void taskTags(std::string newTags)					{ _taskTags			= newTags;			}
+	void taskRemindTime(std::time_t newRemindTime)		{ _taskRemindTime	= newRemindTime;	}
 	// - Possibly shift to Hash Table
-	TASK_STATE	taskState(TASK_STATE newState)					{ _taskState		= newState;			}
+	void taskState(TASK_STATE newState)					{ _taskState		= newState;			}
 
 protected:
 	// Default Task Initialization
