@@ -1,6 +1,13 @@
 <RCC>
     <qresource prefix="/MainWindow">
-        <file>Resources/TaskPad_bg.png</file>
-        <file>Resources/WinButton_Close.png</file>
+        <file>Resources/top_buttons_hovered.png</file>
+        <file>Resources/top_buttons.png</file>
+        <file>Resources/window_buttons_hovered.png</file>
+        <file>Resources/window_buttons.png</file>
+        <file>Resources/details_default_bg.png</file>
+        <file>Resources/details_high_bg.png</file>
+        <file>Resources/details_low_bg.png</file>
+        <file>Resources/details_normal_bg.png</file>
+        <file>Resources/mainwindow_bg.png</file>
     </qresource>
 </RCC>

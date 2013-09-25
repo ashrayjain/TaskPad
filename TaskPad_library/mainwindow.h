@@ -19,6 +19,9 @@ private:
 	QPoint windowPosition;
 	QPoint mousePressPosition;
 	QPoint mouseMovePosition;
+
+protected slots:
+	void about();
 };
 
 #endif // MAINWINDOW_H
