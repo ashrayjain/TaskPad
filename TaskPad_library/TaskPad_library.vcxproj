@@ -25,6 +25,7 @@
   <ItemGroup>
     <ClInclude Include="Command.h" />
     <ClInclude Include="GeneratedFiles\ui_mainwindow.h" />
+    <ClInclude Include="Manager.h" />
     <ClInclude Include="Messenger.h" />
     <ClInclude Include="Task.h" />
     <CustomBuild Include="mainwindow.h">
@@ -54,6 +55,7 @@
     </ClCompile>
     <ClCompile Include="mainwindow.cpp" />
     <ClCompile Include="Messenger.cpp" />
+    <ClCompile Include="Source.cpp" />
     <ClCompile Include="Task.cpp" />
   </ItemGroup>
   <ItemGroup>
