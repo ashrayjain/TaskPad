@@ -1,6 +1,7 @@
 #include <QMouseEvent>
 #include <qlist.h>
 #include "mainwindow.h"
+#include "lastColumnDelegate.h"
 
 MainWindow::MainWindow(QWidget *parent)
 	: QMainWindow(parent)
@@ -8,6 +9,8 @@ MainWindow::MainWindow(QWidget *parent)
 	ui.setupUi(this);
 	customisedUi();
 	QObject::connect(ui.CloseButton, SIGNAL(clicked()), this, SLOT(close()));
+	QObject::connect(ui.MinimizeButton, SIGNAL(clicked()), this, SLOT(showMinimized()));
+	QObject::connect(ui.AboutButton, SIGNAL(clicked()), this, SLOT(about()));
 }
 
 MainWindow::~MainWindow()
@@ -15,18 +18,24 @@ MainWindow::~MainWindow()
 
 }
 
+void MainWindow::about()
+{
+	QMessageBox Msgbox;
+	Msgbox.setWindowTitle("");
+    Msgbox.setText("TaskPad is a product created by Team F12-1C.\n"
+		"Members: ASHRAY, KAI, JIANGZE, THYAGESH, ZIXUAN.");
+    Msgbox.exec();
+}
+
 void MainWindow::customisedUi(){
 	this->setWindowFlags(Qt::FramelessWindowHint);
 	this->setAttribute(Qt::WA_TranslucentBackground, true);
+
 	//magic number
-	ui.TaskList->setGeometry(9, 135, 782, ui.TaskList->topLevelItemCount() * 48 + 10);
-	ui.TaskList->setRootIsDecorated(false);
-	ui.TaskList->setFrameStyle(QFrame::NoFrame);
-	ui.TaskList->header()->setStretchLastSection(false);
-	ui.TaskList->header()->setSectionResizeMode(1, QHeaderView::Stretch);
-	ui.TaskList->header()->resizeSection(0, 80);
-	ui.TaskList->header()->resizeSection(2, 150);
-	ui.TaskList->header()->resizeSection(3, 150);
+	ui.TaskList->setGeometry(9, 135, 600, ui.TaskList->topLevelItemCount() * 48 + 10);
+	ui.TaskList->header()->resizeSection(0, 70);
+	ui.TaskList->header()->resizeSection(1, 230);
+	ui.TaskList->setItemDelegate(new LastColumnDelegate(2));
 }
 
 void MainWindow::mousePressEvent(QMouseEvent *event){
