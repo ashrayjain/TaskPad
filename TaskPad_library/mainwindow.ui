@@ -60,7 +60,7 @@
      <rect>
       <x>9</x>
       <y>135</y>
-      <width>600</width>
+      <width>595</width>
       <height>248</height>
      </rect>
     </property>
@@ -208,7 +208,7 @@ QTreeWidget#TaskList QScrollBar::sub-line:vertical {
      <rect>
       <x>9</x>
       <y>485</y>
-      <width>600</width>
+      <width>595</width>
       <height>35</height>
      </rect>
     </property>
@@ -317,6 +317,12 @@ QLineEdit#location, QLineEdit#participants, QLineEdit#tags, QLineEdit#remindTime
      </property>
      <property name="styleSheet">
       <string notr="true"/>
+     </property>
+     <property name="verticalScrollBarPolicy">
+      <enum>Qt::ScrollBarAlwaysOff</enum>
+     </property>
+     <property name="horizontalScrollBarPolicy">
+      <enum>Qt::ScrollBarAlwaysOff</enum>
      </property>
      <property name="readOnly">
       <bool>true</bool>

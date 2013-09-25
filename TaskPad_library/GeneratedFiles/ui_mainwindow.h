@@ -84,7 +84,7 @@ public:
         new QTreeWidgetItem(TaskList);
         new QTreeWidgetItem(TaskList);
         TaskList->setObjectName(QStringLiteral("TaskList"));
-        TaskList->setGeometry(QRect(9, 135, 600, 248));
+        TaskList->setGeometry(QRect(9, 135, 595, 248));
         TaskList->setMaximumSize(QSize(16777215, 330));
         TaskList->setStyleSheet(QLatin1String("QTreeWidget#TaskList {\n"
 "	margin-top: 10px;\n"
@@ -134,7 +134,7 @@ public:
         TaskList->header()->setDefaultSectionSize(105);
         CommandBar = new QTextEdit(centralWidget);
         CommandBar->setObjectName(QStringLiteral("CommandBar"));
-        CommandBar->setGeometry(QRect(9, 485, 600, 35));
+        CommandBar->setGeometry(QRect(9, 485, 595, 35));
         CommandBar->setFont(font);
         CommandBar->setStyleSheet(QLatin1String("QTextEdit#CommandBar {\n"
 "	font-family: \"Segoe UI Light\";\n"
@@ -199,6 +199,8 @@ public:
         note->setObjectName(QStringLiteral("note"));
         note->setGeometry(QRect(10, 250, 361, 101));
         note->setStyleSheet(QStringLiteral(""));
+        note->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        note->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         note->setReadOnly(true);
         name = new QLineEdit(DetailsView);
         name->setObjectName(QStringLiteral("name"));
