@@ -25,9 +25,11 @@ class Manager
 		//constructor
 		Manager();
 
-		Messenger processCommand(string newCommand);
+		Messenger processCommand(string);
 		Messenger getToday();
 		void resetStatus();
+
+		~Manager();
 };
 
 #endif

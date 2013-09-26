@@ -26,6 +26,7 @@
     <ClInclude Include="Command.h" />
     <ClInclude Include="Executor.h" />
     <ClInclude Include="GeneratedFiles\ui_mainwindow.h" />
+    <ClInclude Include="Manager.h" />
     <ClInclude Include="Messenger.h" />
     <ClInclude Include="Task.h" />
     <CustomBuild Include="mainwindow.h">
@@ -56,6 +57,7 @@
     </ClCompile>
     <ClCompile Include="mainwindow.cpp" />
     <ClCompile Include="Messenger.cpp" />
+    <ClCompile Include="Source.cpp" />
     <ClCompile Include="Task.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -140,7 +142,7 @@
   </ImportGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties UicDir=".\GeneratedFiles" MocDir=".\GeneratedFiles\$(ConfigurationName)" MocOptions="" RccDir=".\GeneratedFiles" lupdateOnBuild="0" lupdateOptions="" lreleaseOptions="" Qt5Version_x0020_Win32="$(DefaultQtVersion)" />
+      <UserProperties UicDir=".\GeneratedFiles" MocDir=".\GeneratedFiles\$(ConfigurationName)" MocOptions="" RccDir=".\GeneratedFiles" lupdateOnBuild="0" lupdateOptions="" lreleaseOptions="" Qt5Version_x0020_Win32="msvc2012" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>
