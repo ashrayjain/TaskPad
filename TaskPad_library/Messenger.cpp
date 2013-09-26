@@ -4,20 +4,13 @@
 using namespace std;
 
 // constructor
-Messenger::Messenger()
-{
-	list<Task> tempList;
-	this->_resultList = tempList;
-	this->_errorMsg = "";
-	this->_index = -1;
-	this->_status = SUCCESS;
-}
 
-Messenger::Messenger(string errorMsg, STATUS status, list<Task> result)
+Messenger::Messenger(STATUS status=SUCCESS, list<Task> result= list<Task>(), int index =-1, string errorMsg="")
 {
-	this->_errorMsg = errorMsg;
 	this->_status = status;
 	this->_resultList = result;
+	this->_errorMsg = errorMsg;
+	this->_index = index;
 }
 
 //getter methods

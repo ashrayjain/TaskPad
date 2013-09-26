@@ -21,6 +21,17 @@ class Manager
 		Command* _cmd;
 		Messenger _response;
 
+		//the list of tasks
+		list<Task> _tasks;
+
+		//helper functions
+		bool hasInterpretationError();
+		bool isIndexGiven(string newCommand);
+		bool isCommandWithIndexGiven(string newCommand);
+
+		Messenger handleNormalScenarioCommands(string newCommand);
+		Messenger handleIntermediateScenarioCommands(string newCommand);
+
 	public:
 		//constructor
 		Manager();

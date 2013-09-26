@@ -15,7 +15,7 @@ class Storage
 		ofstream _fileWriter;
 		ifstream _fileReader;
 	public:
-		Storage();
+		Storage(list<Task>&);
 
 		bool save(const list<Task>&);
 		bool save(const Command&);
