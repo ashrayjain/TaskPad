@@ -23,6 +23,7 @@ Messenger Manager::processCommand(string newCommand)
 			handleNormalScenarioCommands(newCommand);
 			break;
 		case INTERMEDIATE:
+		case ERROR_INTERMEDIATE:
 			handleIntermediateScenarioCommands(newCommand);
 			break;
 	}
