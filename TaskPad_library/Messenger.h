@@ -8,7 +8,7 @@
 using namespace std;
 
 enum STATUS{
-	ERROR, SUCCESS, INTERMEDIATE, SUCCESS_CWI, DISPLAY
+	ERROR, SUCCESS, INTERMEDIATE, SUCCESS_INDEXED_COMMAND, DISPLAY
 };
 
 class Messenger
@@ -22,8 +22,7 @@ class Messenger
 		bool isValidIndex (int index);
 	public:
 		// constructor
-		Messenger();
-		Messenger(string errorMsg, STATUS status, list<Task> result);
+		Messenger(STATUS status=SUCCESS, list<Task> result= list<Task>(), int index =-1, string errorMsg="");
 
 		//getter methods
 		
