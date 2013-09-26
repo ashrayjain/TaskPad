@@ -26,6 +26,7 @@ class Manager
 
 		//helper functions
 		bool hasInterpretationError();
+		bool hasNoInterpretationError();
 		bool isIndexGiven(string newCommand);
 		bool isCommandWithIndexGiven(string newCommand);
 		bool hasIndexModifyCommand();
