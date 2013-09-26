@@ -1,6 +1,7 @@
 #include "Manager.h"
 #include "Storage.h"
-#include "Messenger.h";
+#include "Messenger.h"
+#include "Executor.h"
 #include<ctime>
 
 Manager::Manager()
@@ -28,9 +29,8 @@ Messenger Manager::processCommand(string newCommand)
 	return this->_response;
 }
 
-Messenger Manager::handleNormalScenarioCommands(string newCommand)
+void Manager::handleNormalScenarioCommands(string newCommand)
 {
-	
 	if(isIndexGiven(newCommand))
 	{
 		this->_response.setStatus(DISPLAY);
@@ -39,21 +39,26 @@ Messenger Manager::handleNormalScenarioCommands(string newCommand)
 	{
 		this->_response.setStatus(SUCCESS_INDEXED_COMMAND);
 	}
-	else 
+	else // a generic command
 	{
-
+		this->handleGenericCommand(newCommand);
 	}
 
-	this->_cmd = this->_interpreter.interpretCommand(newCommand,this->_response);
+	this->_cmd = this->_interpreter->interpretCommand(newCommand,this->_response);
 
 	if(this->hasInterpretationError())
 	{
-		return this->_response;
+		return;
 	}
 	//else
-	this->_executor(this->_cmd, this->_response);
+	this->_executor->executeCommand(this->_cmd, this->_response);
 	
-	return this->_response;
+	return;
+}
+
+bool Manager::isIndexGiven(string newCommand)
+{
+
 }
 
 bool Manager::hasInterpretationError()
