@@ -4,6 +4,10 @@
 #include "Executor.h"
 #include "Command.h"
 #include<ctime>
+/*********
+Assumptions made:
+- Both interpreter and Executor do not change the status of the response object unless it is an error/intermediate
+**********/
 
 Manager::Manager()
 {
@@ -35,29 +39,30 @@ void Manager::handleNormalScenarioCommands(string newCommand)
 {
 	if(isIndexGiven(newCommand))
 	{
-		this->_response.setStatus(DISPLAY);
+		if(this->hasNoInterpretationError())
+		{
+			this->_response.setStatus(DISPLAY);
+			this->_executor->executeCommand(this->_cmd,this->_response);
+		}
 	}
 	else if (isCommandWithIndexGiven(newCommand))
 	{
-		this->_response.setStatus(SUCCESS_INDEXED_COMMAND);
+		if(this->hasNoInterpretationError())
+		{
+			this->_response.setStatus(SUCCESS_INDEXED_COMMAND);
+			this->_executor->executeCommand(this->_cmd,this->_response);
+		}
 	}
-	else // a generic command
+	else // a generic command and has already been interpreted by isCommandWithIndexGiven()
 	{
-		this->handleGenericCommand(newCommand);
-	}	
+		if(this->hasNoInterpretationError())
+		{
+			this->_executor->executeCommand(this->_cmd,this->_response);
+		}
+	}
 	return;
 }
 
-/*
-this->_cmd = this->_interpreter->interpretCommand(newCommand,this->_response);
-
-	if(this->hasInterpretationError())
-	{
-		return;
-	}
-	//else
-	this->_executor->executeCommand(this->_cmd, this->_response);
-*/
 bool Manager::isIndexGiven(string newCommand)
 {
 	this->_cmd = this->_interpreter.interpretIndex(newCommand,this->_response);
@@ -113,6 +118,11 @@ bool Manager::hasInterpretationError()
 	}
 	//else
 	return false;
+}
+
+bool Manager::hasNoInterpretationError()
+{
+	return !this->hasInterpretationError();
 }
 
 Messenger Manager::getToday()
