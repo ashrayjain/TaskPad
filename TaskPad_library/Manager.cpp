@@ -2,6 +2,7 @@
 #include "Storage.h"
 #include "Messenger.h"
 #include "Executor.h"
+#include "Command.h"
 #include<ctime>
 
 Manager::Manager()
@@ -43,9 +44,12 @@ void Manager::handleNormalScenarioCommands(string newCommand)
 	else // a generic command
 	{
 		this->handleGenericCommand(newCommand);
-	}
+	}	
+	return;
+}
 
-	this->_cmd = this->_interpreter->interpretCommand(newCommand,this->_response);
+/*
+this->_cmd = this->_interpreter->interpretCommand(newCommand,this->_response);
 
 	if(this->hasInterpretationError())
 	{
@@ -53,13 +57,40 @@ void Manager::handleNormalScenarioCommands(string newCommand)
 	}
 	//else
 	this->_executor->executeCommand(this->_cmd, this->_response);
-	
-	return;
-}
-
+*/
 bool Manager::isIndexGiven(string newCommand)
 {
+	this->_cmd = this->_interpreter.interpretIndex(newCommand,this->_response);
+	if(this->_response.getStatus() != ERROR)
+	{
+		return true;
+	}
+	return false;
+}
 
+bool Manager::isCommandWithIndexGiven(string newCommand)
+{
+	bool isModifyCommandWithIndex = false, isDeleteCommandWithIndex = false;
+	this->_cmd = this->_interpreter.interpretCommand(newCommand,this->_response);
+
+	switch (this->_cmd->getCommandType)
+	{
+		case this->_cmd->MOD:
+			isModifyCommandWithIndex = this->hasIndexModifyCommand();
+			break;
+		case this->_cmd->DEL:
+			isDeleteCommandWithIndex = this->hasIndexDeleteCommand();
+			break;
+		default:
+			break;
+	}
+	if(isModifyCommandWithIndex || isDeleteCommandWithIndex)
+	{
+		this->_executor->executeCommand(this->_cmd,this->_response);
+		return true;
+	}
+	//else
+	return false;
 }
 
 bool Manager::hasInterpretationError()

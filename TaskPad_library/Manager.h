@@ -28,10 +28,13 @@ class Manager
 		bool hasInterpretationError();
 		bool isIndexGiven(string newCommand);
 		bool isCommandWithIndexGiven(string newCommand);
+		bool hasIndexModifyCommand();
+		bool hasIndexDeleteCommand();
 
 		void handleGenericCommand(string newCommand);
 		void handleNormalScenarioCommands(string newCommand);
 		void handleIntermediateScenarioCommands(string newCommand);
+
 
 	public:
 		//constructor
