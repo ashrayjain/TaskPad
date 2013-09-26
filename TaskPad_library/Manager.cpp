@@ -93,6 +93,18 @@ bool Manager::isCommandWithIndexGiven(string newCommand)
 	return false;
 }
 
+bool Manager::hasIndexModifyCommand()
+{
+	Command_Mod tempCommand = *((Command_Mod *) this->_cmd);
+	return tempCommand.getFlagIndex();
+}
+
+bool Manager::hasIndexDeleteCommand()
+{
+	Command_Del tempCommand = *((Command_Del *) this->_cmd);
+	return tempCommand.getFlagIndex();
+}
+
 bool Manager::hasInterpretationError()
 {
 	if(this->_response.getStatus() == ERROR)
