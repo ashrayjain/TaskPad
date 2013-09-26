@@ -72,10 +72,19 @@ bool Messenger::setInt(int index)
 	return false;
 }
 
+//helper for setInt
 bool Messenger::isValidIndex (int index)
 {
 	if(index > 0)
 		return true;
 
 	return false;
+}
+
+void Messenger::resetMessenger()
+{
+	this->setInt(-1);
+	this->setStatus(SUCCESS);
+	this->setErrorMsg("");
+	this->setList(list<Task>());
 }

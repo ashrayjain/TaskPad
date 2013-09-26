@@ -25,6 +25,7 @@ class Messenger
 		STATUS getStatus();
 		list<Task> getList();
 		int getIndex();
+		void resetMessenger();
 
 		//setter functions
 

@@ -63,6 +63,11 @@ void Manager::handleNormalScenarioCommands(string newCommand)
 	return;
 }
 
+void Manager::handleIntermediateScenarioCommands(string newCommand)
+{
+
+}
+
 bool Manager::isIndexGiven(string newCommand)
 {
 	this->_cmd = this->_interpreter.interpretIndex(newCommand,this->_response);
@@ -144,4 +149,6 @@ Messenger Manager::getToday()
 
 void Manager::resetStatus()
 {
+	delete this->_cmd;
+	this->_response.resetMessenger();
 }
