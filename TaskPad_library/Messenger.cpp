@@ -5,7 +5,7 @@ using namespace std;
 
 // constructor
 
-Messenger::Messenger(STATUS status=SUCCESS, list<Task> result= list<Task>(), int index =-1, string errorMsg="")
+Messenger::Messenger(STATUS status, list<Task> result, int index, string errorMsg)
 {
 	this->_status = status;
 	this->_resultList = result;

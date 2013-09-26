@@ -29,8 +29,9 @@ class Manager
 		bool isIndexGiven(string newCommand);
 		bool isCommandWithIndexGiven(string newCommand);
 
-		Messenger handleNormalScenarioCommands(string newCommand);
-		Messenger handleIntermediateScenarioCommands(string newCommand);
+		void handleGenericCommand(string newCommand);
+		void handleNormalScenarioCommands(string newCommand);
+		void handleIntermediateScenarioCommands(string newCommand);
 
 	public:
 		//constructor

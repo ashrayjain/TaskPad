@@ -87,10 +87,10 @@
     <ClCompile Include="Messenger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source.cpp">
+    <ClCompile Include="Executor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Executor.cpp">
+    <ClCompile Include="Manager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
