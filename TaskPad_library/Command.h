@@ -86,6 +86,7 @@ protected:
 	static const std::string	DEFAULT_STRING;
 	static const std::time_t	DEFAULT_TIME;
 	static const int			DEFAULT_INDEX;
+	static const unsigned		DEFAULT_CREATED_TIME;
 	
 	//flags
 	bool FLAG_index;
@@ -122,7 +123,7 @@ protected:
 	std::time_t		_remindTime;
 	std::string		_syncProviderName;
 	bool			_taskState;//done | undone
-	std::time_t		_createdTime;
+	unsigned		_createdTime;
 	TASK_TYPE		_taskType;//timed | deadline | floating
 };
 
@@ -203,7 +204,7 @@ public:
 	std::string		getTags()						{ return _tags; }
 	std::time_t		getRemindTime()					{ return _remindTime; }
 	bool			getTaskState()					{ return _taskState; }
-	std::time_t		getCreatedTime()				{ return _createdTime; }
+	unsigned		getCreatedTime()				{ return _createdTime; }
 	
 	//setter for fields
 	void setIndex(int idx)							{ _index = idx;			FLAG_index = EDITED; }
@@ -219,7 +220,7 @@ public:
 	void setTags(std::string tags)					{ _tags = tags;			FLAG_tags = EDITED; }
 	void setRemindTime(std::time_t time)			{ _remindTime = time;	FLAG_remindTime = EDITED; }
 	void setTaskState(bool state)					{ _taskState = state;	FLAG_taskState = EDITED; }
-	void setCreatedTime(std::time_t time)			{ _createdTime = time;	FLAG_createdTime = EDITED; }
+	void setCreatedTime(unsigned ctime)				{ _createdTime = ctime;	FLAG_createdTime = EDITED; }
 	
 	//getter for flags
 	bool getFlagIndex()								{ return FLAG_index; }
@@ -257,12 +258,12 @@ public:
 	//getter for fields
 	int				getIndex()						{ return _index; }
 	std::string		getName()						{ return _name; }
-	std::time_t		getCreatedTime()				{ return _createdTime; }
+	unsigned		getCreatedTime()				{ return _createdTime; }
 	
 	//setter for fields
 	void setIndex(int idx)							{ _index = idx;			FLAG_index = EDITED; }
 	void setName(std::string name)					{ _name = name;			FLAG_name = EDITED; }
-	void setCreatedTime(std::time_t time)			{ _createdTime = time;	FLAG_createdTime = EDITED; }
+	void setCreatedTime(unsigned ctime)				{ _createdTime = ctime;	FLAG_createdTime = EDITED; }
 	
 	//getter for flags
 	bool getFlagIndex()								{ return FLAG_index; }
