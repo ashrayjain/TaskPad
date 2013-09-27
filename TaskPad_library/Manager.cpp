@@ -21,7 +21,7 @@ Manager::Manager()
 	this->_response = Messenger();
 }
 
-Messenger Manager::processCommand(string newCommand)
+Messenger Manager::processCommand(const string& newCommand)
 {
 	switch(this->_response.getStatus())
 	{
@@ -194,7 +194,7 @@ void Manager::insertCreatedTimeIntoModifyCommand()
 	return;
 }
 
-Task* Manager::getPointerToChosenTask()
+Task* Manager::getPointerToChosenTask() const
 {
 	list<Task>::iterator it = this->_response.getList().begin();
 	advance(it,(this->_index-1));
@@ -202,7 +202,7 @@ Task* Manager::getPointerToChosenTask()
 	return &(*it);
 }
 
-unsigned Manager::getCreatedTimeOfTask(Task* baseTask)
+unsigned Manager::getCreatedTimeOfTask(Task* baseTask) const
 {
 	unsigned createdTime;
 	switch(baseTask->getTaskType())
@@ -221,19 +221,19 @@ unsigned Manager::getCreatedTimeOfTask(Task* baseTask)
 	return createdTime;
 }
 
-unsigned Manager::getCreatedTimeOfDeadlineTask(Task* baseTask)
+unsigned Manager::getCreatedTimeOfDeadlineTask(Task* baseTask) const
 {
 	DeadlineTask* tempTask = (DeadlineTask *) baseTask;
 	return tempTask->getIndex();
 }
 
-unsigned Manager::getCreatedTimeOfTimedTask(Task* baseTask)
+unsigned Manager::getCreatedTimeOfTimedTask(Task* baseTask) const
 {
 	TimedTask* tempTask = (TimedTask *) baseTask;
 	return tempTask->getIndex();
 }
 
-unsigned Manager::getCreatedTimeOfFloatingTask(Task* baseTask)
+unsigned Manager::getCreatedTimeOfFloatingTask(Task* baseTask) const
 {
 	FloatingTask* tempTask = (FloatingTask *) baseTask;
 	return tempTask->getIndex();

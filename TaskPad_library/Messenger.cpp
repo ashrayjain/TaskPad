@@ -15,29 +15,29 @@ Messenger::Messenger(STATUS status, list<Task> result, int index, string errorMs
 
 //getter methods
 
-string Messenger::getErrorMsg() 
+string Messenger::getErrorMsg()  const
 {
 	return this->_errorMsg;
 }
 
-STATUS Messenger::getStatus()
+STATUS Messenger::getStatus() const
 {
 	return this->_status;
 }
 
-list<Task> Messenger::getList()
+list<Task> Messenger::getList() const
 {
 	return this->_resultList;
 }
 
-int Messenger::getIndex()
+int Messenger::getIndex()  const
 {
 	return this->_index;
 }
 
 //setter methods
 
-bool Messenger::setErrorMsg(string errorMsg)
+bool Messenger::setErrorMsg(const string& errorMsg)
 {
 	if(errorMsg != "")
 	{
@@ -50,19 +50,19 @@ bool Messenger::setErrorMsg(string errorMsg)
 	}
 }
 
-bool Messenger::setStatus(STATUS status)
+bool Messenger::setStatus(const STATUS& status)
 {
 	this->_status = status;
 	return true;
 }
 
-bool Messenger::setList(list<Task> result)
+bool Messenger::setList(const list<Task>& result)
 {
 	this->_resultList = result;
 	return true;
 }
 
-bool Messenger::setInt(int index)
+bool Messenger::setInt(const int& index)
 {
 	if (isValidIndex(index))
 	{
@@ -73,7 +73,7 @@ bool Messenger::setInt(int index)
 }
 
 //helper for setInt
-bool Messenger::isValidIndex (int index)
+bool Messenger::isValidIndex (const int& index) const
 {
 	if(index > 0)
 		return true;
