@@ -156,5 +156,4 @@ Desktop.ini
 
 ## Qt Ignores
 
-TaskPad_library/GeneratedFiles/ui_mainwindow.h
-TaskPad_library/GeneratedFiles/qrc_mainwindow.cpp
+GeneratedFiles
