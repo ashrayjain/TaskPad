@@ -4,13 +4,10 @@
 #include<string>
 #include<list>
 #include "task.h"
+#include "Enum.h"
 
 using namespace std;
-
-// enumeration of all possible statuses
-enum STATUS{
-		ERROR, ERROR_INTERMEDIATE, SUCCESS, INTERMEDIATE, SUCCESS_INDEXED_COMMAND, DISPLAY
-	};
+using namespace TP;
 
 class Messenger
 {
