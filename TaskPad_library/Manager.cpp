@@ -4,17 +4,20 @@
 #include "Executor.h"
 #include "Command.h"
 #include "Task.h"
+#include "Enum.h"
 #include<ctime>
 /*********
 Assumptions made:
 - Both interpreter and Executor do not change the status of the response object unless it is an error/intermediate
 **********/
 
+using namespace TP;
+
 Manager::Manager()
 {
 	this->_storage = new Storage(_tasks);
 	this->_executor = new Executor(&_tasks);
-	this->_interpreter = new Interpreter;
+//	this->_interpreter = new Interpreter;
 	this->_response = Messenger();
 }
 
@@ -104,7 +107,7 @@ void Manager::handleIntermediateScenarioCommands(string newCommand)
 
 bool Manager::isIndexGiven(string newCommand)
 {
-	this->_index = this->_interpreter->interpretIndex(newCommand,this->_response);
+	//this->_index = this->_interpreter->interpretIndex(newCommand,this->_response);
 	if(this->_response.getStatus() != ERROR_INTERMEDIATE)
 	{
 		return true;
@@ -115,14 +118,14 @@ bool Manager::isIndexGiven(string newCommand)
 bool Manager::isCommandWithIndexGiven(string newCommand)
 {
 	bool isModifyCommandWithIndex = false, isDeleteCommandWithIndex = false;
-	this->_cmd = this->_interpreter.interpretCommand(newCommand,this->_response);
+	//this->_cmd = this->_interpreter.interpretCommand(newCommand,this->_response);
 
-	switch (this->_cmd->getCommandType)
+	switch (this->_cmd->getCommandType())
 	{
-		case this->_cmd->MOD:
+		case MOD:
 			isModifyCommandWithIndex = this->isIndexedModifyCommand();
 			break;
-		case this->_cmd->DEL:
+		case DEL:
 			isDeleteCommandWithIndex = this->isIndexedDeleteCommand();
 			break;
 		default:
@@ -160,10 +163,10 @@ void Manager::insertCreatedTimeIntoCommand()
 {
 	switch(this->_cmd->getCommandType())
 	{
-		case this->_cmd->MOD:
+		case MOD:
 			this->insertCreatedTimeIntoModifyCommand();
 			break;
-		case this->_cmd->DEL:
+		case DEL:
 			this->insertCreatedTimeIntoDeleteCommand();
 			break;
 		default:
@@ -204,13 +207,13 @@ unsigned Manager::getCreatedTimeOfTask(Task* baseTask)
 	unsigned createdTime;
 	switch(baseTask->getTaskType())
 	{
-		case baseTask->DEADLINE:
+		case DEADLINE:
 			createdTime = getCreatedTimeOfDeadlineTask(baseTask);
 			break;
-		case baseTask->TIMED:
+		case TIMED:
 			createdTime = getCreatedTimeOfTimedTask(baseTask);
 			break;
-		case  baseTask->FLOATING:
+		case  FLOATING:
 			createdTime = getCreatedTimeOfFloatingTask(baseTask);
 			break;
 	}
