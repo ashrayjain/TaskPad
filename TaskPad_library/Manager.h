@@ -21,13 +21,31 @@ class Manager
 		Command* _cmd;
 		Messenger _response;
 
+		//the list of tasks
+		list<Task> _tasks;
+
+		//helper functions
+		bool hasInterpretationError();
+		bool hasNoInterpretationError();
+		bool isIndexGiven(string newCommand);
+		bool isCommandWithIndexGiven(string newCommand);
+		bool hasIndexModifyCommand();
+		bool hasIndexDeleteCommand();
+
+		void handleGenericCommand(string newCommand);
+		void handleNormalScenarioCommands(string newCommand);
+		void handleIntermediateScenarioCommands(string newCommand);
+
+
 	public:
 		//constructor
 		Manager();
 
-		Messenger processCommand(string newCommand);
+		Messenger processCommand(string);
 		Messenger getToday();
 		void resetStatus();
+
+		~Manager();
 };
 
 #endif

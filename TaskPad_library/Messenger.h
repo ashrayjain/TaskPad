@@ -7,23 +7,17 @@
 
 using namespace std;
 
+// enumeration of all possible statuses
 enum STATUS{
-	ERROR, SUCCESS, INTERMEDIATE, SUCCESS_CWI, DISPLAY
-};
+		ERROR, ERROR_INTERMEDIATE, SUCCESS, INTERMEDIATE, SUCCESS_INDEXED_COMMAND, DISPLAY
+	};
 
 class Messenger
 {
-	private:
-		string _errorMsg;
-		STATUS _status;
-		list<Task> _resultList;
-		int _index;
-
-		bool isValidIndex (int index);
 	public:
+
 		// constructor
-		Messenger();
-		Messenger(string errorMsg, STATUS status, list<Task> result);
+		Messenger(STATUS status=SUCCESS, list<Task> result= list<Task>(), int index =-1, string errorMsg="");
 
 		//getter methods
 		
@@ -31,6 +25,7 @@ class Messenger
 		STATUS getStatus();
 		list<Task> getList();
 		int getIndex();
+		void resetMessenger();
 
 		//setter functions
 
@@ -38,6 +33,14 @@ class Messenger
 		bool setStatus(STATUS status);
 		bool setList(list<Task> result);
 		bool setInt(int index);
+	
+	private:
+		string _errorMsg;
+		STATUS _status;
+		list<Task> _resultList;
+		int _index;
+
+		bool isValidIndex (int index);
 };
 
 #endif
