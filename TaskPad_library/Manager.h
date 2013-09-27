@@ -36,6 +36,7 @@ class Manager
 		void handleGenericCommand(string newCommand);
 		void handleNormalScenarioCommands(string newCommand);
 		void handleIntermediateScenarioCommands(string newCommand);
+		void insertCreatedTimeIntoCommand();
 		void insertCreatedTimeIntoModifyCommand();
 		void insertCreatedTimeIntoDeleteCommand();
 
