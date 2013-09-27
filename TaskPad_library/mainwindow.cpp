@@ -11,11 +11,11 @@ MainWindow::MainWindow(QWidget *parent)
 	QObject::connect(ui.CloseButton, SIGNAL(clicked()), this, SLOT(close()));
 	QObject::connect(ui.MinimizeButton, SIGNAL(clicked()), this, SLOT(showMinimized()));
 	QObject::connect(ui.AboutButton, SIGNAL(clicked()), this, SLOT(about()));
-	ui.CommandBar->installEventFilter(this);
-	ui.CloseButton->installEventFilter(this);
-	ui.MinimizeButton->installEventFilter(this);
-	ui.HelpButton->installEventFilter(this);
-	ui.AboutButton->installEventFilter(this);
+	ui.CommandBar->installEventFilter(this);//filter RETURN
+	ui.CloseButton->installEventFilter(this);//filter MOUSE MOVE
+	ui.MinimizeButton->installEventFilter(this);//filter MOUSE MOVE
+	ui.HelpButton->installEventFilter(this);//filter MOUSE MOVE
+	ui.AboutButton->installEventFilter(this);//filter MOUSE MOVE
 }
 
 MainWindow::~MainWindow()
