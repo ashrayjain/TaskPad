@@ -22,6 +22,7 @@ const Command::TASK_TYPE	Command::DEFAULT_TASK_TYPE		= Command::FLOATING;
 const std::string			Command::DEFAULT_STRING			= "";
 const std::time_t			Command::DEFAULT_TIME			= -1;
 const int					Command::DEFAULT_INDEX			= -1;
+const unsigned				Command::DEFAULT_CREATED_TIME	= 0;
 
 void Command::init()
 {
@@ -60,6 +61,6 @@ void Command::init()
 	_remindTime			= DEFAULT_TIME;
 	_syncProviderName	= DEFAULT_STRING;
 	_taskState			= DEFAULT_TASK_STATE;
-	_createdTime		= DEFAULT_TIME;
+	_createdTime		= DEFAULT_CREATED_TIME;
 	_taskType			= DEFAULT_TASK_TYPE;
 }
