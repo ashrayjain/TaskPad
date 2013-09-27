@@ -50,6 +50,7 @@
 
 #include <string>
 #include <ctime>
+#include "Enum.h"
 
 #ifndef TASKPAD_COMMAND_H
 #define TASKPAD_COMMAND_H
@@ -64,25 +65,19 @@
 class Command
 {
 public:
-	enum COMMAND_TYPE	{ ADD, MOD, DEL, FIND, UNDO, REDO, SYNC, UNDEFINED};
-	enum PRIORITY		{ HIGH, MEDIUM, LOW };
-	enum TASK_STATE		{ UNDONE = false, DONE = true };
-	enum TASK_TYPE		{ TIMED, DEADLINE, FLOATING };
-	enum FLAG			{ UNCHANGED = false, EDITED = true };
-
 	virtual			~Command() = 0  {};
-	COMMAND_TYPE	getCommandType(){ return _type; }
+	TP::COMMAND_TYPE	getCommandType(){ return _type; }
 	
 protected:
 	void init();
-	void setCommandType(COMMAND_TYPE type){ _type = type; }
+	void setCommandType(TP::COMMAND_TYPE type){ _type = type; }
 
 	//default values
 	static const bool			DEFAULT_FLAG;
-	static const COMMAND_TYPE	DEFAULT_COMMAND_TYPE;
-	static const PRIORITY		DEFAULT_PRIORITY;
+	static const TP::COMMAND_TYPE	DEFAULT_COMMAND_TYPE;
+	static const TP::PRIORITY		DEFAULT_PRIORITY;
 	static const bool			DEFAULT_TASK_STATE;
-	static const TASK_TYPE		DEFAULT_TASK_TYPE;
+	static const TP::TASK_TYPE		DEFAULT_TASK_TYPE;
 	static const std::string	DEFAULT_STRING;
 	static const std::time_t	DEFAULT_TIME;
 	static const int			DEFAULT_INDEX;
@@ -108,7 +103,7 @@ protected:
 	bool FLAG_syncProviderName;
 
 	//fields
-	COMMAND_TYPE	_type;//add | mod | del | find | undo | redo | sync | undefined
+	TP::COMMAND_TYPE	_type;//add | mod | del | find | undo | redo | sync | undefined
 	int				_index;
 	std::string		_name;
 	std::string		_optName;
@@ -118,13 +113,13 @@ protected:
 	std::string		_location;
 	std::string		_participants;
 	std::string		_note;
-	PRIORITY		_priority;//high | medium | low
+	TP::PRIORITY		_priority;//high | medium | low
 	std::string		_tags;
 	std::time_t		_remindTime;
 	std::string		_syncProviderName;
 	bool			_taskState;//done | undone
 	unsigned		_createdTime;
-	TASK_TYPE		_taskType;//timed | deadline | floating
+	TP::TASK_TYPE		_taskType;//timed | deadline | floating
 };
 
 /*
@@ -137,7 +132,7 @@ protected:
 class Command_Add: public Command
 {
 public:
-	Command_Add() { init(); setCommandType(ADD); }
+	Command_Add() { init(); setCommandType(TP::ADD); }
 	~Command_Add(){};
 	
 	//getter for fields
@@ -148,21 +143,21 @@ public:
 	std::string		getLocation()					{ return _location; }
 	std::string		getParticipants()				{ return _participants; }
 	std::string		getNote()						{ return _note; }
-	PRIORITY		getPriority()					{ return _priority; }
+	TP::PRIORITY		getPriority()					{ return _priority; }
 	std::string		getTags()						{ return _tags; }
 	std::time_t		getRemindTime()					{ return _remindTime; }
 	
 	//setter for fields
-	void setName(std::string name)					{ _name = name;			FLAG_name = EDITED; }
-	void setDueDate(std::time_t dueDate)			{ _dueDate = dueDate;	FLAG_due = EDITED; }
-	void setFromDate(std::time_t fromDate)			{ _fromDate = fromDate;	FLAG_from = EDITED; }
-	void setToDate(std::time_t toDate)				{ _toDate = toDate;		FLAG_to = EDITED; }
-	void setLocation(std::string location)			{ _location = location;	FLAG_location = EDITED; }
-	void setParticipants(std::string ppl)			{ _participants = ppl;	FLAG_location = EDITED; }
-	void setNote(std::string note)					{ _note = note;			FLAG_note = EDITED; }
-	void setPriority(PRIORITY priority)				{ _priority = priority;	FLAG_priority = EDITED; }
-	void setTags(std::string tags)					{ _tags = tags;			FLAG_tags = EDITED; }
-	void setRemindTime(std::time_t time)			{ _remindTime = time;	FLAG_remindTime = EDITED; }
+	void setName(std::string name)					{ _name = name;			FLAG_name = TP::EDITED; }
+	void setDueDate(std::time_t dueDate)			{ _dueDate = dueDate;	FLAG_due = TP::EDITED; }
+	void setFromDate(std::time_t fromDate)			{ _fromDate = fromDate;	FLAG_from = TP::EDITED; }
+	void setToDate(std::time_t toDate)				{ _toDate = toDate;		FLAG_to = TP::EDITED; }
+	void setLocation(std::string location)			{ _location = location;	FLAG_location = TP::EDITED; }
+	void setParticipants(std::string ppl)			{ _participants = ppl;	FLAG_location = TP::EDITED; }
+	void setNote(std::string note)					{ _note = note;			FLAG_note = TP::EDITED; }
+	void setPriority(TP::PRIORITY priority)				{ _priority = priority;	FLAG_priority = TP::EDITED; }
+	void setTags(std::string tags)					{ _tags = tags;			FLAG_tags = TP::EDITED; }
+	void setRemindTime(std::time_t time)			{ _remindTime = time;	FLAG_remindTime = TP::EDITED; }
 	
 	//getter for flags
 	bool getFlagName()								{ return FLAG_name; }
@@ -187,7 +182,7 @@ public:
 class Command_Mod: public Command
 {
 public:
-	Command_Mod(){ init(); setCommandType(MOD); }
+	Command_Mod(){ init(); setCommandType(TP::MOD); }
 	~Command_Mod(){};
 	
 	//getter for fields
@@ -200,27 +195,27 @@ public:
 	std::string		getLocation()					{ return _location; }
 	std::string		getParticipants()				{ return _participants; }
 	std::string		getNote()						{ return _note; }
-	PRIORITY		getPriority()					{ return _priority; }
+	TP::PRIORITY		getPriority()					{ return _priority; }
 	std::string		getTags()						{ return _tags; }
 	std::time_t		getRemindTime()					{ return _remindTime; }
 	bool			getTaskState()					{ return _taskState; }
 	unsigned		getCreatedTime()				{ return _createdTime; }
 	
 	//setter for fields
-	void setIndex(int idx)							{ _index = idx;			FLAG_index = EDITED; }
-	void setName(std::string name)					{ _name = name;			FLAG_name = EDITED; }
-	void setOptName(std::string name)				{ _optName = name;		FLAG_optName = EDITED; }
-	void setDueDate(std::time_t dueDate)			{ _dueDate = dueDate;	FLAG_due = EDITED; }
-	void setFromDate(std::time_t fromDate)			{ _fromDate = fromDate;	FLAG_from = EDITED; }
-	void setToDate(std::time_t toDate)				{ _toDate = toDate;		FLAG_to = EDITED; }
-	void setLocation(std::string location)			{ _location = location;	FLAG_location = EDITED; }
-	void setParticipants(std::string ppl)			{ _participants = ppl;	FLAG_location = EDITED; }
-	void setNote(std::string note)					{ _note = note;			FLAG_note = EDITED; }
-	void setPriority(PRIORITY priority)				{ _priority = priority;	FLAG_priority = EDITED; }
-	void setTags(std::string tags)					{ _tags = tags;			FLAG_tags = EDITED; }
-	void setRemindTime(std::time_t time)			{ _remindTime = time;	FLAG_remindTime = EDITED; }
-	void setTaskState(bool state)					{ _taskState = state;	FLAG_taskState = EDITED; }
-	void setCreatedTime(unsigned ctime)				{ _createdTime = ctime;	FLAG_createdTime = EDITED; }
+	void setIndex(int idx)							{ _index = idx;			FLAG_index = TP::EDITED; }
+	void setName(std::string name)					{ _name = name;			FLAG_name = TP::EDITED; }
+	void setOptName(std::string name)				{ _optName = name;		FLAG_optName = TP::EDITED; }
+	void setDueDate(std::time_t dueDate)			{ _dueDate = dueDate;	FLAG_due = TP::EDITED; }
+	void setFromDate(std::time_t fromDate)			{ _fromDate = fromDate;	FLAG_from = TP::EDITED; }
+	void setToDate(std::time_t toDate)				{ _toDate = toDate;		FLAG_to = TP::EDITED; }
+	void setLocation(std::string location)			{ _location = location;	FLAG_location = TP::EDITED; }
+	void setParticipants(std::string ppl)			{ _participants = ppl;	FLAG_location = TP::EDITED; }
+	void setNote(std::string note)					{ _note = note;			FLAG_note = TP::EDITED; }
+	void setPriority(TP::PRIORITY priority)				{ _priority = priority;	FLAG_priority = TP::EDITED; }
+	void setTags(std::string tags)					{ _tags = tags;			FLAG_tags = TP::EDITED; }
+	void setRemindTime(std::time_t time)			{ _remindTime = time;	FLAG_remindTime = TP::EDITED; }
+	void setTaskState(bool state)					{ _taskState = state;	FLAG_taskState = TP::EDITED; }
+	void setCreatedTime(unsigned ctime)				{ _createdTime = ctime;	FLAG_createdTime = TP::EDITED; }
 	
 	//getter for flags
 	bool getFlagIndex()								{ return FLAG_index; }
@@ -239,7 +234,7 @@ public:
 	bool getFlagCreatedTime()						{ return FLAG_createdTime; }
 	
 	//setter for flags
-	void setFlagExact()								{ FLAG_exact = EDITED; }
+	void setFlagExact()								{ FLAG_exact = TP::EDITED; }
 };
 
 /*
@@ -252,7 +247,7 @@ public:
 class Command_Del: public Command
 {
 public:
-	Command_Del(){ init(); setCommandType(DEL); }
+	Command_Del(){ init(); setCommandType(TP::DEL); }
 	~Command_Del(){};
 	
 	//getter for fields
@@ -261,9 +256,9 @@ public:
 	unsigned		getCreatedTime()				{ return _createdTime; }
 	
 	//setter for fields
-	void setIndex(int idx)							{ _index = idx;			FLAG_index = EDITED; }
-	void setName(std::string name)					{ _name = name;			FLAG_name = EDITED; }
-	void setCreatedTime(unsigned ctime)				{ _createdTime = ctime;	FLAG_createdTime = EDITED; }
+	void setIndex(int idx)							{ _index = idx;			FLAG_index = TP::EDITED; }
+	void setName(std::string name)					{ _name = name;			FLAG_name = TP::EDITED; }
+	void setCreatedTime(unsigned ctime)				{ _createdTime = ctime;	FLAG_createdTime = TP::EDITED; }
 	
 	//getter for flags
 	bool getFlagIndex()								{ return FLAG_index; }
@@ -271,7 +266,7 @@ public:
 	bool getFlagCreatedTime()						{ return FLAG_createdTime; }
 	
 	//setter for flags
-	void setFlagExact()								{ FLAG_exact = EDITED; }
+	void setFlagExact()								{ FLAG_exact = TP::EDITED; }
 };
 
 /*
@@ -284,7 +279,7 @@ public:
 class Command_Find: public Command
 {
 public:
-	Command_Find(){ init(); setCommandType(FIND); }
+	Command_Find(){ init(); setCommandType(TP::FIND); }
 	~Command_Find(){};
 	
 	//getter for fields
@@ -296,26 +291,26 @@ public:
 	std::string		getLocation()					{ return _location; }
 	std::string		getParticipants()				{ return _participants; }
 	std::string		getNote()						{ return _note; }
-	PRIORITY		getPriority()					{ return _priority; }
+	TP::PRIORITY		getPriority()					{ return _priority; }
 	std::string		getTags()						{ return _tags; }
 	std::time_t		getRemindTime()					{ return _remindTime; }
 	bool			getTaskState()					{ return _taskState; }
-	TASK_TYPE		getTaskType()					{ return _taskType; }
+	TP::TASK_TYPE		getTaskType()					{ return _taskType; }
 	
 	//setter for fields
-	void setIndex(int idx)							{ _index = idx;			FLAG_index = EDITED; }
-	void setOptName(std::string name)				{ _optName = name;		FLAG_optName = EDITED; }
-	void setDueDate(std::time_t dueDate)			{ _dueDate = dueDate;	FLAG_due = EDITED; }
-	void setFromDate(std::time_t fromDate)			{ _fromDate = fromDate;	FLAG_from = EDITED; }
-	void setToDate(std::time_t toDate)				{ _toDate = toDate;		FLAG_to = EDITED; }
-	void setLocation(std::string location)			{ _location = location;	FLAG_location = EDITED; }
-	void setParticipants(std::string ppl)			{ _participants = ppl;	FLAG_location = EDITED; }
-	void setNote(std::string note)					{ _note = note;			FLAG_note = EDITED; }
-	void setPriority(PRIORITY priority)				{ _priority = priority;	FLAG_priority = EDITED; }
-	void setTags(std::string tags)					{ _tags = tags;			FLAG_tags = EDITED; }
-	void setRemindTime(std::time_t time)			{ _remindTime = time;	FLAG_remindTime = EDITED; }
-	void setTaskState(bool state)					{ _taskState = state;	FLAG_taskState = EDITED; }
-	void setTaskType(TASK_TYPE type)				{ _taskType = type;		FLAG_taskType = EDITED; }
+	void setIndex(int idx)							{ _index = idx;			FLAG_index = TP::EDITED; }
+	void setOptName(std::string name)				{ _optName = name;		FLAG_optName = TP::EDITED; }
+	void setDueDate(std::time_t dueDate)			{ _dueDate = dueDate;	FLAG_due = TP::EDITED; }
+	void setFromDate(std::time_t fromDate)			{ _fromDate = fromDate;	FLAG_from = TP::EDITED; }
+	void setToDate(std::time_t toDate)				{ _toDate = toDate;		FLAG_to = TP::EDITED; }
+	void setLocation(std::string location)			{ _location = location;	FLAG_location = TP::EDITED; }
+	void setParticipants(std::string ppl)			{ _participants = ppl;	FLAG_location = TP::EDITED; }
+	void setNote(std::string note)					{ _note = note;			FLAG_note = TP::EDITED; }
+	void setPriority(TP::PRIORITY priority)				{ _priority = priority;	FLAG_priority = TP::EDITED; }
+	void setTags(std::string tags)					{ _tags = tags;			FLAG_tags = TP::EDITED; }
+	void setRemindTime(std::time_t time)			{ _remindTime = time;	FLAG_remindTime = TP::EDITED; }
+	void setTaskState(bool state)					{ _taskState = state;	FLAG_taskState = TP::EDITED; }
+	void setTaskType(TP::TASK_TYPE type)				{ _taskType = type;		FLAG_taskType = TP::EDITED; }
 	
 	//getter for flags
 	bool getFlagIndex()								{ return FLAG_index; }
@@ -334,7 +329,7 @@ public:
 	bool getFlagTaskType()							{ return FLAG_taskType; }
 	
 	//setter for flags
-	void setFlagExact()								{ FLAG_exact = EDITED; }
+	void setFlagExact()								{ FLAG_exact = TP::EDITED; }
 };
 
 /*
@@ -347,7 +342,7 @@ public:
 class Command_Undo: public Command
 {
 public:
-	Command_Undo(){ init(); setCommandType(UNDO); }
+	Command_Undo(){ init(); setCommandType(TP::UNDO); }
 	~Command_Undo(){};
 };
 
@@ -361,7 +356,7 @@ public:
 class Command_Redo: public Command
 {
 public:
-	Command_Redo(){ init(); setCommandType(REDO); }
+	Command_Redo(){ init(); setCommandType(TP::REDO); }
 	~Command_Redo(){};
 };
 
@@ -375,14 +370,14 @@ public:
 class Command_Sync: public Command
 {
 public:
-	Command_Sync(){ init(); setCommandType(SYNC); }
+	Command_Sync(){ init(); setCommandType(TP::SYNC); }
 	~Command_Sync(){};
 	
 	//getter for fields
 	std::string		getSyncProviderName()			{ return _syncProviderName; }
 	
 	//setter for fields
-	void setSyncProviderName(std::string syncName)	{ _syncProviderName = syncName; FLAG_syncProviderName = EDITED; }
+	void setSyncProviderName(std::string syncName)	{ _syncProviderName = syncName; FLAG_syncProviderName = TP::EDITED; }
 
 	//getter for flags
 	bool getFlagSyncProviderName()					{ return FLAG_syncProviderName; }
