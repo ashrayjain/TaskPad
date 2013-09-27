@@ -20,7 +20,7 @@ class Manager
 		//state determinants
 		Command* _cmd;
 		Messenger _response;
-
+		int _index;
 		//the list of tasks
 		list<Task> _tasks;
 
@@ -29,19 +29,29 @@ class Manager
 		bool hasNoInterpretationError();
 		bool isIndexGiven(string newCommand);
 		bool isCommandWithIndexGiven(string newCommand);
-		bool hasIndexModifyCommand();
-		bool hasIndexDeleteCommand();
+		bool isIndexedModifyCommand();
+		bool isIndexedDeleteCommand();
+		bool isIndexWithinRange();
 
 		void handleGenericCommand(string newCommand);
 		void handleNormalScenarioCommands(string newCommand);
 		void handleIntermediateScenarioCommands(string newCommand);
+		void insertCreatedTimeIntoCommand();
+		void insertCreatedTimeIntoModifyCommand();
+		void insertCreatedTimeIntoDeleteCommand();
+
+		Task* getPointerToChosenTask() const;
+		unsigned getCreatedTimeOfTask(Task* baseTask) const;
+		unsigned getCreatedTimeOfDeadlineTask(Task* baseTask) const;
+		unsigned getCreatedTimeOfTimedTask(Task* baseTask) const;
+		unsigned getCreatedTimeOfFloatingTask(Task* baseTask) const;
 
 
 	public:
 		//constructor
 		Manager();
 
-		Messenger processCommand(string);
+		Messenger processCommand(const string&);
 		Messenger getToday();
 		void resetStatus();
 
