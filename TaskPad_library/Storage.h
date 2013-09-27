@@ -6,6 +6,7 @@
 
 //forward definitions
 class Task;
+class Command;
 
 using namespace std;
 
@@ -17,7 +18,7 @@ class Storage
 	public:
 		Storage(list<Task>&);
 
-		bool save(const list<Task>&);
+		bool save(list<Task>&);
 		bool save(const Command&);
 
 		~Storage();

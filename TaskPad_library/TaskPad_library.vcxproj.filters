@@ -70,7 +70,7 @@
     <ClInclude Include="Enum.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Interpreter.h">
+    <ClInclude Include="Storage.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -108,7 +108,7 @@
     <ClCompile Include="GeneratedFiles\Release\moc_LastColumnDelegate.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="Interpreter.cpp">
+    <ClCompile Include="Storage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
