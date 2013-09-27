@@ -29,8 +29,8 @@ class Manager
 		bool hasNoInterpretationError();
 		bool isIndexGiven(string newCommand);
 		bool isCommandWithIndexGiven(string newCommand);
-		bool hasIndexModifyCommand();
-		bool hasIndexDeleteCommand();
+		bool isIndexedModifyCommand();
+		bool isIndexedDeleteCommand();
 		bool isIndexWithinRange();
 
 		void handleGenericCommand(string newCommand);
