@@ -40,18 +40,18 @@ class Manager
 		void insertCreatedTimeIntoModifyCommand();
 		void insertCreatedTimeIntoDeleteCommand();
 
-		Task* getPointerToChosenTask();
-		unsigned getCreatedTimeOfTask(Task* baseTask);
-		unsigned getCreatedTimeOfDeadlineTask(Task* baseTask);
-		unsigned getCreatedTimeOfTimedTask(Task* baseTask);
-		unsigned getCreatedTimeOfFloatingTask(Task* baseTask);
+		Task* getPointerToChosenTask() const;
+		unsigned getCreatedTimeOfTask(Task* baseTask) const;
+		unsigned getCreatedTimeOfDeadlineTask(Task* baseTask) const;
+		unsigned getCreatedTimeOfTimedTask(Task* baseTask) const;
+		unsigned getCreatedTimeOfFloatingTask(Task* baseTask) const;
 
 
 	public:
 		//constructor
 		Manager();
 
-		Messenger processCommand(string);
+		Messenger processCommand(const string&);
 		Messenger getToday();
 		void resetStatus();
 

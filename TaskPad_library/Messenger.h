@@ -18,18 +18,18 @@ class Messenger
 
 		//getter methods
 		
-		string getErrorMsg();
-		STATUS getStatus();
-		list<Task> getList();
-		int getIndex();
+		string getErrorMsg() const;
+		STATUS getStatus() const;
+		list<Task> getList() const;
+		int getIndex() const;
 		void resetMessenger();
 
 		//setter functions
 
-		bool setErrorMsg(string errorMsg);
-		bool setStatus(STATUS status);
-		bool setList(list<Task> result);
-		bool setInt(int index);
+		bool setErrorMsg(const string& errorMsg);
+		bool setStatus(const STATUS& status);
+		bool setList(const list<Task>& result);
+		bool setInt(const int& index);
 	
 	private:
 		string _errorMsg;
@@ -37,7 +37,7 @@ class Messenger
 		list<Task> _resultList;
 		int _index;
 
-		bool isValidIndex (int index);
+		bool isValidIndex (const int& index) const;
 };
 
 #endif

@@ -39,6 +39,7 @@
     </CustomBuild>
     <ClInclude Include="Manager.h" />
     <ClInclude Include="Messenger.h" />
+    <ClInclude Include="Storage.h" />
     <ClInclude Include="Task.h" />
     <CustomBuild Include="mainwindow.h">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
@@ -75,6 +76,7 @@
     <ClCompile Include="mainwindow.cpp" />
     <ClCompile Include="Manager.cpp" />
     <ClCompile Include="Messenger.cpp" />
+    <ClCompile Include="Storage.cpp" />
     <ClCompile Include="Task.cpp" />
   </ItemGroup>
   <ItemGroup>
