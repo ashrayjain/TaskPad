@@ -90,17 +90,8 @@ void Manager::handleIntermediateScenarioCommands(string newCommand)
 	{
 		if(isIndexWithinRange())
 		{
-			switch(this->_cmd->getCommandType())
-			{
-				case this->_cmd->MOD:
-					this->insertCreatedTimeIntoModifyCommand();
-					break;
-				case this->_cmd->DEL:
-					this->insertCreatedTimeIntoDeleteCommand();
-					break;
-				default:
-					throw exception("Unexpected Command with index!!");
-			}
+			this->insertCreatedTimeIntoCommand();
+			this->_executor->executeCommand(this->_cmd,this->_response);
 		}
 		else
 		{
@@ -163,6 +154,21 @@ bool Manager::isIndexWithinRange()
 {
 	int sizeOfCurrentList = this->_response.getList().size();
 	return (sizeOfCurrentList > this->_index);
+}
+
+void Manager::insertCreatedTimeIntoCommand()
+{
+	switch(this->_cmd->getCommandType())
+	{
+		case this->_cmd->MOD:
+			this->insertCreatedTimeIntoModifyCommand();
+			break;
+		case this->_cmd->DEL:
+			this->insertCreatedTimeIntoDeleteCommand();
+			break;
+		default:
+			throw exception("Unexpected Command with index!!");
+	}
 }
 
 void Manager::insertCreatedTimeIntoDeleteCommand()
