@@ -40,11 +40,8 @@ void Manager::handleNormalScenarioCommands(string newCommand)
 {
 	if(isIndexGiven(newCommand))
 	{
-		if(this->hasNoInterpretationError())
-		{
-			this->_response.setInt(this->_index);
-			this->_response.setStatus(DISPLAY);
-		}
+		this->_response.setInt(this->_index);
+		this->_response.setStatus(DISPLAY);
 	}
 	else if (isCommandWithIndexGiven(newCommand))
 	{
@@ -54,7 +51,7 @@ void Manager::handleNormalScenarioCommands(string newCommand)
 			this->_executor->executeCommand(this->_cmd,this->_response);
 		}
 	}
-	else // a generic command and has already been interpreted by isCommandWithIndexGiven()
+	else // a generic command and has already been interpreted by isCommandWithIndexGiven() above
 	{
 		if(this->hasNoInterpretationError())
 		{
@@ -67,7 +64,7 @@ void Manager::handleNormalScenarioCommands(string newCommand)
 void Manager::handleIntermediateScenarioCommands(string newCommand)
 {
 	
-	if(isIndexGiven(newCommand) && this->hasNoInterpretationError())
+	if(isIndexGiven(newCommand))
 	{
 		if(isIndexWithinRange())
 		{
@@ -79,6 +76,8 @@ void Manager::handleIntermediateScenarioCommands(string newCommand)
 				case this->_cmd->DEL:
 					this->insertCreatedTimeIntoDeleteCommand();
 					break;
+				default:
+					throw exception("Unexpected Command with index!!");
 			}
 		}
 		else
@@ -96,16 +95,23 @@ bool Manager::isIndexWithinRange()
 	return (sizeOfCurrentList > this->_index);
 }
 
+void Manager::insertCreatedTimeIntoDeleteCommand()
+{
+	Command_Del* tempCommand = (Command_Del *) this->_cmd;
+
+	Task* chosenTask = getPointerToChosenTask();
+	unsigned createdTime = this->getCreatedTimeOfTask(chosenTask);
+
+	tempCommand->setCreatedTime(createdTime);
+	return;
+}
+
 void Manager::insertCreatedTimeIntoModifyCommand()
 {
+	Task* chosenTask = this->getPointerToChosenTask();
+	unsigned createdTime = this->getCreatedTimeOfTask(chosenTask);
+
 	Command_Mod* tempCommand = (Command_Mod *) this->_cmd;
-	list<Task>::iterator it = this->_response.getList().begin();
-	unsigned createdTime;
-
-	advance(it,(this->_index-1));
-
-	createdTime = this->getCreatedTimeOfTask(&(*it));
-
 	tempCommand->setCreatedTime(createdTime);
 	return;
 }
@@ -147,23 +153,18 @@ unsigned Manager::getCreatedTimeOfFloatingTask(Task* baseTask)
 	return tempTask->getIndex();
 }
 
-void Manager::insertCreatedTimeIntoDeleteCommand()
+Task* Manager::getPointerToChosenTask()
 {
-	Command_Del* tempCommand = (Command_Del *) this->_cmd;
 	list<Task>::iterator it = this->_response.getList().begin();
-	unsigned createdTime;
-
 	advance(it,(this->_index-1));
 
-	createdTime = this->getCreatedTimeOfTask(&(*it));
-
-	tempCommand->setCreatedTime(createdTime);
-	return;
+	return &(*it);
 }
+
 bool Manager::isIndexGiven(string newCommand)
 {
 	this->_index = this->_interpreter->interpretIndex(newCommand,this->_response);
-	if(this->_response.getStatus() != ERROR)
+	if(this->_response.getStatus() != ERROR_INTERMEDIATE)
 	{
 		return true;
 	}

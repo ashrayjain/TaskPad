@@ -39,6 +39,7 @@ class Manager
 		void insertCreatedTimeIntoModifyCommand();
 		void insertCreatedTimeIntoDeleteCommand();
 
+		Task* getPointerToChosenTask();
 		unsigned getCreatedTimeOfTask(Task* baseTask);
 		unsigned getCreatedTimeOfDeadlineTask(Task* baseTask);
 		unsigned getCreatedTimeOfTimedTask(Task* baseTask);
