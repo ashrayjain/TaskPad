@@ -36,12 +36,28 @@ Messenger Manager::processCommand(string newCommand)
 	return this->_response;
 }
 
+/**
+ * Handles the 3 types of commands that can be given in a normal scenario
+ * They are:
+ * - An index (for displaying the details of a task)
+ * - A command with an index (non-ambiguous mod/delete commands)
+ * - A generic command (an ambiguous command of any type)
+ *
+*/
 void Manager::handleNormalScenarioCommands(string newCommand)
 {
 	if(isIndexGiven(newCommand))
 	{
-		this->_response.setInt(this->_index);
-		this->_response.setStatus(DISPLAY);
+		if(isIndexWithinRange())
+		{
+			this->_response.setInt(this->_index);
+			this->_response.setStatus(DISPLAY);
+		}
+		else
+		{
+			this->_response.setErrorMsg("Given index is out of range!");
+			this->_response.setStatus(ERROR);
+		}
 	}
 	else if (isCommandWithIndexGiven(newCommand))
 	{
@@ -61,6 +77,12 @@ void Manager::handleNormalScenarioCommands(string newCommand)
 	return;
 }
 
+/**
+ * This handles the scenario where an ambiguous mod/del was done and 
+ * the user was given a list of similar tasks to choose the actual one he was talking about
+ * Accepts:
+ * - Only index
+ */
 void Manager::handleIntermediateScenarioCommands(string newCommand)
 {
 	
@@ -89,6 +111,54 @@ void Manager::handleIntermediateScenarioCommands(string newCommand)
 	return;
 }
 
+bool Manager::isIndexGiven(string newCommand)
+{
+	this->_index = this->_interpreter->interpretIndex(newCommand,this->_response);
+	if(this->_response.getStatus() != ERROR_INTERMEDIATE)
+	{
+		return true;
+	}
+	return false;
+}
+
+bool Manager::isCommandWithIndexGiven(string newCommand)
+{
+	bool isModifyCommandWithIndex = false, isDeleteCommandWithIndex = false;
+	this->_cmd = this->_interpreter.interpretCommand(newCommand,this->_response);
+
+	switch (this->_cmd->getCommandType)
+	{
+		case this->_cmd->MOD:
+			isModifyCommandWithIndex = this->isIndexedModifyCommand();
+			break;
+		case this->_cmd->DEL:
+			isDeleteCommandWithIndex = this->isIndexedDeleteCommand();
+			break;
+		default:
+			break;
+	}
+
+	if(isModifyCommandWithIndex || isDeleteCommandWithIndex)
+	{
+		this->_executor->executeCommand(this->_cmd,this->_response);
+		return true;
+	}
+	//else
+	return false;
+}
+
+bool Manager::isIndexedModifyCommand()
+{
+	Command_Mod tempCommand = *((Command_Mod *) this->_cmd);
+	return tempCommand.getFlagIndex();
+}
+
+bool Manager::isIndexedDeleteCommand()
+{
+	Command_Del tempCommand = *((Command_Del *) this->_cmd);
+	return tempCommand.getFlagIndex();
+}
+
 bool Manager::isIndexWithinRange()
 {
 	int sizeOfCurrentList = this->_response.getList().size();
@@ -97,11 +167,10 @@ bool Manager::isIndexWithinRange()
 
 void Manager::insertCreatedTimeIntoDeleteCommand()
 {
-	Command_Del* tempCommand = (Command_Del *) this->_cmd;
-
 	Task* chosenTask = getPointerToChosenTask();
 	unsigned createdTime = this->getCreatedTimeOfTask(chosenTask);
 
+	Command_Del* tempCommand = (Command_Del *) this->_cmd;
 	tempCommand->setCreatedTime(createdTime);
 	return;
 }
@@ -114,6 +183,14 @@ void Manager::insertCreatedTimeIntoModifyCommand()
 	Command_Mod* tempCommand = (Command_Mod *) this->_cmd;
 	tempCommand->setCreatedTime(createdTime);
 	return;
+}
+
+Task* Manager::getPointerToChosenTask()
+{
+	list<Task>::iterator it = this->_response.getList().begin();
+	advance(it,(this->_index-1));
+
+	return &(*it);
 }
 
 unsigned Manager::getCreatedTimeOfTask(Task* baseTask)
@@ -151,61 +228,6 @@ unsigned Manager::getCreatedTimeOfFloatingTask(Task* baseTask)
 {
 	FloatingTask* tempTask = (FloatingTask *) baseTask;
 	return tempTask->getIndex();
-}
-
-Task* Manager::getPointerToChosenTask()
-{
-	list<Task>::iterator it = this->_response.getList().begin();
-	advance(it,(this->_index-1));
-
-	return &(*it);
-}
-
-bool Manager::isIndexGiven(string newCommand)
-{
-	this->_index = this->_interpreter->interpretIndex(newCommand,this->_response);
-	if(this->_response.getStatus() != ERROR_INTERMEDIATE)
-	{
-		return true;
-	}
-	return false;
-}
-
-bool Manager::isCommandWithIndexGiven(string newCommand)
-{
-	bool isModifyCommandWithIndex = false, isDeleteCommandWithIndex = false;
-	this->_cmd = this->_interpreter.interpretCommand(newCommand,this->_response);
-
-	switch (this->_cmd->getCommandType)
-	{
-		case this->_cmd->MOD:
-			isModifyCommandWithIndex = this->hasIndexModifyCommand();
-			break;
-		case this->_cmd->DEL:
-			isDeleteCommandWithIndex = this->hasIndexDeleteCommand();
-			break;
-		default:
-			break;
-	}
-	if(isModifyCommandWithIndex || isDeleteCommandWithIndex)
-	{
-		this->_executor->executeCommand(this->_cmd,this->_response);
-		return true;
-	}
-	//else
-	return false;
-}
-
-bool Manager::hasIndexModifyCommand()
-{
-	Command_Mod tempCommand = *((Command_Mod *) this->_cmd);
-	return tempCommand.getFlagIndex();
-}
-
-bool Manager::hasIndexDeleteCommand()
-{
-	Command_Del tempCommand = *((Command_Del *) this->_cmd);
-	return tempCommand.getFlagIndex();
 }
 
 bool Manager::hasInterpretationError()
