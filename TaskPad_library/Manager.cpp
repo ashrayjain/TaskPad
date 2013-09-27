@@ -3,6 +3,7 @@
 #include "Messenger.h"
 #include "Executor.h"
 #include "Command.h"
+#include "Task.h"
 #include<ctime>
 /*********
 Assumptions made:
@@ -41,8 +42,8 @@ void Manager::handleNormalScenarioCommands(string newCommand)
 	{
 		if(this->hasNoInterpretationError())
 		{
+			this->_response.setInt(this->_index);
 			this->_response.setStatus(DISPLAY);
-			this->_executor->executeCommand(this->_cmd,this->_response);
 		}
 	}
 	else if (isCommandWithIndexGiven(newCommand))
@@ -65,12 +66,103 @@ void Manager::handleNormalScenarioCommands(string newCommand)
 
 void Manager::handleIntermediateScenarioCommands(string newCommand)
 {
-
+	
+	if(isIndexGiven(newCommand) && this->hasNoInterpretationError())
+	{
+		if(isIndexWithinRange())
+		{
+			switch(this->_cmd->getCommandType())
+			{
+				case this->_cmd->MOD:
+					this->insertCreatedTimeIntoModifyCommand();
+					break;
+				case this->_cmd->DEL:
+					this->insertCreatedTimeIntoDeleteCommand();
+					break;
+			}
+		}
+		else
+		{
+			this->_response.setErrorMsg("Given index is out of range!");
+			this->_response.setStatus(ERROR_INTERMEDIATE);
+		}
+	}
+	return;
 }
 
+bool Manager::isIndexWithinRange()
+{
+	int sizeOfCurrentList = this->_response.getList().size();
+	return (sizeOfCurrentList > this->_index);
+}
+
+void Manager::insertCreatedTimeIntoModifyCommand()
+{
+	Command_Mod* tempCommand = (Command_Mod *) this->_cmd;
+	list<Task>::iterator it = this->_response.getList().begin();
+	unsigned createdTime;
+
+	advance(it,(this->_index-1));
+
+	createdTime = this->getCreatedTimeOfTask(&(*it));
+
+	tempCommand->setCreatedTime(createdTime);
+	return;
+}
+
+unsigned Manager::getCreatedTimeOfTask(Task* baseTask)
+{
+	unsigned createdTime;
+	switch(baseTask->getTaskType())
+	{
+		case baseTask->DEADLINE:
+			createdTime = getCreatedTimeOfDeadlineTask(baseTask);
+			break;
+		case baseTask->TIMED:
+			createdTime = getCreatedTimeOfTimedTask(baseTask);
+			break;
+		case  baseTask->FLOATING:
+			createdTime = getCreatedTimeOfFloatingTask(baseTask);
+			break;
+	}
+
+	return createdTime;
+}
+
+unsigned Manager::getCreatedTimeOfDeadlineTask(Task* baseTask)
+{
+	DeadlineTask* tempTask = (DeadlineTask *) baseTask;
+	return tempTask->getIndex();
+}
+
+unsigned Manager::getCreatedTimeOfTimedTask(Task* baseTask)
+{
+	TimedTask* tempTask = (TimedTask *) baseTask;
+	return tempTask->getIndex();
+}
+
+unsigned Manager::getCreatedTimeOfFloatingTask(Task* baseTask)
+{
+	FloatingTask* tempTask = (FloatingTask *) baseTask;
+	return tempTask->getIndex();
+}
+
+void Manager::insertCreatedTimeIntoDeleteCommand()
+{
+	Command_Del* tempCommand = (Command_Del *) this->_cmd;
+	list<Task>::iterator it = this->_response.getList().begin();
+	unsigned createdTime;
+
+	advance(it,(this->_index-1));
+
+	createdTime = this->getCreatedTimeOfTask(&(*it));
+
+	tempCommand->setCreatedTime(createdTime);
+	return;
+}
 bool Manager::isIndexGiven(string newCommand)
 {
-	this->_cmd = this->_interpreter.interpretIndex(newCommand,this->_response);
+	this->_index = this->_interpreter->interpretIndex(newCommand,this->_response);
 	if(this->_response.getStatus() != ERROR)
 	{
 		return true;
