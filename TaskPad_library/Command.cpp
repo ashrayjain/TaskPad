@@ -14,11 +14,11 @@
 
 #include "Command.h"
 
-const bool					Command::DEFAULT_FLAG			= Command::UNCHANGED;
-const Command::COMMAND_TYPE Command::DEFAULT_COMMAND_TYPE	= Command::UNDEFINED;
-const Command::PRIORITY		Command::DEFAULT_PRIORITY		= Command::MEDIUM;
-const bool					Command::DEFAULT_TASK_STATE		= Command::UNDONE;//undone
-const Command::TASK_TYPE	Command::DEFAULT_TASK_TYPE		= Command::FLOATING;
+const bool					Command::DEFAULT_FLAG			= TP::UNCHANGED;
+const TP::COMMAND_TYPE Command::DEFAULT_COMMAND_TYPE	= TP::UNDEFINED;
+const TP::PRIORITY		Command::DEFAULT_PRIORITY		= TP::MEDIUM;
+const bool					Command::DEFAULT_TASK_STATE		= TP::UNDONE;//undone
+const TP::TASK_TYPE	Command::DEFAULT_TASK_TYPE		= TP::FLOATING;
 const std::string			Command::DEFAULT_STRING			= "";
 const std::time_t			Command::DEFAULT_TIME			= -1;
 const int					Command::DEFAULT_INDEX			= -1;

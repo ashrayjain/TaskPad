@@ -18,7 +18,7 @@ namespace UnitTest
 			cmd_add_interpreter->setName("FML 2014");//compulsory field
 			cmd_add_interpreter->setDueDate(time(NULL));
 			Command* cmd = cmd_add_interpreter;//to return
-			Assert::AreEqual(static_cast<int>(Command::ADD), static_cast<int>(cmd->getCommandType()));
+			Assert::AreEqual(static_cast<int>(TP::ADD), static_cast<int>(cmd->getCommandType()));
 
 			//TC0.1: tags
 			cmd_add_interpreter->setTags("tag1, tag2, tag3");
@@ -34,7 +34,7 @@ namespace UnitTest
 			//TC1: emu Executor
 			Command_Add* cmd_add_executor;
 			bool isDueDateSet = false;
-			if( cmd->getCommandType() == Command::ADD )
+			if( cmd->getCommandType() == TP::ADD )
 				cmd_add_executor = dynamic_cast<Command_Add*>(cmd);
 			if( cmd_add_executor->getFlagDue() )
 				isDueDateSet = true;
@@ -48,7 +48,7 @@ namespace UnitTest
 		{
 			//TC0
 			Command* cmd = new Command_Mod();
-			Assert::AreEqual(static_cast<int>(Command::MOD), static_cast<int>(cmd->getCommandType()));
+			Assert::AreEqual(static_cast<int>(TP::MOD), static_cast<int>(cmd->getCommandType()));
 
 			delete cmd;
 		}
@@ -57,7 +57,7 @@ namespace UnitTest
 		{
 			//TC0
 			Command* cmd = new Command_Del();
-			Assert::AreEqual(static_cast<int>(Command::DEL), static_cast<int>(cmd->getCommandType()));
+			Assert::AreEqual(static_cast<int>(TP::DEL), static_cast<int>(cmd->getCommandType()));
 
 			delete cmd;
 		}
@@ -66,7 +66,7 @@ namespace UnitTest
 		{
 			//TC0
 			Command* cmd = new Command_Find();
-			Assert::AreEqual(static_cast<int>(Command::FIND), static_cast<int>(cmd->getCommandType()));
+			Assert::AreEqual(static_cast<int>(TP::FIND), static_cast<int>(cmd->getCommandType()));
 
 			delete cmd;
 		}
@@ -75,7 +75,7 @@ namespace UnitTest
 		{
 			//TC0
 			Command* cmd = new Command_Undo();
-			Assert::AreEqual(static_cast<int>(Command::UNDO), static_cast<int>(cmd->getCommandType()));
+			Assert::AreEqual(static_cast<int>(TP::UNDO), static_cast<int>(cmd->getCommandType()));
 
 			delete cmd;
 		}
@@ -84,7 +84,7 @@ namespace UnitTest
 		{
 			//TC0
 			Command* cmd = new Command_Redo();
-			Assert::AreEqual(static_cast<int>(Command::REDO), static_cast<int>(cmd->getCommandType()));
+			Assert::AreEqual(static_cast<int>(TP::REDO), static_cast<int>(cmd->getCommandType()));
 
 			delete cmd;
 		}
@@ -93,7 +93,7 @@ namespace UnitTest
 		{
 			//TC0
 			Command* cmd = new Command_Sync();
-			Assert::AreEqual(static_cast<int>(Command::SYNC), static_cast<int>(cmd->getCommandType()));
+			Assert::AreEqual(static_cast<int>(TP::SYNC), static_cast<int>(cmd->getCommandType()));
 
 			delete cmd;
 		}
