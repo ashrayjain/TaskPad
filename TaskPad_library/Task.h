@@ -21,6 +21,7 @@
 
 #include <string>
 #include <ctime>
+#include "Enum.h"
 
 #ifndef TASKPAD_TASK_H
 #define TASKPAD_TASK_H
@@ -36,32 +37,29 @@
 class Task
 {
 public:
-	enum TASK_TYPE	{TIMED, DEADLINE, FLOATING};
-	enum PRIORITY	{HIGH, MEDIUM, LOW};
-	enum TASK_STATE {DONE, UNDONE};
 	Task() { defaultTaskInit(); }
-	TASK_TYPE getTaskType() { return _taskType; }
+	TP::TASK_TYPE getTaskType() { return _taskType; }
 
 	
 protected:
 	// Default Task Initialization
 	void defaultTaskInit();
-	void setTaskType(TASK_TYPE type) { _taskType = type; }
+	void setTaskType(TP::TASK_TYPE type) { _taskType = type; }
 
 	// Task Attributes
-	TASK_TYPE	_taskType;
-	std::string	_taskName;
-	std::time_t	_taskDueDate;
-	std::time_t	_taskFromDate;
-	std::time_t	_taskToDate;
-	std::string	_taskLocation;
-	std::string	_taskParticipants;
-	std::string	_taskNote;
-	PRIORITY	_taskPriority;
-	std::string	_taskTags;
-	std::time_t	_taskRemindTime;
-	TASK_STATE	_taskState;
-	unsigned	_taskIndex;
+	TP::TASK_TYPE	_taskType;
+	std::string		_taskName;
+	std::time_t		_taskDueDate;
+	std::time_t		_taskFromDate;
+	std::time_t		_taskToDate;
+	std::string		_taskLocation;
+	std::string		_taskParticipants;
+	std::string		_taskNote;
+	TP::PRIORITY	_taskPriority;
+	std::string		_taskTags;
+	std::time_t		_taskRemindTime;
+	TP::TASK_STATE	_taskState;
+	unsigned		_taskIndex;
 
 	// Task Attribute Flags
 	bool flagName;
@@ -90,21 +88,21 @@ public:
 	TimedTask()
 	{
 		defaultTaskInit();
-		setTaskType(TIMED);
+		setTaskType(TP::TIMED);
 	}
 
-	std::string	getName()			{ return _taskName;			}		
-	std::time_t getFromDate()		{ return _taskFromDate;		}
-	std::time_t getToDate()			{ return _taskToDate;		}
-	std::string getLocation()		{ return _taskLocation;		}
-	std::string getParticipants()	{ return _taskParticipants;	}
-	std::string getNote()			{ return _taskNote;			}
-	PRIORITY	getPriority()		{ return _taskPriority;		}
-	std::string getTags()			{ return _taskTags;			}
-	std::time_t getRemindTime()		{ return _taskRemindTime;	}	
-	TASK_STATE	getState()			{ return _taskState;		}
+	std::string		getName()			{ return _taskName;			}		
+	std::time_t		getFromDate()		{ return _taskFromDate;		}
+	std::time_t		getToDate()			{ return _taskToDate;		}
+	std::string		getLocation()		{ return _taskLocation;		}
+	std::string		getParticipants()	{ return _taskParticipants;	}
+	std::string		getNote()			{ return _taskNote;			}
+	TP::PRIORITY	getPriority()		{ return _taskPriority;		}
+	std::string		getTags()			{ return _taskTags;			}
+	std::time_t		getRemindTime()		{ return _taskRemindTime;	}	
+	TP::TASK_STATE	getState()			{ return _taskState;		}
 	// - Possibly shift to Hash Table
-	unsigned	getIndex()			{ return _taskIndex;		}
+	unsigned		getIndex()			{ return _taskIndex;		}
 
 	// Setter Functions
 	void setName(std::string newName)					{ _taskName			= newName;			flagName = true;			}
@@ -113,10 +111,10 @@ public:
 	void setLocation(std::string newLocation)			{ _taskLocation		= newLocation;		flagLocation = true;		}
 	void setParticipants(std::string newParticipants)	{ _taskParticipants = newParticipants;	flagParticipant = true;		}
 	void setNote(std::string newNote)					{ _taskNote			= newNote;			flagNote = true;			}
-	void setPriority(PRIORITY newPriority)				{ _taskPriority		= newPriority;		flagPriority = true;		}
+	void setPriority(TP::PRIORITY newPriority)			{ _taskPriority		= newPriority;		flagPriority = true;		}
 	void setTags(std::string newTags)					{ _taskTags			= newTags;			flagTags = true;			}
 	void setRemindTime(std::time_t newRemindTime)		{ _taskRemindTime	= newRemindTime;	flagRemindTime = true;		}
-	void setState(TASK_STATE newState)					{ _taskState		= newState;			flagState = true;			}
+	void setState(TP::TASK_STATE newState)				{ _taskState		= newState;			flagState = true;			}
 
 	// Flag Getter Functions
 	bool getFlagName()			{ return flagName; }
@@ -144,29 +142,29 @@ public:
 	FloatingTask()
 	{
 		defaultTaskInit();
-		setTaskType(FLOATING);
+		setTaskType(TP::FLOATING);
 	}
 
-	std::string	getName()			{ return _taskName;			}		
-	std::string getLocation()		{ return _taskLocation;		}
-	std::string getParticipants()	{ return _taskParticipants;	}
-	std::string getNote()			{ return _taskNote;			}
-	PRIORITY	getPriority()		{ return _taskPriority;		}
-	std::string getTags()			{ return _taskTags;			}
-	std::time_t getRemindTime()		{ return _taskRemindTime;	}	
-	TASK_STATE	getState()			{ return _taskState;		}
+	std::string		getName()			{ return _taskName;			}		
+	std::string		getLocation()		{ return _taskLocation;		}
+	std::string		getParticipants()	{ return _taskParticipants;	}
+	std::string		getNote()			{ return _taskNote;			}
+	TP::PRIORITY	getPriority()		{ return _taskPriority;		}
+	std::string		getTags()			{ return _taskTags;			}
+	std::time_t		getRemindTime()		{ return _taskRemindTime;	}	
+	TP::TASK_STATE	getState()			{ return _taskState;		}
 	// - Possibly shift to Hash Table
-	unsigned	getIndex()			{ return _taskIndex;		}
+	unsigned		getIndex()			{ return _taskIndex;		}
 
 	// Setter Functions
 	void setName(std::string newName)					{ _taskName			= newName;			flagName = true;			}	
 	void setLocation(std::string newLocation)			{ _taskLocation		= newLocation;		flagLocation = true;		}
 	void setParticipants(std::string newParticipants)	{ _taskParticipants = newParticipants;	flagParticipant = true;		}
 	void setNote(std::string newNote)					{ _taskNote			= newNote;			flagNote = true;			}
-	void setPriority(PRIORITY newPriority)				{ _taskPriority		= newPriority;		flagPriority = true;		}
+	void setPriority(TP::PRIORITY newPriority)			{ _taskPriority		= newPriority;		flagPriority = true;		}
 	void setTags(std::string newTags)					{ _taskTags			= newTags;			flagTags = true;			}
 	void setRemindTime(std::time_t newRemindTime)		{ _taskRemindTime	= newRemindTime;	flagRemindTime = true;		}
-	void setState(TASK_STATE newState)					{ _taskState		= newState;			flagState = true;			}
+	void setState(TP::TASK_STATE newState)				{ _taskState		= newState;			flagState = true;			}
 
 	// Flag Getter Functions
 	bool getFlagName()			{ return flagName; }
@@ -193,20 +191,20 @@ public:
 	DeadlineTask()
 	{
 		defaultTaskInit();
-		setTaskType(DEADLINE);
+		setTaskType(TP::DEADLINE);
 	}
 
-	std::string	getName()			{ return _taskName;			}		
-	std::time_t	getDueDate()		{ return _taskDueDate;		}
-	std::string getLocation()		{ return _taskLocation;		}
-	std::string getParticipants()	{ return _taskParticipants;	}
-	std::string getNote()			{ return _taskNote;			}
-	PRIORITY	getPriority()		{ return _taskPriority;		}
-	std::string getTags()			{ return _taskTags;			}
-	std::time_t getRemindTime()		{ return _taskRemindTime;	}	
-	TASK_STATE	getState()			{ return _taskState;		}
+	std::string		getName()			{ return _taskName;			}		
+	std::time_t		getDueDate()		{ return _taskDueDate;		}
+	std::string		getLocation()		{ return _taskLocation;		}
+	std::string		getParticipants()	{ return _taskParticipants;	}
+	std::string		getNote()			{ return _taskNote;			}
+	TP::PRIORITY	getPriority()		{ return _taskPriority;		}
+	std::string		getTags()			{ return _taskTags;			}
+	std::time_t		getRemindTime()		{ return _taskRemindTime;	}	
+	TP::TASK_STATE	getState()			{ return _taskState;		}
 	// - Possibly shift to Hash Table
-	unsigned	getIndex()			{ return _taskIndex;		}
+	unsigned		getIndex()			{ return _taskIndex;		}
 
 	// Setter Functions
 	void setName(std::string newName)					{ _taskName			= newName;			flagName = true;			}	
@@ -214,10 +212,10 @@ public:
 	void setLocation(std::string newLocation)			{ _taskLocation		= newLocation;		flagLocation = true;		}
 	void setParticipants(std::string newParticipants)	{ _taskParticipants = newParticipants;	flagParticipant = true;		}
 	void setNote(std::string newNote)					{ _taskNote			= newNote;			flagNote = true;			}
-	void setPriority(PRIORITY newPriority)				{ _taskPriority		= newPriority;		flagPriority = true;		}
+	void setPriority(TP::PRIORITY newPriority)			{ _taskPriority		= newPriority;		flagPriority = true;		}
 	void setTags(std::string newTags)					{ _taskTags			= newTags;			flagTags = true;			}
 	void setRemindTime(std::time_t newRemindTime)		{ _taskRemindTime	= newRemindTime;	flagRemindTime = true;		}
-	void setState(TASK_STATE newState)					{ _taskState		= newState;			flagState = true;			}
+	void setState(TP::TASK_STATE newState)				{ _taskState		= newState;			flagState = true;			}
 
 	// Flag Getter Functions
 	bool getFlagName()			{ return flagName; }
