@@ -203,7 +203,7 @@ QTreeWidget#TaskList QScrollBar::sub-line:vertical {
      </property>
     </item>
    </widget>
-   <widget class="QTextEdit" name="CB_design">
+   <widget class="CommandBar" name="cmdBar">
     <property name="geometry">
      <rect>
       <x>9</x>
@@ -219,7 +219,7 @@ QTreeWidget#TaskList QScrollBar::sub-line:vertical {
      </font>
     </property>
     <property name="styleSheet">
-     <string notr="true">QTextEdit#CommandBar {
+     <string notr="true">QTextEdit#cmdBar {
 	font-family: &quot;Segoe UI Light&quot;;
 	font-size: 18px;
 	background-color: #fff;
@@ -233,7 +233,7 @@ QTreeWidget#TaskList QScrollBar::sub-line:vertical {
 	max-height: 33px;
 }
 
-QTextEdit#CommandBar:hover {
+QTextEdit#cmdBar:hover {
 	border-color: #565656;
 }</string>
     </property>
@@ -585,8 +585,15 @@ QToolButton#HelpButton:hover
    </property>
   </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>CommandBar</class>
+   <extends>QTextEdit</extends>
+   <header>CommandBar.h</header>
+  </customwidget>
+ </customwidgets>
  <tabstops>
-  <tabstop>CB_design</tabstop>
+  <tabstop>cmdBar</tabstop>
   <tabstop>TaskList</tabstop>
   <tabstop>name</tabstop>
   <tabstop>dueOrFromTo</tabstop>

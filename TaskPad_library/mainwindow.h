@@ -1,9 +1,9 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QStack>
 #include "./GeneratedFiles/ui_mainwindow.h"
-#include "CommandBar.h"
+
+class CommandBar;
 
 class MainWindow : public QMainWindow
 {
@@ -25,10 +25,6 @@ private:
 	QPoint mousePressPosition;
 	QPoint mouseMovePosition;
 	bool eventFilter(QObject* watched, QEvent* event);
-
-	QStack<QString> inputHistory_undo;
-	QStack<QString> inputHistory_redo;
-	CommandBar *cb;
 };
 
 #endif // MAINWINDOW_H

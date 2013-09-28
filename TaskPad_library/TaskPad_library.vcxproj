@@ -65,6 +65,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Command.cpp" />
+    <ClCompile Include="CommandBar.cpp" />
     <ClCompile Include="Executor.cpp" />
     <ClCompile Include="GeneratedFiles\Debug\moc_CommandBar.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>

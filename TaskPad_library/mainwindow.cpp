@@ -6,7 +6,7 @@
 #include "CommandBar.h"
 
 MainWindow::MainWindow(QWidget *parent)
-	: QMainWindow(parent), inputHistory_undo(), inputHistory_redo() 
+	: QMainWindow(parent) 
 {
 	ui.setupUi(this);
 	customisedUi();
@@ -18,10 +18,7 @@ MainWindow::MainWindow(QWidget *parent)
 	ui.MinimizeButton->installEventFilter(this);//filter MOUSE MOVE
 	ui.HelpButton->installEventFilter(this);//filter MOUSE MOVE
 	ui.AboutButton->installEventFilter(this);//filter MOUSE MOVE
-	ui.CB_design->setHidden(true);
-	cb = new CommandBar(this);
-	cb->setFocus();
-	cb->installEventFilter(this);
+	ui.cmdBar->installEventFilter(this);
 }
 
 MainWindow::~MainWindow()
@@ -39,57 +36,15 @@ bool MainWindow::eventFilter(QObject* watched, QEvent* event)
 			return true;
 		}
 	}
-	else if(watched == cb)
+	else if(watched == ui.cmdBar)
 	{
 		if(event->type() == QEvent::KeyPress)
 		{
 			QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
-			if(keyEvent->key() == Qt::Key_Up)
+			if(keyEvent->key() == Qt::Key_Return || keyEvent->key() == Qt::Key_Enter)
 			{
-				if(!inputHistory_undo.isEmpty())
-				{
-					QString lastInput = inputHistory_undo.pop();
-					inputHistory_redo.push(lastInput);
-
-					cb->clear();
-					cb->causedByBackspace = true;
-					cb->insertHtml(inputHistory_redo.top());
-				}
-			}
-			else if(keyEvent->key() == Qt::Key_Down)
-			{
-				if(!inputHistory_redo.isEmpty())
-				{
-					QString prevInput = inputHistory_redo.pop();
-					inputHistory_undo.push(prevInput);
-
-					cb->clear();
-					if(!inputHistory_redo.isEmpty())
-					{
-						cb->causedByBackspace = true;
-						cb->insertHtml(inputHistory_redo.top());
-					}
-					else
-					{
-						cb->insertHtml("");
-					}
-				}
-			}
-			else if(keyEvent->key() == Qt::Key_Return || keyEvent->key() == Qt::Key_Enter)
-			{
-				QTextCursor cursor = cb->textCursor();
-				QString currentInput = cursor.block().text().trimmed();
-				if(currentInput != QString(""))
-				{
-					while(!inputHistory_redo.isEmpty())
-					{
-						QString input = inputHistory_redo.pop();
-						inputHistory_undo.push(input);
-					}
-
-					inputHistory_undo.push(currentInput);
-					cb->clear();
-				}
+				QString currentInput = ui.cmdBar->getCurrentLine();
+				ui.cmdBar->pushCurrentLine();
 				return true;//stop Key return or Key enter
 			}
 		}
