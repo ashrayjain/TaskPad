@@ -36,9 +36,9 @@ void Task::defaultTaskInit() {
 	_taskLocation		= "";
 	_taskParticipants	= "";
 	_taskNote			= "";
-	_taskPriority		= MEDIUM;
+	_taskPriority		= TP::MEDIUM;
 	_taskTags			= "";
 	_taskRemindTime		= 0;
-	_taskState			= UNDONE;
+	_taskState			= TP::UNDONE;
 	_taskIndex			= int(time(NULL));
 }
