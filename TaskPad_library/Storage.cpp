@@ -5,13 +5,15 @@
 
 using namespace TP;
 
+const string Storage::_fileName = "TaskPad.txt";
+
 Storage::Storage(list<Task>&)
 {
 }
 
 bool Storage::save(list<Task>& taskList)
 {
-	string singleEntry = "";
+	string singleTaskEntry = "";
 	if(taskList.empty())
 	{
 		// EMPTY THE WHOLE FILE!!
@@ -25,16 +27,35 @@ bool Storage::save(list<Task>& taskList)
 		switch(it->getTaskType())
 		{
 			case DEADLINE:
-			case TIMED:
-			case FLOATING:
+				this->saveDeadlineTask(&(*it));
 				break;
-		} 
+			case TIMED:
+				this->saveTimedTask(&(*it));
+				break;
+			case FLOATING:
+				this->saveFloatingTask(&(*it));
+				break;
+		}
 		return false;
 
 
 		it++;
 	}
 }
+
+void Storage::saveDeadlineTask(Task* tempTask)
+{
+	DeadlineTask* tempTaskDeadline = (DeadlineTask *) tempTask;
+}
+
+void Storage::saveTimedTask(Task* tempTask)
+{
+}
+
+void Storage::saveFloatingTask(Task* tempTask)
+{
+}
+
 bool Storage::save(const Command&)
 {
 	return false;
