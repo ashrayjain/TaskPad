@@ -1,7 +1,9 @@
 #include <QMouseEvent>
-#include <qlist.h>
+#include <QMessageBox>
+#include <QTextBlock>
 #include "mainwindow.h"
 #include "lastColumnDelegate.h"
+#include "CommandBar.h"
 
 MainWindow::MainWindow(QWidget *parent)
 	: QMainWindow(parent), inputHistory_undo(), inputHistory_redo() 
@@ -11,11 +13,15 @@ MainWindow::MainWindow(QWidget *parent)
 	QObject::connect(ui.CloseButton, SIGNAL(clicked()), this, SLOT(close()));
 	QObject::connect(ui.MinimizeButton, SIGNAL(clicked()), this, SLOT(showMinimized()));
 	QObject::connect(ui.AboutButton, SIGNAL(clicked()), this, SLOT(about()));
-	ui.CommandBar->installEventFilter(this);//filter RETURN
+	//ui.CommandBar->installEventFilter(this);//filter RETURN
 	ui.CloseButton->installEventFilter(this);//filter MOUSE MOVE
 	ui.MinimizeButton->installEventFilter(this);//filter MOUSE MOVE
 	ui.HelpButton->installEventFilter(this);//filter MOUSE MOVE
 	ui.AboutButton->installEventFilter(this);//filter MOUSE MOVE
+	ui.CB_design->setHidden(true);
+	CommandBar* cb = new CommandBar(this);
+	cb->setFocus();
+	cb->installEventFilter(this);
 }
 
 MainWindow::~MainWindow()
@@ -33,7 +39,7 @@ bool MainWindow::eventFilter(QObject* watched, QEvent* event)
 			return true;
 		}
 	}
-	else if(watched == ui.CommandBar)
+	else if(watched == cb)
 	{
 		if(event->type() == QEvent::KeyPress)
 		{
@@ -45,8 +51,8 @@ bool MainWindow::eventFilter(QObject* watched, QEvent* event)
 					QString lastInput = inputHistory_undo.pop();
 					inputHistory_redo.push(lastInput);
 
-					ui.CommandBar->clear();
-					ui.CommandBar->insertHtml(inputHistory_redo.top());
+					cb->clear();
+					cb->insertHtml(inputHistory_redo.top());
 				}
 			}
 			else if(keyEvent->key() == Qt::Key_Down)
@@ -56,20 +62,20 @@ bool MainWindow::eventFilter(QObject* watched, QEvent* event)
 					QString prevInput = inputHistory_redo.pop();
 					inputHistory_undo.push(prevInput);
 
-					ui.CommandBar->clear();
+					cb->clear();
 					if(!inputHistory_redo.isEmpty())
 					{
-						ui.CommandBar->insertHtml(inputHistory_redo.top());
+						cb->insertHtml(inputHistory_redo.top());
 					}
 					else
 					{
-						ui.CommandBar->insertHtml("");
+						cb->insertHtml("");
 					}
 				}
 			}
 			else if(keyEvent->key() == Qt::Key_Return || keyEvent->key() == Qt::Key_Enter)
 			{
-				QTextCursor cursor = ui.CommandBar->textCursor();
+				QTextCursor cursor = cb->textCursor();
 				QString currentInput = cursor.block().text().trimmed();
 				if(currentInput != QString(""))
 				{
@@ -80,7 +86,7 @@ bool MainWindow::eventFilter(QObject* watched, QEvent* event)
 					}
 
 					inputHistory_undo.push(currentInput);
-					ui.CommandBar->clear();
+					cb->clear();
 				}
 				return true;//stop Key return or Key enter
 			}
