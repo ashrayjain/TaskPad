@@ -126,5 +126,8 @@
     <ClCompile Include="GeneratedFiles\Release\moc_CommandBar.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="CommandBar.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
