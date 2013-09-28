@@ -324,7 +324,7 @@ void CommandBar::handleKeyTab(bool *isHandled)
 		}
 		*isHandled = true;
 	}
-	else if(cursor.hasSelection())
+	else
 	{
 		TEXT_EDIT_BEGIN
 		cursor.clearSelection();
@@ -332,10 +332,6 @@ void CommandBar::handleKeyTab(bool *isHandled)
 		TEXT_EDIT_END
 		*isHandled = true;
 		setTextCursor(cursor);
-	}
-	else
-	{
-		*isHandled = true;
 	}
 }
 
@@ -401,20 +397,6 @@ void CommandBar::handleKeyDown()
 void CommandBar::handleKeyDefault()
 {
 	TURN_ON_AC
-}
-
-void CommandBar::mousePressEvent(QMouseEvent*event)
-{
-	if (autoCompleteFlag) {
-		QTextCursor cursor = textCursor();
-
-		TEXT_EDIT_BEGIN
-		cursor.removeSelectedText();
-		TEXT_EDIT_END
-
-		setTextCursor(cursor);
-	}
-	QTextEdit::mousePressEvent(event);
 }
 
 void CommandBar::createNewTaskTemplate()
