@@ -222,6 +222,7 @@ QTreeWidget#TaskList QScrollBar::sub-line:vertical {
      <string notr="true">QTextEdit#cmdBar {
 	font-family: &quot;Segoe UI Light&quot;;
 	font-size: 18px;
+	color: #454545;
 	background-color: #fff;
 	border: 1px solid #9ac3fa;
 	border-color: #9ac3fa;

@@ -1,4 +1,5 @@
 #include "CommandBar.h"
+#include "Highlighter.h"
 
 const QStringList CommandBar::COMMAND_LIST = QStringList() \
 	<< "add" << "mod" << "del" << "find" << "undo" <<     \
@@ -25,6 +26,7 @@ void CommandBar::initWidgets()
 	autoCompleteToggle(true);
 	initModel();
 	initCompleter();
+	(void) new Highlighter(document());
 }
 
 void CommandBar::initModel(){
@@ -50,11 +52,7 @@ void CommandBar::initConnections()
 
 QString CommandBar::getCurrentLine()
 {
-	QTextCursor cursor = textCursor();
-	cursor.select(QTextCursor::LineUnderCursor);
-
-	QString result = cursor.selectedText();
-	return result;
+	return toPlainText();
 }
 
 void CommandBar::pushCurrentLine()
@@ -103,6 +101,7 @@ void CommandBar::performCompletion()
 				{
 					insertSingleQuotationMark_RHS();
 				}
+				//TODO: need a case, if RHS single quotation is deleted, while LHS sq is left
 			}
 		}
 	}
@@ -127,9 +126,10 @@ void CommandBar::insertCompletion(const QString &completion)
 	if(numberOfCharsToComplete > 0)// if == 0, nothing to complete
 	{
 		int insertionPosition = cursor.position();
+		cursor.movePosition(QTextCursor::StartOfWord, QTextCursor::KeepAnchor);
 
 		TEXT_EDIT_BEGIN
-		cursor.insertText(completion.right(numberOfCharsToComplete));
+		cursor.insertHtml( completion );
 		TEXT_EDIT_END
 
 		cursor.setPosition(insertionPosition);//back to prev. cursor position
@@ -298,6 +298,7 @@ void CommandBar::handleKeyEscape(bool *isHandled)
 
 void CommandBar::handleKeySpaceAndTab(bool *isHandled)
 {
+	//TODO: tab control need to be consistent
 	QTextCursor cursor = textCursor();
 	if(cursor.hasSelection())
 	{
@@ -347,7 +348,9 @@ void CommandBar::handleKeyDown()
 		}
 		else
 		{
+			TEXT_EDIT_BEGIN
 			insertHtml(EMPTY);
+			TEXT_EDIT_END
 		}
 	}
 }
