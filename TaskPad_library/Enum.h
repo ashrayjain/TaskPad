@@ -1,0 +1,14 @@
+#ifndef _ENUM_H
+#define _ENUM_H
+namespace TP
+{
+	enum COMMAND_TYPE	{ ADD, MOD, DEL, FIND, UNDO, REDO, SYNC, UNDEFINED};
+	enum PRIORITY		{ HIGH, MEDIUM, LOW };
+	enum TASK_STATE		{ UNDONE = false, DONE = true };
+	enum TASK_TYPE		{ TIMED, DEADLINE, FLOATING };
+	enum FLAG			{ UNCHANGED = false, EDITED = true };
+	enum STATUS			{
+		ERROR, ERROR_INTERMEDIATE, SUCCESS, INTERMEDIATE, SUCCESS_INDEXED_COMMAND, DISPLAY
+	};
+}
+#endif
