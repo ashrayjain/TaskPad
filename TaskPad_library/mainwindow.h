@@ -15,6 +15,7 @@ public:
 
 protected slots:
 	void about();
+	void createNewTaskTemplate();
 
 private:
 	void customisedUi();

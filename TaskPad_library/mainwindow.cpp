@@ -1,6 +1,7 @@
 #include <QMouseEvent>
 #include <QMessageBox>
 #include <QTextBlock>
+#include <QShortcut>
 #include "mainwindow.h"
 #include "lastColumnDelegate.h"
 #include "CommandBar.h"
@@ -13,6 +14,7 @@ MainWindow::MainWindow(QWidget *parent)
 	QObject::connect(ui.CloseButton, SIGNAL(clicked()), this, SLOT(close()));
 	QObject::connect(ui.MinimizeButton, SIGNAL(clicked()), this, SLOT(showMinimized()));
 	QObject::connect(ui.AboutButton, SIGNAL(clicked()), this, SLOT(about()));
+	(void) new QShortcut(QKeySequence(tr("Ctrl+N", "New Task")), this, SLOT(createNewTaskTemplate()));
 	//ui.CommandBar->installEventFilter(this);//filter RETURN
 	ui.CloseButton->installEventFilter(this);//filter MOUSE MOVE
 	ui.MinimizeButton->installEventFilter(this);//filter MOUSE MOVE
@@ -59,6 +61,11 @@ void MainWindow::about()
     Msgbox.setText("TaskPad is a product created by Team F12-1C.\n"
 		"Members: ASHRAY, KAI, JIANGZE, THYAGESH, ZIXUAN.");
     Msgbox.exec();
+}
+
+void MainWindow::createNewTaskTemplate()
+{
+	ui.cmdBar->createNewTaskTemplate();
 }
 
 void MainWindow::customisedUi(){
