@@ -3,6 +3,7 @@
 
 #include <QStack>
 #include "./GeneratedFiles/ui_mainwindow.h"
+#include "CommandBar.h"
 
 class MainWindow : public QMainWindow
 {
@@ -27,6 +28,7 @@ private:
 
 	QStack<QString> inputHistory_undo;
 	QStack<QString> inputHistory_redo;
+	CommandBar *cb;
 };
 
 #endif // MAINWINDOW_H

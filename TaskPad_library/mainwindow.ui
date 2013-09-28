@@ -203,7 +203,7 @@ QTreeWidget#TaskList QScrollBar::sub-line:vertical {
      </property>
     </item>
    </widget>
-   <widget class="QTextEdit" name="CommandBar">
+   <widget class="QTextEdit" name="CB_design">
     <property name="geometry">
      <rect>
       <x>9</x>
@@ -586,7 +586,7 @@ QToolButton#HelpButton:hover
   </action>
  </widget>
  <tabstops>
-  <tabstop>CommandBar</tabstop>
+  <tabstop>CB_design</tabstop>
   <tabstop>TaskList</tabstop>
   <tabstop>name</tabstop>
   <tabstop>dueOrFromTo</tabstop>
