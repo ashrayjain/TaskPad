@@ -21,6 +21,7 @@ public:
 	
 	QString getCurrentLine();
 	void pushCurrentLine();
+	void createNewTaskTemplate();
 
 	protected slots:
 		void performCompletion();
@@ -31,6 +32,8 @@ private:
 	static const QString SPACE;
 	static const QString SINGLE_QUOTATION_MARK;
 	static const QString EMPTY;
+
+	static const QString HOTKEY_TEMPLATE_NEW;
 
 	void initWidgets();
 	void initCompleter();
@@ -59,7 +62,8 @@ private:
 
 	bool handleKeyPress(QKeyEvent*event);
 	void handleKeyEscape(bool *isHandled);
-	void handleKeySpaceAndTab(bool *isHandled);
+	void handleKeyTab(bool *isHandled);
+	void handleKeySpace(bool *isHandled);
 	void handleKeyDeleteAndBackspace();
 	void CommandBar::handleKeyUp();
 	void CommandBar::handleKeyDown();
@@ -68,8 +72,11 @@ private:
 	void mousePressEvent(QMouseEvent*event);
 
 	bool autoCompleteFlag;
+	bool hotkeyTemplateMode;
+	QTextCursor lastTimeCursor;
 	QStringListModel* model;
 	QCompleter* completer;
+	QRegExp hotkeyTemplate;
 	QStack<QString> inputHistory_undo;
 	QStack<QString> inputHistory_redo;
 };

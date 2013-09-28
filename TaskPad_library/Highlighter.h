@@ -6,7 +6,7 @@ class Highlighter: public QSyntaxHighlighter
 	Q_OBJECT
 
 public:
-	enum HIGHLIGHT_TYPE { COMMAND, KEYWORD };
+	enum HIGHLIGHT_TYPE { COMMAND, KEYWORD, BLANK };
 
 	Highlighter(QTextDocument *parent)
 	:QSyntaxHighlighter(parent)
@@ -15,9 +15,12 @@ public:
 		CommandFormat.setForeground(QBrush("#232323"));
 		KeywordFormat.setFontWeight(QFont::Bold);
 		KeywordFormat.setForeground(QBrush("#397CD4"));
+		BlankFormat.setFontWeight(QFont::Bold);
+		BlankFormat.setForeground(QBrush("#742894"));
 		addRegex(COMMAND, "^(add|mod|del|find|undo|redo|sync)");
 		addRegex(KEYWORD, "name|due|from|to|at|ppl|note|impt"\
 						"|rt|done|undone|deadline|timed|floating|#");
+		addRegex(BLANK, "__[A-Z]+__");
 	}
 
 	void highlightBlock(const QString &text)
@@ -48,6 +51,8 @@ private:
 					setFormat(index, length, CommandFormat);
 				else if (type == KEYWORD)
 					setFormat(index, length, KeywordFormat);
+				else if (type == BLANK)
+					setFormat(index, length, BlankFormat);
 				index = regex.indexIn(text, index + length);
 			}
 		}
@@ -55,5 +60,6 @@ private:
 
 	QTextCharFormat CommandFormat;
 	QTextCharFormat KeywordFormat;
+	QTextCharFormat BlankFormat;
 	QMultiHash< HIGHLIGHT_TYPE, QRegExp > regexForType;
 };

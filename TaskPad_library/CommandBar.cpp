@@ -13,17 +13,21 @@ const QStringList CommandBar::KEYWORD_LIST = QStringList() \
 const QString CommandBar::SPACE = " ";
 const QString CommandBar::SINGLE_QUOTATION_MARK = "'";
 const QString CommandBar::EMPTY = "";
+const QString CommandBar::HOTKEY_TEMPLATE_NEW = "add '__NAME__' due '__DATE__' at '__WHERE__' note '__NOTE__'";
 
 CommandBar::CommandBar(QWidget *parent)
-	:QTextEdit(parent), inputHistory_undo(), inputHistory_redo()
+	:QTextEdit(parent), inputHistory_undo(), inputHistory_redo(),\
+	hotkeyTemplate("__[A-Z]+__", Qt::CaseInsensitive)
 {
 	initWidgets();
 	initConnections();
+	hotkeyTemplate.setPatternSyntax(QRegExp::RegExp2);
 }
 
 void CommandBar::initWidgets()
 {
 	autoCompleteToggle(true);
+	hotkeyTemplateMode = false;
 	initModel();
 	initCompleter();
 	(void) new Highlighter(document());
@@ -265,9 +269,11 @@ bool CommandBar::handleKeyPress(QKeyEvent*event)
 	case Qt::Key_Escape:
 			handleKeyEscape(&isHandled);
 		break;
-	case Qt::Key_Tab:		// Fallthrough
+	case Qt::Key_Tab:
+			handleKeyTab(&isHandled);
+		break;
 	case Qt::Key_Space:
-			handleKeySpaceAndTab(&isHandled);
+			handleKeySpace(&isHandled);
 		break;
 	case Qt::Key_Delete:	// Fallthrough
 	case Qt::Key_Backspace:
@@ -296,7 +302,44 @@ void CommandBar::handleKeyEscape(bool *isHandled)
 	*isHandled = true;
 }
 
-void CommandBar::handleKeySpaceAndTab(bool *isHandled)
+void CommandBar::handleKeyTab(bool *isHandled)
+{
+	//TODO: tab control need to be consistent
+	QTextCursor cursor = textCursor();
+	if(hotkeyTemplateMode)
+	{
+		lastTimeCursor = document()->find(hotkeyTemplate, lastTimeCursor);
+		if(lastTimeCursor.isNull())
+		{
+			lastTimeCursor.movePosition(QTextCursor::Start);
+			lastTimeCursor = document()->find(hotkeyTemplate, lastTimeCursor);
+			if(lastTimeCursor.isNull())
+			{
+				hotkeyTemplateMode = false;
+			}
+		}
+		if(!(lastTimeCursor.isNull()))
+		{
+			setTextCursor(lastTimeCursor);
+		}
+		*isHandled = true;
+	}
+	else if(cursor.hasSelection())
+	{
+		TEXT_EDIT_BEGIN
+		cursor.clearSelection();
+		cursor.insertText(SPACE);
+		TEXT_EDIT_END
+		*isHandled = true;
+		setTextCursor(cursor);
+	}
+	else
+	{
+		*isHandled = true;
+	}
+}
+
+void CommandBar::handleKeySpace(bool *isHandled)
 {
 	//TODO: tab control need to be consistent
 	QTextCursor cursor = textCursor();
@@ -307,8 +350,8 @@ void CommandBar::handleKeySpaceAndTab(bool *isHandled)
 		cursor.insertText(SPACE);
 		TEXT_EDIT_END
 		*isHandled = true;
+		setTextCursor(cursor);
 	}
-	setTextCursor(cursor);
 }
 
 void CommandBar::handleKeyDeleteAndBackspace()
@@ -372,4 +415,19 @@ void CommandBar::mousePressEvent(QMouseEvent*event)
 		setTextCursor(cursor);
 	}
 	QTextEdit::mousePressEvent(event);
+}
+
+void CommandBar::createNewTaskTemplate()
+{
+	pushCurrentLine();
+	TEXT_EDIT_BEGIN
+	insertPlainText(HOTKEY_TEMPLATE_NEW);
+	TEXT_EDIT_END
+	
+	moveCursor(QTextCursor::Start);
+
+	lastTimeCursor = document()->find(hotkeyTemplate, textCursor());
+	setTextCursor(lastTimeCursor);
+
+	hotkeyTemplateMode = true;
 }
