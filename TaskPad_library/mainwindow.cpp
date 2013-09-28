@@ -19,7 +19,7 @@ MainWindow::MainWindow(QWidget *parent)
 	ui.HelpButton->installEventFilter(this);//filter MOUSE MOVE
 	ui.AboutButton->installEventFilter(this);//filter MOUSE MOVE
 	ui.CB_design->setHidden(true);
-	CommandBar* cb = new CommandBar(this);
+	cb = new CommandBar(this);
 	cb->setFocus();
 	cb->installEventFilter(this);
 }
@@ -52,6 +52,7 @@ bool MainWindow::eventFilter(QObject* watched, QEvent* event)
 					inputHistory_redo.push(lastInput);
 
 					cb->clear();
+					cb->causedByBackspace = true;
 					cb->insertHtml(inputHistory_redo.top());
 				}
 			}
@@ -65,6 +66,7 @@ bool MainWindow::eventFilter(QObject* watched, QEvent* event)
 					cb->clear();
 					if(!inputHistory_redo.isEmpty())
 					{
+						cb->causedByBackspace = true;
 						cb->insertHtml(inputHistory_redo.top());
 					}
 					else
