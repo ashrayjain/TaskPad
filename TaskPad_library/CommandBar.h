@@ -69,8 +69,6 @@ private:
 	void CommandBar::handleKeyDown();
 	void handleKeyDefault();
 
-	void mousePressEvent(QMouseEvent*event);
-
 	bool autoCompleteFlag;
 	bool hotkeyTemplateMode;
 	QTextCursor lastTimeCursor;
