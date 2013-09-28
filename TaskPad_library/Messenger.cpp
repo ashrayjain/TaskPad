@@ -1,7 +1,9 @@
 #include "Messenger.h"
 #include "Task.h"
+#include "Enum.h"
 
 using namespace std;
+using namespace TP;
 
 // constructor
 

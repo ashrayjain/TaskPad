@@ -1,4 +1,5 @@
-#include <QtWidgets>
+#include <QStyledItemDelegate>
+#include <QPainter>
 
 #ifndef LAST_COLUMN_DELEGATE_H
 #define LAST_COLUMN_DELEGATE_H
