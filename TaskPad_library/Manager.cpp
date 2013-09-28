@@ -2,6 +2,7 @@
 #include "Storage.h"
 #include "Messenger.h"
 #include "Executor.h"
+#include "Interpreter.h"
 #include "Command.h"
 #include "Task.h"
 #include "Enum.h"
@@ -17,7 +18,7 @@ Manager::Manager()
 {
 	this->_storage = new Storage(_tasks);
 	this->_executor = new Executor(&_tasks);
-//	this->_interpreter = new Interpreter;
+	this->_interpreter = new Interpreter;
 	this->_response = Messenger();
 }
 
@@ -107,7 +108,7 @@ void Manager::handleIntermediateScenarioCommands(string newCommand)
 
 bool Manager::isIndexGiven(string newCommand)
 {
-	//this->_index = this->_interpreter->interpretIndex(newCommand,this->_response);
+	this->_index = this->_interpreter->interpretIndex(newCommand,this->_response);
 	if(this->_response.getStatus() != ERROR_INTERMEDIATE)
 	{
 		return true;
@@ -118,7 +119,7 @@ bool Manager::isIndexGiven(string newCommand)
 bool Manager::isCommandWithIndexGiven(string newCommand)
 {
 	bool isModifyCommandWithIndex = false, isDeleteCommandWithIndex = false;
-	//this->_cmd = this->_interpreter.interpretCommand(newCommand,this->_response);
+	this->_cmd = this->_interpreter->interpretCommand(newCommand,this->_response);
 
 	switch (this->_cmd->getCommandType())
 	{
