@@ -251,9 +251,11 @@ private:
 		}
 		QTextEdit::mousePressEvent(event);
 	}
-	bool causedByBackspace;
+	
 	bool completedAndSelected;
 	QCompleter* completer;
 	QStringListModel* model;
+public:
+	bool causedByBackspace;
 };
 #endif
