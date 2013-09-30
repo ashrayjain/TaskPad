@@ -14,9 +14,32 @@
 
 #include "Task.h"
 
+std::set<unsigned> Task::listOfAllIndices;
 
-void Task::defaultTaskInit() {
+void Task::defaultTaskInit()
+{
+	_taskIndex = int(time(NULL));
+	listOfAllIndices.insert(_taskIndex);
+	initFlags();
+	initTaskAttributes();
+}
 
+void Task::defaultTaskInit(unsigned indexToPut)
+{
+	if (isIndexInList(indexToPut))
+	{
+		_taskIndex = indexToPut;
+		listOfAllIndices.insert(indexToPut);
+	}
+	else
+		throw std::to_string(indexToPut) + INDEX_INVALID_ERROR;
+	
+	initFlags();
+	initTaskAttributes();
+}
+
+void Task::initFlags()
+{
 	flagName		= false;
 	flagDueDate		= false;
 	flagFromDate	= false;
@@ -28,7 +51,10 @@ void Task::defaultTaskInit() {
 	flagTags		= false;
 	flagRemindTime	= false;
 	flagState		= false;
+}
 
+void Task::initTaskAttributes()
+{
 	_taskName			= "";
 	_taskDueDate		= 0;
 	_taskFromDate		= 0;
@@ -40,5 +66,7 @@ void Task::defaultTaskInit() {
 	_taskTags			= "";
 	_taskRemindTime		= 0;
 	_taskState			= TP::UNDONE;
-	_taskIndex			= int(time(NULL));
 }
+
+
+
