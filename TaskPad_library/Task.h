@@ -44,7 +44,7 @@ public:
 protected:
 	// Default Task Initialization
 	void defaultTaskInit();
-	void setTaskType(TP::TASK_TYPE type) { _taskType = type; }
+	void setTaskType(TP::TASK_TYPE type) { _taskType = type; }	
 
 	// Task Attributes
 	TP::TASK_TYPE	_taskType;
@@ -127,6 +127,7 @@ public:
 	bool getFlagTags()			{ return flagTags; }
 	bool getFlagRemindTime()	{ return flagRemindTime; }
 	bool getFlagState()			{ return flagState; }
+
 };
 
 /*
@@ -227,6 +228,7 @@ public:
 	bool getFlagTags()			{ return flagTags; }
 	bool getFlagRemindTime()	{ return flagRemindTime; }
 	bool getFlagState()			{ return flagState; }
+
 };
 
 #endif
