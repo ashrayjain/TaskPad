@@ -24,6 +24,9 @@ class Storage
 		void saveDeadlineTask(Task* tempTask);
 		void saveTimedTask(Task* tempTask);
 		void saveFloatingTask(Task* tempTask);
+		void saveString(string line);
+
+		static string convertTimeToString(time_t time);
 	public:
 		Storage(list<Task>&);
 
