@@ -7,12 +7,13 @@ using namespace TP;
 
 // constructor
 
-Messenger::Messenger(STATUS status, list<Task> result, int index, string errorMsg)
+Messenger::Messenger(COMMAND_TYPE commandType,STATUS status, list<Task> result, int index, string errorMsg)
 {
 	this->_status = status;
 	this->_resultList = result;
 	this->_errorMsg = errorMsg;
 	this->_index = index;
+	this->_commandType = commandType;
 }
 
 //getter methods
@@ -35,6 +36,11 @@ list<Task> Messenger::getList() const
 int Messenger::getIndex()  const
 {
 	return this->_index;
+}
+
+COMMAND_TYPE Messenger::getCommandType() const
+{
+	return this->_commandType;
 }
 
 //setter methods
@@ -81,6 +87,12 @@ bool Messenger::isValidIndex (const int& index) const
 		return true;
 
 	return false;
+}
+
+bool Messenger::setCommandType(const COMMAND_TYPE& commandType)
+{
+	this->_commandType = commandType;
+	return true;
 }
 
 void Messenger::resetMessenger()
