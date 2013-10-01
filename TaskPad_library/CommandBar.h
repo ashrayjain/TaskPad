@@ -25,6 +25,7 @@ public:
 
 protected slots:
 	void performCompletion();
+	void hkTemplateGoBackwards();
 
 private:
 	static const QStringList COMMAND_LIST;

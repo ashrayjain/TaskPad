@@ -1,3 +1,4 @@
+#include <QShortcut>
 #include "CommandBar.h"
 #include "Highlighter.h"
 
@@ -52,6 +53,7 @@ void CommandBar::initCompleter()
 void CommandBar::initConnections()
 {
 	connect(this, SIGNAL(textChanged()), this, SLOT(performCompletion()));
+	(void) new QShortcut(QKeySequence(tr("Shift+Tab", "HotKey Template: Go Backwards")), this, SLOT(hkTemplateGoBackwards()));
 }
 
 QString CommandBar::getCurrentLine()
@@ -300,6 +302,29 @@ void CommandBar::handleKeyEscape(bool *isHandled)
 	TEXT_EDIT_END
 	setTextCursor(cursor);
 	*isHandled = true;
+}
+
+//TODO: dynamically check hotkeyTemplateMode
+//TODO: combind this with go forwards
+void CommandBar::hkTemplateGoBackwards(){
+	QTextCursor cursor = textCursor();
+	if(hotkeyTemplateMode)
+	{
+		lastTimeCursor = document()->find(hotkeyTemplate, lastTimeCursor, QTextDocument::FindBackward);
+		if(lastTimeCursor.isNull())
+		{
+			moveCursor(QTextCursor::End);
+			lastTimeCursor = document()->find(hotkeyTemplate, textCursor(), QTextDocument::FindBackward);
+			if(lastTimeCursor.isNull())
+			{
+				hotkeyTemplateMode = false;
+			}
+		}
+		if(!(lastTimeCursor.isNull()))
+		{
+			setTextCursor(lastTimeCursor);
+		}
+	}
 }
 
 void CommandBar::handleKeyTab(bool *isHandled)
