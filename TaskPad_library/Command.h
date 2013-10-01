@@ -163,11 +163,11 @@ public:
 	bool getFlagName()								{ return FLAG_name; }
 	bool getFlagDue()								{ return FLAG_due; }
 	bool getFlagFrom()								{ return FLAG_from; }
-	bool getFLagTo()								{ return FLAG_to; }
+	bool getFlagTo()								{ return FLAG_to; }
 	bool getFlagLocation()							{ return FLAG_location; }
 	bool getFlagParticipants()						{ return FLAG_participants; }
 	bool getFlagNote()								{ return FLAG_note; }
-	bool getFLagPriority()							{ return FLAG_priority; }
+	bool getFlagPriority()							{ return FLAG_priority; }
 	bool getFlagTags()								{ return FLAG_tags; }
 	bool getFlagRemindTime()						{ return FLAG_remindTime; }
 };
@@ -223,11 +223,11 @@ public:
 	bool getFlagName()								{ return FLAG_name; }
 	bool getFlagDue()								{ return FLAG_due; }
 	bool getFlagFrom()								{ return FLAG_from; }
-	bool getFLagTo()								{ return FLAG_to; }
+	bool getFlagTo()								{ return FLAG_to; }
 	bool getFlagLocation()							{ return FLAG_location; }
 	bool getFlagParticipants()						{ return FLAG_participants; }
 	bool getFlagNote()								{ return FLAG_note; }
-	bool getFLagPriority()							{ return FLAG_priority; }
+	bool getFlagPriority()							{ return FLAG_priority; }
 	bool getFlagTags()								{ return FLAG_tags; }
 	bool getFlagRemindTime()						{ return FLAG_remindTime; }
 	bool getFlagTaskState()							{ return FLAG_taskState; }
@@ -318,11 +318,11 @@ public:
 	bool getFlagName()								{ return FLAG_name; }
 	bool getFlagDue()								{ return FLAG_due; }
 	bool getFlagFrom()								{ return FLAG_from; }
-	bool getFLagTo()								{ return FLAG_to; }
+	bool getFlagTo()								{ return FLAG_to; }
 	bool getFlagLocation()							{ return FLAG_location; }
 	bool getFlagParticipants()						{ return FLAG_participants; }
 	bool getFlagNote()								{ return FLAG_note; }
-	bool getFLagPriority()							{ return FLAG_priority; }
+	bool getFlagPriority()							{ return FLAG_priority; }
 	bool getFlagTags()								{ return FLAG_tags; }
 	bool getFlagRemindTime()						{ return FLAG_remindTime; }
 	bool getFlagTaskState()							{ return FLAG_taskState; }
