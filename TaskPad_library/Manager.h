@@ -9,8 +9,7 @@ class Executor;
 class Storage;
 class Command;
 
-class Manager
-{
+class Manager {
 	private:
 		//other components
 		Interpreter* _interpreter;
