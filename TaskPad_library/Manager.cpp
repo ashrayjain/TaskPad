@@ -1,3 +1,4 @@
+#include<ctime>
 #include "Manager.h"
 #include "Storage.h"
 #include "Messenger.h"
@@ -6,13 +7,14 @@
 #include "Command.h"
 #include "Task.h"
 #include "Enum.h"
-#include<ctime>
 /*********
 Assumptions made:
-- Both interpreter and Executor do not change the status of the response object unless it is an error/intermediate
+- Both interpreter and Executor only set the status as either SUCCESS or ERROR
 **********/
 
 using namespace TP;
+
+const string Manager::MESSAGE_INDEX_OUT_OF_RANGE = "Given index is out of range!";
 
 Manager::Manager()
 {
@@ -20,24 +22,43 @@ Manager::Manager()
 	this->_executor = new Executor(&_tasks);
 	this->_interpreter = new Interpreter;
 	this->_response = Messenger();
+	this->_cmd = NULL;
 }
 
 Messenger Manager::processCommand(const string& newCommand)
 {
 	switch(this->_response.getStatus())
 	{
-		case SUCCESS:
-		case SUCCESS_INDEXED_COMMAND:
-		case ERROR:
-		case DISPLAY:
-			handleNormalScenarioCommands(newCommand);
-			break;
 		case INTERMEDIATE:
 		case ERROR_INTERMEDIATE:
 			handleIntermediateScenarioCommands(newCommand);
 			break;
+		default:
+			removePreviousCommand();
+			handleNormalScenarioCommands(newCommand);
+			break;
 	}
 	return this->_response;
+}
+/*	case SUCCESS:
+	case SUCCESS_INDEXED_COMMAND:
+	case ERROR:
+	case DISPLAY:
+	case UNDEFINED:*/
+
+/**
+ * Deletes the previously created command and,
+ * returns the memory to the system
+ */
+void Manager::removePreviousCommand()
+{
+	if(this->_cmd != NULL)
+	{
+		delete this->_cmd;
+		this->_cmd = NULL;
+	}
+
+	return;
 }
 
 /**
@@ -59,16 +80,18 @@ void Manager::handleNormalScenarioCommands(string newCommand)
 		}
 		else
 		{
-			this->_response.setErrorMsg("Given index is out of range!");
+			this->_response.setErrorMsg(MESSAGE_INDEX_OUT_OF_RANGE);
 			this->_response.setStatus(ERROR);
 		}
 	}
 	else if (isCommandWithIndexGiven(newCommand))
 	{
-		if(this->hasNoInterpretationError())
+		this->storeIndexFromCommandToIndexAttribute();
+		if(this->isIndexWithinRange())
 		{
-			this->_response.setStatus(SUCCESS_INDEXED_COMMAND);
+			this->insertCreatedTimeIntoCommand();
 			this->_executor->executeCommand(this->_cmd,this->_response);
+			this->_response.setStatus(SUCCESS_INDEXED_COMMAND);
 		}
 	}
 	else // a generic command and has already been interpreted by isCommandWithIndexGiven() above
@@ -89,7 +112,6 @@ void Manager::handleNormalScenarioCommands(string newCommand)
  */
 void Manager::handleIntermediateScenarioCommands(string newCommand)
 {
-	
 	if(isIndexGiven(newCommand))
 	{
 		if(isIndexWithinRange())
@@ -99,9 +121,13 @@ void Manager::handleIntermediateScenarioCommands(string newCommand)
 		}
 		else
 		{
-			this->_response.setErrorMsg("Given index is out of range!");
+			this->_response.setErrorMsg(MESSAGE_INDEX_OUT_OF_RANGE);
 			this->_response.setStatus(ERROR_INTERMEDIATE);
 		}
+	}
+	else
+	{
+		this->_response.setStatus(ERROR_INTERMEDIATE);
 	}
 	return;
 }
@@ -109,7 +135,7 @@ void Manager::handleIntermediateScenarioCommands(string newCommand)
 bool Manager::isIndexGiven(string newCommand)
 {
 	this->_index = this->_interpreter->interpretIndex(newCommand,this->_response);
-	if(this->_response.getStatus() != ERROR_INTERMEDIATE)
+	if(this->_response.getStatus() != ERROR)
 	{
 		return true;
 	}
@@ -118,25 +144,30 @@ bool Manager::isIndexGiven(string newCommand)
 
 bool Manager::isCommandWithIndexGiven(string newCommand)
 {
-	bool isModifyCommandWithIndex = false, isDeleteCommandWithIndex = false;
+	//tempStorage is used to ensure that the list is not lost in the interpreter by mistake
+	list<Task> tempStorage = this->_response.getList();
 	this->_cmd = this->_interpreter->interpretCommand(newCommand,this->_response);
+	this->_response.setList(tempStorage);
 
-	switch (this->_cmd->getCommandType())
+	if (this->hasNoInterpretationError())
 	{
-		case MOD:
-			isModifyCommandWithIndex = this->isIndexedModifyCommand();
-			break;
-		case DEL:
-			isDeleteCommandWithIndex = this->isIndexedDeleteCommand();
-			break;
-		default:
-			break;
-	}
+		bool isModifyCommandWithIndex = false, isDeleteCommandWithIndex = false;
+		switch (this->_cmd->getCommandType())
+		{
+			case MOD:
+				isModifyCommandWithIndex = this->isIndexedModifyCommand();
+				break;
+			case DEL:
+				isDeleteCommandWithIndex = this->isIndexedDeleteCommand();
+				break;
+			default:
+				break;
+		}
 
-	if(isModifyCommandWithIndex || isDeleteCommandWithIndex)
-	{
-		this->_executor->executeCommand(this->_cmd,this->_response);
-		return true;
+		if(isModifyCommandWithIndex || isDeleteCommandWithIndex)
+		{
+			return true;
+		}
 	}
 	//else
 	return false;
@@ -240,9 +271,14 @@ unsigned Manager::getCreatedTimeOfFloatingTask(Task* baseTask) const
 	return tempTask->getIndex();
 }
 
+void Manager::storeIndexFromCommandToIndexAttribute()
+{
+	throw "storeIndexFromCommandToIndexAttribute() not implemented!";
+}
+
 bool Manager::hasInterpretationError()
 {
-	if(this->_response.getStatus() == ERROR)
+	if(this->_response.getStatus() == ERROR || this->_response.getStatus() == ERROR_INTERMEDIATE)
 	{
 		return true;
 	}
@@ -264,7 +300,7 @@ Messenger Manager::getToday()
 	//get the time right now, convert it to a string in the format DD/MM/YYYY
 	time (&rawtime);
 	timeinfo = localtime (&rawtime);
-	strftime (todayCharArray,80,"%d/%m/%Y",timeinfo);
+	strftime (todayCharArray,80,"'%d/%m/%Y'",timeinfo);
 
 	//convert the char array to a string
 	string today(todayCharArray);
@@ -275,5 +311,15 @@ Messenger Manager::getToday()
 void Manager::resetStatus()
 {
 	delete this->_cmd;
+	this->_response.resetMessenger();
+}
+
+Manager::~Manager()
+{
+	this->_storage->save(this->_tasks);
+	delete this->_interpreter;
+	delete this->_executor;
+	delete this->_storage;
+	this->removePreviousCommand();
 	this->_response.resetMessenger();
 }
