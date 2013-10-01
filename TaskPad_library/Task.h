@@ -42,6 +42,7 @@ class Task
 public:
 	Task()						{ defaultTaskInit(); }
 	Task(unsigned indexToPut)	{ defaultTaskInit(indexToPut); }
+	virtual ~Task() {}
 	TP::TASK_TYPE getTaskType() { return _taskType; }
 
 	// Getter Functions common to all Tasks
