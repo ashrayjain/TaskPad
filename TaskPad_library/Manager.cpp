@@ -20,6 +20,7 @@ Manager::Manager()
 	this->_executor = new Executor(&_tasks);
 	this->_interpreter = new Interpreter;
 	this->_response = Messenger();
+	this->_cmd = NULL;
 }
 
 Messenger Manager::processCommand(const string& newCommand)
@@ -30,6 +31,7 @@ Messenger Manager::processCommand(const string& newCommand)
 		case SUCCESS_INDEXED_COMMAND:
 		case ERROR:
 		case DISPLAY:
+			removePreviousCommand();
 			handleNormalScenarioCommands(newCommand);
 			break;
 		case INTERMEDIATE:
@@ -38,6 +40,20 @@ Messenger Manager::processCommand(const string& newCommand)
 			break;
 	}
 	return this->_response;
+}
+/**
+ * Deletes the previously created command and,
+ * returns the memory to the system
+ */
+void Manager::removePreviousCommand()
+{
+	if(this->_cmd != NULL)
+	{
+		delete this->_cmd;
+		this->_cmd = NULL;
+	}
+
+	return;
 }
 
 /**
@@ -283,6 +299,6 @@ Manager::~Manager()
 	delete this->_interpreter;
 	delete this->_executor;
 	delete this->_storage;
-	delete this->_cmd;
+	this->removePreviousCommand();
 	this->_response.resetMessenger();
 }
