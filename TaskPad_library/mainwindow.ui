@@ -256,7 +256,7 @@ QTextEdit#cmdBar:hover {
      <rect>
       <x>10</x>
       <y>525</y>
-      <width>72</width>
+      <width>1050</width>
       <height>66</height>
      </rect>
     </property>
