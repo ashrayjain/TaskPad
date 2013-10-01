@@ -40,11 +40,6 @@ Messenger Manager::processCommand(const string& newCommand)
 	}
 	return this->_response;
 }
-/*	case SUCCESS:
-	case SUCCESS_INDEXED_COMMAND:
-	case ERROR:
-	case DISPLAY:
-	case UNDEFINED:*/
 
 /**
  * Deletes the previously created command and,
@@ -236,39 +231,8 @@ Task* Manager::getPointerToChosenTask() const
 
 unsigned Manager::getCreatedTimeOfTask(Task* baseTask) const
 {
-	unsigned createdTime;
-	switch(baseTask->getTaskType())
-	{
-		case DEADLINE:
-			createdTime = getCreatedTimeOfDeadlineTask(baseTask);
-			break;
-		case TIMED:
-			createdTime = getCreatedTimeOfTimedTask(baseTask);
-			break;
-		case  FLOATING:
-			createdTime = getCreatedTimeOfFloatingTask(baseTask);
-			break;
-	}
-
+	unsigned createdTime =	baseTask->getIndex();
 	return createdTime;
-}
-
-unsigned Manager::getCreatedTimeOfDeadlineTask(Task* baseTask) const
-{
-	DeadlineTask* tempTask = (DeadlineTask *) baseTask;
-	return tempTask->getIndex();
-}
-
-unsigned Manager::getCreatedTimeOfTimedTask(Task* baseTask) const
-{
-	TimedTask* tempTask = (TimedTask *) baseTask;
-	return tempTask->getIndex();
-}
-
-unsigned Manager::getCreatedTimeOfFloatingTask(Task* baseTask) const
-{
-	FloatingTask* tempTask = (FloatingTask *) baseTask;
-	return tempTask->getIndex();
 }
 
 void Manager::storeIndexFromCommandToIndexAttribute()
