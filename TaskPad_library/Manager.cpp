@@ -263,7 +263,7 @@ Messenger Manager::getToday()
 	//get the time right now, convert it to a string in the format DD/MM/YYYY
 	time (&rawtime);
 	timeinfo = localtime (&rawtime);
-	strftime (todayCharArray,80,"%d/%m/%Y",timeinfo);
+	strftime (todayCharArray,80,"'%d/%m/%Y'",timeinfo);
 
 	//convert the char array to a string
 	string today(todayCharArray);
