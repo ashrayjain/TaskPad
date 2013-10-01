@@ -39,6 +39,7 @@ class Manager
 		void insertCreatedTimeIntoCommand();
 		void insertCreatedTimeIntoModifyCommand();
 		void insertCreatedTimeIntoDeleteCommand();
+		void removePreviousCommand();
 
 		Task* getPointerToChosenTask() const;
 		unsigned getCreatedTimeOfTask(Task* baseTask) const;
