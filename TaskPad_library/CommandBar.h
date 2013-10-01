@@ -23,8 +23,8 @@ public:
 	void pushCurrentLine();
 	void createNewTaskTemplate();
 
-	protected slots:
-		void performCompletion();
+protected slots:
+	void performCompletion();
 
 private:
 	static const QStringList COMMAND_LIST;
@@ -32,16 +32,15 @@ private:
 	static const QString SPACE;
 	static const QString SINGLE_QUOTATION_MARK;
 	static const QString EMPTY;
-
+	//HOTKEY TEMPLATE RELATED
 	static const QString HOTKEY_TEMPLATE_NEW;
-
+	//INIT RELATED
 	void initWidgets();
 	void initCompleter();
 	void initModel();
 	void initConnections();
-
+	//AUTO COMPLETION RELATED
 	void autoCompleteToggle(bool flag);
-
 	void performCompletion(const QString&);
 	QString getWordUnderCursor();
 	bool isLastCharLetter(QString str);
@@ -52,23 +51,22 @@ private:
 	void insertSingleQuotationMark_RHS();
 	void insertSpace();
 	void insertCompletion(const QString &completion);
-
+	//MODEL RELATED
 	void produceModel();
 	void produceCommandModel();
 	void produceKeywordModel();
 	bool containsCommand();
-
+	//KEY PRESS RELATED
 	void keyPressEvent(QKeyEvent*event);
-
 	bool handleKeyPress(QKeyEvent*event);
 	void handleKeyEscape(bool *isHandled);
 	void handleKeyTab(bool *isHandled);
 	void handleKeySpace(bool *isHandled);
 	void handleKeyDeleteAndBackspace();
-	void CommandBar::handleKeyUp();
-	void CommandBar::handleKeyDown();
+	void handleKeyUp();
+	void handleKeyDown();
 	void handleKeyDefault();
-
+	//FIELDS
 	bool autoCompleteFlag;
 	bool hotkeyTemplateMode;
 	QTextCursor lastTimeCursor;

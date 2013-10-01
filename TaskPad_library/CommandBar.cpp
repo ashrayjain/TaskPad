@@ -411,5 +411,5 @@ void CommandBar::createNewTaskTemplate()
 	lastTimeCursor = document()->find(hotkeyTemplate, textCursor());
 	setTextCursor(lastTimeCursor);
 
-	hotkeyTemplateMode = true;
+	hotkeyTemplateMode = true;//TODO: need dynamically change this mode
 }
