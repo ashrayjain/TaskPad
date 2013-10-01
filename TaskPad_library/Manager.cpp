@@ -135,7 +135,6 @@ bool Manager::isCommandWithIndexGiven(string newCommand)
 
 	if(isModifyCommandWithIndex || isDeleteCommandWithIndex)
 	{
-		this->_executor->executeCommand(this->_cmd,this->_response);
 		return true;
 	}
 	//else
