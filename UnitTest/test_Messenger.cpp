@@ -39,15 +39,16 @@ namespace UnitTest
 
 			//************* TEST SetErrorMsg() *********************//
 			string testErrorStr = "This is a test error Message";
+			string testErrorStr1 = "";
 			string testErrorStr2 = "This is another test error Message";
 
-			Assert::IsTrue(testMessenger.setErrorMsg(testErrorStr));
+			testMessenger.setErrorMsg(testErrorStr);
 			Assert::AreEqual(testMessenger.getErrorMsg(),string(testErrorStr));
 
-			Assert::IsFalse(testMessenger.setErrorMsg(""));
-			Assert::AreEqual(testMessenger.getErrorMsg(),string(testErrorStr));
+			testMessenger.setErrorMsg(testErrorStr1);
+			Assert::AreEqual(testMessenger.getErrorMsg(),testErrorStr1);
 
-			Assert::IsTrue(testMessenger.setErrorMsg(testErrorStr2));
+			testMessenger.setErrorMsg(testErrorStr2);
 			Assert::AreEqual(testMessenger.getErrorMsg(),string(testErrorStr2));
 			//************* ENDTEST SetErrorMsg() *********************//
 
@@ -58,41 +59,41 @@ namespace UnitTest
 			int testInt4 = 0;
 
 
-			Assert::IsTrue(testMessenger.setInt(testInt1));
+			testMessenger.setInt(testInt1);
 			Assert::AreEqual(testMessenger.getIndex(),testInt1);
 
-			Assert::IsTrue(testMessenger.setInt(testInt2));
+			testMessenger.setInt(testInt2);
 			Assert::AreEqual(testMessenger.getIndex(),testInt2);
 
-			Assert::IsFalse(testMessenger.setInt(testInt3));
+			testMessenger.setInt(testInt3);
 			Assert::AreEqual(testMessenger.getIndex(),testInt2);
 
-			Assert::IsFalse(testMessenger.setInt(testInt4));
+			testMessenger.setInt(testInt4);
 			Assert::AreEqual(testMessenger.getIndex(),testInt2);
 
 			//************* END TEST SetInt() *********************//
 
 			//************* TEST SetStatus() *********************//
-			Assert::IsTrue(testMessenger.setStatus(SUCCESS));
+			testMessenger.setStatus(SUCCESS);
 			Assert::AreEqual(static_cast<int>(testMessenger.getStatus()),static_cast<int>(SUCCESS));
 
-			Assert::IsTrue(testMessenger.setStatus(SUCCESS_INDEXED_COMMAND));
+			testMessenger.setStatus(SUCCESS_INDEXED_COMMAND);
 			Assert::AreEqual(static_cast<int>(testMessenger.getStatus()),static_cast<int>(SUCCESS_INDEXED_COMMAND));
 
-			Assert::IsTrue(testMessenger.setStatus(ERROR));
+			testMessenger.setStatus(ERROR);
 			Assert::AreEqual(static_cast<int>(testMessenger.getStatus()),static_cast<int>(ERROR));
 
-			Assert::IsTrue(testMessenger.setStatus(ERROR_INTERMEDIATE));
+			testMessenger.setStatus(ERROR_INTERMEDIATE);
 			Assert::AreEqual(static_cast<int>(testMessenger.getStatus()),static_cast<int>(ERROR_INTERMEDIATE));
 
-			Assert::IsTrue(testMessenger.setStatus(INTERMEDIATE));
+			testMessenger.setStatus(INTERMEDIATE));
 			Assert::AreEqual(static_cast<int>(testMessenger.getStatus()),static_cast<int>(INTERMEDIATE));
 
 			//************* END TEST SetStatus() *********************//
 
 			//************* TEST SetList() *********************//
 			Task myTasks[] = {DeadlineTask(),TimedTask(),FloatingTask(),DeadlineTask()};
-			Assert::IsTrue(testMessenger.setList(list<Task>(myTasks,myTasks+4)));
+			testMessenger.setList(list<Task>(myTasks,myTasks+4));
 
 			list<Task> returnList = testMessenger.getList();
 			list<Task>::iterator it = returnList.begin();
@@ -102,7 +103,7 @@ namespace UnitTest
 			Assert::AreEqual(static_cast<int>((it++)->getTaskType()),static_cast<int>(DEADLINE));
 
 			Task myTasks1[] = {TimedTask(),TimedTask(),FloatingTask()};
-			Assert::IsTrue(testMessenger.setList(list<Task>(myTasks1,myTasks1+3)));
+			testMessenger.setList(list<Task>(myTasks1,myTasks1+3));
 
 			returnList = testMessenger.getList();
 			it = returnList.begin();
@@ -110,7 +111,7 @@ namespace UnitTest
 			Assert::AreEqual(static_cast<int>((it++)->getTaskType()),static_cast<int>(TIMED));
 			Assert::AreEqual(static_cast<int>((it++)->getTaskType()),static_cast<int>(FLOATING));
 
-			Assert::IsTrue(testMessenger.setList(list<Task>()));
+			testMessenger.setList(list<Task>());
 
 			Assert::IsTrue((testMessenger.getList().size() == 0));
 
@@ -118,19 +119,19 @@ namespace UnitTest
 
 			//************* END TEST SetCommandType() *********************//
 
-			Assert::IsTrue(testMessenger.setCommandType(DEL));
+			testMessenger.setCommandType(DEL);
 			Assert::AreEqual(static_cast<int>(DEL),static_cast<int>(testMessenger.getCommandType()));
 
-			Assert::IsTrue(testMessenger.setCommandType(ADD));
+			testMessenger.setCommandType(ADD);
 			Assert::AreEqual(static_cast<int>(ADD),static_cast<int>(testMessenger.getCommandType()));
 
-			Assert::IsTrue(testMessenger.setCommandType(MOD));
+			testMessenger.setCommandType(MOD);
 			Assert::AreEqual(static_cast<int>(MOD),static_cast<int>(testMessenger.getCommandType()));
 
-			Assert::IsTrue(testMessenger.setCommandType(SYNC));
+			testMessenger.setCommandType(SYNC);
 			Assert::AreEqual(static_cast<int>(SYNC),static_cast<int>(testMessenger.getCommandType()));
 
-			Assert::IsTrue(testMessenger.setCommandType(UNDO));
+			testMessenger.setCommandType(UNDO);
 			Assert::AreEqual(static_cast<int>(UNDO),static_cast<int>(testMessenger.getCommandType()));
 
 			//************* TEST SetCommandType() *********************//

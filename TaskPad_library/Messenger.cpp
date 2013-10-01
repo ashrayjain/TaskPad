@@ -45,39 +45,27 @@ COMMAND_TYPE Messenger::getCommandType() const
 
 //setter methods
 
-bool Messenger::setErrorMsg(const string& errorMsg)
+void Messenger::setErrorMsg(const string& errorMsg)
 {
-	if(errorMsg != "")
-	{
-		this->_errorMsg = errorMsg;
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	this->_errorMsg = errorMsg;
 }
 
-bool Messenger::setStatus(const STATUS& status)
+void Messenger::setStatus(const STATUS& status)
 {
 	this->_status = status;
-	return true;
 }
 
-bool Messenger::setList(const list<Task>& result)
+void Messenger::setList(const list<Task>& result)
 {
 	this->_resultList = result;
-	return true;
 }
 
-bool Messenger::setInt(const int& index)
+void Messenger::setInt(const int& index)
 {
 	if (isValidIndex(index))
 	{
 		this->_index = index;
-		return true;
 	}
-	return false;
 }
 
 //helper for setInt
@@ -89,10 +77,9 @@ bool Messenger::isValidIndex (const int& index) const
 	return false;
 }
 
-bool Messenger::setCommandType(const COMMAND_TYPE& commandType)
+void Messenger::setCommandType(const COMMAND_TYPE& commandType)
 {
 	this->_commandType = commandType;
-	return true;
 }
 
 void Messenger::resetMessenger()
