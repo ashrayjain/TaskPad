@@ -32,5 +32,8 @@
     <ClCompile Include="test_Messenger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="test_Manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

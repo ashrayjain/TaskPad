@@ -86,7 +86,7 @@ namespace UnitTest
 			testMessenger.setStatus(ERROR_INTERMEDIATE);
 			Assert::AreEqual(static_cast<int>(testMessenger.getStatus()),static_cast<int>(ERROR_INTERMEDIATE));
 
-			testMessenger.setStatus(INTERMEDIATE));
+			testMessenger.setStatus(INTERMEDIATE);
 			Assert::AreEqual(static_cast<int>(testMessenger.getStatus()),static_cast<int>(INTERMEDIATE));
 
 			//************* END TEST SetStatus() *********************//
