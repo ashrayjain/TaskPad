@@ -17,11 +17,12 @@ namespace UnitTest
 		TEST_METHOD(Getter_Messenger)
 		{
 			Task myTasks[] = {DeadlineTask(),TimedTask(),FloatingTask(),DeadlineTask()};
-			Messenger testMessenger(ERROR_INTERMEDIATE,list<Task>(myTasks,myTasks + 4),10,"This is a test error Message");
+			Messenger testMessenger(ADD,ERROR_INTERMEDIATE,list<Task>(myTasks,myTasks + 4),10,"This is a test error Message");
 
 			Assert::AreEqual(testMessenger.getErrorMsg(),string("This is a test error Message"));
 			Assert::AreEqual(testMessenger.getIndex(),10);
 			Assert::AreEqual(static_cast<int>(testMessenger.getStatus()),static_cast<int>(ERROR_INTERMEDIATE));
+			Assert::AreEqual(static_cast<int>(testMessenger.getCommandType()),static_cast<int>(ADD));
 
 			list<Task>::iterator returnList = testMessenger.getList().begin();
 			Assert::AreEqual(static_cast<int>((returnList++)->getTaskType()),static_cast<int>(DEADLINE));
@@ -98,7 +99,25 @@ namespace UnitTest
 			list<Task>::iterator returnList2 = testMessenger.getList().begin();
 			Assert::IsTrue((returnList2 == testMessenger.getList().end()));
 
-			//************* TEST SetList() *********************//
+			//************* END TEST SetList() *********************//
+			//************* END TEST SetCommandType() *********************//
+
+			Assert::IsTrue(testMessenger.setCommandType(DEL));
+			Assert::AreEqual(static_cast<int>(DEL),static_cast<int>(testMessenger.getCommandType()));
+
+			Assert::IsTrue(testMessenger.setCommandType(ADD));
+			Assert::AreEqual(static_cast<int>(ADD),static_cast<int>(testMessenger.getCommandType()));
+
+			Assert::IsTrue(testMessenger.setCommandType(MOD));
+			Assert::AreEqual(static_cast<int>(MOD),static_cast<int>(testMessenger.getCommandType()));
+
+			Assert::IsTrue(testMessenger.setCommandType(SYNC));
+			Assert::AreEqual(static_cast<int>(SYNC),static_cast<int>(testMessenger.getCommandType()));
+
+			Assert::IsTrue(testMessenger.setCommandType(UNDO));
+			Assert::AreEqual(static_cast<int>(UNDO),static_cast<int>(testMessenger.getCommandType()));
+
+			//************* TEST SetCommandType() *********************//
 		}
 	};
 }
