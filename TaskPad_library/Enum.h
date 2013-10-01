@@ -2,7 +2,6 @@
 #define _ENUM_H
 
 #include <string>
-using namespace std;
 
 namespace TP
 {
@@ -18,10 +17,10 @@ namespace TP
 
 	//String representations of the Enums above
 
-	static const string COMMAND_TYPE_STRING[8] =	
+	static const std::string COMMAND_TYPE_STRING[8] =	
 					{ "ADD","MOD","DEL","FIND","UNDO","REDO","SYNC","UNDEFINED"	};
-	static const string PRIORITY_STRING[3] =		{"HIGH","MEDIUM","LOW"};
-	static const string TASK_STATE_STRING[2] =		{"UNDONE","DONE"};
-	static const string TASK_TYPE_STRING[3] =		{"TIMED","DEADLINE","FLOATING"};
+	static const std::string PRIORITY_STRING[3] =		{"HIGH","MEDIUM","LOW"};
+	static const std::string TASK_STATE_STRING[2] =		{"UNDONE","DONE"};
+	static const std::string TASK_TYPE_STRING[3] =		{"TIMED","DEADLINE","FLOATING"};
 }
 #endif
