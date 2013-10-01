@@ -289,7 +289,7 @@ Command* Interpreter:: interpretAdd(Command_Add* commandType, string commandStr,
 
 	while(extract>>word && flag)
 	{
-		if(word=="due" && commandType->getFlagDue()==false && commandType->getFlagFrom()==false && commandType->getFLagTo()==false){
+		if(word=="due" && commandType->getFlagDue()==false && commandType->getFlagFrom()==false && commandType->getFlagTo()==false){
 
 			time_t requiredTime;
 
@@ -312,7 +312,7 @@ Command* Interpreter:: interpretAdd(Command_Add* commandType, string commandStr,
 			}
 		}
 
-		else if(word=="from" && commandType->getFlagFrom()==false && commandType->getFLagTo()==false && commandType->getFlagDue()==false){
+		else if(word=="from" && commandType->getFlagFrom()==false && commandType->getFlagTo()==false && commandType->getFlagDue()==false){
 
 			time_t requiredTime;
 
@@ -416,7 +416,7 @@ Command* Interpreter:: interpretAdd(Command_Add* commandType, string commandStr,
 			}
 		}
 
-		else if(word=="impt" && commandType->getFLagPriority()==false){
+		else if(word=="impt" && commandType->getFlagPriority()==false){
 
 			word.clear();
 			getline(extract,word,'\'');
@@ -513,7 +513,7 @@ Command* Interpreter::interpretModify(Command_Mod* commandType, std::string comm
 
 	while(extract>>word && flag)
 	{
-		if(word=="due" && commandType->getFlagDue()==false && commandType->getFlagFrom()==false && commandType->getFLagTo()==false){
+		if(word=="due" && commandType->getFlagDue()==false && commandType->getFlagFrom()==false && commandType->getFlagTo()==false){
 
 			time_t requiredTime;
 
@@ -596,7 +596,7 @@ Command* Interpreter::interpretModify(Command_Mod* commandType, std::string comm
 			}
 		}
 
-		else if(word=="impt" && commandType->getFLagPriority()==false){
+		else if(word=="impt" && commandType->getFlagPriority()==false){
 
 			word.clear();
 			getline(extract,word,'\'');
@@ -894,7 +894,7 @@ Command* Interpreter::interpretFind(Command_Find* commandType, std::string comma
 			}
 		}
 
-		else if(word=="impt" && commandType->getFLagPriority()==false){
+		else if(word=="impt" && commandType->getFlagPriority()==false){
 
 			word.clear();
 			getline(extract,word,'\'');
