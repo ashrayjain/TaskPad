@@ -1176,3 +1176,5 @@ bool integerConverter(string& requiredString, int& number)
 	return flag;
 
 }
+
+bool Interpreter::integerConverter(string& requiredString, int& number){return false;}
