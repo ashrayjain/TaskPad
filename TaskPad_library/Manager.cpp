@@ -27,20 +27,23 @@ Messenger Manager::processCommand(const string& newCommand)
 {
 	switch(this->_response.getStatus())
 	{
-		case SUCCESS:
-		case SUCCESS_INDEXED_COMMAND:
-		case ERROR:
-		case DISPLAY:
-			removePreviousCommand();
-			handleNormalScenarioCommands(newCommand);
-			break;
 		case INTERMEDIATE:
 		case ERROR_INTERMEDIATE:
 			handleIntermediateScenarioCommands(newCommand);
 			break;
+		default:
+			removePreviousCommand();
+			handleNormalScenarioCommands(newCommand);
+			break;
 	}
 	return this->_response;
 }
+/*	case SUCCESS:
+	case SUCCESS_INDEXED_COMMAND:
+	case ERROR:
+	case DISPLAY:
+	case UNDEFINED:*/
+
 /**
  * Deletes the previously created command and,
  * returns the memory to the system
@@ -105,7 +108,6 @@ void Manager::handleNormalScenarioCommands(string newCommand)
  */
 void Manager::handleIntermediateScenarioCommands(string newCommand)
 {
-	
 	if(isIndexGiven(newCommand))
 	{
 		if(isIndexWithinRange())
