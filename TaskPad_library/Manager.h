@@ -44,9 +44,6 @@ class Manager
 
 		Task* getPointerToChosenTask() const;
 		unsigned getCreatedTimeOfTask(Task* baseTask) const;
-		unsigned getCreatedTimeOfDeadlineTask(Task* baseTask) const;
-		unsigned getCreatedTimeOfTimedTask(Task* baseTask) const;
-		unsigned getCreatedTimeOfFloatingTask(Task* baseTask) const;
 
 	public:
 		//constructor
