@@ -9,10 +9,12 @@
 #include<ctime>
 /*********
 Assumptions made:
-- Both interpreter and Executor do not change the status of the response object unless it is an error/intermediate
+- Both interpreter and Executor only set the status as either SUCCESS or ERROR
 **********/
 
 using namespace TP;
+
+const string Manager::MESSAGE_INDEX_OUT_OF_RANGE = "Given index is out of range!";
 
 Manager::Manager()
 {
@@ -78,16 +80,18 @@ void Manager::handleNormalScenarioCommands(string newCommand)
 		}
 		else
 		{
-			this->_response.setErrorMsg("Given index is out of range!");
+			this->_response.setErrorMsg(MESSAGE_INDEX_OUT_OF_RANGE);
 			this->_response.setStatus(ERROR);
 		}
 	}
 	else if (isCommandWithIndexGiven(newCommand))
 	{
-		if(this->hasNoInterpretationError())
+		this->storeIndexFromCommandToIndexAttribute();
+		if(this->isIndexWithinRange())
 		{
-			this->_response.setStatus(SUCCESS_INDEXED_COMMAND);
+			this->insertCreatedTimeIntoCommand();
 			this->_executor->executeCommand(this->_cmd,this->_response);
+			this->_response.setStatus(SUCCESS_INDEXED_COMMAND);
 		}
 	}
 	else // a generic command and has already been interpreted by isCommandWithIndexGiven() above
@@ -117,9 +121,13 @@ void Manager::handleIntermediateScenarioCommands(string newCommand)
 		}
 		else
 		{
-			this->_response.setErrorMsg("Given index is out of range!");
+			this->_response.setErrorMsg(MESSAGE_INDEX_OUT_OF_RANGE);
 			this->_response.setStatus(ERROR_INTERMEDIATE);
 		}
+	}
+	else
+	{
+		this->_response.setStatus(ERROR_INTERMEDIATE);
 	}
 	return;
 }
@@ -127,7 +135,7 @@ void Manager::handleIntermediateScenarioCommands(string newCommand)
 bool Manager::isIndexGiven(string newCommand)
 {
 	this->_index = this->_interpreter->interpretIndex(newCommand,this->_response);
-	if(this->_response.getStatus() != ERROR_INTERMEDIATE)
+	if(this->_response.getStatus() != ERROR)
 	{
 		return true;
 	}
@@ -136,24 +144,30 @@ bool Manager::isIndexGiven(string newCommand)
 
 bool Manager::isCommandWithIndexGiven(string newCommand)
 {
-	bool isModifyCommandWithIndex = false, isDeleteCommandWithIndex = false;
+	//tempStorage is used to ensure that the list is not lost in the interpreter by mistake
+	list<Task> tempStorage = this->_response.getList();
 	this->_cmd = this->_interpreter->interpretCommand(newCommand,this->_response);
+	this->_response.setList(tempStorage);
 
-	switch (this->_cmd->getCommandType())
+	if (this->hasNoInterpretationError())
 	{
-		case MOD:
-			isModifyCommandWithIndex = this->isIndexedModifyCommand();
-			break;
-		case DEL:
-			isDeleteCommandWithIndex = this->isIndexedDeleteCommand();
-			break;
-		default:
-			break;
-	}
+		bool isModifyCommandWithIndex = false, isDeleteCommandWithIndex = false;
+		switch (this->_cmd->getCommandType())
+		{
+			case MOD:
+				isModifyCommandWithIndex = this->isIndexedModifyCommand();
+				break;
+			case DEL:
+				isDeleteCommandWithIndex = this->isIndexedDeleteCommand();
+				break;
+			default:
+				break;
+		}
 
-	if(isModifyCommandWithIndex || isDeleteCommandWithIndex)
-	{
-		return true;
+		if(isModifyCommandWithIndex || isDeleteCommandWithIndex)
+		{
+			return true;
+		}
 	}
 	//else
 	return false;
@@ -257,9 +271,14 @@ unsigned Manager::getCreatedTimeOfFloatingTask(Task* baseTask) const
 	return tempTask->getIndex();
 }
 
+void Manager::storeIndexFromCommandToIndexAttribute()
+{
+	throw "storeIndexFromCommandToIndexAttribute() not implemented!";
+}
+
 bool Manager::hasInterpretationError()
 {
-	if(this->_response.getStatus() == ERROR)
+	if(this->_response.getStatus() == ERROR || this->_response.getStatus() == ERROR_INTERMEDIATE)
 	{
 		return true;
 	}
