@@ -40,13 +40,13 @@ class Manager
 		void insertCreatedTimeIntoModifyCommand();
 		void insertCreatedTimeIntoDeleteCommand();
 		void removePreviousCommand();
+		void storeIndexFromCommandToIndexAttribute();
 
 		Task* getPointerToChosenTask() const;
 		unsigned getCreatedTimeOfTask(Task* baseTask) const;
 		unsigned getCreatedTimeOfDeadlineTask(Task* baseTask) const;
 		unsigned getCreatedTimeOfTimedTask(Task* baseTask) const;
 		unsigned getCreatedTimeOfFloatingTask(Task* baseTask) const;
-
 
 	public:
 		//constructor
@@ -57,6 +57,9 @@ class Manager
 		void resetStatus();
 
 		~Manager();
+
+		// response messages
+		static const string MESSAGE_INDEX_OUT_OF_RANGE;
 };
 
 #endif
