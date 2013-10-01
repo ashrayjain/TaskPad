@@ -26,11 +26,11 @@ class Messenger
 		void resetMessenger();
 
 		//setter functions
-		bool setErrorMsg(const string& errorMsg);
-		bool setStatus(const STATUS& status);
-		bool setList(const list<Task>& result);
-		bool setInt(const int& index);
-		bool setCommandType(const COMMAND_TYPE& commandType);
+		void setErrorMsg(const string& errorMsg);
+		void setStatus(const STATUS& status);
+		void setList(const list<Task>& result);
+		void setInt(const int& index);
+		void setCommandType(const COMMAND_TYPE& commandType);
 
 	private:
 		string _errorMsg;
