@@ -277,3 +277,13 @@ void Manager::resetStatus()
 	delete this->_cmd;
 	this->_response.resetMessenger();
 }
+
+Manager::~Manager()
+{
+	this->_storage->save(this->_tasks);
+	delete this->_interpreter;
+	delete this->_executor;
+	delete this->_storage;
+	delete this->_cmd;
+	this->_response.resetMessenger();
+}
