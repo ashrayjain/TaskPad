@@ -222,25 +222,149 @@ bool Manager::hasNoInterpretationError() {
 	return !this->hasInterpretationError();
 }
 
-Messenger Manager::getToday() {
-	time_t rawtime;
-	struct tm * timeinfo;
+std::string Manager::getStrFromTm(std::tm timeInfo)
+{
 	char todayCharArray [80];
 
-	//get the time right now, convert it to a string in the format DD/MM/YYYY
-	time (&rawtime);
-	timeinfo = localtime (&rawtime);
-	strftime (todayCharArray,80,"'%d/%m/%Y'",timeinfo);
+	strftime (todayCharArray,80,"'%d/%m/%Y'",&timeInfo);
 
 	//convert the char array to a string
 	string today(todayCharArray);
 
+	return today;
+}
+
+std::tm Manager::getTodayTm()
+{
+	time_t rawtime;
+	struct tm * timeInfo;
+
+	//get the time right now, convert it to a string in the format DD/MM/YYYY
+	time (&rawtime);
+	timeInfo = localtime (&rawtime);
+
+	return *timeInfo;
+}
+
+Messenger Manager::getToday() {
+	std::tm todayTm = getTodayTm();
+	std::string today = this->getStrFromTm(todayTm);
+
+	this->setCurrTm(todayTm);
+
 	return this->processCommand("find due " + today + " from "+today + " to "+today);
+}
+
+std::tm Manager::getNextDayTm(std::tm currTm)
+{
+	std::time_t intermediateResult;
+	currTm.tm_mday += 1;
+	intermediateResult = mktime(&currTm);
+	
+	return *localtime(&intermediateResult);
+}
+
+std::tm Manager::getNextWeekTm(std::tm currTm)
+{
+	std::time_t intermediateResult;
+	currTm.tm_mday += 7;
+	intermediateResult = mktime(&currTm);
+	
+	return *localtime(&intermediateResult);
+}
+
+std::tm Manager::getNextMonthTm(std::tm currTm)
+{
+	std::time_t intermediateResult;
+	currTm.tm_mon += 1;
+	intermediateResult = mktime(&currTm);
+	
+	return *localtime(&intermediateResult);
+}
+
+std::tm Manager::getPrevDayTm(std::tm currTm)
+{
+	std::time_t intermediateResult;
+	currTm.tm_mday -= 1;
+	intermediateResult = mktime(&currTm);
+	
+	return *localtime(&intermediateResult);
+}
+
+std::tm Manager::getPrevWeekTm(std::tm currTm)
+{
+	std::time_t intermediateResult;
+	currTm.tm_mday -= 7;
+	intermediateResult = mktime(&currTm);
+	
+	return *localtime(&intermediateResult);
+}
+
+std::tm Manager::getPrevMonthTm(std::tm currTm)
+{
+	std::time_t intermediateResult;
+	currTm.tm_mon -= 1;
+	intermediateResult = mktime(&currTm);
+	
+	return *localtime(&intermediateResult);
+}
+
+Messenger Manager::getNextPeriod(PERIOD_TYPE pType)
+{
+	std::tm currTm = this->_currTm;
+	std::tm nextTm;
+	std::string nextPeriodStr;
+
+	switch(pType)
+	{
+		case DAY:
+			nextTm = this->getNextDayTm(currTm);
+			nextPeriodStr = this->getStrFromTm(nextTm);
+			break;
+		case WEEK:
+			nextTm = this->getNextWeekTm(currTm);
+			nextPeriodStr = this->getStrFromTm(nextTm);
+			break;
+		case MONTH:
+			nextTm = this->getNextMonthTm(currTm);
+			nextPeriodStr = this->getStrFromTm(nextTm);
+			break;
+	}
+
+	this->setCurrTm(nextTm);
+	throw "format the command string properly!";
+	return this->processCommand("find due " + nextPeriodStr + " from "+ nextPeriodStr + " to "+ nextPeriodStr);
+}
+Messenger Manager::getPrevPeriod(PERIOD_TYPE pType)
+{
+	std::tm currTm = this->_currTm;
+	std::tm nextTm;
+	std::string nextPeriodStr;
+
+	switch(pType)
+	{
+		case DAY:
+			nextTm = this->getPrevDayTm(currTm);
+			nextPeriodStr = this->getStrFromTm(nextTm);
+			break;
+		case WEEK:
+			nextTm = this->getPrevWeekTm(currTm);
+			nextPeriodStr = this->getStrFromTm(nextTm);
+			break;
+		case MONTH:
+			nextTm = this->getPrevMonthTm(currTm);
+			nextPeriodStr = this->getStrFromTm(nextTm);
+			break;
+	}
+
+	this->setCurrTm(nextTm);
+	throw "format the command string properly!";
 }
 
 void Manager::resetStatus() {
 	delete this->_cmd;
 	this->_response.resetMessenger();
+	this->setCurrTm(getTodayTm());
 }
 
 Manager::~Manager() {

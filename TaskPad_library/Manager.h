@@ -20,6 +20,7 @@ class Manager {
 		Command* _cmd;
 		Messenger _response;
 		int _index;
+		std::tm _currTm;
 		//the list of tasks
 		list<Task> _tasks;
 
@@ -40,16 +41,26 @@ class Manager {
 		void insertCreatedTimeIntoDeleteCommand();
 		void removePreviousCommand();
 		void storeIndexFromCommandToIndexAttribute();
+		void setCurrTm(std::tm);
 
 		Task* getPointerToChosenTask() const;
 		unsigned getCreatedTimeOfTask(Task* baseTask) const;
-
+		std::string getStrFromTm(std::tm timeInfo);
+		std::tm getTodayTm();
+		std::tm getNextDayTm(std::tm currTm);
+		std::tm getNextWeekTm(std::tm currTm);
+		std::tm getNextMonthTm(std::tm currTm);
+		std::tm getPrevDayTm(std::tm currTm);
+		std::tm getPrevWeekTm(std::tm currTm);
+		std::tm getPrevMonthTm(std::tm currTm);
 	public:
 		//constructor
 		Manager();
 
 		Messenger processCommand(const string&);
 		Messenger getToday();
+		Messenger getNextPeriod(PERIOD_TYPE);
+		Messenger getPrevPeriod(PERIOD_TYPE);
 		void resetStatus();
 
 		~Manager();
