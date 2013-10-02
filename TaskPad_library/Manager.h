@@ -53,14 +53,15 @@ class Manager {
 		std::tm getPrevDayTm(std::tm currTm);
 		std::tm getPrevWeekTm(std::tm currTm);
 		std::tm getPrevMonthTm(std::tm currTm);
+		std::string createFindCommand(std::tm startTm, std::tm endTm);
 	public:
 		//constructor
 		Manager();
 
 		Messenger processCommand(const string&);
-		Messenger getToday();
-		Messenger getNextPeriod(PERIOD_TYPE);
-		Messenger getPrevPeriod(PERIOD_TYPE);
+		Messenger getTodayTasks();
+		Messenger getNextPeriodTasks(PERIOD_TYPE);
+		Messenger getPrevPeriodTasks(PERIOD_TYPE);
 		void resetStatus();
 
 		~Manager();
