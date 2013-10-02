@@ -222,6 +222,14 @@ bool Manager::hasNoInterpretationError() {
 	return !this->hasInterpretationError();
 }
 
+std::string Manager::createFindCommand(std::tm startTm, std::tm endTm)
+{
+	std::string startTmStr = getStrFromTm(startTm);
+	std::string endTmStr = getStrFromTm(endTm);
+
+	return "find duefrom '" + startTmStr + "' dueto '" + endTmStr + "' from '" + startTmStr + "' to '" + endTmStr + "'";
+}
+
 std::string Manager::getStrFromTm(std::tm timeInfo)
 {
 	char todayCharArray [80];
@@ -246,13 +254,61 @@ std::tm Manager::getTodayTm()
 	return *timeInfo;
 }
 
-Messenger Manager::getToday() {
+Messenger Manager::getTodayTasks() {
 	std::tm todayTm = getTodayTm();
 	std::string today = this->getStrFromTm(todayTm);
 
 	this->setCurrTm(todayTm);
 
 	return this->processCommand("find due " + today + " from "+today + " to "+today);
+}
+
+Messenger Manager::getNextPeriodTasks(PERIOD_TYPE pType)
+{
+	std::tm currTm = this->_currTm;
+	std::tm nextTm;
+
+	switch(pType)
+	{
+		case DAY:
+			nextTm = this->getNextDayTm(currTm);
+			break;
+		case WEEK:
+			nextTm = this->getNextWeekTm(currTm);
+			break;
+		case MONTH:
+			nextTm = this->getNextMonthTm(currTm);
+			break;
+	}
+
+	this->setCurrTm(nextTm);
+
+	std::string command = this->createFindCommand(currTm,nextTm);
+	
+	return this->processCommand(command);
+}
+Messenger Manager::getPrevPeriodTasks(PERIOD_TYPE pType)
+{
+	std::tm currTm = this->_currTm;
+	std::tm prevTm;
+
+	switch(pType)
+	{
+		case DAY:
+			prevTm = this->getPrevDayTm(currTm);
+			break;
+		case WEEK:
+			prevTm = this->getPrevWeekTm(currTm);
+			break;
+		case MONTH:
+			prevTm = this->getPrevMonthTm(currTm);
+			break;
+	}
+
+	this->setCurrTm(prevTm);
+	std::string command = createFindCommand(prevTm, currTm);
+
+	return this->processCommand(command);
 }
 
 std::tm Manager::getNextDayTm(std::tm currTm)
@@ -309,56 +365,9 @@ std::tm Manager::getPrevMonthTm(std::tm currTm)
 	return *localtime(&intermediateResult);
 }
 
-Messenger Manager::getNextPeriod(PERIOD_TYPE pType)
+void Manager::setCurrTm(std::tm newTm)
 {
-	std::tm currTm = this->_currTm;
-	std::tm nextTm;
-	std::string nextPeriodStr;
-
-	switch(pType)
-	{
-		case DAY:
-			nextTm = this->getNextDayTm(currTm);
-			nextPeriodStr = this->getStrFromTm(nextTm);
-			break;
-		case WEEK:
-			nextTm = this->getNextWeekTm(currTm);
-			nextPeriodStr = this->getStrFromTm(nextTm);
-			break;
-		case MONTH:
-			nextTm = this->getNextMonthTm(currTm);
-			nextPeriodStr = this->getStrFromTm(nextTm);
-			break;
-	}
-
-	this->setCurrTm(nextTm);
-	throw "format the command string properly!";
-	return this->processCommand("find due " + nextPeriodStr + " from "+ nextPeriodStr + " to "+ nextPeriodStr);
-}
-Messenger Manager::getPrevPeriod(PERIOD_TYPE pType)
-{
-	std::tm currTm = this->_currTm;
-	std::tm nextTm;
-	std::string nextPeriodStr;
-
-	switch(pType)
-	{
-		case DAY:
-			nextTm = this->getPrevDayTm(currTm);
-			nextPeriodStr = this->getStrFromTm(nextTm);
-			break;
-		case WEEK:
-			nextTm = this->getPrevWeekTm(currTm);
-			nextPeriodStr = this->getStrFromTm(nextTm);
-			break;
-		case MONTH:
-			nextTm = this->getPrevMonthTm(currTm);
-			nextPeriodStr = this->getStrFromTm(nextTm);
-			break;
-	}
-
-	this->setCurrTm(nextTm);
-	throw "format the command string properly!";
+	this->_currTm = newTm;
 }
 
 void Manager::resetStatus() {
