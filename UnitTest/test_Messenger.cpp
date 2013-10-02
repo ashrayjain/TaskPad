@@ -58,7 +58,6 @@ namespace UnitTest
 			int testInt3 = -1;
 			int testInt4 = 0;
 
-
 			testMessenger.setInt(testInt1);
 			Assert::AreEqual(testMessenger.getIndex(),testInt1);
 
