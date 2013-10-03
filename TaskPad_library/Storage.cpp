@@ -10,6 +10,7 @@ const string Storage::_fileName = "TaskPad.txt";
 
 Storage::Storage(list<Task>&)
 {
+	throw "Storage Constructor not implemented!";
 }
 
 bool Storage::save(list<Task>& taskList)
@@ -17,24 +18,27 @@ bool Storage::save(list<Task>& taskList)
 	string singleTaskEntry = "";
 	if(taskList.empty())
 	{
-		// EMPTY THE WHOLE FILE!!
+		this->emptyTheFile();
 		return true;
 	}
 
 	list<Task>::iterator it = taskList.begin();
 
+	this->writeNumberToFile(taskList.size());
+
 	while(it != taskList.end())
 	{
+		this->saveGenericAttributes(&*it);
 		switch(it->getTaskType())
 		{
 			case DEADLINE:
-				this->saveDeadlineTask(&(*it));
+				this->saveDeadlineTaskSpecificAttributes(&(*it));
 				break;
 			case TIMED:
-				this->saveTimedTask(&(*it));
+				this->saveTimedTaskSpecificAttributes(&(*it));
 				break;
 			case FLOATING:
-				this->saveFloatingTask(&(*it));
+				this->saveFloatingTaskSpecificAttributes(&(*it));
 				break;
 		}
 		return false;
@@ -48,73 +52,145 @@ void Storage::saveString(string line)
 	return;
 }
 
-void Storage::saveDeadlineTask(Task* tempTask)
+void Storage::saveGenericAttributes(Task* tempTask)
+{
+	this->saveTaskType(tempTask);
+	this->saveIndex(tempTask);
+	this->saveName(tempTask);
+	this->saveLocation(tempTask);
+	this->saveParticipants(tempTask);
+	this->saveNote(tempTask);
+	this->savePriority(tempTask);
+	this->saveTags(tempTask);
+	this->saveReminderTimes(tempTask);
+	this->saveState(tempTask);
+}
+
+void Storage::saveDeadlineTaskSpecificAttributes(Task* tempTask)
 {
 	DeadlineTask* tempTaskDeadline = (DeadlineTask *) tempTask;
-	this->saveTaskType(tempTaskDeadline);
-	this->saveIndex(tempTaskDeadline);
-	this->saveName(tempTaskDeadline);
 	this->saveDueDate(tempTaskDeadline);
-	this->saveLocation(tempTaskDeadline);
-	this->saveParticipants(tempTaskDeadline);
-	this->saveNote(tempTaskDeadline);
-	this->savePriority(tempTaskDeadline);
-	this->saveTags(tempTaskDeadline);
-	this->saveReminderTimes(tempTaskDeadline);
-	this->saveState(tempTaskDeadline);
 }
 
-void Storage::saveTimedTask(Task* tempTask)
+void Storage::saveTimedTaskSpecificAttributes(Task* tempTask)
 {
 	TimedTask* tempTaskTimed = (TimedTask *) tempTask;
-	this->saveTaskType(tempTaskTimed);
-	this->saveIndex(tempTaskTimed);
-	this->saveName(tempTaskTimed);
 	this->saveFromDate(tempTaskTimed);
 	this->saveToDate(tempTaskTimed);
-	this->saveLocation(tempTaskTimed);
-	this->saveParticipants(tempTaskTimed);
-	this->saveNote(tempTaskTimed);
-	this->savePriority(tempTaskTimed);
-	this->saveTags(tempTaskTimed);
-	this->saveReminderTimes(tempTaskTimed);
-	this->saveState(tempTaskTimed);
 }
 
-void Storage::saveFloatingTask(Task* tempTask)
+void Storage::saveFloatingTaskSpecificAttributes(Task* tempTask)
 {
-	FloatingTask* tempTaskFloating = (FloatingTask *) tempTask;
-	this->saveTaskType(tempTaskFloating);
-	this->saveIndex(tempTaskFloating);
-	this->saveName(tempTaskFloating);
-	this->saveLocation(tempTaskFloating);
-	this->saveParticipants(tempTaskFloating);
-	this->saveNote(tempTaskFloating);
-	this->savePriority(tempTaskFloating);
-	this->saveTags(tempTaskFloating);
-	this->saveReminderTimes(tempTaskFloating);
-	this->saveState(tempTaskFloating);
+	// Nothing specific to save for floating task (yet)
+	return;
 }
 
-template <class taskTypePointer>
-void Storage::saveTaskType(taskTypePointer tempTask)
+void Storage::saveTaskType(Task* tempTask)
 {
 	string taskTypeStr = convertToString(tempTask->getTaskType());
 	this->writeLineToFile(taskTypeStr);
 }
 
-template <class taskTypePointer>
-void Storage::saveIndex(taskTypePointer tempTask)
+void Storage::saveIndex(Task* tempTask)
 {
 	this->writeLineToFile(convertToString(tempTask->getIndex()));
 }
 
-template <class taskTypePointer>
-void Storage::saveName(taskTypePointer tempTask)
+void Storage::saveName(Task* tempTask)
 {
 	if(tempTask->getFlagName())
 	{
 		this->writeLineToFile(tempTask->getName());
+	}
+	else
+	{
+		this->writeLineToFile("");
+	}
+}
+
+void Storage::saveLocation(Task* tempTask)
+{
+	if(tempTask->getFlagLocation())
+	{
+		this->writeLineToFile(tempTask->getLocation());
+	}
+	else
+	{
+		this->writeLineToFile("");
+	}
+}
+
+void Storage::saveParticipants(Task* tempTask)
+{
+	if(tempTask->getFlagParticipant())
+	{
+		string participantStr = tempTask->getParticipants();//convertToString(tempTask->getParticipants());
+		this->writeLineToFile(participantStr);
+	}
+	else
+	{
+		this->writeLineToFile("");
+	}
+}
+
+void Storage::saveNote(Task* tempTask)
+{
+	if(tempTask->getFlagNote())
+	{
+		this->writeLineToFile(tempTask->getNote());
+	}
+	else
+	{
+		this->writeLineToFile("");
+	}
+}
+
+void Storage::savePriority(Task* tempTask)
+{
+	throw "priority conversion needed!";
+	if(tempTask->getFlagPriority())
+	{
+		string priorityStr = convertToString(tempTask->getPriority());
+		this->writeLineToFile(priorityStr);
+	}
+	else
+	{
+		this->writeLineToFile("");
+	}
+}	
+
+void Storage::saveTags(Task* tempTask)
+{
+	if(tempTask->getFlagTags())
+	{
+		string tagStr = tempTask->getTags();//convertToString(tempTask->getTags());
+		this->writeLineToFile(tagStr);
+	}
+	else
+	{
+		this->writeLineToFile("");
+	}
+}
+
+void Storage::saveReminderTimes(Task* tempTask)
+{
+	if(tempTask->getFlagRemindTime())
+	{
+		string reminderStr = convertToString(tempTask->getRemindTime());
+		this->writeLineToFile(reminderStr);
+	}
+	else
+	{
+		this->writeLineToFile("");
+	}
+}
+
+void Storage::saveState(Task* tempTask)
+{
+	if(tempTask->getFlagState())
+	{
+		string stateStr = convertToString(tempTask->getState());
+		this->writeLineToFile(stateStr);
 	}
 	else
 	{
@@ -157,103 +233,6 @@ void Storage::saveToDate(taskTypePointer tempTask)
 	{
 		string toDateStr = convertToString(tempTask->getToDate());
 		this->writeLineToFile(toDateStr);
-	}
-	else
-	{
-		this->writeLineToFile("");
-	}
-}
-
-template <class taskTypePointer>
-void Storage::saveLocation(taskTypePointer tempTask)
-{
-	if(tempTask->getFlagLocation())
-	{
-		this->writeLineToFile(tempTask->getLocation());
-	}
-	else
-	{
-		this->writeLineToFile("");
-	}
-}
-
-template <class taskTypePointer>
-void Storage::saveParticipants(taskTypePointer tempTask)
-{
-	if(tempTask->getFlagParticipant())
-	{
-		string participantStr = tempTask->getParticipants();//convertToString(tempTask->getParticipants());
-		this->writeLineToFile(participantStr);
-	}
-	else
-	{
-		this->writeLineToFile("");
-	}
-}
-
-template <class taskTypePointer>
-void Storage::saveNote(taskTypePointer tempTask)
-{
-	if(tempTask->getFlagNote())
-	{
-		this->writeLineToFile(tempTask->getNote());
-	}
-	else
-	{
-		this->writeLineToFile("");
-	}
-}
-
-template <class taskTypePointer>
-void Storage::savePriority(taskTypePointer tempTask)
-{
-	throw "priority conversion needed!";
-	if(tempTask->getFlagPriority())
-	{
-		string priorityStr = convertToString(tempTask->getPriority());
-		this->writeLineToFile(priorityStr);
-	}
-	else
-	{
-		this->writeLineToFile("");
-	}
-}	
-
-template <class taskTypePointer>
-void Storage::saveTags(taskTypePointer tempTask)
-{
-	if(tempTask->getFlagTags())
-	{
-		string tagStr = tempTask->getTags();//convertToString(tempTask->getTags());
-		this->writeLineToFile(tagStr);
-	}
-	else
-	{
-		this->writeLineToFile("");
-	}
-}
-
-template <class taskTypePointer>
-void Storage::saveReminderTimes(taskTypePointer tempTask)
-{
-	if(tempTask->getFlagRemindTime())
-	{
-		string reminderStr = convertToString(tempTask->getRemindTime());
-		this->writeLineToFile(reminderStr);
-	}
-	else
-	{
-		this->writeLineToFile("");
-	}
-}
-
-template <class taskTypePointer>
-void Storage::saveState(taskTypePointer tempTask)
-{
-	if(tempTask->getFlagState())
-	{
-		string stateStr = convertToString(tempTask->getState());
-		this->writeLineToFile(stateStr);
 	}
 	else
 	{
@@ -321,9 +300,21 @@ string Storage::convertToString(TASK_STATE state)
 	return TASK_STATE_STRING[state];
 }
 
-bool Storage::writeLineToFile(string line)
+void Storage::writeLineToFile(string line)
 {
-	return false;
+	throw "storage writeLineToFile not implemented";
+}
+
+void Storage::writeNumberToFile(int num)
+{
+	stringstream ss(num);
+	
+	writeLineToFile(ss.str());
+}
+
+void Storage::emptyTheFile()
+{
+	throw "storage empty the file not implemented";
 }
 
 bool Storage::save(const Command&)
