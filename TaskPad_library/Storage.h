@@ -23,23 +23,28 @@ class Storage
 
 		static const string _fileName;
 
-		void saveDeadlineTask(Task* tempTask);
-		void saveTimedTask(Task* tempTask);
-		void saveFloatingTask(Task* tempTask);
+		void saveGenericAttributes(Task* tempTask);
+		void saveDeadlineTaskSpecificAttributes(Task* tempTask);
+		void saveTimedTaskSpecificAttributes(Task* tempTask);
+		void saveFloatingTaskSpecificAttributes(Task* tempTask);
 		void saveString(string line);
-		template <class taskTypePointer> void saveTaskType(taskTypePointer T);
-		template <class taskTypePointer> void saveIndex(taskTypePointer T);
-		template <class taskTypePointer> void saveName(taskTypePointer T);
+
+		//generic attributes of all tasks
+		void saveTaskType(Task* T);
+		void saveIndex(Task* T);
+		void saveName(Task* T);
+		void saveLocation(Task* T);
+		void saveParticipants(Task* T);
+		void saveNote(Task* T);
+		void savePriority(Task* T);
+		void saveTags(Task* T);
+		void saveReminderTimes(Task* T);
+		void saveState(Task* T);
+
+		// Task specific attributes
 		template <class taskTypePointer> void saveDueDate(taskTypePointer T);
 		template <class taskTypePointer> void saveFromDate(taskTypePointer T);
 		template <class taskTypePointer> void saveToDate(taskTypePointer T);
-		template <class taskTypePointer> void saveLocation(taskTypePointer T);
-		template <class taskTypePointer> void saveParticipants(taskTypePointer T);
-		template <class taskTypePointer> void saveNote(taskTypePointer T);
-		template <class taskTypePointer> void savePriority(taskTypePointer T);
-		template <class taskTypePointer> void saveTags(taskTypePointer T);
-		template <class taskTypePointer> void saveReminderTimes(taskTypePointer T);
-		template <class taskTypePointer> void saveState(taskTypePointer T);
 
 		static string convertTimeToString(time_t time);
 
@@ -53,7 +58,9 @@ class Storage
 		string convertToString(TASK_STATE state);
 
 		//writers
-		bool writeLineToFile(string line);
+		void writeLineToFile(string line);
+		void writeNumberToFile(int num);
+		void emptyTheFile();
 	public:
 		Storage(list<Task>&);
 
