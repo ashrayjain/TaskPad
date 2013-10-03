@@ -62,19 +62,7 @@ void Messenger::setList(const list<Task>& result)
 
 void Messenger::setInt(const int& index)
 {
-	if (isValidIndex(index))
-	{
-		this->_index = index;
-	}
-}
-
-//helper for setInt
-bool Messenger::isValidIndex (const int& index) const
-{
-	if(index > 0)
-		return true;
-
-	return false;
+	this->_index = index;
 }
 
 void Messenger::setCommandType(const COMMAND_TYPE& commandType)
