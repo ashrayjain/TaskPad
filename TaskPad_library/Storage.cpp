@@ -24,7 +24,7 @@ bool Storage::save(list<Task>& taskList)
 
 	list<Task>::iterator it = taskList.begin();
 
-	this->writeNumberToFile(taskList.size());
+	this->saveTaskCount(taskList.size());
 
 	while(it != taskList.end())
 	{
@@ -45,11 +45,6 @@ bool Storage::save(list<Task>& taskList)
 		it++;
 	}
 	return false;
-}
-
-void Storage::saveString(string line)
-{
-	return;
 }
 
 void Storage::saveGenericAttributes(Task* tempTask)
@@ -83,6 +78,32 @@ void Storage::saveFloatingTaskSpecificAttributes(Task* tempTask)
 {
 	// Nothing specific to save for floating task (yet)
 	return;
+}
+
+void Storage::saveCount(unsigned count)
+{
+	std::string countStr = convertToString(count);
+	this->writeLineToFile(countStr);
+}
+
+void Storage::saveTaskCount(unsigned taskCount)
+{
+	saveCount(taskCount);
+}
+
+void Storage::saveParticipantCount(unsigned participantCount)
+{
+	saveCount(participantCount);
+}
+
+void Storage::saveTagCount(unsigned tagCount)
+{
+	saveCount(tagCount);
+}
+
+void Storage::saveReminderCount(unsigned reminderCount)
+{
+	saveCount(reminderCount);
 }
 
 void Storage::saveTaskType(Task* tempTask)
@@ -268,7 +289,7 @@ string Storage::convertToString(list<time_t> timeList)
 	stringstream tempStream;
 	while( it != timeList.end())
 	{
-		tempStream << "rt: " << convertToString(*it);
+		tempStream << convertToString(*it) << endl;
 		it++;
 	}
 
@@ -303,13 +324,6 @@ string Storage::convertToString(TASK_STATE state)
 void Storage::writeLineToFile(string line)
 {
 	throw "storage writeLineToFile not implemented";
-}
-
-void Storage::writeNumberToFile(int num)
-{
-	stringstream ss(num);
-	
-	writeLineToFile(ss.str());
 }
 
 void Storage::emptyTheFile()
