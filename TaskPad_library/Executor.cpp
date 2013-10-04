@@ -60,80 +60,80 @@ void Executor::executeFind (Command_Find* cmd, Messenger &response) {
 }
 
 void Executor::executeAddDeadlineTask(Command_Add* cmd, Messenger &response) {
-	DeadlineTask* newTask = new DeadlineTask();
+	Task newTask = Task();
 	formDeadlineTaskFromCmd(cmd, newTask);
-	_data->push_back(*newTask);
-	response.setList(list<Task>(1, *newTask));
+	_data->push_back(newTask);
+	response.setList(list<Task>(1, newTask));
 }
 
 void Executor::executeAddTimedTask(Command_Add* cmd, Messenger &response) {
-	TimedTask* newTask = new TimedTask();
+	Task newTask = Task();
 	formTimedTaskFromCmd(cmd, newTask);
-	_data->push_back(*newTask);
-	response.setList(list<Task>(1, *newTask));
+	_data->push_back(newTask);
+	response.setList(list<Task>(1, newTask));
 }
 
 void Executor::executeAddFloatingTask(Command_Add* cmd, Messenger &response) {
-	FloatingTask* newTask = new FloatingTask();
+	Task newTask = Task();
 	formFloatingTaskFromCmd(cmd, newTask);
-	_data->push_back(*newTask);
-	response.setList(list<Task>(1, *newTask));
+	_data->push_back(newTask);
+	response.setList(list<Task>(1, newTask));
 }
 
-void Executor::formDeadlineTaskFromCmd(Command_Add* cmd, DeadlineTask* newTask) {
-	newTask->setDueDate(cmd->getDueDate());
+void Executor::formDeadlineTaskFromCmd(Command_Add* cmd, Task &newTask) {
+	newTask.setDueDate(cmd->getDueDate());
 
 	if(cmd->getFlagName())
-		newTask->setName(cmd->getName());
+		newTask.setName(cmd->getName());
 	else if(cmd->getFlagLocation())
-		newTask->setLocation(cmd->getLocation());
+		newTask.setLocation(cmd->getLocation());
 	else if(cmd->getFlagParticipants())
-		newTask->setParticipants(cmd->getParticipants());
+		newTask.setParticipants(cmd->getParticipants());
 	else if(cmd->getFlagNote())
-		newTask->setNote(cmd->getNote());
+		newTask.setNote(cmd->getNote());
 	else if(cmd->getFlagPriority())
-		newTask->setPriority(cmd->getPriority());
+		newTask.setPriority(cmd->getPriority());
 	else if(cmd->getFlagTags())
-		newTask->setTags(cmd->getTags());
+		newTask.setTags(cmd->getTags());
 	else if(cmd->getFlagRemindTime())
-		newTask->setRemindTime(cmd->getRemindTime());
+		newTask.setRemindTime(cmd->getRemindTime());
 }
 
-void Executor::formTimedTaskFromCmd(Command_Add* cmd, TimedTask* newTask) {
-	newTask->setFromDate(cmd->getFromDate());
-	newTask->setToDate(cmd->getToDate());
+void Executor::formTimedTaskFromCmd(Command_Add* cmd, Task &newTask) {
+	newTask.setFromDate(cmd->getFromDate());
+	newTask.setToDate(cmd->getToDate());
 
 	if(cmd->getFlagName())
-		newTask->setName(cmd->getName());
+		newTask.setName(cmd->getName());
 	else if(cmd->getFlagLocation())
-		newTask->setLocation(cmd->getLocation());
+		newTask.setLocation(cmd->getLocation());
 	else if(cmd->getFlagParticipants())
-		newTask->setParticipants(cmd->getParticipants());
+		newTask.setParticipants(cmd->getParticipants());
 	else if(cmd->getFlagNote())
-		newTask->setNote(cmd->getNote());
+		newTask.setNote(cmd->getNote());
 	else if(cmd->getFlagPriority())
-		newTask->setPriority(cmd->getPriority());
+		newTask.setPriority(cmd->getPriority());
 	else if(cmd->getFlagTags())
-		newTask->setTags(cmd->getTags());
+		newTask.setTags(cmd->getTags());
 	else if(cmd->getFlagRemindTime())
-		newTask->setRemindTime(cmd->getRemindTime());
+		newTask.setRemindTime(cmd->getRemindTime());
 }
 
-void Executor::formFloatingTaskFromCmd(Command_Add* cmd, FloatingTask* newTask) {
+void Executor::formFloatingTaskFromCmd(Command_Add* cmd, Task &newTask) {
 	if(cmd->getFlagName())
-		newTask->setName(cmd->getName());
+		newTask.setName(cmd->getName());
 	else if(cmd->getFlagLocation())
-		newTask->setLocation(cmd->getLocation());
+		newTask.setLocation(cmd->getLocation());
 	else if(cmd->getFlagParticipants())
-		newTask->setParticipants(cmd->getParticipants());
+		newTask.setParticipants(cmd->getParticipants());
 	else if(cmd->getFlagNote())
-		newTask->setNote(cmd->getNote());
+		newTask.setNote(cmd->getNote());
 	else if(cmd->getFlagPriority())
-		newTask->setPriority(cmd->getPriority());
+		newTask.setPriority(cmd->getPriority());
 	else if(cmd->getFlagTags())
-		newTask->setTags(cmd->getTags());
+		newTask.setTags(cmd->getTags());
 	else if(cmd->getFlagRemindTime())
-		newTask->setRemindTime(cmd->getRemindTime());
+		newTask.setRemindTime(cmd->getRemindTime());
 }
 
 void Executor::deleteTaskByIndex(const unsigned &index, Messenger &response) {
