@@ -15,7 +15,6 @@ Assumptions made:
 using namespace TP;
 
 const string Manager::MESSAGE_INDEX_OUT_OF_RANGE = "Given index is out of range!";
-const string Manager::MESSAGE_ERROR_UNEXPECTED_COMMAND_TYPE_WITH_INDEX = "Unexpected Command with index!!";
 
 Manager::Manager() {
 	this->_storage = new Storage(_tasks);
@@ -72,7 +71,7 @@ void Manager::handleNormalScenarioCommands(string newCommand) {
 		}
 	}
 	else if (isCommandWithIndexGiven(newCommand)) {
-		this->storeIndexFromCommandToClassAttribute();
+		this->storeIndexFromCommandToIndexAttribute();
 
 		if(this->isIndexWithinRange()) {
 			this->insertCreatedTimeIntoCommand();
@@ -173,7 +172,7 @@ void Manager::insertCreatedTimeIntoCommand() {
 			this->insertCreatedTimeIntoDeleteCommand();
 			break;
 		default:
-			throw MESSAGE_ERROR_UNEXPECTED_COMMAND_TYPE_WITH_INDEX;
+			throw exception("Unexpected Command with index!!");
 	}
 }
 
@@ -207,8 +206,8 @@ unsigned Manager::getCreatedTimeOfTask(Task* baseTask) const {
 	return createdTime;
 }
 
-void Manager::storeIndexFromCommandToClassAttribute() {
-	throw "storeIndexFromCommandToClassAttribute() not implemented!";
+void Manager::storeIndexFromCommandToIndexAttribute() {
+	throw "storeIndexFromCommandToIndexAttribute() not implemented!";
 }
 
 bool Manager::hasInterpretationError() {
@@ -377,10 +376,6 @@ void Manager::resetStatus() {
 	this->setCurrTm(getTodayTm());
 }
 
-void Manager::deleteTaskList()
-{
-}
-
 Manager::~Manager() {
 	this->_storage->save(this->_tasks);
 	delete this->_interpreter;
@@ -388,5 +383,4 @@ Manager::~Manager() {
 	delete this->_storage;
 	this->removePreviousCommand();
 	this->_response.resetMessenger();
-	this->deleteTaskList();
 }
