@@ -39,9 +39,9 @@ protected:
 	void executeAddTimedTask		(Command_Add* cmd, Messenger &response);
 	void executeAddFloatingTask		(Command_Add* cmd, Messenger &response);
 
-	void formDeadlineTaskFromCmd	(Command_Add* cmd, DeadlineTask* newTask);
-	void formTimedTaskFromCmd		(Command_Add* cmd, TimedTask* newTask);
-	void formFloatingTaskFromCmd	(Command_Add* cmd, FloatingTask* newTask);
+	void formDeadlineTaskFromCmd	(Command_Add* cmd, Task &newTask);
+	void formTimedTaskFromCmd		(Command_Add* cmd, Task &newTask);
+	void formFloatingTaskFromCmd	(Command_Add* cmd, Task &newTask);
 
 	bool isAddTimedTaskCommand		(Command_Add* cmd) { return cmd->getFlagFrom() && cmd->getFlagTo(); }
 	bool isAddDeadlineTaskCommand	(Command_Add* cmd) { return cmd->getFlagDue(); }
