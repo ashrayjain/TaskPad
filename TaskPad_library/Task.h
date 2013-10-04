@@ -42,7 +42,6 @@ class Task
 public:
 	Task()						{ defaultTaskInit(); }
 	Task(unsigned indexToPut)	{ defaultTaskInit(indexToPut); }
-	virtual ~Task() {}
 	TP::TASK_TYPE getTaskType() { return _taskType; }
 
 	// Getter Functions common to all Tasks
@@ -55,6 +54,9 @@ public:
 	std::time_t		getRemindTime()		{ return _taskRemindTime;	}	
 	TP::TASK_STATE	getState()			{ return _taskState;		}
 	unsigned		getIndex()			{ return _taskIndex;		}
+	std::time_t		getFromDate()		{ return _taskFromDate;		}
+	std::time_t		getToDate()			{ return _taskToDate;		}
+	std::time_t		getDueDate()		{ return _taskDueDate;		}
 
 	// Setter Functions common to all Tasks
 	void setName(std::string newName)					{ _taskName			= newName;			flagName = true;			}	
@@ -65,6 +67,9 @@ public:
 	void setTags(std::string newTags)					{ _taskTags			= newTags;			flagTags = true;			}
 	void setRemindTime(std::time_t newRemindTime)		{ _taskRemindTime	= newRemindTime;	flagRemindTime = true;		}
 	void setState(TP::TASK_STATE newState)				{ _taskState		= newState;			flagState = true;			}
+	void setFromDate(std::time_t newFromDate)			{ _taskFromDate		= newFromDate;		flagFromDate = true;		}
+	void setToDate(std::time_t newToDate)				{ _taskToDate		= newToDate;		flagToDate = true;			}
+	void setDueDate(std::time_t newDueDate)				{ _taskDueDate		= newDueDate;		flagDueDate = true;			}
 
 	// Flag Getter Functions common to all Tasks
 	bool getFlagName()			{ return flagName; }
@@ -75,6 +80,9 @@ public:
 	bool getFlagTags()			{ return flagTags; }
 	bool getFlagRemindTime()	{ return flagRemindTime; }
 	bool getFlagState()			{ return flagState; }
+	bool getFlagFromDate()		{ return flagFromDate; }
+	bool getFlagToDate()		{ return flagToDate; }
+	bool getFlagDueDate()		{ return flagDueDate; }
 
 	
 protected:
@@ -119,78 +127,6 @@ protected:
 	bool flagTags;
 	bool flagRemindTime;
 	bool flagState;
-};
-
-/*
- *=======================
- 
- Timed Task
- 
- *=======================
- */
-class TimedTask: public Task
-{
-public:
-	TimedTask()
-	{
-		defaultTaskInit();
-		setTaskType(TP::TIMED);
-	}
-
-	// Getter Functions specific to Timed Tasks
-	std::time_t		getFromDate()				{ return _taskFromDate;		}
-	std::time_t		getToDate()					{ return _taskToDate;		}
-
-	// Setter Functions	specific to Timed Tasks
-	void setFromDate(std::time_t newFromDate)	{ _taskFromDate	= newFromDate;	flagFromDate = true; }
-	void setToDate(std::time_t newToDate)		{ _taskToDate	= newToDate;	flagToDate = true; }
-	
-	// Flag Getter Functions specific to Timed Tasks
-	bool getFlagFromDate()						{ return flagFromDate; }
-	bool getFlagToDate()						{ return flagToDate; }
-};
-
-/*
- *=======================
- 
- Floating Task
- 
- *=======================
- */
-class FloatingTask: public Task
-{
-public:
-	FloatingTask()
-	{
-		defaultTaskInit();
-		setTaskType(TP::FLOATING);
-	}
-};
-
-/*
- *=======================
- 
- Deadline Task
- 
- *=======================
- */
-class DeadlineTask: public Task
-{
-public:
-	DeadlineTask()
-	{
-		defaultTaskInit();
-		setTaskType(TP::DEADLINE);
-	}
-
-	// Getter Functions specific to Deadline Tasks
-	std::time_t		getDueDate()			{ return _taskDueDate; }
-	
-	// Setter Functions	specific to Deadline Tasks
-	void setDueDate(std::time_t newDueDate)	{ _taskDueDate		= newDueDate; flagDueDate = true; }
-	
-	// Flag Getter Functions specific to Deadline Tasks
-	bool getFlagDueDate()					{ return flagDueDate; }
 };
 
 #endif
