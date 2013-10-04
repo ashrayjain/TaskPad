@@ -10,11 +10,12 @@ const string Storage::_fileName = "TaskPad.txt";
 
 Storage::Storage(list<Task>&)
 {
-	throw "Storage Constructor not implemented!";
+	//throw "Storage Constructor not implemented!";
 }
 
 bool Storage::save(list<Task>& taskList)
 {
+	return false;
 	string singleTaskEntry = "";
 	if(taskList.empty())
 	{
@@ -338,6 +339,8 @@ bool Storage::save(const Command&)
 
 Storage::~Storage()
 {
+	/*
 	this->_fileReader.close();
 	this->_fileWriter.close();
+	*/
 }
