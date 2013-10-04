@@ -382,7 +382,7 @@ void Manager::deleteTaskList()
 }
 
 Manager::~Manager() {
-	this->_storage->save(this->_tasks);
+	//this->_storage->save(this->_tasks);
 	delete this->_interpreter;
 	delete this->_executor;
 	delete this->_storage;
