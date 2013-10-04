@@ -41,7 +41,7 @@ class Manager {
 		void insertCreatedTimeIntoModifyCommand		();
 		void insertCreatedTimeIntoDeleteCommand		();
 		void removePreviousCommand					();
-		void storeIndexFromCommandToIndexAttribute	();
+		void storeIndexFromCommandToClassAttribute	();
 
 		//state determinant functions
 		void setCurrTm	(std::tm);
@@ -58,6 +58,9 @@ class Manager {
 		std::tm			getPrevMonthTm			(std::tm currTm);
 		std::string		getStrFromTm			(std::tm timeInfo);
 		std::string		createFindCommand		(std::tm startTm, std::tm endTm);
+
+		//helper for destructor
+		void deleteTaskList();
 	public:
 		//constructor
 		Manager();
@@ -72,6 +75,7 @@ class Manager {
 
 		// response messages
 		static const string MESSAGE_INDEX_OUT_OF_RANGE;
+		static const string MESSAGE_ERROR_UNEXPECTED_COMMAND_TYPE_WITH_INDEX;
 };
 
 #endif

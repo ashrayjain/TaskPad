@@ -28,7 +28,7 @@ bool Storage::save(list<Task>& taskList)
 
 	while(it != taskList.end())
 	{
-		this->saveGenericAttributes(&*it);
+		this->saveGenericAttributes(&(*it));
 		switch(it->getTaskType())
 		{
 			case DEADLINE:
