@@ -168,7 +168,7 @@ void Storage::saveNote(Task* tempTask)
 
 void Storage::savePriority(Task* tempTask)
 {
-	throw "priority conversion needed!";
+	//throw "priority conversion needed!";
 	if(tempTask->getFlagPriority())
 	{
 		string priorityStr = convertToString(tempTask->getPriority());
@@ -323,12 +323,12 @@ string Storage::convertToString(TASK_STATE state)
 
 void Storage::writeLineToFile(string line)
 {
-	throw "storage writeLineToFile not implemented";
+	//throw "storage writeLineToFile not implemented";
 }
 
 void Storage::emptyTheFile()
 {
-	throw "storage empty the file not implemented";
+	//throw "storage empty the file not implemented";
 }
 
 bool Storage::save(const Command&)
