@@ -16,7 +16,7 @@ namespace UnitTest
 		
 		TEST_METHOD(Getter_Messenger)
 		{
-			Task myTasks[] = {DeadlineTask(),TimedTask(),FloatingTask(),DeadlineTask()};
+			Task myTasks[] = {Task(12),Task(8),Task(10),Task(11)};
 			string testErrorStr = "This is a test error Message";
 			Messenger testMessenger(ADD,ERROR_INTERMEDIATE,list<Task>(myTasks,myTasks + 4),10,testErrorStr);
 
@@ -28,10 +28,10 @@ namespace UnitTest
 			list<Task> returnList = testMessenger.getList();
 			list<Task>::iterator it = returnList.begin();
 			Assert::AreEqual((int) testMessenger.getList().size(),4);
-			Assert::AreEqual(static_cast<int>((it++)->getTaskType()),static_cast<int>(DEADLINE));
-			Assert::AreEqual(static_cast<int>((it++)->getTaskType()),static_cast<int>(TIMED));
-			Assert::AreEqual(static_cast<int>((it++)->getTaskType()),static_cast<int>(FLOATING));
-			Assert::AreEqual(static_cast<int>((it++)->getTaskType()),static_cast<int>(DEADLINE));
+			Assert::AreEqual(((it++)->getIndex()),(unsigned) 12);
+			Assert::AreEqual(((it++)->getIndex()),(unsigned) 8);
+			Assert::AreEqual(((it++)->getIndex()),(unsigned) 10);
+			Assert::AreEqual(((it++)->getIndex()),(unsigned) 11);
 		}
 		TEST_METHOD(Setter_Messenger)
 		{
@@ -91,24 +91,24 @@ namespace UnitTest
 			//************* END TEST SetStatus() *********************//
 
 			//************* TEST SetList() *********************//
-			Task myTasks[] = {DeadlineTask(),TimedTask(),FloatingTask(),DeadlineTask()};
+			Task myTasks[] = {Task(1),Task(2),Task(3),Task(4)};
 			testMessenger.setList(list<Task>(myTasks,myTasks+4));
 
 			list<Task> returnList = testMessenger.getList();
 			list<Task>::iterator it = returnList.begin();
-			Assert::AreEqual(static_cast<int>((it++)->getTaskType()),static_cast<int>(DEADLINE));
-			Assert::AreEqual(static_cast<int>((it++)->getTaskType()),static_cast<int>(TIMED));
-			Assert::AreEqual(static_cast<int>((it++)->getTaskType()),static_cast<int>(FLOATING));
-			Assert::AreEqual(static_cast<int>((it++)->getTaskType()),static_cast<int>(DEADLINE));
+			Assert::AreEqual(((it++)->getIndex()),(unsigned) 1);
+			Assert::AreEqual(((it++)->getIndex()),(unsigned) 2);
+			Assert::AreEqual(((it++)->getIndex()),(unsigned) 3);
+			Assert::AreEqual(((it++)->getIndex()),(unsigned) 4);
 
-			Task myTasks1[] = {TimedTask(),TimedTask(),FloatingTask()};
+			Task myTasks1[] = {Task(3),Task(8),Task(10)};
 			testMessenger.setList(list<Task>(myTasks1,myTasks1+3));
 
 			returnList = testMessenger.getList();
 			it = returnList.begin();
-			Assert::AreEqual(static_cast<int>((it++)->getTaskType()),static_cast<int>(TIMED));
-			Assert::AreEqual(static_cast<int>((it++)->getTaskType()),static_cast<int>(TIMED));
-			Assert::AreEqual(static_cast<int>((it++)->getTaskType()),static_cast<int>(FLOATING));
+			Assert::AreEqual(((it++)->getIndex()),(unsigned) 3);
+			Assert::AreEqual(((it++)->getIndex()),(unsigned) 8);
+			Assert::AreEqual(((it++)->getIndex()),(unsigned) 10);
 
 			testMessenger.setList(list<Task>());
 

@@ -8,9 +8,6 @@
 //forward definitions
 class Task;
 class Command;
-class DeadlineTask;
-class TimedTask;
-class FloatingTask;
 
 using namespace std;
 using namespace TP;
@@ -23,10 +20,8 @@ class Storage
 
 		static const string _fileName;
 
-		void saveGenericAttributes					(Task* tempTaskempTask);
-		void saveDeadlineTaskSpecificAttributes		(Task* tempTaskempTask);
-		void saveTimedTaskSpecificAttributes		(Task* tempTaskempTask);
-		void saveFloatingTaskSpecificAttributes		(Task* tempTaskempTask);
+		void saveTaskList	(list<Task>& taskList);
+		void saveTask		(Task& tempTaskTask);
 
 		//file level attributes
 				void saveCount				(unsigned count);
@@ -36,21 +31,19 @@ class Storage
 		inline	void saveTagCount			(unsigned tagCount);
 
 		//generic attributes of all tasks
-		void saveTaskType			(Task* tempTask);
-		void saveIndex				(Task* tempTask);
-		void saveName				(Task* tempTask);
-		void saveLocation			(Task* tempTask);
-		void saveParticipants		(Task* tempTask);
-		void saveNote				(Task* tempTask);
-		void savePriority			(Task* tempTask);
-		void saveTags				(Task* tempTask);
-		void saveReminderTimes		(Task* tempTask);
-		void saveState				(Task* tempTask);
-
-		// Task specific attributes
-		template <class taskTypePointer> void saveDueDate	(taskTypePointer T);
-		template <class taskTypePointer> void saveFromDate	(taskTypePointer T);
-		template <class taskTypePointer> void saveToDate	(taskTypePointer T);
+		void saveTaskType			(Task& tempTask);
+		void saveIndex				(Task& tempTask);
+		void saveName				(Task& tempTask);
+		void saveLocation			(Task& tempTask);
+		void saveParticipants		(Task& tempTask);
+		void saveNote				(Task& tempTask);
+		void savePriority			(Task& tempTask);
+		void saveTags				(Task& tempTask);
+		void saveReminderTimes		(Task& tempTask);
+		void saveState				(Task& tempTask);
+		void saveDueDate			(Task& tempTask);
+		void saveFromDate			(Task& tempTask);
+		void saveToDate				(Task& tempTask);
 
 		static string convertTimeToString(time_t time);
 

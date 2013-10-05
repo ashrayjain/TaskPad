@@ -15,43 +15,30 @@ Storage::Storage(list<Task>&)
 
 bool Storage::save(list<Task>& taskList)
 {
-	string singleTaskEntry = "";
-	if(taskList.empty())
-	{
-		this->emptyTheFile();
-		return true;
-	}
-
-	list<Task>::iterator it = taskList.begin();
-
+	this->emptyTheFile();
 	this->saveTaskCount(taskList.size());
-
-	while(it != taskList.end())
-	{
-		this->saveGenericAttributes(&*it);
-		switch(it->getTaskType())
-		{
-			case DEADLINE:
-				this->saveDeadlineTaskSpecificAttributes(&(*it));
-				break;
-			case TIMED:
-				this->saveTimedTaskSpecificAttributes(&(*it));
-				break;
-			case FLOATING:
-				this->saveFloatingTaskSpecificAttributes(&(*it));
-				break;
-		}
-		return false;
-		it++;
-	}
+	this->saveTaskList(taskList);
 	return false;
 }
 
-void Storage::saveGenericAttributes(Task* tempTask)
+void Storage::saveTaskList(list<Task>& taskList)
+{
+	list<Task>::iterator it = taskList.begin();
+	while(it != taskList.end())
+	{
+		this->saveTask(*it);
+		it++;
+	}
+}
+
+void Storage::saveTask(Task& tempTask)
 {
 	this->saveTaskType(tempTask);
 	this->saveIndex(tempTask);
 	this->saveName(tempTask);
+	this->saveDueDate(tempTask);
+	this->saveFromDate(tempTask);
+	this->saveToDate(tempTask);
 	this->saveLocation(tempTask);
 	this->saveParticipants(tempTask);
 	this->saveNote(tempTask);
@@ -59,25 +46,6 @@ void Storage::saveGenericAttributes(Task* tempTask)
 	this->saveTags(tempTask);
 	this->saveReminderTimes(tempTask);
 	this->saveState(tempTask);
-}
-
-void Storage::saveDeadlineTaskSpecificAttributes(Task* tempTask)
-{
-	DeadlineTask* tempTaskDeadline = (DeadlineTask *) tempTask;
-	this->saveDueDate(tempTaskDeadline);
-}
-
-void Storage::saveTimedTaskSpecificAttributes(Task* tempTask)
-{
-	TimedTask* tempTaskTimed = (TimedTask *) tempTask;
-	this->saveFromDate(tempTaskTimed);
-	this->saveToDate(tempTaskTimed);
-}
-
-void Storage::saveFloatingTaskSpecificAttributes(Task* tempTask)
-{
-	// Nothing specific to save for floating task (yet)
-	return;
 }
 
 void Storage::saveCount(unsigned count)
@@ -106,22 +74,22 @@ void Storage::saveReminderCount(unsigned reminderCount)
 	saveCount(reminderCount);
 }
 
-void Storage::saveTaskType(Task* tempTask)
+void Storage::saveTaskType(Task& tempTask)
 {
-	string taskTypeStr = convertToString(tempTask->getTaskType());
+	string taskTypeStr = convertToString(tempTask.getTaskType());
 	this->writeLineToFile(taskTypeStr);
 }
 
-void Storage::saveIndex(Task* tempTask)
+void Storage::saveIndex(Task& tempTask)
 {
-	this->writeLineToFile(convertToString(tempTask->getIndex()));
+	this->writeLineToFile(convertToString(tempTask.getIndex()));
 }
 
-void Storage::saveName(Task* tempTask)
+void Storage::saveName(Task& tempTask)
 {
-	if(tempTask->getFlagName())
+	if(tempTask.getFlagName())
 	{
-		this->writeLineToFile(tempTask->getName());
+		this->writeLineToFile(tempTask.getName());
 	}
 	else
 	{
@@ -129,11 +97,11 @@ void Storage::saveName(Task* tempTask)
 	}
 }
 
-void Storage::saveLocation(Task* tempTask)
+void Storage::saveLocation(Task& tempTask)
 {
-	if(tempTask->getFlagLocation())
+	if(tempTask.getFlagLocation())
 	{
-		this->writeLineToFile(tempTask->getLocation());
+		this->writeLineToFile(tempTask.getLocation());
 	}
 	else
 	{
@@ -141,12 +109,22 @@ void Storage::saveLocation(Task* tempTask)
 	}
 }
 
-void Storage::saveParticipants(Task* tempTask)
+void Storage::saveParticipants(Task& tempTask)
 {
-	if(tempTask->getFlagParticipant())
+	if(tempTask.getFlagParticipant())
 	{
-		string participantStr = tempTask->getParticipants();//convertToString(tempTask->getParticipants());
-		this->writeLineToFile(participantStr);
+		/*
+		list<std::string> participantList = tempTask.getParticipants();
+		list<std::string>::iterator pit = participantList.begin();
+		string participant = "";
+
+		while(pit != participantList.end())
+		{
+			participant = (*pit);//convertToString(tempTask.getParticipants());
+			this->writeLineToFile(participant);
+			pit++;
+		}
+		*/
 	}
 	else
 	{
@@ -154,11 +132,11 @@ void Storage::saveParticipants(Task* tempTask)
 	}
 }
 
-void Storage::saveNote(Task* tempTask)
+void Storage::saveNote(Task& tempTask)
 {
-	if(tempTask->getFlagNote())
+	if(tempTask.getFlagNote())
 	{
-		this->writeLineToFile(tempTask->getNote());
+		this->writeLineToFile(tempTask.getNote());
 	}
 	else
 	{
@@ -166,12 +144,12 @@ void Storage::saveNote(Task* tempTask)
 	}
 }
 
-void Storage::savePriority(Task* tempTask)
+void Storage::savePriority(Task& tempTask)
 {
 	//throw "priority conversion needed!";
-	if(tempTask->getFlagPriority())
+	if(tempTask.getFlagPriority())
 	{
-		string priorityStr = convertToString(tempTask->getPriority());
+		string priorityStr = convertToString(tempTask.getPriority());
 		this->writeLineToFile(priorityStr);
 	}
 	else
@@ -180,12 +158,22 @@ void Storage::savePriority(Task* tempTask)
 	}
 }	
 
-void Storage::saveTags(Task* tempTask)
+void Storage::saveTags(Task& tempTask)
 {
-	if(tempTask->getFlagTags())
+	if(tempTask.getFlagTags())
 	{
-		string tagStr = tempTask->getTags();//convertToString(tempTask->getTags());
-		this->writeLineToFile(tagStr);
+		/*
+		list<std::string> tagsList = tempTask.getTags();
+		list<std::string>::iterator tagit = tagsList.begin();
+		string tag = "";
+
+		while(tagit != tagsList.end())
+		{
+			tag = (*tagit);
+			this->writeLineToFile(tag);
+			tagit++;
+		}
+		*/
 	}
 	else
 	{
@@ -193,12 +181,23 @@ void Storage::saveTags(Task* tempTask)
 	}
 }
 
-void Storage::saveReminderTimes(Task* tempTask)
+void Storage::saveReminderTimes(Task& tempTask)
 {
-	if(tempTask->getFlagRemindTime())
+	if(tempTask.getFlagRemindTime())
 	{
-		string reminderStr = convertToString(tempTask->getRemindTime());
+		/*
+		list<time_t> reminderList = tempTask.getRemindTimes();
+		list<time_t>::iterator rtit = reminderList.begin();
+
+		while(rtit != reminderList.end())
+		{
+		*/
+		string reminderStr = convertToString(tempTask.getRemindTime());
 		this->writeLineToFile(reminderStr);
+		/*
+		rtit++;
+		}
+		*/
 	}
 	else
 	{
@@ -206,11 +205,11 @@ void Storage::saveReminderTimes(Task* tempTask)
 	}
 }
 
-void Storage::saveState(Task* tempTask)
+void Storage::saveState(Task& tempTask)
 {
-	if(tempTask->getFlagState())
+	if(tempTask.getFlagState())
 	{
-		string stateStr = convertToString(tempTask->getState());
+		string stateStr = convertToString(tempTask.getState());
 		this->writeLineToFile(stateStr);
 	}
 	else
@@ -219,12 +218,11 @@ void Storage::saveState(Task* tempTask)
 	}
 }
 
-template <class taskTypePointer>
-void Storage::saveDueDate(taskTypePointer tempTask)
+void Storage::saveDueDate(Task& tempTask)
 {
-	if(tempTask->getFlagDueDate())
+	if(tempTask.getFlagDueDate())
 	{
-		string dueDateStr = convertToString(tempTask->getDueDate());
+		string dueDateStr = convertToString(tempTask.getDueDate());
 		this->writeLineToFile(dueDateStr);
 	}
 	else
@@ -233,12 +231,11 @@ void Storage::saveDueDate(taskTypePointer tempTask)
 	}
 }
 
-template <class taskTypePointer>
-void Storage::saveFromDate(taskTypePointer tempTask)
+void Storage::saveFromDate(Task& tempTask)
 {
-	if(tempTask->getFlagFromDate())
+	if(tempTask.getFlagFromDate())
 	{
-		string fromDateStr = convertToString(tempTask->getFromDate());
+		string fromDateStr = convertToString(tempTask.getFromDate());
 		this->writeLineToFile(fromDateStr);
 	}
 	else
@@ -247,12 +244,11 @@ void Storage::saveFromDate(taskTypePointer tempTask)
 	}
 }
 
-template <class taskTypePointer>
-void Storage::saveToDate(taskTypePointer tempTask)
+void Storage::saveToDate(Task& tempTask)
 {
-	if(tempTask->getFlagToDate())
+	if(tempTask.getFlagToDate())
 	{
-		string toDateStr = convertToString(tempTask->getToDate());
+		string toDateStr = convertToString(tempTask.getToDate());
 		this->writeLineToFile(toDateStr);
 	}
 	else
@@ -287,6 +283,7 @@ string Storage::convertToString(list<time_t> timeList)
 {
 	list<time_t>::iterator it = timeList.begin();
 	stringstream tempStream;
+
 	while( it != timeList.end())
 	{
 		tempStream << convertToString(*it) << endl;
