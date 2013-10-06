@@ -19,15 +19,21 @@ public:
 
 protected slots:
 	void about();
+	void test();
 	void createNewTaskTemplate();
 
 private:
+	void keyPressEvent(QKeyEvent*event);
+	void reset();
+	void getToday();
 	void updateNavLabel(QString str);
 	void updateDetailsLabel(QString str);
 	void updateList(std::list<Task> result);
-	void extractTask(int index,Task task);
-	void updateDetails(std::list<Task> result);
+	QTreeWidgetItem* extractTask(int index,Task task);
+	void clearDetails();
+	void updateDetails(Task t);
 	void updateStatusBar(QString str);
+	void handleGetToday(Messenger msg);
 	void handleMessenger(Messenger msg);
 	void customisedUi();
 	void mousePressEvent(QMouseEvent *event);
@@ -39,6 +45,7 @@ private:
 	bool eventFilter(QObject* watched, QEvent* event);
 
 	Manager* scheduler;
+	list<Task> lastTimeList;
 };
 
 #endif // MAINWINDOW_H
