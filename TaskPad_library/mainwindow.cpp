@@ -37,7 +37,7 @@ MainWindow::~MainWindow()
 }
 
 void MainWindow::test(){
-	int tc = 9;//select test case here
+	int tc = 8;//select test case here
 
 	Task t1;
 	t1.setName("task 1 task 1");
@@ -272,20 +272,19 @@ void MainWindow::handleMessenger(Messenger msg){
 		Messenger td_msg;
 		switch(msg.getCommandType()){
 		case TP::ADD:
+			getToday();
 			updateStatusBar("Task added successfully");
 			updateDetailsLabel("Added Task's Details");
 			updateDetails(msg.getList().front());
 			break;
 		case TP::DEL:
-			td_msg = scheduler->getTodayTasks();
-			handleGetToday(td_msg);
+			getToday();
 			updateStatusBar("Task deleted successfully");
 			updateDetailsLabel("Deleted Task's Details");
 			updateDetails(msg.getList().front());
 			break;
 		case TP::MOD:
-			td_msg = scheduler->getTodayTasks();
-			handleGetToday(td_msg);
+			getToday();
 			updateStatusBar("Task modified successfully");
 			updateDetailsLabel("Modified Task's Details");
 			updateDetails(msg.getList().front());
@@ -319,6 +318,7 @@ void MainWindow::handleMessenger(Messenger msg){
 		Task modified_task;
 		int index = -1;
 		QTreeWidgetItem* mod_item;
+		list<Task>::iterator iter;
 
 		switch (msg.getCommandType()){
 		case TP::MOD:
@@ -328,11 +328,17 @@ void MainWindow::handleMessenger(Messenger msg){
 
 			//remove old one
 			ui.TaskList->takeTopLevelItem(index);
+			//maintain lastTimeList
+			removeItemInLastTimeList(index);
 			
 			//insert modified one
 			modified_task = msg.getList().front();
 			mod_item = extractTask(index, modified_task);
 			ui.TaskList->insertTopLevelItem(index, mod_item);
+			//maintain lastTimeList
+			iter = lastTimeList.begin();//TODO: make it into Function
+			advance(iter, index);
+			lastTimeList.insert(iter, modified_task);
 
 			//display new one
 			updateDetails(msg.getList().front());
@@ -349,9 +355,27 @@ void MainWindow::handleMessenger(Messenger msg){
 
 			//remove old one
 			ui.TaskList->takeTopLevelItem(index);
+			//maintain lastTimeList
+			removeItemInLastTimeList(index);
+
 			break;
 		}
 	}
+}
+
+void MainWindow::removeItemInLastTimeList(int index){
+	int i = 0;
+	list<Task> listWithoutRemovedItem;
+
+	for(list<Task>::iterator iter = lastTimeList.begin();
+		iter != lastTimeList.end();
+		advance(iter, 1)){
+		if(i != index){
+			listWithoutRemovedItem.push_back(*iter);
+		}
+		i++;
+	}
+	lastTimeList = listWithoutRemovedItem;
 }
 
 void MainWindow::about()
