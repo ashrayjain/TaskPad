@@ -58,12 +58,16 @@ void CommandBar::initConnections()
 
 QString CommandBar::getCurrentLine()
 {
-	return toPlainText();
+	QRegExp regex("__[A-Z]+__");//magic string...
+
+	QString result = toPlainText();
+	result.replace(regex, "");
+	return result;
 }
 
 void CommandBar::pushCurrentLine()
 {
-	QString currentInput = getCurrentLine();
+	QString currentInput = toPlainText();
 	if(currentInput != EMPTY)
 	{
 		while(!inputHistory_redo.isEmpty())
