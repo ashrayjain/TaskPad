@@ -238,6 +238,9 @@ bool MainWindow::eventFilter(QObject* watched, QEvent* event)
 			{
 				QString currentInput = ui.cmdBar->getCurrentLine();//TODO: can shrink into one API
 				ui.cmdBar->pushCurrentLine();
+				/*QMessageBox msgBox;
+				msgBox.setText(currentInput);
+				msgBox.exec();*/
 				Messenger msg = scheduler->processCommand(currentInput.toLocal8Bit().constData());
 				handleMessenger(msg);
 				return true;//stop Key return or Key enter
