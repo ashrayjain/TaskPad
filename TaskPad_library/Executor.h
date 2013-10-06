@@ -35,16 +35,7 @@ protected:
 	void executeMod					(Command_Mod* cmd,  Messenger &response);
 	void executeFind				(Command_Find* cmd, Messenger &response);
 
-	void executeAddDeadlineTask		(Command_Add* cmd, Messenger &response);
-	void executeAddTimedTask		(Command_Add* cmd, Messenger &response);
-	void executeAddFloatingTask		(Command_Add* cmd, Messenger &response);
-
-	void formDeadlineTaskFromCmd	(Command_Add* cmd, Task &newTask);
-	void formTimedTaskFromCmd		(Command_Add* cmd, Task &newTask);
-	void formFloatingTaskFromCmd	(Command_Add* cmd, Task &newTask);
-
-	bool isAddTimedTaskCommand		(Command_Add* cmd) { return cmd->getFlagFrom() && cmd->getFlagTo(); }
-	bool isAddDeadlineTaskCommand	(Command_Add* cmd) { return cmd->getFlagDue(); }
+	void formTaskFromAddCmd			(Command_Add* cmd, Task &newTask);
 
 	void deleteTaskByIndex			(const unsigned &index, Messenger &reponse);
 	void deleteTaskByName			(const string &name, Messenger &reponse, const bool &exactFlag);
