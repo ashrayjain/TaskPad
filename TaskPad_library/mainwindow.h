@@ -35,6 +35,7 @@ private:
 	void updateStatusBar(QString str);
 	void handleGetToday(Messenger msg);
 	void handleMessenger(Messenger msg);
+	void removeItemInLastTimeList(int index);
 	void customisedUi();
 	void mousePressEvent(QMouseEvent *event);
 	void mouseMoveEvent(QMouseEvent *event);
