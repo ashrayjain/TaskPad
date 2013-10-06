@@ -21,15 +21,15 @@ namespace UnitTest
 			Assert::AreEqual(static_cast<int>(TP::ADD), static_cast<int>(cmd->getCommandType()));
 
 			//TC0.1: tags
-			cmd_add_interpreter->setTags("tag1, tag2, tag3");
-			Assert::AreEqual((string) "tag1, tag2, tag3", cmd_add_interpreter->getTags());
+			/*cmd_add_interpreter->setTags("tag1, tag2, tag3");
+			Assert::AreEqual((string) "tag1, tag2, tag3", cmd_add_interpreter->getTags());*/
 
 			/*time_t tmp = cmd_add_interpreter->getDueDate();
 			Assert::AreEqual((string) "" , string(std::asctime(std::localtime(&tmp))));*/
 
 			//TC0.2: paticipants
-			cmd_add_interpreter->setParticipants("ppl1, ppl2, ppl3");
-			Assert::AreEqual((string) "ppl1, ppl2, ppl3", cmd_add_interpreter->getParticipants());
+			/*cmd_add_interpreter->setParticipants("ppl1, ppl2, ppl3");
+			Assert::AreEqual((string) "ppl1, ppl2, ppl3", cmd_add_interpreter->getParticipants());*/
 
 			//TC1: emu Executor
 			Command_Add* cmd_add_executor;
