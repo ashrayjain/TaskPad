@@ -20,6 +20,29 @@
   <property name="styleSheet">
    <string notr="true">QMainWindow#MainWindowClass {
 	Background-color: #fff;
+}
+
+QLineEdit#name{
+	font-family: &quot;Segoe UI&quot;;
+	font-size: 18px;
+	color: #565656;
+	background-color: transparent;
+	border: none;
+}
+ QLineEdit#dueOrFromTo{
+	font-family: &quot;Segoe UI&quot;;
+	font-size: 15px;
+	color: #fff;
+	background-color: transparent;
+	border: none;
+}
+
+QLineEdit#location, QLineEdit#participants, QLineEdit#tags, QLineEdit#remindTime, QLineEdit#note, QPlainTextEdit#note{
+	font-family: &quot;Segoe UI&quot;;
+	font-size: 15px;
+	color: #565656;
+	background-color: transparent;
+	border: none;
 }</string>
   </property>
   <widget class="QWidget" name="centralWidget">
@@ -34,7 +57,7 @@
      <rect>
       <x>83</x>
       <y>89</y>
-      <width>280</width>
+      <width>520</width>
       <height>50</height>
      </rect>
     </property>
@@ -61,13 +84,13 @@
       <x>9</x>
       <y>135</y>
       <width>600</width>
-      <height>248</height>
+      <height>330</height>
      </rect>
     </property>
     <property name="maximumSize">
      <size>
       <width>16777215</width>
-      <height>330</height>
+      <height>16777215</height>
      </size>
     </property>
     <property name="styleSheet">
@@ -202,6 +225,17 @@ QTreeWidget#TaskList QScrollBar::sub-line:vertical {
       <string>due 02/09/13</string>
      </property>
     </item>
+    <item>
+     <property name="text">
+      <string>7</string>
+     </property>
+     <property name="text">
+      <string>XXX</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </item>
    </widget>
    <widget class="CommandBar" name="cmdBar">
     <property name="geometry">
@@ -285,29 +319,6 @@ QTextEdit#cmdBar:hover {
     <property name="styleSheet">
      <string notr="true">QWidget#DetailsView{
 	background-image:url(:/MainWindow/Resources/details_normal_bg.png);
-}
-
-QLineEdit#name{
-	font-family: &quot;Segoe UI&quot;;
-	font-size: 18px;
-	color: #565656;
-	background-color: transparent;
-	border: none;
-}
- QLineEdit#dueOrFromTo{
-	font-family: &quot;Segoe UI&quot;;
-	font-size: 15px;
-	color: #fff;
-	background-color: transparent;
-	border: none;
-}
-
-QLineEdit#location, QLineEdit#participants, QLineEdit#tags, QLineEdit#remindTime, QLineEdit#note, QPlainTextEdit#note{
-	font-family: &quot;Segoe UI&quot;;
-	font-size: 15px;
-	color: #565656;
-	background-color: transparent;
-	border: none;
 }</string>
     </property>
     <widget class="QPlainTextEdit" name="note">
@@ -449,7 +460,7 @@ QLineEdit#location, QLineEdit#participants, QLineEdit#tags, QLineEdit#remindTime
      <rect>
       <x>660</x>
       <y>89</y>
-      <width>280</width>
+      <width>370</width>
       <height>50</height>
      </rect>
     </property>
@@ -582,6 +593,37 @@ QToolButton#HelpButton:hover
      <string/>
     </property>
    </widget>
+   <widget class="QLabel" name="NoTaskLabel">
+    <property name="geometry">
+     <rect>
+      <x>280</x>
+      <y>153</y>
+      <width>81</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QLabel#NoTaskLabel {
+	font-family: &quot;Segoe UI Light&quot;;
+	font-size: 24px;
+	color: #565656;
+}</string>
+    </property>
+    <property name="text">
+     <string>No task</string>
+    </property>
+   </widget>
+   <zorder>NoTaskLabel</zorder>
+   <zorder>Navigation_taskList</zorder>
+   <zorder>TaskList</zorder>
+   <zorder>cmdBar</zorder>
+   <zorder>StatusBar</zorder>
+   <zorder>DetailsView</zorder>
+   <zorder>Navigation_detailsView</zorder>
+   <zorder>CloseButton</zorder>
+   <zorder>MinimizeButton</zorder>
+   <zorder>AboutButton</zorder>
+   <zorder>HelpButton</zorder>
   </widget>
   <action name="action_Exit">
    <property name="text">

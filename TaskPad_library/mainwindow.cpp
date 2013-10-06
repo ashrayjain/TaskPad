@@ -12,15 +12,12 @@
 MainWindow::MainWindow(QWidget *parent)
 	: QMainWindow(parent) 
 {
-	scheduler = new Manager();
-	/*Messenger msg = scheduler->getToday();
-	handleMessenger(msg);*/
-
 	ui.setupUi(this);
 	customisedUi();
 	QObject::connect(ui.CloseButton, SIGNAL(clicked()), this, SLOT(close()));
 	QObject::connect(ui.MinimizeButton, SIGNAL(clicked()), this, SLOT(showMinimized()));
 	QObject::connect(ui.AboutButton, SIGNAL(clicked()), this, SLOT(about()));
+	QObject::connect(ui.HelpButton, SIGNAL(clicked()), this, SLOT(test()));
 	(void) new QShortcut(QKeySequence(tr("Ctrl+N", "New Task")), this, SLOT(createNewTaskTemplate()));
 	//ui.CommandBar->installEventFilter(this);//filter RETURN
 	ui.CloseButton->installEventFilter(this);//filter MOUSE MOVE
@@ -28,12 +25,195 @@ MainWindow::MainWindow(QWidget *parent)
 	ui.HelpButton->installEventFilter(this);//filter MOUSE MOVE
 	ui.AboutButton->installEventFilter(this);//filter MOUSE MOVE
 	ui.cmdBar->installEventFilter(this);
+
+	scheduler = new Manager();
+	getToday();
 }
 
 MainWindow::~MainWindow()
 {
 	delete scheduler;
 	scheduler = NULL;
+}
+
+void MainWindow::test(){
+	int tc = 9;//select test case here
+
+	Task t1;
+	t1.setName("task 1 task 1");
+	t1.setLocation("NUS LT27");
+	t1.setDueDate(time(NULL));
+
+	Task t2;
+	t2.setName("task 2 task 2");
+	t2.setLocation("COM1 B1-13");
+	t2.setFromDate(time(NULL));
+	t2.setToDate(time(NULL));
+
+	Task mod_t2;
+	mod_t2.setName("task 2 task 2___MOD");
+	mod_t2.setLocation("COM1 B1-13");
+
+	Task t3;
+	t3.setName("task 3 task 3");
+	t3.setLocation("NTU + NUS somewhere lol");
+	t3.setFromDate(time(NULL));
+	t3.setToDate(time(NULL));
+	t3.setPriority(TP::HIGH);
+	t3.setState(TP::DONE);
+
+	Task t4;
+	t4.setName("task 4 task 4");
+	t4.setLocation("PGP DR4");
+	t4.setFromDate(time(NULL));
+	t4.setToDate(time(NULL));
+
+	list<Task> taskList;
+	taskList.push_back(t1);//0
+	taskList.push_back(t2);//1
+	taskList.push_back(t3);//2
+	taskList.push_back(t4);//3
+
+	list<Task> taskList2;
+	taskList2.push_back(t3);
+	taskList2.push_back(t2);
+	taskList2.push_back(t1);
+
+	list<Task> taskList3;
+	taskList3.push_back(t3);
+
+	//************************************************************
+
+	//TC1: (ERROR)
+	if(tc == -1){
+		Messenger tc1msg;
+		tc1msg.setStatus(TP::ERROR);
+		tc1msg.setCommandType(TP::FIND);
+		tc1msg.setList(taskList);
+		tc1msg.setErrorMsg("I wanna sleep zzz..");
+		handleMessenger(tc1msg);
+	}
+	//TC1: get Today
+	if(tc == 0){
+		Messenger tc1msg;
+		tc1msg.setStatus(TP::SUCCESS);
+		tc1msg.setCommandType(TP::FIND);
+		tc1msg.setList(taskList);
+		handleGetToday(tc1msg);
+	}
+	//TC2: add a simple task (SUCCESS)
+	else if(tc == 1){
+		Messenger tc1msg;
+		tc1msg.setStatus(TP::SUCCESS);
+		tc1msg.setCommandType(TP::ADD);
+		tc1msg.setList(taskList2);//the first task is t3
+		handleMessenger(tc1msg);
+	}
+	//TC3: modify a task (SUCCESS)
+	else if(tc == 2){
+		Messenger tc1msg;
+		tc1msg.setStatus(TP::SUCCESS);
+		tc1msg.setCommandType(TP::MOD);
+		tc1msg.setList(taskList2);//the first task is t3
+		handleMessenger(tc1msg);
+	}
+	//TC4: modify a task (SUCCESS)
+	else if(tc == 3){
+		Messenger tc1msg;
+		tc1msg.setStatus(TP::SUCCESS);
+		tc1msg.setCommandType(TP::DEL);
+		tc1msg.setList(taskList2);//the first task is t3
+		handleMessenger(tc1msg);
+	}
+	//TC5: modify a task (INTERMEDIATE)
+	else if(tc == 4){
+		Messenger tc1msg;
+		tc1msg.setStatus(TP::INTERMEDIATE);
+		tc1msg.setCommandType(TP::MOD);
+		tc1msg.setList(taskList2);
+		handleMessenger(tc1msg);
+	}
+	//TC6: find a task (SUCCESS)
+	else if(tc == 5){
+		Messenger tc1msg;
+		tc1msg.setStatus(TP::SUCCESS);
+		tc1msg.setCommandType(TP::FIND);
+		tc1msg.setList(taskList2);
+		handleMessenger(tc1msg);
+	}
+	//TC7: display a task (DISPLAY)
+	else if(tc == 6){
+		//get today
+		Messenger tc0msg;
+		tc0msg.setStatus(TP::SUCCESS);
+		tc0msg.setCommandType(TP::FIND);
+		tc0msg.setList(taskList);
+		handleGetToday(tc0msg);
+		//display 1 (start from 0)
+		Messenger tc1msg;
+		tc1msg.setStatus(TP::DISPLAY);
+		tc1msg.setInt(1);
+		handleMessenger(tc1msg);
+	}
+	//TC8: CWI mod (SUCCESS_INDEXED_COMMAND)
+	else if(tc == 7){
+		//get today
+		Messenger tc0msg;
+		tc0msg.setStatus(TP::SUCCESS);
+		tc0msg.setCommandType(TP::FIND);
+		tc0msg.setList(taskList);
+		handleGetToday(tc0msg);
+		//mod 1
+		Messenger tc1msg;
+		tc1msg.setCommandType(TP::MOD);
+		tc1msg.setStatus(TP::SUCCESS_INDEXED_COMMAND);
+		tc1msg.setInt(1);
+		list<Task> tmp;
+		tmp.push_back(mod_t2);
+		tc1msg.setList(tmp);
+		handleMessenger(tc1msg);
+	}
+	//TC9: CWI DEL (SUCCESS_INDEXED_COMMAND)
+	else if(tc == 8){
+		//get today
+		Messenger tc0msg;
+		tc0msg.setStatus(TP::SUCCESS);
+		tc0msg.setCommandType(TP::FIND);
+		tc0msg.setList(taskList);
+		handleGetToday(tc0msg);
+		//mod 1
+		Messenger tc1msg;
+		tc1msg.setCommandType(TP::DEL);
+		tc1msg.setStatus(TP::SUCCESS_INDEXED_COMMAND);
+		tc1msg.setInt(1);
+		handleMessenger(tc1msg);
+	}
+	//TC10: (ERROR_INTERMEDIATE)
+	else if(tc == 9){
+		//get today
+		Messenger tc0msg;
+		tc0msg.setStatus(TP::ERROR_INTERMEDIATE);
+		tc0msg.setCommandType(TP::FIND);
+		tc0msg.setList(taskList);
+		handleMessenger(tc0msg);
+	}
+}
+
+void MainWindow::keyPressEvent(QKeyEvent* event){
+	if(event->key() == Qt::Key_Escape)
+	{
+		reset();
+	}
+}
+
+void MainWindow::reset(){
+	scheduler->resetStatus();
+	getToday();
+}
+
+void MainWindow::getToday(){
+	Messenger msg = scheduler->getTodayTasks();
+	handleGetToday(msg);
 }
 
 bool MainWindow::eventFilter(QObject* watched, QEvent* event)
@@ -51,7 +231,10 @@ bool MainWindow::eventFilter(QObject* watched, QEvent* event)
 		if(event->type() == QEvent::KeyPress)
 		{
 			QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
-			if(keyEvent->key() == Qt::Key_Return || keyEvent->key() == Qt::Key_Enter)
+			if(keyEvent->key() == Qt::Key_Escape){
+				reset();
+			}
+			else if(keyEvent->key() == Qt::Key_Return || keyEvent->key() == Qt::Key_Enter)
 			{
 				QString currentInput = ui.cmdBar->getCurrentLine();//TODO: can shrink into one API
 				ui.cmdBar->pushCurrentLine();
@@ -64,37 +247,117 @@ bool MainWindow::eventFilter(QObject* watched, QEvent* event)
 	return QObject::eventFilter(watched, event);//normal processing
 }
 
+void MainWindow::handleGetToday(Messenger msg){
+	updateNavLabel("Today");
+	updateStatusBar("Ready");
+	updateDetailsLabel("Details");
+	clearDetails();
+	updateList(msg.getList());
+	lastTimeList = msg.getList();//TODO: do i need to sync this lastTimeList? or manager does it? like after delete some items..
+}
+
 void MainWindow::handleMessenger(Messenger msg){
+	//not SLAP now
 	if(msg.getStatus() == TP::ERROR)
 	{
 		updateStatusBar(msg.getErrorMsg().c_str());
 	}
+	if(msg.getStatus() == TP::ERROR_INTERMEDIATE)
+	{
+		updateNavLabel("Select a task by typing its index");
+		updateStatusBar("Wrong input. Press ECS to cancel");
+	}
 	else if(msg.getStatus() == TP::SUCCESS)
 	{
-		//no command type yet in response object
-		updateStatusBar("what what successfully");
+		Messenger td_msg;
+		switch(msg.getCommandType()){
+		case TP::ADD:
+			updateStatusBar("Task added successfully");
+			updateDetailsLabel("Added Task's Details");
+			updateDetails(msg.getList().front());
+			break;
+		case TP::DEL:
+			td_msg = scheduler->getTodayTasks();
+			handleGetToday(td_msg);
+			updateStatusBar("Task deleted successfully");
+			updateDetailsLabel("Deleted Task's Details");
+			updateDetails(msg.getList().front());
+			break;
+		case TP::MOD:
+			td_msg = scheduler->getTodayTasks();
+			handleGetToday(td_msg);
+			updateStatusBar("Task modified successfully");
+			updateDetailsLabel("Modified Task's Details");
+			updateDetails(msg.getList().front());
+			break;
+		case TP::FIND:
+			updateNavLabel("Search Results");
+			updateStatusBar("Searched successfully");
+			clearDetails();
+			updateList(msg.getList());
+			lastTimeList = msg.getList();
+			break;
+		}
 	}
 	else if(msg.getStatus() == TP::INTERMEDIATE)
 	{
-		//no command type yet in response object
-		updateStatusBar("...");
-	}
-	else if(msg.getStatus() == TP::SUCCESS_INDEXED_COMMAND)
-	{
-		//no command type yet in response object
-		updateStatusBar("what what successfully");
+		updateNavLabel("Select a task by typing its index");
+		updateStatusBar("Intermediate stage...");
+		updateList(msg.getList());
+		lastTimeList = msg.getList();
 	}
 	else if(msg.getStatus() == TP::DISPLAY)
 	{
-		//no command type yet in response object
-		updateStatusBar("xxx in details");
+		int index = msg.getIndex();
+		list<Task>::iterator iter = lastTimeList.begin();
+		advance(iter, index);
+
+		updateDetails(*iter);
+	}
+	else if(msg.getStatus() == TP::SUCCESS_INDEXED_COMMAND)
+	{
+		Task modified_task;
+		int index = -1;
+		QTreeWidgetItem* mod_item;
+
+		switch (msg.getCommandType()){
+		case TP::MOD:
+			index = msg.getIndex();
+			updateStatusBar("Task modified successfully");
+			updateDetailsLabel("Modified Task's Details");
+
+			//remove old one
+			ui.TaskList->takeTopLevelItem(index);
+			
+			//insert modified one
+			modified_task = msg.getList().front();
+			mod_item = extractTask(index, modified_task);
+			ui.TaskList->insertTopLevelItem(index, mod_item);
+
+			//display new one
+			updateDetails(msg.getList().front());
+			break;
+		case TP::DEL:
+			index = msg.getIndex();
+			updateStatusBar("Task deleted successfully");//TODO: make it into function.. to reuse
+			updateDetailsLabel("Deleted Task's Details");
+
+			//display details
+			list<Task>::iterator iter = lastTimeList.begin();
+			advance(iter, index);
+			updateDetails(*iter);
+
+			//remove old one
+			ui.TaskList->takeTopLevelItem(index);
+			break;
+		}
 	}
 }
 
 void MainWindow::about()
 {
 	QMessageBox Msgbox;
-	Msgbox.setWindowTitle("");
+	Msgbox.setWindowTitle("TaskPad");
     Msgbox.setText("TaskPad is a product created by Team F12-1C.\n"
 		"Members: ASHRAY, KAI, JIANGZE, THYAGESH, ZIXUAN.");
     Msgbox.exec();
@@ -114,6 +377,8 @@ void MainWindow::updateDetailsLabel(QString str){
 }
 
 void MainWindow::updateList(std::list<Task> result){
+	QTreeWidgetItem* item = NULL;
+
 	ui.TaskList->clear();
 
 	int count = 1;
@@ -121,61 +386,116 @@ void MainWindow::updateList(std::list<Task> result){
 		iter != result.end();
 		std::advance(iter, 1))
 	{
-		extractTask(count, *iter);
+		item = extractTask(count, *iter);
+		ui.TaskList->addTopLevelItem(item);
 		count++;
 	}
 }
 
-void MainWindow::extractTask(int index, Task task){
+QTreeWidgetItem* MainWindow::extractTask(int index, Task task){
 	QStringList strList;
 	if(task.getTaskType() == TP::DEADLINE){
-		DeadlineTask* d_task = dynamic_cast<DeadlineTask*>(&task);
-		QDateTime time = QDateTime::fromTime_t(d_task->getDueDate());
-		strList = QStringList() << QString::number(index) << d_task->getName().c_str() << \
-			"Due " + time.toString();
+		QDateTime time = QDateTime::fromTime_t(task.getDueDate());
+		strList = QStringList() << QString::number(index) << task.getName().c_str() << \
+			"Due " + time.toString("dd/MM/yyyy");
 	}
 	else if(task.getTaskType() == TP::TIMED){
-		TimedTask* d_task = dynamic_cast<TimedTask*>(&task);
-		QDateTime fromTime = QDateTime::fromTime_t(d_task->getFromDate());
-		QDateTime toTime = QDateTime::fromTime_t(d_task->getToDate());
-		strList = QStringList() << QString::number(index) << d_task->getName().c_str() << \
-			"From " + fromTime.toString() + " to " + toTime.toString();
+		QDateTime fromTime = QDateTime::fromTime_t(task.getFromDate());
+		QDateTime toTime = QDateTime::fromTime_t(task.getToDate());
+		strList = QStringList() << QString::number(index) << task.getName().c_str() << \
+			"From " + fromTime.toString("dd/MM/yyyy") + " to " + toTime.toString("dd/MM/yyyy");
 	}
 	else{//TaskType == TP::FLOATING
 		strList = QStringList() << QString::number(index) << task.getName().c_str() << "";
 	}
-	(void) new QTreeWidgetItem(ui.TaskList, strList);
+	return new QTreeWidgetItem(strList);
 }
 
-void MainWindow::updateDetails(std::list<Task> result){
-	Task task_showDetails = *(result.begin());
+void MainWindow::clearDetails(){
+	ui.name->setText("");
+	ui.dueOrFromTo->setText("");
+	ui.location->setText("");
+	ui.participants->setText("");
+	ui.tags->setText("");
+	ui.remindTime->setText("");
+	ui.note->setPlainText("");
+}
+
+void MainWindow::updateDetails(Task t){
+	Task task_showDetails = t;
 	//set label name
-	ui.name->setText(task_showDetails.getName().c_str());
+	if(task_showDetails.getState() == TP::UNDONE){
+		ui.name->setText(task_showDetails.getName().c_str());
+	}
+	else{//DONE already
+		ui.name->setText(("(Finished) " + task_showDetails.getName()).c_str());
+	}
+	//set priority
+	if(task_showDetails.getPriority() == TP::HIGH){
+		ui.DetailsView->setStyleSheet(QLatin1String("QWidget#DetailsView{\n"
+"	background-image:url(:/MainWindow/Resources/details_high_bg.png);\n"
+"}"));
+	}
+	else if(task_showDetails.getPriority() == TP::MEDIUM){
+		ui.DetailsView->setStyleSheet(QLatin1String("QWidget#DetailsView{\n"
+"	background-image:url(:/MainWindow/Resources/details_normal_bg.png);\n"
+"}"));
+	}
+	else{
+		ui.DetailsView->setStyleSheet(QLatin1String("QWidget#DetailsView{\n"
+"	background-image:url(:/MainWindow/Resources/details_low_bg.png);\n"
+"}"));
+	}
+	
 	//set label dueOrFromTo
 	if(task_showDetails.getTaskType() == TP::DEADLINE){
-		DeadlineTask* d_task = dynamic_cast<DeadlineTask*>(&task_showDetails);
-		QDateTime time = QDateTime::fromTime_t(d_task->getDueDate());
-		ui.dueOrFromTo->setText("Due " + time.toString());
+		QDateTime time = QDateTime::fromTime_t(task_showDetails.getDueDate());
+		ui.dueOrFromTo->setText("Due  " + time.toString("dd/MM/yyyy"));
 	}
 	else if(task_showDetails.getTaskType() == TP::TIMED){
-		TimedTask* d_task = dynamic_cast<TimedTask*>(&task_showDetails);
-		QDateTime fromTime = QDateTime::fromTime_t(d_task->getFromDate());
-		QDateTime toTime = QDateTime::fromTime_t(d_task->getToDate());
-		ui.dueOrFromTo->setText("From " + fromTime.toString() + " to " + toTime.toString());
+		QDateTime fromTime = QDateTime::fromTime_t(task_showDetails.getFromDate());
+		QDateTime toTime = QDateTime::fromTime_t(task_showDetails.getToDate());
+		ui.dueOrFromTo->setText("From  " + fromTime.toString("dd/MM/yyyy") + "  to  " + toTime.toString("dd/MM/yyyy"));
 	}
 	else{//TaskType == TP::FLOATING
 		ui.dueOrFromTo->setText("");
 	}
 	//set label location
-	ui.location->setText(task_showDetails.getLocation().c_str());
+	if(task_showDetails.getFlagLocation()){
+		ui.location->setText(task_showDetails.getLocation().c_str());
+	}
 	//set label participants
-	ui.participants->setText(task_showDetails.getParticipants().c_str());
+	if(task_showDetails.getFlagParticipants()){
+		QString participants;
+		for(list<string>::iterator iter = task_showDetails.getParticipants().begin();
+			iter != task_showDetails.getParticipants().end();
+			advance(iter, 1)){
+				participants += iter->c_str();
+				participants += ", ";
+		}
+		ui.participants->setText(participants);
+	}
 	//set tags label
-	ui.tags->setText(task_showDetails.getTags().c_str());
+	if(task_showDetails.getFlagTags()){
+		QString tags;
+		for(list<string>::iterator iter = task_showDetails.getTags().begin();
+			iter != task_showDetails.getTags().end();
+			advance(iter, 1)){
+				tags += iter->c_str();
+				tags += ", ";
+		}
+		ui.tags->setText(tags);
+	}
 	//set remind time
-	if(task_showDetails.getFlagRemindTime()){
-		QDateTime remindTime = QDateTime::fromTime_t(task_showDetails.getRemindTime());
-		ui.remindTime->setText("Remind me : " + remindTime.toString());
+	if(task_showDetails.getFlagRemindTimes()){
+		QString remindTimes;
+		for(list<time_t>::iterator iter = task_showDetails.getRemindTimes().begin();
+			iter != task_showDetails.getRemindTimes().end();
+			advance(iter, 1)){
+				remindTimes += QDateTime::fromTime_t(*iter).toString("dd/MM/yyyy");
+				remindTimes += ", ";
+		}
+		ui.remindTime->setText("Remind me : " + remindTimes);
 	}
 	else
 	{
@@ -194,9 +514,8 @@ void MainWindow::customisedUi(){
 	this->setAttribute(Qt::WA_TranslucentBackground, true);
 
 	//magic number
-	ui.TaskList->setGeometry(9, 135, 595, ui.TaskList->topLevelItemCount() * 48 + 10);
 	ui.TaskList->header()->resizeSection(0, 70);
-	ui.TaskList->header()->resizeSection(1, 225);
+	ui.TaskList->header()->resizeSection(1, 220);
 	ui.TaskList->setItemDelegate(new LastColumnDelegate(2));
 }
 
