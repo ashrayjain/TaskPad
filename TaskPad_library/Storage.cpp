@@ -111,9 +111,8 @@ void Storage::saveLocation(Task& tempTask)
 
 void Storage::saveParticipants(Task& tempTask)
 {
-	if(tempTask.getFlagParticipant())
+	if(tempTask.getFlagParticipants())
 	{
-		/*
 		list<std::string> participantList = tempTask.getParticipants();
 		list<std::string>::iterator pit = participantList.begin();
 		string participant = "";
@@ -124,7 +123,6 @@ void Storage::saveParticipants(Task& tempTask)
 			this->writeLineToFile(participant);
 			pit++;
 		}
-		*/
 	}
 	else
 	{
@@ -146,23 +144,14 @@ void Storage::saveNote(Task& tempTask)
 
 void Storage::savePriority(Task& tempTask)
 {
-	//throw "priority conversion needed!";
-	if(tempTask.getFlagPriority())
-	{
-		string priorityStr = convertToString(tempTask.getPriority());
-		this->writeLineToFile(priorityStr);
-	}
-	else
-	{
-		this->writeLineToFile("");
-	}
+	string priorityStr = convertToString(tempTask.getPriority());
+	this->writeLineToFile(priorityStr);
 }	
 
 void Storage::saveTags(Task& tempTask)
 {
 	if(tempTask.getFlagTags())
 	{
-		/*
 		list<std::string> tagsList = tempTask.getTags();
 		list<std::string>::iterator tagit = tagsList.begin();
 		string tag = "";
@@ -173,7 +162,6 @@ void Storage::saveTags(Task& tempTask)
 			this->writeLineToFile(tag);
 			tagit++;
 		}
-		*/
 	}
 	else
 	{
@@ -183,21 +171,17 @@ void Storage::saveTags(Task& tempTask)
 
 void Storage::saveReminderTimes(Task& tempTask)
 {
-	if(tempTask.getFlagRemindTime())
+	if(tempTask.getFlagRemindTimes())
 	{
-		/*
 		list<time_t> reminderList = tempTask.getRemindTimes();
 		list<time_t>::iterator rtit = reminderList.begin();
 
 		while(rtit != reminderList.end())
 		{
-		*/
-		string reminderStr = convertToString(tempTask.getRemindTime());
+		string reminderStr = convertToString(*rtit);
 		this->writeLineToFile(reminderStr);
-		/*
 		rtit++;
 		}
-		*/
 	}
 	else
 	{
@@ -207,15 +191,8 @@ void Storage::saveReminderTimes(Task& tempTask)
 
 void Storage::saveState(Task& tempTask)
 {
-	if(tempTask.getFlagState())
-	{
-		string stateStr = convertToString(tempTask.getState());
-		this->writeLineToFile(stateStr);
-	}
-	else
-	{
-		this->writeLineToFile("");
-	}
+	string stateStr = convertToString(tempTask.getState());
+	this->writeLineToFile(stateStr);
 }
 
 void Storage::saveDueDate(Task& tempTask)
