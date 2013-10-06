@@ -646,7 +646,7 @@ Command* Interpreter::interpretModify(Command_Mod* commandType, std::string comm
 		}
 
 
-		else if(word=="rt" && commandType->getFlagRemindTime()==false){
+		else if(word=="rt" && commandType->getFlagRemindTimes()==false){
 			time_t requiredTime;
 
 			word.clear();
@@ -699,7 +699,7 @@ Command* Interpreter::interpretModify(Command_Mod* commandType, std::string comm
 
 
 
-		else if(word=="-rt" && commandType->getFlagRemindTime()==false)
+		else if(word=="-rt" && commandType->getFlagRemindTimes()==false)
 		{
 			/*time_t timeNull;
 			timeNull=time(0);
