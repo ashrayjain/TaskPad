@@ -51,14 +51,17 @@ void Executor::executeDel (Command_Del* cmd, Messenger &response) {
 }
 
 void Executor::executeMod (Command_Mod* cmd, Messenger &response) {
-
+	if(cmd->getFlagIndex())
+		modifyByIndex(cmd, response);
+	else
+		modifyByName(cmd, response);
 }
 
 void Executor::executeFind (Command_Find* cmd, Messenger &response) {
 	if(cmd->getFlagIndex())
 		findByIndex(cmd->getIndex(), response);
 	else 
-		findByName(cmd, response);
+		findGeneral(cmd, response);
 }
 
 void Executor::formTaskFromAddCmd(Command_Add* cmd, Task &newTask) {
@@ -131,6 +134,73 @@ void Executor::deleteByApproxName(const string &name, Messenger &response) {
 
 }
 
+void Executor::modifyByIndex(Command_Mod* cmd, Messenger &response) {
+	map<unsigned, Task*>::iterator result = _indexHash.find(cmd->getIndex());
+	if (result != _indexHash.end()) {
+		modifyTaskTo(*(result->second), cmd);
+		setOpSuccessTask(*(result->second), response);
+	}
+	else
+		setIndexNotFound(cmd->getIndex(), response);
+}
+
+void Executor::modifyByName(Command_Mod* cmd, Messenger &response) {
+	if (cmd->getFlagExact())
+		modifyByExactName(cmd, response);
+	else
+		modifyByApproxName(cmd, response);
+}
+
+void Executor::modifyByExactName(Command_Mod* cmd, Messenger &response) {
+	bool nameFound = false;
+	for(list<Task>::iterator i = _data->begin(); i != _data->end() && !nameFound; ++i)
+		if (i->getName() == cmd->getName()) {
+			modifyTaskTo(*i, cmd);
+			setOpSuccessTask(Task(*i), response);
+			nameFound = true;
+		}
+
+	if (!nameFound)
+		setNameNotFound(cmd->getName(), response);
+}
+
+void Executor::modifyByApproxName(Command_Mod* cmd, Messenger &response) {
+	list<Task> matchingResults;
+	for(list<Task>::iterator i = _data->begin(); i != _data->end(); ++i)
+		if (i->getName().find(cmd->getName()) != string::npos)
+			matchingResults.push_back(Task(*i));
+
+	if (matchingResults.size() == EMPTY_LIST_SIZE)
+		setNameNotFound(cmd->getName(), response);
+	else
+		setOpIntermediateTaskList(matchingResults, response);
+}
+
+void Executor::modifyTaskTo(Task &oldTask, Command_Mod* cmd) {
+	if(cmd->getFlagName())
+		oldTask.setName(cmd->getName());
+	if(cmd->getFlagLocation())
+		oldTask.setLocation(cmd->getLocation());
+	if(cmd->getFlagNote())
+		oldTask.setNote(cmd->getNote());
+	if(cmd->getFlagRemindTimes())
+		oldTask.setRemindTimes(cmd->getRemindTimes());
+	if(cmd->getFlagParticipants())
+		oldTask.setParticipants(cmd->getParticipants());
+	if(cmd->getFlagTags())
+		oldTask.setTags(cmd->getTags());
+	if(cmd->getFlagPriority())
+		oldTask.setPriority(cmd->getPriority());
+	if(cmd->getFlagDue())
+		oldTask.setDueDate(cmd->getDueDate());
+	if(cmd->getFlagFrom())
+		oldTask.setFromDate(cmd->getFromDate());
+	if(cmd->getFlagTo())
+		oldTask.setToDate(cmd->getToDate());
+	//if(cmd->getFlagTaskState())
+	//	oldTask.setState(cmd->getTaskState());
+}
+
 void Executor::formTaskFromFindCmd(Command_Find* cmd, Task &newTask) {
 	if(cmd->getFlagExact() && cmd->getFlagName())
 		newTask.setName(cmd->getOptName());
@@ -160,7 +230,7 @@ void Executor::findByIndex(const unsigned index, Messenger &response) {
 		setIndexNotFound(index, response);
 }
 
-void Executor::findByName(Command_Find* cmd, Messenger &response) {
+void Executor::findGeneral(Command_Find* cmd, Messenger &response) {
 	Task taskToCompare;
 	formTaskFromFindCmd(cmd, taskToCompare);
 	list<Task> results;
