@@ -568,10 +568,6 @@ void Interpreter::setCmdObj_Find(Command_Find* cmd, string keyWord, string input
 	{
 		cmd->setOptName(inputInfo);
 	}
-	else if(keyWord=="due")
-	{
-		cmd->setDueDate(time);
-	}
 	else if(keyWord=="from")
 	{
 		cmd->setFromDate(time);
