@@ -56,6 +56,7 @@ protected:
 	
 	// Setters for Messenger to return
 	void setOpSuccessTask			(const Task &retTask, Messenger &response);
+	void setOpSuccessTaskList		(const list<Task>& results, Messenger &response);
 	void setOpIntermediateTaskList	(const list<Task> &results, Messenger &response);
 	void setIndexNotFound			(const unsigned &index, Messenger &response);
 	void setNameNotFound			(const string &name, Messenger &response);

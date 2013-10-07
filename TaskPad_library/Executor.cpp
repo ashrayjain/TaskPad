@@ -168,7 +168,7 @@ void Executor::findByName(Command_Find* cmd, Messenger &response) {
 		runSearchWithTask(taskToCompare, results);
 	else
 		runSearchWithTask(taskToCompare, results, cmd->getOptName());
-	setOpIntermediateTaskList(results, response);
+	setOpSuccessTaskList(results, response);
 }
 
 void Executor::runSearchWithTask(const Task &taskToCompare, list<Task> &results) {
@@ -210,6 +210,11 @@ bool Executor::taskMatch(const Task& lhs, const Task& rhs) const {
 void Executor::setOpSuccessTask(const Task &retTask, Messenger &response) {
 	response.setStatus(TP::SUCCESS);
 	response.setList(list<Task>(1, retTask));
+}
+
+void Executor::setOpSuccessTaskList(const list<Task>& results, Messenger &response) {
+	response.setStatus(TP::SUCCESS);
+	response.setList(results);
 }
 
 void Executor::setOpIntermediateTaskList(const list<Task>& results, Messenger &response) {
