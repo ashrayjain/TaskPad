@@ -9,7 +9,6 @@ using namespace TP;
 const string Storage::_fileName = "TaskPad.txt";
 const string Storage::HEADER_TASK_COUNT = "Task Count: ";
 const string Storage::HEADER_NAME = "Name: ";
-const string Storage::HEADER_TYPE = "Type: ";
 const string Storage::HEADER_INDEX = "Index: ";
 const string Storage::HEADER_DUE_DATE = "Due: ";
 const string Storage::HEADER_FROM_DATE = "StartTime: ";
