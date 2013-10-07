@@ -27,13 +27,10 @@ class Storage
 		static const string HEADER_FROM_DATE;
 		static const string HEADER_TO_DATE;
 		static const string HEADER_LOCATION;
-		static const string HEADER_PARTICIPANT_COUNT;
 		static const string HEADER_PARTICIPANT;
 		static const string HEADER_NOTE;
 		static const string HEADER_PRIORITY;
-		static const string HEADER_TAG_COUNT;
 		static const string HEADER_TAG;
-		static const string HEADER_REMINDER_TIME_COUNT;
 		static const string HEADER_REMINDER_TIME;
 		static const string HEADER_STATE;
 
@@ -46,9 +43,6 @@ class Storage
 				void saveHeader				(std::string headerStr);
 				void saveCount				(unsigned count);
 		inline	void saveTaskCount			(unsigned taskCount);
-		inline	void saveParticipantCount	(unsigned participantCount);
-		inline	void saveReminderCount		(unsigned reminderCount);
-		inline	void saveTagCount			(unsigned tagCount);
 
 		//generic attributes of all tasks
 		void saveIndex				(Task& tempTask);
