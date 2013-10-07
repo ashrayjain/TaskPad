@@ -520,11 +520,11 @@ void Interpreter::setCmdObj_Mod(Command_Mod* cmd, string keyWord, string inputIn
 	}
 	else if(keyWord=="done")
 	{
-		cmd->setTaskState(false);
+		cmd->setTaskState(DONE);
 	}
 	else if(keyWord=="undone")
 	{
-		cmd->setTaskState(true);
+		cmd->setTaskState(UNDONE);
 	}
 	else if(keyWord=="-at")
 	{
@@ -602,11 +602,11 @@ void Interpreter::setCmdObj_Find(Command_Find* cmd, string keyWord, string input
 	}
 	else if(keyWord=="done")
 	{
-		cmd->setTaskState(false);
+		cmd->setTaskState(DONE);
 	}
 	else if(keyWord=="undone")
 	{
-		cmd->setTaskState(true);
+		cmd->setTaskState(UNDONE);
 	}
 	else if(keyWord=="timed")
 	{
