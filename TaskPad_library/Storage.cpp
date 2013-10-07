@@ -102,13 +102,13 @@ void Storage::saveCount(unsigned count)
 
 void Storage::saveTaskCount(unsigned taskCount)
 {
-	saveHeader(HEADER_TASK_COUNT);
+	saveHeader(LABEL_TASK_COUNT);
 	saveCount(taskCount);
 }
 
 void Storage::saveIndex(Task& tempTask)
 {
-	saveHeader(HEADER_INDEX);
+	saveHeader(LABEL_INDEX);
 	this->writeLineToFile(convertToString(tempTask.getIndex()));
 }
 
@@ -116,7 +116,7 @@ void Storage::saveName(Task& tempTask)
 {
 	if(tempTask.getFlagName())
 	{
-		saveHeader(HEADER_NAME);
+		saveHeader(LABEL_NAME);
 		this->writeLineToFile(tempTask.getName());
 	}
 }
@@ -125,7 +125,7 @@ void Storage::saveLocation(Task& tempTask)
 {
 	if(tempTask.getFlagLocation())
 	{
-		saveHeader(HEADER_LOCATION);
+		saveHeader(LABEL_LOCATION);
 		this->writeLineToFile(tempTask.getLocation());
 	}
 }
@@ -140,7 +140,7 @@ void Storage::saveParticipants(Task& tempTask)
 
 		while(pit != participantList.end())
 		{
-			saveHeader(HEADER_PARTICIPANT);
+			saveHeader(LABEL_PARTICIPANT);
 			participant = (*pit);//convertToString(tempTask.getParticipants());
 			this->writeLineToFile(participant);
 			pit++;
@@ -152,14 +152,14 @@ void Storage::saveNote(Task& tempTask)
 {
 	if(tempTask.getFlagNote())
 	{
-		saveHeader(HEADER_NOTE);
+		saveHeader(LABEL_NOTE);
 		this->writeLineToFile(tempTask.getNote());
 	}
 }
 
 void Storage::savePriority(Task& tempTask)
 {
-	saveHeader(HEADER_PRIORITY);
+	saveHeader(LABEL_PRIORITY);
 	string priorityStr = convertToString(tempTask.getPriority());
 	this->writeLineToFile(priorityStr);
 }	
@@ -174,7 +174,7 @@ void Storage::saveTags(Task& tempTask)
 
 		while(tagit != tagsList.end())
 		{
-			saveHeader(HEADER_TAG);
+			saveHeader(LABEL_TAG);
 			tag = (*tagit);
 			this->writeLineToFile(tag);
 			tagit++;
@@ -191,7 +191,7 @@ void Storage::saveReminderTimes(Task& tempTask)
 
 		while(rtit != reminderList.end())
 		{
-			saveHeader(HEADER_REMINDER_TIME);
+			saveHeader(LABEL_REMINDER_TIME);
 			string reminderStr = convertToString(*rtit);
 			this->writeLineToFile(reminderStr);
 			rtit++;
@@ -201,7 +201,7 @@ void Storage::saveReminderTimes(Task& tempTask)
 
 void Storage::saveState(Task& tempTask)
 {
-	saveHeader(HEADER_STATE);
+	saveHeader(LABEL_STATE);
 	string stateStr = convertToString(tempTask.getState());
 	this->writeLineToFile(stateStr);
 }
@@ -210,7 +210,7 @@ void Storage::saveDueDate(Task& tempTask)
 {
 	if(tempTask.getFlagDueDate())
 	{
-		saveHeader(HEADER_DUE_DATE);
+		saveHeader(LABEL_DUE_DATE);
 		string dueDateStr = convertToString(tempTask.getDueDate());
 		this->writeLineToFile(dueDateStr);
 	}
@@ -220,7 +220,7 @@ void Storage::saveFromDate(Task& tempTask)
 {
 	if(tempTask.getFlagFromDate())
 	{
-		saveHeader(HEADER_FROM_DATE);
+		saveHeader(LABEL_FROM_DATE);
 		string fromDateStr = convertToString(tempTask.getFromDate());
 		this->writeLineToFile(fromDateStr);
 	}
@@ -230,7 +230,7 @@ void Storage::saveToDate(Task& tempTask)
 {
 	if(tempTask.getFlagToDate())
 	{
-		saveHeader(HEADER_TO_DATE);
+		saveHeader(LABEL_TO_DATE);
 		string toDateStr = convertToString(tempTask.getToDate());
 		this->writeLineToFile(toDateStr);
 	}

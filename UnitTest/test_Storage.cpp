@@ -26,7 +26,7 @@ namespace UnitTest
 
 		void setupTaskList(list<Task>& taskList)
 		{
-			Task task(1),task1(2);
+			Task task(101),task1(201);
 			time_t t = time(NULL);
 			task.setName("newDeadline Task");
 			task.setDueDate((t + 864000));
