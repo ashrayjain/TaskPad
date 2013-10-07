@@ -260,35 +260,6 @@ string Storage::convertToString(time_t time)
 	return ss.str();
 }
 
-string Storage::convertToString(list<time_t> timeList)
-{
-	list<time_t>::iterator it = timeList.begin();
-	stringstream tempStream;
-
-	while( it != timeList.end())
-	{
-		tempStream << convertToString(*it) << endl;
-		it++;
-	}
-
-	return tempStream.str();
-}
-
-string Storage::convertToString(list<string> strList)
-{
-	stringstream tempStream;
-	list<string>::iterator it = strList.begin();
-
-	while(it != strList.end())
-	{
-		tempStream << "&&" << (*it);
-		it++;
-	}
-
-	return tempStream.str();
-
-}
-
 string Storage::convertToString(PRIORITY priority)
 {
 	return PRIORITY_STRING[priority];
@@ -298,6 +269,10 @@ string Storage::convertToString(TASK_STATE state)
 {
 	return TASK_STATE_STRING[state];
 }
+
+/****************************************************/
+/***************** Actual Writers ****************/
+/****************************************************/
 
 void Storage::writeLineToFile(string line)
 {

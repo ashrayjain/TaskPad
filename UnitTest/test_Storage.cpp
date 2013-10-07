@@ -51,8 +51,6 @@ namespace UnitTest
 			taskList.push_back(task1);
 
 			return;
-
-
 		}
 	};
 }
