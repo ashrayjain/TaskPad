@@ -7,10 +7,6 @@
 #include "Command.h"
 #include "Task.h"
 #include "Enum.h"
-/*********
-Assumptions made:
-- Both interpreter and Executor only set the status as either SUCCESS or ERROR
-**********/
 
 using namespace TP;
 
@@ -261,7 +257,7 @@ Messenger Manager::getTodayTasks() {
 
 	this->setCurrTm(todayTm);
 
-	return this->processCommand("find due " + today + " from "+today + " to "+today);
+	return this->processCommand("find from "+today + " to "+today);
 }
 
 Messenger Manager::getNextPeriodTasks(PERIOD_TYPE pType)
