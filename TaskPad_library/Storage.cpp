@@ -14,14 +14,11 @@ const string Storage::HEADER_DUE_DATE = "Due: ";
 const string Storage::HEADER_FROM_DATE = "StartTime: ";
 const string Storage::HEADER_TO_DATE = "EndTime: ";
 const string Storage::HEADER_LOCATION = "Location: ";
-const string Storage::HEADER_PARTICIPANT_COUNT = "ParticipantCount: ";
-const string Storage::HEADER_PARTICIPANT = ": ";
+const string Storage::HEADER_PARTICIPANT = "Participant: ";
 const string Storage::HEADER_NOTE = "Note: ";
 const string Storage::HEADER_PRIORITY = "Priority: ";
-const string Storage::HEADER_TAG_COUNT = "TagCount: ";
-const string Storage::HEADER_TAG = ": ";
-const string Storage::HEADER_REMINDER_TIME_COUNT = "ReminderTimeCount: ";
-const string Storage::HEADER_REMINDER_TIME = ": ";
+const string Storage::HEADER_TAG = "Tag: ";
+const string Storage::HEADER_REMINDER_TIME = "Reminder: ";
 const string Storage::HEADER_STATE = "State: ";
 
 Storage::Storage(list<Task>& taskList)
@@ -108,24 +105,6 @@ void Storage::saveTaskCount(unsigned taskCount)
 	saveCount(taskCount);
 }
 
-void Storage::saveParticipantCount(unsigned participantCount)
-{
-	saveHeader(HEADER_PARTICIPANT_COUNT);
-	saveCount(participantCount);
-}
-
-void Storage::saveTagCount(unsigned tagCount)
-{
-	saveHeader(HEADER_TAG_COUNT);
-	saveCount(tagCount);
-}
-
-void Storage::saveReminderCount(unsigned reminderCount)
-{
-	saveHeader(HEADER_REMINDER_TIME_COUNT);
-	saveCount(reminderCount);
-}
-
 void Storage::saveIndex(Task& tempTask)
 {
 	saveHeader(HEADER_INDEX);
@@ -166,13 +145,12 @@ void Storage::saveParticipants(Task& tempTask)
 		list<std::string>::iterator pit = participantList.begin();
 		string participant = "";
 
-		this->saveParticipantCount(participantList.size());
-
-		for(int i = 1; pit != participantList.end(); i++,pit++)
+		while(pit != participantList.end())
 		{
-			saveHeader(convertToString(i) + HEADER_PARTICIPANT);
+			saveHeader(HEADER_PARTICIPANT);
 			participant = (*pit);//convertToString(tempTask.getParticipants());
 			this->writeLineToFile(participant);
+			pit++;
 		}
 	}
 	else
@@ -209,13 +187,12 @@ void Storage::saveTags(Task& tempTask)
 		list<std::string>::iterator tagit = tagsList.begin();
 		string tag = "";
 
-		this->saveTagCount(tagsList.size());
-
-		for(int i = 1; tagit != tagsList.end();i++, tagit++)
+		while(tagit != tagsList.end())
 		{
-			saveHeader(convertToString(i) + HEADER_TAG);
+			saveHeader(HEADER_TAG);
 			tag = (*tagit);
 			this->writeLineToFile(tag);
+			tagit++;
 		}
 	}
 	else
@@ -231,13 +208,12 @@ void Storage::saveReminderTimes(Task& tempTask)
 		list<time_t> reminderList = tempTask.getRemindTimes();
 		list<time_t>::iterator rtit = reminderList.begin();
 
-		this->saveReminderCount(reminderList.size());
-
-		for(int i = 0; rtit != reminderList.end(); i++,rtit++)
+		while(rtit != reminderList.end())
 		{
-			saveHeader(convertToString(i) + HEADER_REMINDER_TIME);
+			saveHeader(HEADER_REMINDER_TIME);
 			string reminderStr = convertToString(*rtit);
 			this->writeLineToFile(reminderStr);
+			rtit++;
 		}
 	}
 	else
