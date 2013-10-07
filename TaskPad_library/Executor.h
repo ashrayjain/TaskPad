@@ -38,24 +38,33 @@ protected:
 	void executeMod					(Command_Mod* cmd,  Messenger &response);
 	void executeFind				(Command_Find* cmd, Messenger &response);
 
+	// Functions for ADD COMMAND
 	void formTaskFromAddCmd			(Command_Add* cmd, Task &newTask);
 
-	void deleteTaskByIndex			(const unsigned &index, Messenger &reponse);
-	
+	// Functions for DELETE COMMAND
+	void deleteTaskByIndex			(const unsigned &index, Messenger &reponse);	
 	void deleteTaskByName			(const string &name, Messenger &reponse, const bool &exactFlag);
 	void deleteByExactName			(const string &name, Messenger &response);
 	void deleteByApproxName			(const string &name, Messenger &response);
 
-	void formTaskFromFindCmd		(Command_Find* cmd, Task &newTask);
+	// Functions for MODIFY COMMAND
+	void modifyByIndex				(Command_Mod* cmd, Messenger &response);
+	void modifyByName				(Command_Mod* cmd, Messenger &response);
+	void modifyByExactName			(Command_Mod* cmd, Messenger &response);
+	void modifyByApproxName			(Command_Mod* cmd, Messenger &response);
+	void modifyTaskTo				(Task &oldTask, Command_Mod* cmd);
 
+	// Functions for FIND COMMAND
+	void formTaskFromFindCmd		(Command_Find* cmd, Task &newTask);
 	void findByIndex				(const unsigned index, Messenger &response);
-	void findByName					(Command_Find* cmd, Messenger &response);
+	void findGeneral				(Command_Find* cmd, Messenger &response);
 	void runSearchWithTask			(const Task &taskToCompare,	list<Task> &results);
 	void runSearchWithTask			(const Task &taskToCompare, list<Task> &results, string substringName);
 	bool taskMatch					(const Task& lhs, const Task& rhs) const;
 	
 	// Setters for Messenger to return
 	void setOpSuccessTask			(const Task &retTask, Messenger &response);
+	void setOpSuccessTaskList		(const list<Task>& results, Messenger &response);
 	void setOpIntermediateTaskList	(const list<Task> &results, Messenger &response);
 	void setIndexNotFound			(const unsigned &index, Messenger &response);
 	void setNameNotFound			(const string &name, Messenger &response);

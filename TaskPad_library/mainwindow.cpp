@@ -241,8 +241,10 @@ bool MainWindow::eventFilter(QObject* watched, QEvent* event)
 				/*QMessageBox msgBox;
 				msgBox.setText(currentInput);
 				msgBox.exec();*/
-				Messenger msg = scheduler->processCommand(currentInput.toLocal8Bit().constData());
-				handleMessenger(msg);
+				if(!currentInput.isEmpty()){
+					Messenger msg = scheduler->processCommand(currentInput.toLocal8Bit().constData());
+					handleMessenger(msg);
+				}
 				return true;//stop Key return or Key enter
 			}
 		}
@@ -265,7 +267,7 @@ void MainWindow::handleMessenger(Messenger msg){
 	{
 		updateStatusBar(msg.getErrorMsg().c_str());
 	}
-	if(msg.getStatus() == TP::ERROR_INTERMEDIATE)
+	else if(msg.getStatus() == TP::ERROR_INTERMEDIATE)
 	{
 		updateNavLabel("Select a task by typing its index");
 		updateStatusBar("Wrong input. Press ECS to cancel");

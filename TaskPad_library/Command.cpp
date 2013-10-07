@@ -20,7 +20,7 @@ using namespace TP;
 const bool				Command::DEFAULT_FLAG					= UNCHANGED;
 const COMMAND_TYPE		Command::DEFAULT_COMMAND_TYPE			= UNDEFINED;
 const PRIORITY			Command::DEFAULT_PRIORITY				= MEDIUM;
-const bool				Command::DEFAULT_TASK_STATE				= UNDONE;//undone
+const TASK_STATE		Command::DEFAULT_TASK_STATE				= UNDONE;//undone
 const TASK_TYPE			Command::DEFAULT_TASK_TYPE				= FLOATING;
 const string			Command::DEFAULT_STRING					= "";
 const list<string>		Command::DEFAULT_LIST_OF_STRING			= list<string>();
