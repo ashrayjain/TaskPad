@@ -118,10 +118,6 @@ void Storage::saveName(Task& tempTask)
 		saveHeader(HEADER_NAME);
 		this->writeLineToFile(tempTask.getName());
 	}
-	else
-	{
-		this->writeLineToFile("");
-	}
 }
 
 void Storage::saveLocation(Task& tempTask)
@@ -130,10 +126,6 @@ void Storage::saveLocation(Task& tempTask)
 	{
 		saveHeader(HEADER_LOCATION);
 		this->writeLineToFile(tempTask.getLocation());
-	}
-	else
-	{
-		this->writeLineToFile("");
 	}
 }
 
@@ -153,10 +145,6 @@ void Storage::saveParticipants(Task& tempTask)
 			pit++;
 		}
 	}
-	else
-	{
-		this->writeLineToFile("");
-	}
 }
 
 void Storage::saveNote(Task& tempTask)
@@ -165,10 +153,6 @@ void Storage::saveNote(Task& tempTask)
 	{
 		saveHeader(HEADER_NOTE);
 		this->writeLineToFile(tempTask.getNote());
-	}
-	else
-	{
-		this->writeLineToFile("");
 	}
 }
 
@@ -195,10 +179,6 @@ void Storage::saveTags(Task& tempTask)
 			tagit++;
 		}
 	}
-	else
-	{
-		this->writeLineToFile("");
-	}
 }
 
 void Storage::saveReminderTimes(Task& tempTask)
@@ -215,10 +195,6 @@ void Storage::saveReminderTimes(Task& tempTask)
 			this->writeLineToFile(reminderStr);
 			rtit++;
 		}
-	}
-	else
-	{
-		this->writeLineToFile("");
 	}
 }
 
@@ -237,10 +213,6 @@ void Storage::saveDueDate(Task& tempTask)
 		string dueDateStr = convertToString(tempTask.getDueDate());
 		this->writeLineToFile(dueDateStr);
 	}
-	else
-	{
-		this->writeLineToFile("");
-	}
 }
 
 void Storage::saveFromDate(Task& tempTask)
@@ -251,10 +223,6 @@ void Storage::saveFromDate(Task& tempTask)
 		string fromDateStr = convertToString(tempTask.getFromDate());
 		this->writeLineToFile(fromDateStr);
 	}
-	else
-	{
-		this->writeLineToFile("");
-	}
 }
 
 void Storage::saveToDate(Task& tempTask)
@@ -264,10 +232,6 @@ void Storage::saveToDate(Task& tempTask)
 		saveHeader(HEADER_TO_DATE);
 		string toDateStr = convertToString(tempTask.getToDate());
 		this->writeLineToFile(toDateStr);
-	}
-	else
-	{
-		this->writeLineToFile("");
 	}
 }
 
