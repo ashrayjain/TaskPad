@@ -197,8 +197,8 @@ void Executor::modifyTaskTo(Task &oldTask, Command_Mod* cmd) {
 		oldTask.setFromDate(cmd->getFromDate());
 	if(cmd->getFlagTo())
 		oldTask.setToDate(cmd->getToDate());
-	//if(cmd->getFlagTaskState())
-	//	oldTask.setState(cmd->getTaskState());
+	if(cmd->getFlagTaskState())
+		oldTask.setState(cmd->getTaskState());
 }
 
 void Executor::formTaskFromFindCmd(Command_Find* cmd, Task &newTask) {
