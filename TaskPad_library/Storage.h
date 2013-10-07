@@ -20,19 +20,20 @@ class Storage
 
 		static const string _fileName;
 
-		static const string HEADER_TASK_COUNT;
-		static const string HEADER_NAME;
-		static const string HEADER_INDEX;
-		static const string HEADER_DUE_DATE;
-		static const string HEADER_FROM_DATE;
-		static const string HEADER_TO_DATE;
-		static const string HEADER_LOCATION;
-		static const string HEADER_PARTICIPANT;
-		static const string HEADER_NOTE;
-		static const string HEADER_PRIORITY;
-		static const string HEADER_TAG;
-		static const string HEADER_REMINDER_TIME;
-		static const string HEADER_STATE;
+		static const string LABEL_TASK_COUNT;
+		static const string LABEL_NAME;
+		static const string LABEL_INDEX;
+		static const string LABEL_DUE_DATE;
+		static const string LABEL_FROM_DATE;
+		static const string LABEL_TO_DATE;
+		static const string LABEL_LOCATION;
+		static const string LABEL_PARTICIPANT;
+		static const string LABEL_NOTE;
+		static const string LABEL_PRIORITY;
+		static const string LABEL_TAG;
+		static const string LABEL_REMINDER_TIME;
+		static const string LABEL_STATE;
+		static const string LABEL_END_OF_TASK;
 
 		void saveTaskList	(list<Task>& taskList);
 		void saveTask		(Task& tempTaskTask);
