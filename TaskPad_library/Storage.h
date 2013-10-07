@@ -22,6 +22,7 @@ class Storage
 
 		static const string HEADER_TASK_COUNT;
 		static const string HEADER_NAME;
+		static const string HEADER_TYPE;
 		static const string HEADER_INDEX;
 		static const string HEADER_DUE_DATE;
 		static const string HEADER_FROM_DATE;
