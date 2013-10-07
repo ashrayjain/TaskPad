@@ -16,9 +16,28 @@ namespace UnitTest
 		
 		TEST_METHOD(Getter_Messenger)
 		{
-			Task myTasks[] = {Task(12),Task(8),Task(10),Task(11)};
+			Task t1 = Task();
+			Task t2 = Task();
+			Task t3 = Task();
+			Task t4 = Task();
+
+			string nameT1 = "t1";
+			string nameT2 = "t2";
+			string nameT3 = "t3";
+			string nameT4 = "t4";
+
+
+			t1.setName(nameT1);
+			t2.setName(nameT2);
+			t3.setName(nameT3);
+			t4.setName(nameT4);
+
+			Task myTasks[] = {t1,t2,t3,t4};
+
+			list<Task> taskList= list<Task>(myTasks,myTasks + 4);
+
 			string testErrorStr = "This is a test error Message";
-			Messenger testMessenger(ADD,ERROR_INTERMEDIATE,list<Task>(myTasks,myTasks + 4),10,testErrorStr);
+			Messenger testMessenger(ADD,ERROR_INTERMEDIATE,taskList,10,testErrorStr);
 
 			Assert::AreEqual(testMessenger.getErrorMsg(),string(testErrorStr));
 			Assert::AreEqual(testMessenger.getIndex(),10);
@@ -28,10 +47,11 @@ namespace UnitTest
 			list<Task> returnList = testMessenger.getList();
 			list<Task>::iterator it = returnList.begin();
 			Assert::AreEqual((int) testMessenger.getList().size(),4);
-			Assert::AreEqual(((it++)->getIndex()),(unsigned) 12);
-			Assert::AreEqual(((it++)->getIndex()),(unsigned) 8);
-			Assert::AreEqual(((it++)->getIndex()),(unsigned) 10);
-			Assert::AreEqual(((it++)->getIndex()),(unsigned) 11);
+
+			Assert::AreEqual(((it++)->getName()),nameT1);
+			Assert::AreEqual(((it++)->getName()),nameT2);
+			Assert::AreEqual(((it++)->getName()),nameT3);
+			Assert::AreEqual(((it++)->getName()),nameT4);
 		}
 		TEST_METHOD(Setter_Messenger)
 		{
@@ -101,12 +121,12 @@ namespace UnitTest
 			Assert::AreEqual(((it++)->getIndex()),(unsigned) 3);
 			Assert::AreEqual(((it++)->getIndex()),(unsigned) 4);
 
-			Task myTasks1[] = {Task(3),Task(8),Task(10)};
+			Task myTasks1[] = {Task(5),Task(8),Task(10)};
 			testMessenger.setList(list<Task>(myTasks1,myTasks1+3));
 
 			returnList = testMessenger.getList();
 			it = returnList.begin();
-			Assert::AreEqual(((it++)->getIndex()),(unsigned) 3);
+			Assert::AreEqual(((it++)->getIndex()),(unsigned) 5);
 			Assert::AreEqual(((it++)->getIndex()),(unsigned) 8);
 			Assert::AreEqual(((it++)->getIndex()),(unsigned) 10);
 
