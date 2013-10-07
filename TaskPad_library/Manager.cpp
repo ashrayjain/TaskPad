@@ -208,7 +208,7 @@ unsigned Manager::getCreatedTimeOfTask(Task* baseTask) const {
 }
 
 void Manager::storeIndexFromCommandToClassAttribute() {
-	throw "storeIndexFromCommandToClassAttribute() not implemented!";
+	//throw "storeIndexFromCommandToClassAttribute() not implemented!";
 }
 
 bool Manager::hasInterpretationError() {
@@ -373,6 +373,7 @@ void Manager::setCurrTm(std::tm newTm)
 
 void Manager::resetStatus() {
 	delete this->_cmd;
+	this->_cmd = NULL;
 	this->_response.resetMessenger();
 	this->setCurrTm(getTodayTm());
 }
