@@ -265,7 +265,7 @@ void MainWindow::handleMessenger(Messenger msg){
 	{
 		updateStatusBar(msg.getErrorMsg().c_str());
 	}
-	if(msg.getStatus() == TP::ERROR_INTERMEDIATE)
+	else if(msg.getStatus() == TP::ERROR_INTERMEDIATE)
 	{
 		updateNavLabel("Select a task by typing its index");
 		updateStatusBar("Wrong input. Press ECS to cancel");
