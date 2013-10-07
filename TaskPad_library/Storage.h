@@ -22,7 +22,6 @@ class Storage
 
 		static const string HEADER_TASK_COUNT;
 		static const string HEADER_NAME;
-		static const string HEADER_TYPE;
 		static const string HEADER_INDEX;
 		static const string HEADER_DUE_DATE;
 		static const string HEADER_FROM_DATE;
@@ -52,7 +51,6 @@ class Storage
 		inline	void saveTagCount			(unsigned tagCount);
 
 		//generic attributes of all tasks
-		void saveTaskType			(Task& tempTask);
 		void saveIndex				(Task& tempTask);
 		void saveName				(Task& tempTask);
 		void saveLocation			(Task& tempTask);
@@ -71,7 +69,6 @@ class Storage
 		// stringconverters
 		string convertToString	(int num);
 		string convertToString	(unsigned index);
-		string convertToString	(TASK_TYPE type);
 		string convertToString	(time_t time);
 		string convertToString	(list<time_t> timeList);
 		string convertToString	(list<string> strList);
