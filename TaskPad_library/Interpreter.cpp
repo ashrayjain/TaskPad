@@ -25,14 +25,17 @@ void Interpreter::processCommand()
 	}
 	else if(_command=="mod")
 	{
+		_response.setCommandType(MOD);
 		functionMod();
 	}
 	else if(_command=="del")
 	{
+		_response.setCommandType(DEL);
 		functionDel();
 	}
 	else if(_command=="find")
 	{
+		_response.setCommandType(FIND);
 		functionFind();
 	}
 	return;
@@ -773,7 +776,7 @@ void Interpreter::functionAdd()
 		inputInfo.clear();
 	}
 
-	result =cmd;
+	result = cmd;
 	cmd=NULL;
 
 	return;
@@ -1048,7 +1051,7 @@ Command * Interpreter::interpretCommand(string userInput, Messenger & response)
 int Interpreter::interpretIndex(string indexStr, Messenger & response)
 {
 	response.setStatus(ERROR);
-	return  0;
+	return 0;
 }
 
 void Interpreter::interpretCommand(unsigned int index, Command* prevCommand)
