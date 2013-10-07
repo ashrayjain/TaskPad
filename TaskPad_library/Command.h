@@ -86,7 +86,7 @@ protected:
 	std::string				getNote()				{ return _note;				}
 	TP::PRIORITY			getPriority()			{ return _priority;			}
 	std::list<std::string>	getTags()				{ return _tags;				}
-	std::list<std::time_t>	getRemindTime()			{ return _remindTime;		}
+	std::list<std::time_t>	getRemindTimes()		{ return _remindTime;		}
 	bool					getTaskState()			{ return _taskState;		}
 	TP::TASK_TYPE			getTaskType()			{ return _taskType;			}
 	unsigned				getCreatedTime()		{ return _createdTime;		}
@@ -104,7 +104,7 @@ protected:
 	void setNote(std::string note)					{ _note			= note;		FLAG_note		= TP::EDITED; }
 	void setPriority(TP::PRIORITY priority)			{ _priority		= priority;	FLAG_priority	= TP::EDITED; }
 	void setTags(std::list<std::string> tags)		{ _tags			= tags;		FLAG_tags		= TP::EDITED; }
-	void setRemindTime(std::list<std::time_t> time)	{ _remindTime	= time;		FLAG_remindTime	= TP::EDITED; }
+	void setRemindTimes(std::list<std::time_t> time){ _remindTime	= time;		FLAG_remindTime	= TP::EDITED; }
 	void setTaskState(bool state)					{ _taskState	= state;	FLAG_taskState	= TP::EDITED; }
 	void setTaskType(TP::TASK_TYPE type)			{ _taskType		= type;		FLAG_taskType	= TP::EDITED; }
 	void setCreatedTime(unsigned ctime)				{ _createdTime	= ctime;	FLAG_createdTime= TP::EDITED; }
@@ -123,7 +123,7 @@ protected:
 	bool getFlagNote()								{ return FLAG_note;				}
 	bool getFlagPriority()							{ return FLAG_priority;			}
 	bool getFlagTags()								{ return FLAG_tags;				}
-	bool getFlagRemindTime()						{ return FLAG_remindTime;		}
+	bool getFlagRemindTimes()						{ return FLAG_remindTime;		}
 	bool getFlagTaskState()							{ return FLAG_taskState;		}
 	bool getFlagTaskType()							{ return FLAG_taskType;			}
 	bool getFlagCreatedTime()						{ return FLAG_createdTime;		}
@@ -208,7 +208,7 @@ public:
 	std::string					getNote()			{ return Command::getNote();		}
 	TP::PRIORITY				getPriority()		{ return Command::getPriority();	}
 	std::list<std::string>		getTags()			{ return Command::getTags();		}
-	std::list<std::time_t>		getRemindTime()		{ return Command::getRemindTime();	}
+	std::list<std::time_t>		getRemindTimes()	{ return Command::getRemindTimes();	}
 	
 	//setter for fields
 	void setName(std::string name)					{ Command::setName(name);			}
@@ -220,7 +220,7 @@ public:
 	void setNote(std::string note)					{ Command::setNote(note);			}
 	void setPriority(TP::PRIORITY priority)			{ Command::setPriority(priority);	}
 	void setTags(std::list<std::string> tags)		{ Command::setTags(tags);			}
-	void setRemindTime(std::list<std::time_t> time)	{ Command::setRemindTime(time);		}
+	void setRemindTimes(std::list<std::time_t> time){ Command::setRemindTimes(time);		}
 	
 	//getter for flags
 	bool getFlagName()								{ return Command::getFlagName();		}
@@ -232,7 +232,7 @@ public:
 	bool getFlagNote()								{ return Command::getFlagNote();		}
 	bool getFlagPriority()							{ return Command::getFlagPriority();	}
 	bool getFlagTags()								{ return Command::getFlagTags();		}
-	bool getFlagRemindTime()						{ return Command::getFlagRemindTime();	}
+	bool getFlagRemindTimes()						{ return Command::getFlagRemindTimes();	}
 };
 
 /*
@@ -260,7 +260,7 @@ public:
 	std::string					getNote()			{ return Command::getNote();		}
 	TP::PRIORITY				getPriority()		{ return Command::getPriority();	}
 	std::list<std::string>		getTags()			{ return Command::getTags();		}
-	std::list<std::time_t>		getRemindTime()		{ return Command::getRemindTime();	}
+	std::list<std::time_t>		getRemindTimes()	{ return Command::getRemindTimes();	}
 	bool						getTaskState()		{ return Command::getTaskState();	}
 	unsigned					getCreatedTime()	{ return Command::getCreatedTime();	}
 	
@@ -276,7 +276,7 @@ public:
 	void setNote(std::string note)					{ Command::setNote(note);			}
 	void setPriority(TP::PRIORITY priority)			{ Command::setPriority(priority);	}
 	void setTags(std::list<std::string> tags)		{ Command::setTags(tags);			}
-	void setRemindTime(std::list<std::time_t> time)	{ Command::setRemindTime(time);		}
+	void setRemindTimes(std::list<std::time_t> time){ Command::setRemindTimes(time);		}
 	void setTaskState(bool state)					{ Command::setTaskState(state);		}
 	void setCreatedTime(unsigned ctime)				{ Command::setCreatedTime(ctime);	}
 	
@@ -292,7 +292,7 @@ public:
 	bool getFlagNote()								{ return Command::getFlagNote();		}
 	bool getFlagPriority()							{ return Command::getFlagPriority();	}
 	bool getFlagTags()								{ return Command::getFlagTags();		}
-	bool getFlagRemindTime()						{ return Command::getFlagRemindTime();	}
+	bool getFlagRemindTimes()						{ return Command::getFlagRemindTimes();	}
 	bool getFlagTaskState()							{ return Command::getFlagTaskState();	}
 	bool getFlagCreatedTime()						{ return Command::getFlagCreatedTime(); }
 	
@@ -356,7 +356,7 @@ public:
 	std::string					getNote()			{ return Command::getNote();		}
 	TP::PRIORITY				getPriority()		{ return Command::getPriority();	}
 	std::list<std::string>		getTags()			{ return Command::getTags();		}
-	std::list<std::time_t>		getRemindTime()		{ return Command::getRemindTime();	}
+	std::list<std::time_t>		getRemindTimes()	{ return Command::getRemindTimes();	}
 	bool						getTaskState()		{ return Command::getTaskState();	}
 	TP::TASK_TYPE				getTaskType()		{ return Command::getTaskType();	}
 	
@@ -371,7 +371,7 @@ public:
 	void setNote(std::string note)					{ Command::setNote(note);			}
 	void setPriority(TP::PRIORITY priority)			{ Command::setPriority(priority);	}
 	void setTags(std::list<std::string> tags)		{ Command::setTags(tags);			}
-	void setRemindTime(std::list<std::time_t> time)	{ Command::setRemindTime(time);		}
+	void setRemindTimes(std::list<std::time_t> time){ Command::setRemindTimes(time);		}
 	void setTaskState(bool state)					{ Command::setTaskState(state);		}
 	void setTaskType(TP::TASK_TYPE type)			{ Command::setTaskType(type);		}
 
@@ -387,7 +387,7 @@ public:
 	bool getFlagNote()								{ return Command::getFlagNote();		}
 	bool getFlagPriority()							{ return Command::getFlagPriority();	}
 	bool getFlagTags()								{ return Command::getFlagTags();		}
-	bool getFlagRemindTime()						{ return Command::getFlagRemindTime();	}
+	bool getFlagRemindTimes()						{ return Command::getFlagRemindTimes();	}
 	bool getFlagTaskState()							{ return Command::getFlagTaskState();	}
 	bool getFlagTaskType()							{ return Command::getFlagTaskType();	}
 

@@ -28,8 +28,12 @@ public:
 			QTextOption alignment(Qt::AlignRight | Qt::AlignVCenter);
 			QPen penHText(QColor("#fff"));
 			painter->setPen(penHText);
+			QFont font1;
+			font1.setFamily(QStringLiteral("Segoe UI"));
+			font1.setPixelSize(16);
+			painter->setFont(font1);
 			QRect rect = opt.rect;
-			rect = rect.adjusted(18,0,-18,0);
+			rect = rect.adjusted(18,0,-18,-3);
 			painter->drawText(rect, displayText, alignment);
 
 			painter->restore();

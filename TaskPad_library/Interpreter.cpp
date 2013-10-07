@@ -33,7 +33,7 @@ Command* Interpreter::interpretCommand(std::string commandStr, Messenger &respon
 	bool flag=true;
 	stringstream extract(commandStr);
 	string word;
-	Command* returnCommand;
+	Command* returnCommand = NULL;
 
 	flag=checkPun(commandStr);
 
@@ -391,7 +391,7 @@ Command* Interpreter:: interpretAdd(Command_Add* commandType, string commandStr,
 			if(flag!=false){
 				if(word.length()>0)
 				{
-					commandType->setParticipants(word);
+					/*commandType->setParticipants(word);*/
 				}
 				else flag=false;
 			}
@@ -481,7 +481,7 @@ Command* Interpreter:: interpretAdd(Command_Add* commandType, string commandStr,
 				if(word.length()>0){
 					requiredTime=setTime(word,flag);	
 
-					commandType->setRemindTime(requiredTime);	
+					/*commandType->setRemindTime(requiredTime);*/	
 				}
 				else flag=false;
 			}
@@ -570,7 +570,7 @@ Command* Interpreter::interpretModify(Command_Mod* commandType, std::string comm
 			if(flag!=false){
 				if(word.length()>0)
 				{
-					commandType->setParticipants(word);
+					/*commandType->setParticipants(word);*/
 				}
 				else flag=false;
 			}
@@ -646,7 +646,7 @@ Command* Interpreter::interpretModify(Command_Mod* commandType, std::string comm
 		}
 
 
-		else if(word=="rt" && commandType->getFlagRemindTime()==false){
+		else if(word=="rt" && commandType->getFlagRemindTimes()==false){
 			time_t requiredTime;
 
 			word.clear();
@@ -661,7 +661,7 @@ Command* Interpreter::interpretModify(Command_Mod* commandType, std::string comm
 				if(word.length()>0){
 					requiredTime=setTime(word,flag);	
 
-					commandType->setRemindTime(requiredTime);	
+					/*commandType->setRemindTime(requiredTime);	*/
 				}
 				else flag=false;	
 			}
@@ -680,7 +680,7 @@ Command* Interpreter::interpretModify(Command_Mod* commandType, std::string comm
 
 
 		else if(word=="-ppl" && commandType->getFlagParticipants()==false){
-			commandType->setParticipants("");
+			/*commandType->setParticipants("");*/
 
 		}
 
@@ -694,16 +694,16 @@ Command* Interpreter::interpretModify(Command_Mod* commandType, std::string comm
 
 		else if(word=="-#" && commandType->getFlagTags()==false){
 
-			commandType->setTags("");
+			/*commandType->setTags("");*/
 		}
 
 
 
-		else if(word=="-rt" && commandType->getFlagRemindTime()==false)
+		else if(word=="-rt" && commandType->getFlagRemindTimes()==false)
 		{
-			time_t timeNull;
+			/*time_t timeNull;
 			timeNull=time(0);
-			commandType->setRemindTime(timeNull);
+			commandType->setRemindTime(timeNull);*/
 		}
 
 
@@ -868,7 +868,7 @@ Command* Interpreter::interpretFind(Command_Find* commandType, std::string comma
 			if(flag!=false){
 				if(word.length()>0)
 				{
-					commandType->setParticipants(word);
+					/*commandType->setParticipants(word);*/
 				}
 				else flag=false;
 			}
@@ -978,7 +978,7 @@ Command* Interpreter::interpretFind(Command_Find* commandType, std::string comma
 			if(flag!=false){
 				if(word.length()>0)
 				{
-					commandType->setParticipants(word);
+					/*commandType->setParticipants(word);*/
 				}
 				else flag=false;
 			}
