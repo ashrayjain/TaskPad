@@ -348,7 +348,6 @@ public:
 	//getter for fields
 	int							getIndex()			{ return Command::getIndex();		}
 	std::string					getOptName()		{ return Command::getOptName();		}
-	std::time_t					getDueDate()		{ return Command::getDueDate();		}
 	std::time_t					getFromDate()		{ return Command::getFromDate();	}
 	std::time_t					getToDate()			{ return Command::getToDate();		}
 	std::string					getLocation()		{ return Command::getLocation();	}
@@ -363,7 +362,6 @@ public:
 	//setter for fields
 	void setIndex(int idx)							{ Command::setIndex(idx);			}
 	void setOptName(std::string name)				{ Command::setOptName(name);		}
-	void setDueDate(std::time_t dueDate)			{ Command::setDueDate(dueDate);		}
 	void setFromDate(std::time_t fromDate)			{ Command::setFromDate(fromDate);	}
 	void setToDate(std::time_t toDate)				{ Command::setToDate(toDate);		}
 	void setLocation(std::string location)			{ Command::setLocation(location);	}
@@ -379,7 +377,6 @@ public:
 	bool getFlagIndex()								{ return Command::getFlagIndex();		}
 	bool getFlagExact()								{ return Command::getFlagExact();		}
 	bool getFlagName()								{ return Command::getFlagName();		}
-	bool getFlagDue()								{ return Command::getFlagDue();			}
 	bool getFlagFrom()								{ return Command::getFlagFrom();		}
 	bool getFlagTo()								{ return Command::getFlagTo();			}
 	bool getFlagLocation()							{ return Command::getFlagLocation();	}
