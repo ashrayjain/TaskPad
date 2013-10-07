@@ -78,7 +78,6 @@ void Storage::saveTaskList(list<Task>& taskList)
 
 void Storage::saveTask(Task& tempTask)
 {
-	this->saveTaskType(tempTask);
 	this->saveIndex(tempTask);
 	this->saveName(tempTask);
 	this->saveDueDate(tempTask);
@@ -126,14 +125,6 @@ void Storage::saveReminderCount(unsigned reminderCount)
 {
 	saveHeader(HEADER_REMINDER_TIME_COUNT);
 	saveCount(reminderCount);
-}
-
-void Storage::saveTaskType(Task& tempTask)
-{
-	string taskTypeStr = convertToString(tempTask.getTaskType());
-
-	saveHeader(HEADER_TYPE);
-	this->writeLineToFile(taskTypeStr);
 }
 
 void Storage::saveIndex(Task& tempTask)
@@ -321,11 +312,6 @@ string Storage::convertToString(unsigned index)
 	stringstream tmpstream;
 	tmpstream << (index);
 	return tmpstream.str();
-}
-
-string Storage::convertToString(TASK_TYPE type)
-{
-	return TASK_TYPE_STRING[type];
 }
 
 string Storage::convertToString(time_t time)
