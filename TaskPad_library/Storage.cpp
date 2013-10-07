@@ -7,19 +7,20 @@
 using namespace TP;
 
 const string Storage::_fileName = "TaskPad.txt";
-const string Storage::HEADER_TASK_COUNT = "Task Count: ";
-const string Storage::HEADER_NAME = "Name: ";
-const string Storage::HEADER_INDEX = "Index: ";
-const string Storage::HEADER_DUE_DATE = "Due: ";
-const string Storage::HEADER_FROM_DATE = "StartTime: ";
-const string Storage::HEADER_TO_DATE = "EndTime: ";
-const string Storage::HEADER_LOCATION = "Location: ";
-const string Storage::HEADER_PARTICIPANT = "Participant: ";
-const string Storage::HEADER_NOTE = "Note: ";
-const string Storage::HEADER_PRIORITY = "Priority: ";
-const string Storage::HEADER_TAG = "Tag: ";
-const string Storage::HEADER_REMINDER_TIME = "Reminder: ";
-const string Storage::HEADER_STATE = "State: ";
+const string Storage::LABEL_TASK_COUNT = "Task Count: ";
+const string Storage::LABEL_NAME = "Name: ";
+const string Storage::LABEL_INDEX = "Index: ";
+const string Storage::LABEL_DUE_DATE = "Due: ";
+const string Storage::LABEL_FROM_DATE = "StartTime: ";
+const string Storage::LABEL_TO_DATE = "EndTime: ";
+const string Storage::LABEL_LOCATION = "Location: ";
+const string Storage::LABEL_PARTICIPANT = "Participant: ";
+const string Storage::LABEL_NOTE = "Note: ";
+const string Storage::LABEL_PRIORITY = "Priority: ";
+const string Storage::LABEL_TAG = "Tag: ";
+const string Storage::LABEL_REMINDER_TIME = "Reminder: ";
+const string Storage::LABEL_STATE = "State: ";
+const string Storage::LABEL_END_OF_TASK = "END OF TASK";
 
 Storage::Storage(list<Task>& taskList)
 {
@@ -67,7 +68,7 @@ void Storage::saveTaskList(list<Task>& taskList)
 	while(it != taskList.end())
 	{
 		this->saveTask(*it);
-		writeLineToFile("");
+		writeLineToFile(this->LABEL_END_OF_TASK);
 		it++;
 	}
 }
