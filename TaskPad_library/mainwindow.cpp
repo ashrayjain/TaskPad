@@ -241,8 +241,10 @@ bool MainWindow::eventFilter(QObject* watched, QEvent* event)
 				/*QMessageBox msgBox;
 				msgBox.setText(currentInput);
 				msgBox.exec();*/
-				Messenger msg = scheduler->processCommand(currentInput.toLocal8Bit().constData());
-				handleMessenger(msg);
+				if(!currentInput.isEmpty()){
+					Messenger msg = scheduler->processCommand(currentInput.toLocal8Bit().constData());
+					handleMessenger(msg);
+				}
 				return true;//stop Key return or Key enter
 			}
 		}
