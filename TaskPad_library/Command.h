@@ -87,7 +87,7 @@ protected:
 	TP::PRIORITY			getPriority()			{ return _priority;			}
 	std::list<std::string>	getTags()				{ return _tags;				}
 	std::list<std::time_t>	getRemindTimes()		{ return _remindTime;		}
-	bool					getTaskState()			{ return _taskState;		}
+	TP::TASK_STATE			getTaskState()			{ return _taskState;		}
 	TP::TASK_TYPE			getTaskType()			{ return _taskType;			}
 	unsigned				getCreatedTime()		{ return _createdTime;		}
 	std::string				getSyncProviderName()	{ return _syncProviderName; }
@@ -105,7 +105,7 @@ protected:
 	void setPriority(TP::PRIORITY priority)			{ _priority		= priority;	FLAG_priority	= TP::EDITED; }
 	void setTags(std::list<std::string> tags)		{ _tags			= tags;		FLAG_tags		= TP::EDITED; }
 	void setRemindTimes(std::list<std::time_t> time){ _remindTime	= time;		FLAG_remindTime	= TP::EDITED; }
-	void setTaskState(bool state)					{ _taskState	= state;	FLAG_taskState	= TP::EDITED; }
+	void setTaskState(TP::TASK_STATE state)			{ _taskState	= state;	FLAG_taskState	= TP::EDITED; }
 	void setTaskType(TP::TASK_TYPE type)			{ _taskType		= type;		FLAG_taskType	= TP::EDITED; }
 	void setCreatedTime(unsigned ctime)				{ _createdTime	= ctime;	FLAG_createdTime= TP::EDITED; }
 	void setSyncProviderName(std::string syncName)	{ _syncProviderName	  = syncName; 
@@ -137,7 +137,7 @@ private:
 	static const bool								DEFAULT_FLAG;
 	static const TP::COMMAND_TYPE					DEFAULT_COMMAND_TYPE;
 	static const TP::PRIORITY						DEFAULT_PRIORITY;
-	static const bool								DEFAULT_TASK_STATE;
+	static const TP::TASK_STATE						DEFAULT_TASK_STATE;
 	static const TP::TASK_TYPE						DEFAULT_TASK_TYPE;
 	static const std::string						DEFAULT_STRING;
 	static const std::list<std::string>				DEFAULT_LIST_OF_STRING;
@@ -180,7 +180,7 @@ private:
 	std::list<std::string>							_tags;
 	std::list<std::time_t>							_remindTime;
 	std::string										_syncProviderName;
-	bool											_taskState;//done | undone
+	TP::TASK_STATE									_taskState;//done | undone
 	unsigned										_createdTime;
 	TP::TASK_TYPE									_taskType;//timed | deadline | floating
 };
@@ -261,7 +261,7 @@ public:
 	TP::PRIORITY				getPriority()		{ return Command::getPriority();	}
 	std::list<std::string>		getTags()			{ return Command::getTags();		}
 	std::list<std::time_t>		getRemindTimes()	{ return Command::getRemindTimes();	}
-	bool						getTaskState()		{ return Command::getTaskState();	}
+	TP::TASK_STATE				getTaskState()		{ return Command::getTaskState();	}
 	unsigned					getCreatedTime()	{ return Command::getCreatedTime();	}
 	
 	//setter for fields
@@ -277,7 +277,7 @@ public:
 	void setPriority(TP::PRIORITY priority)			{ Command::setPriority(priority);	}
 	void setTags(std::list<std::string> tags)		{ Command::setTags(tags);			}
 	void setRemindTimes(std::list<std::time_t> time){ Command::setRemindTimes(time);		}
-	void setTaskState(bool state)					{ Command::setTaskState(state);		}
+	void setTaskState(TP::TASK_STATE state)			{ Command::setTaskState(state);		}
 	void setCreatedTime(unsigned ctime)				{ Command::setCreatedTime(ctime);	}
 	
 	//getter for flags
@@ -356,7 +356,7 @@ public:
 	TP::PRIORITY				getPriority()		{ return Command::getPriority();	}
 	std::list<std::string>		getTags()			{ return Command::getTags();		}
 	std::list<std::time_t>		getRemindTimes()	{ return Command::getRemindTimes();	}
-	bool						getTaskState()		{ return Command::getTaskState();	}
+	TP::TASK_STATE				getTaskState()		{ return Command::getTaskState();	}
 	TP::TASK_TYPE				getTaskType()		{ return Command::getTaskType();	}
 	
 	//setter for fields
@@ -370,7 +370,7 @@ public:
 	void setPriority(TP::PRIORITY priority)			{ Command::setPriority(priority);	}
 	void setTags(std::list<std::string> tags)		{ Command::setTags(tags);			}
 	void setRemindTimes(std::list<std::time_t> time){ Command::setRemindTimes(time);		}
-	void setTaskState(bool state)					{ Command::setTaskState(state);		}
+	void setTaskState(TP::TASK_STATE state)			{ Command::setTaskState(state);		}
 	void setTaskType(TP::TASK_TYPE type)			{ Command::setTaskType(type);		}
 
 	//getter for flags
