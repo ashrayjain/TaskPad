@@ -3,8 +3,8 @@
 
 #include <string>
 
-namespace TP
-{
+namespace TP{
+
     enum COMMAND_TYPE	{ ADD, MOD, DEL, FIND, UNDO, REDO, SYNC, UNDEFINED};
     enum PRIORITY		{ HIGH, MEDIUM, LOW };
     enum TASK_STATE		{ UNDONE = false, DONE = true };
@@ -17,6 +17,9 @@ namespace TP
     enum LIST_OP		{ ADD_ELEMENT, REMOVE_ELEMENT };
 
     //String representations of the Enums above
+	
+	static const std::string ERROR_NAME = "Invalid name";
+	static const std::string ERROR_DUPLICATE = "Duplicate Key Word";
 
     static const std::string COMMAND_TYPE_STRING[8] =	
                     { "ADD","MOD","DEL","FIND","UNDO","REDO","SYNC","UNDEFINED"	};
