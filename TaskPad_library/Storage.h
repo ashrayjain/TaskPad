@@ -23,6 +23,8 @@ class Storage
 		void saveTaskList	(list<Task>& taskList);
 		void saveTask		(Task& tempTaskTask);
 
+		//enum to decide the way to open the file
+
 		//file level attributes
 				void saveCount				(unsigned count);
 		inline	void saveTaskCount			(unsigned taskCount);
@@ -56,6 +58,12 @@ class Storage
 		string convertToString	(PRIORITY priority);
 		string convertToString	(TASK_STATE state);
 
+		//file opener/closer
+
+		void openTheFileToRead();
+		void openTheFileToWrite(std::ios_base::openmode);
+		void closeTheWrittenFile();
+		void closeTheReadFile();
 		//writers
 		void writeLineToFile	(string line);
 		void emptyTheFile		();
@@ -64,6 +72,8 @@ class Storage
 
 		bool save	(list<Task>&);
 		bool save	(const Command&);
+
+		const string FILENAME;
 
 		~Storage();
 };

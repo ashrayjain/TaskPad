@@ -96,6 +96,7 @@
     </ClCompile>
     <ClCompile Include="test_Command.cpp" />
     <ClCompile Include="test_Messenger.cpp" />
+    <ClCompile Include="test_Storage.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TaskPad_library\TaskPad_library.vcxproj">

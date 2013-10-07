@@ -65,10 +65,10 @@ namespace UnitTest
 			Assert::AreEqual(testMessenger.getIndex(),testInt2);
 
 			testMessenger.setInt(testInt3);
-			Assert::AreEqual(testMessenger.getIndex(),testInt2);
+			Assert::AreEqual(testMessenger.getIndex(),testInt3);
 
 			testMessenger.setInt(testInt4);
-			Assert::AreEqual(testMessenger.getIndex(),testInt2);
+			Assert::AreEqual(testMessenger.getIndex(),testInt4);
 
 			//************* END TEST SetInt() *********************//
 

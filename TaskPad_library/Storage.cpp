@@ -8,17 +8,42 @@ using namespace TP;
 
 const string Storage::_fileName = "TaskPad.txt";
 
-Storage::Storage(list<Task>&)
+Storage::Storage(list<Task>& taskList)
 {
-	//throw "Storage Constructor not implemented!";
 }
 
 bool Storage::save(list<Task>& taskList)
 {
+	this->openTheFileToWrite(std::ios_base::trunc);
 	this->emptyTheFile();
 	this->saveTaskCount(taskList.size());
 	this->saveTaskList(taskList);
-	return false;
+	this->closeTheWrittenFile();
+	return true;
+}
+
+void Storage::openTheFileToWrite(std::ios_base::openmode mode)
+{
+	this->_fileWriter.open(this->_fileName,mode);
+	return;
+}
+
+void Storage::openTheFileToRead()
+{
+	this->_fileReader.open(this->_fileName);
+	return;
+}
+
+void Storage::closeTheWrittenFile()
+{
+	this->_fileWriter.close();
+	return;
+}
+
+void Storage::closeTheReadFile()
+{
+	this->_fileReader.close();
+	return;
 }
 
 void Storage::saveTaskList(list<Task>& taskList)
