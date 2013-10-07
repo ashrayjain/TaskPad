@@ -48,19 +48,19 @@ public:
     Task(unsigned indexToPut)	{ defaultTaskInit(indexToPut); }
 
     // Getter Functions common to all Tasks
-    TP::TASK_TYPE			getTaskType()		{ return _taskType;			}
-    std::string				getName()			{ return _taskName;			}		
-    std::string				getLocation()		{ return _taskLocation;		}
-    std::string				getNote()			{ return _taskNote;			}
-    std::list<std::string>	getParticipants()	{ return _taskParticipants;	}
-    std::list<std::string>	getTags()			{ return _taskTags;			}
-    std::list<std::time_t>	getRemindTimes()	{ return _taskRemindTimes;	}
-    TP::TASK_STATE			getState()			{ return _taskState;		}
-    TP::PRIORITY			getPriority()		{ return _taskPriority;		}
-    unsigned				getIndex()			{ return _taskIndex;		}
-    std::time_t				getFromDate()		{ return _taskFromDate;		}
-    std::time_t				getToDate()			{ return _taskToDate;		}
-    std::time_t				getDueDate()		{ return _taskDueDate;		}	
+    TP::TASK_TYPE			getTaskType()		const { return _taskType;			}
+    std::string				getName()			const { return _taskName;			}		
+    std::string				getLocation()		const { return _taskLocation;		}
+    std::string				getNote()			const { return _taskNote;			}
+    std::list<std::string>	getParticipants()	const { return _taskParticipants;	}
+    std::list<std::string>	getTags()			const { return _taskTags;			}
+    std::list<std::time_t>	getRemindTimes()	const { return _taskRemindTimes;	}
+    TP::TASK_STATE			getState()			const { return _taskState;		}
+    TP::PRIORITY			getPriority()		const { return _taskPriority;		}
+    unsigned				getIndex()			const { return _taskIndex;		}
+    std::time_t				getFromDate()		const { return _taskFromDate;		}
+    std::time_t				getToDate()			const { return _taskToDate;		}
+    std::time_t				getDueDate()		const { return _taskDueDate;		}	
 
     // Setter Functions common to all Tasks
     void setName(std::string newName)								{ _taskName			= newName;			flagName = true;			}		
@@ -82,16 +82,15 @@ public:
     
 
     // Flag Getter Functions common to all Tasks
-    bool getFlagName()			{ return flagName; }
-    bool getFlagLocation()		{ return flagLocation; }
-    bool getFlagParticipants()	{ return flagParticipants; }
-    bool getFlagNote()			{ return flagNote; }
-    bool getFlagTags()			{ return flagTags; }
-    bool getFlagRemindTimes()	{ return flagRemindTimes; }
-    bool getFlagFromDate()		{ return flagFromDate; }
-    bool getFlagToDate()		{ return flagToDate; }
-    bool getFlagDueDate()		{ return flagDueDate; }
-
+    bool getFlagName()			const { return flagName; }
+    bool getFlagLocation()		const { return flagLocation; }
+    bool getFlagParticipants()	const { return flagParticipants; }
+    bool getFlagNote()			const { return flagNote; }
+    bool getFlagTags()			const { return flagTags; }
+    bool getFlagRemindTimes()	const { return flagRemindTimes; }
+    bool getFlagFromDate()		const { return flagFromDate; }
+    bool getFlagToDate()		const { return flagToDate; }
+    bool getFlagDueDate()		const { return flagDueDate; }
     
 protected:
     // Set of All currently used indices

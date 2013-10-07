@@ -95,19 +95,19 @@ void Task::setTags(std::string newTag, TP::LIST_OP op) {
 
 void Task::setFromDate(std::time_t newFromDate) {
     _taskFromDate = newFromDate;
-    flagFromDate = true;
+	flagFromDate = newFromDate!=0;
     handleDatesChange();
 }
 
 void Task::setToDate(std::time_t newToDate) {
     _taskToDate = newToDate;
-    flagToDate = true;
+    flagToDate = newToDate!=0;
     handleDatesChange();
 }
 
 void Task::setDueDate(std::time_t newDueDate) {	
     _taskDueDate = newDueDate;
-    flagDueDate = true;
+	flagDueDate = newDueDate!=0;
     handleDatesChange();
 }
 

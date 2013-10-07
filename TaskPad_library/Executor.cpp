@@ -39,7 +39,8 @@ void Executor::executeAdd (Command_Add* cmd, Messenger &response) {
 	Task newTask = Task();
 	formTaskFromAddCmd(cmd, newTask);
 	_data->push_back(newTask);
-	response.setList(list<Task>(1, newTask));
+	_indexHash[newTask.getIndex()] = &newTask;
+	setOpSuccessTask(newTask, response);
 }
 
 void Executor::executeDel (Command_Del* cmd, Messenger &response) {
@@ -54,29 +55,32 @@ void Executor::executeMod (Command_Mod* cmd, Messenger &response) {
 }
 
 void Executor::executeFind (Command_Find* cmd, Messenger &response) {
-
+	if(cmd->getFlagIndex())
+		findByIndex(cmd->getIndex(), response);
+	else 
+		findByName(cmd, response);
 }
 
 void Executor::formTaskFromAddCmd(Command_Add* cmd, Task &newTask) {
 	if(cmd->getFlagName())
 		newTask.setName(cmd->getName());
-	else if(cmd->getFlagLocation())
+	if(cmd->getFlagLocation())
 		newTask.setLocation(cmd->getLocation());
-	else if(cmd->getFlagNote())
+	if(cmd->getFlagNote())
 		newTask.setNote(cmd->getNote());
-	else if(cmd->getFlagRemindTimes())
+	if(cmd->getFlagRemindTimes())
 		newTask.setRemindTimes(cmd->getRemindTimes());
-	else if(cmd->getFlagParticipants())
+	if(cmd->getFlagParticipants())
 		newTask.setParticipants(cmd->getParticipants());
-	else if(cmd->getFlagTags())
+	if(cmd->getFlagTags())
 		newTask.setTags(cmd->getTags());
-	else if(cmd->getFlagPriority())
+	if(cmd->getFlagPriority())
 		newTask.setPriority(cmd->getPriority());
-	else if(cmd->getFlagDue())
+	if(cmd->getFlagDue())
 		newTask.setDueDate(cmd->getDueDate());
-	else if(cmd->getFlagFrom())
+	if(cmd->getFlagFrom())
 		newTask.setFromDate(cmd->getFromDate());
-	else if(cmd->getFlagTo())
+	if(cmd->getFlagTo())
 		newTask.setToDate(cmd->getToDate());
 }
 
@@ -100,16 +104,11 @@ void Executor::deleteTaskByName(const string &name, Messenger &response, const b
 		deleteByApproxName(name, response);
 }
 
-void Executor::setIndexNotFound(const unsigned &index, Messenger &response) {
-	response.setStatus(TP::ERROR);
-	response.setErrorMsg(std::to_string(index) + INDEX_INVALID_ERROR);
-}
-
 void Executor::deleteByExactName(const string &name, Messenger &response) {
 	bool nameFound = false;
 	for(list<Task>::iterator i = _data->begin(); i != _data->end() && !nameFound; ++i)
 		if (i->getName() == name) {
-			response.setList(list<Task>(1, *i));
+			setOpSuccessTask(Task(*i), response);
 			_data->erase(i);
 			nameFound = true;
 		}
@@ -122,14 +121,105 @@ void Executor::deleteByApproxName(const string &name, Messenger &response) {
 	list<Task> matchingResults;
 	for(list<Task>::iterator i = _data->begin(); i != _data->end(); ++i)
 		if (i->getName().find(name) != string::npos)
-			matchingResults.push_back(*i);
+			matchingResults.push_back(Task(*i));
 
 
 	if (matchingResults.size() == EMPTY_LIST_SIZE)
 		setNameNotFound(name, response);
 	else
-		setApproxNameResultsFound(matchingResults, response);
+		setOpIntermediateTaskList(matchingResults, response);
 
+}
+
+void Executor::formTaskFromFindCmd(Command_Find* cmd, Task &newTask) {
+	if(cmd->getFlagExact() && cmd->getFlagName())
+		newTask.setName(cmd->getOptName());
+	if(cmd->getFlagLocation())
+		newTask.setLocation(cmd->getLocation());
+	if(cmd->getFlagNote())
+		newTask.setNote(cmd->getNote());
+	if(cmd->getFlagRemindTimes())
+		newTask.setRemindTimes(cmd->getRemindTimes());
+	if(cmd->getFlagParticipants())
+		newTask.setParticipants(cmd->getParticipants());
+	if(cmd->getFlagTags())
+		newTask.setTags(cmd->getTags());
+	if(cmd->getFlagPriority())
+		newTask.setPriority(cmd->getPriority());
+	if(cmd->getFlagFrom())
+		newTask.setFromDate(cmd->getFromDate());
+	if(cmd->getFlagTo())
+		newTask.setToDate(cmd->getToDate());
+}
+
+void Executor::findByIndex(const unsigned index, Messenger &response) {
+	map<unsigned, Task*>::iterator result = _indexHash.find(index);
+	if (result != _indexHash.end())
+		setOpSuccessTask(*(result->second), response);
+	else
+		setIndexNotFound(index, response);
+}
+
+void Executor::findByName(Command_Find* cmd, Messenger &response) {
+	Task taskToCompare;
+	formTaskFromFindCmd(cmd, taskToCompare);
+	list<Task> results;
+	if (cmd->getFlagExact())
+		runSearchWithTask(taskToCompare, results);
+	else
+		runSearchWithTask(taskToCompare, results, cmd->getOptName());
+	setOpIntermediateTaskList(results, response);
+}
+
+void Executor::runSearchWithTask(const Task &taskToCompare, list<Task> &results) {
+	for(list<Task>::iterator i = _data->begin(); i != _data->end(); ++i)
+		if (taskMatch(*i, taskToCompare))
+			results.push_back(Task(*i));
+}
+
+void Executor::runSearchWithTask(const Task &taskToCompare, list<Task> &results, string substringName) {
+	for(list<Task>::iterator i = _data->begin(); i != _data->end(); ++i)
+		if (i->getFlagName() && i->getName().find(substringName) != string::npos && taskMatch(*i, taskToCompare))
+			results.push_back(Task(*i));
+}
+
+bool Executor::taskMatch(const Task& lhs, const Task& rhs) const {
+	if (rhs.getFlagName() && lhs.getFlagName() && rhs.getName() != lhs.getName())
+		return false;
+	else if (rhs.getFlagLocation() && lhs.getFlagLocation() && rhs.getLocation() != lhs.getLocation())
+		return false;
+	else if (rhs.getFlagParticipants() && lhs.getFlagParticipants() && rhs.getParticipants() != lhs.getParticipants())
+		return false;
+	else if (rhs.getFlagNote() && lhs.getFlagNote() && rhs.getNote() != lhs.getNote())
+		return false;
+	else if (rhs.getFlagRemindTimes() && lhs.getFlagRemindTimes() && rhs.getRemindTimes() != lhs.getRemindTimes())
+		return false;
+	else if (rhs.getFlagFromDate() && lhs.getFlagFromDate() && rhs.getFromDate() <= lhs.getFromDate())
+		return false;
+	else if (rhs.getFlagToDate() && lhs.getFlagToDate() && rhs.getToDate() >= lhs.getToDate())
+		return false;
+	else if (rhs.getFlagDueDate() && lhs.getFlagDueDate() && rhs.getDueDate() != lhs.getDueDate())
+		return false;
+	else if (rhs.getPriority() != lhs.getPriority())
+		return false;
+	else if (rhs.getState() != lhs.getState())
+		return false;
+	return true;
+} 
+
+void Executor::setOpSuccessTask(const Task &retTask, Messenger &response) {
+	response.setStatus(TP::SUCCESS);
+	response.setList(list<Task>(1, retTask));
+}
+
+void Executor::setOpIntermediateTaskList(const list<Task>& results, Messenger &response) {
+	response.setStatus(TP::INTERMEDIATE);
+	response.setList(results);
+}
+
+void Executor::setIndexNotFound(const unsigned &index, Messenger &response) {
+	response.setStatus(TP::ERROR);
+	response.setErrorMsg(std::to_string(index) + INDEX_INVALID_ERROR);
 }
 
 void Executor::setNameNotFound(const string &name, Messenger &response) {
@@ -137,7 +227,3 @@ void Executor::setNameNotFound(const string &name, Messenger &response) {
 	response.setErrorMsg(NAME_NOT_FOUND_ERROR + name);
 }
 
-void Executor::setApproxNameResultsFound(const list<Task>& results, Messenger &response) {
-	response.setStatus(TP::INTERMEDIATE);
-	response.setList(results);
-}
