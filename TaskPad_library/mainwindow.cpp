@@ -332,7 +332,7 @@ void MainWindow::handleMessenger(Messenger msg){
 		}
 
 		updateList(msg.getList());
-		updateDetails(msg.getList().front());
+		updateDetails(msg.getTask());
 	}
 }
 
