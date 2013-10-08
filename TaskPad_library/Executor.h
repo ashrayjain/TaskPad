@@ -20,6 +20,7 @@
 #include "Command.h"
 
 const unsigned		EMPTY_LIST_SIZE			= 0;
+const unsigned		SINGLE_RESULT_LIST_SIZE	= 1;
 const std::string	NAME_NOT_FOUND_ERROR	= "No results for name: ";
 const std::string	INVALID_INDEX_ERROR		= " is not a valid index!";
 
