@@ -148,7 +148,6 @@ bool Manager::isCommandWithIndexGiven(string newCommand) {
 				isDeleteCommandWithIndex = this->isIndexedDeleteCommand();
 				break;
 			default:
-				throw "Wrong Command with Index Given";
 				break;
 		}
 
