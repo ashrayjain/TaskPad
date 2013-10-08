@@ -32,7 +32,22 @@ Messenger Manager::processCommand(const string& newCommand) {
 			handleNormalScenarioCommands(newCommand);
 			break;
 	}
+	this->saveChanges();
 	return this->_response;
+}
+
+void Manager::saveChanges()
+{
+	switch(this->_cmd->getCommandType())
+	{
+		case MOD:
+		case DEL:
+		case ADD:
+			this->_storage->save(this->_tasks);
+			break;
+		default:
+			break;
+	}
 }
 
 /**
