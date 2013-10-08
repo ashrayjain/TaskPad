@@ -36,16 +36,16 @@ void Executor::executeCommand(Command* cmd, Messenger &response) {
 }
 
 void Executor::executeAdd (Command_Add* cmd, Messenger &response) {
-	Task newTask = Task();
-	formTaskFromAddCmd(cmd, newTask);
-	_data->push_back(newTask);
-	_indexHash[newTask.getIndex()] = &newTask;
-	setOpSuccessTask(newTask, response);
+	Task* newTask = new Task();
+	formTaskFromAddCmd(cmd, *newTask);
+	_data->push_back(*newTask);
+	_indexHash[newTask->getIndex()] = newTask;
+	setOpSuccessTask(*newTask, response);
 }
 
 void Executor::executeDel (Command_Del* cmd, Messenger &response) {
-	if (cmd->getFlagIndex())
-		deleteTaskByIndex(cmd->getIndex(), response);
+	if (cmd->getFlagCreatedTime())
+		deleteTaskByIndex(cmd->getCreatedTime(), response);
 	else
 		deleteTaskByName(cmd->getName(), response, cmd->getFlagExact());
 }
@@ -92,6 +92,7 @@ void Executor::deleteTaskByIndex(const unsigned &index, Messenger &response) {
 	for(list<Task>::iterator i = _data->begin(); i != _data->end() && !indexFound; ++i)
 		if (i->getIndex() == index) {
 			setOpSuccessTask(*i, response);
+			_indexHash.erase(i->getIndex());
 			_data->erase(i);
 			indexFound = true;
 			break;
@@ -114,6 +115,7 @@ void Executor::deleteByExactName(const string &name, Messenger &response) {
 		if (i->getName() == name) {
 			setOpSuccessTask(*i, response);
 			_data->erase(i);
+			_indexHash.erase(i->getIndex());
 			nameFound = true;
 			break;
 		}
@@ -137,13 +139,13 @@ void Executor::deleteByApproxName(const string &name, Messenger &response) {
 }
 
 void Executor::modifyByIndex(Command_Mod* cmd, Messenger &response) {
-	map<unsigned, Task*>::iterator result = _indexHash.find(cmd->getIndex());
+	map<unsigned, Task*>::iterator result = _indexHash.find(cmd->getCreatedTime());
 	if (result != _indexHash.end()) {
 		modifyTaskTo(*(result->second), cmd);
 		setOpSuccessTask(*(result->second), response);
 	}
 	else
-		setIndexNotFound(cmd->getIndex(), response);
+		setIndexNotFound(cmd->getCreatedTime(), response);
 }
 
 void Executor::modifyByName(Command_Mod* cmd, Messenger &response) {
@@ -222,6 +224,8 @@ void Executor::formTaskFromFindCmd(Command_Find* cmd, Task &newTask) {
 		newTask.setFromDate(cmd->getFromDate());
 	if(cmd->getFlagTo())
 		newTask.setToDate(cmd->getToDate());
+	if(cmd->getFlagTaskState())
+		newTask.setState(cmd->getTaskState());
 }
 
 void Executor::findByIndex(const unsigned index, Messenger &response) {
@@ -272,9 +276,9 @@ bool Executor::taskMatch(const Task& lhs, const Task& rhs) const {
 		return false;
 	else if (rhs.getFlagDueDate() && lhs.getFlagDueDate() && rhs.getDueDate() != lhs.getDueDate())
 		return false;
-	else if (rhs.getPriority() != lhs.getPriority())
+	else if (rhs.getFlagPriority() && rhs.getPriority() != lhs.getPriority())
 		return false;
-	else if (rhs.getState() != lhs.getState())
+	else if (rhs.getFlagState() && rhs.getState() != lhs.getState())
 		return false;
 	return true;
 } 
