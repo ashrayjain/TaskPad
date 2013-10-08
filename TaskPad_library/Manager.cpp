@@ -206,7 +206,7 @@ void Manager::insertCreatedTimeIntoCommand() {
 }
 
 void Manager::insertCreatedTimeIntoDeleteCommand() {
-	Task* chosenTask = getPointerToChosenTask();
+	Task chosenTask = getPointerToChosenTask();
 	unsigned createdTime = this->getCreatedTimeOfTask(chosenTask);
 
 	Command_Del* tempCommand = (Command_Del *) this->_cmd;
@@ -215,7 +215,7 @@ void Manager::insertCreatedTimeIntoDeleteCommand() {
 }
 
 void Manager::insertCreatedTimeIntoModifyCommand() {
-	Task* chosenTask = this->getPointerToChosenTask();
+	Task chosenTask = this->getPointerToChosenTask();
 	unsigned createdTime = this->getCreatedTimeOfTask(chosenTask);
 
 	Command_Mod* tempCommand = (Command_Mod *) this->_cmd;
@@ -223,15 +223,16 @@ void Manager::insertCreatedTimeIntoModifyCommand() {
 	return;
 }
 
-Task* Manager::getPointerToChosenTask() const {
-	list<Task>::iterator it = this->_response.getList().begin();
+Task Manager::getPointerToChosenTask() const {
+	list<Task> tempList = this->_response.getList();
+	list<Task>::iterator it = tempList.begin();
 	advance(it,(this->_index-1));
 
-	return &(*it);
+	return (*it);
 }
 
-unsigned Manager::getCreatedTimeOfTask(Task* baseTask) const {
-	unsigned createdTime =	baseTask->getIndex();
+unsigned Manager::getCreatedTimeOfTask(Task task) const {
+	unsigned createdTime =	task.getIndex();
 	return createdTime;
 }
 
