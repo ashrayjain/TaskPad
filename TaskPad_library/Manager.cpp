@@ -104,16 +104,18 @@ void Manager::handleNormalScenarioCommands(string newCommand) {
 
 void Manager::editTaskListInResponse()
 {
-	list<Task>::iterator lit = this->_response.getList().begin();
+	list<Task> tempList = this->_response.getList();
+	list<Task>::iterator lit = tempList.begin();
 	for (int i = 1;i < this->_index;i++)
 	{
 		lit ++;
 	}
-	this->_response.getList().erase(lit);
+	tempList.erase(lit);
 	if(this->_cmd->getCommandType() != DEL)
 	{
-		this->_response.getList().push_back(this->_response.getTask());
+		tempList.push_back(this->_response.getTask());
 	}
+	this->_response.setList(tempList);
 	return;
 }
 
