@@ -1,5 +1,4 @@
 #include <ctime>
-#include <algorithm>
 #include "Manager.h"
 #include "Storage.h"
 #include "Messenger.h"
@@ -95,8 +94,9 @@ void Manager::editTaskListInResponse()
 	{
 		lit ++;
 	}
-	list<Task>::iterator lit2 = lit;
-	std::replace(lit,(++lit2),(*lit),this->_response.getTask());
+	this->_response.getList().erase(lit);
+	this->_response.getList().push_back(this->_response.getTask());
+	return;
 }
 
 /**
@@ -222,13 +222,17 @@ void Manager::storeIndexFromCommandToClassAttribute() {
 	switch (_cmd->getCommandType())
 	{
 		case MOD:
-			Command_Mod* cmdTemp = (Command_Mod*) _cmd;
-			cmdTemp->getIndex();
-			break;
+			{
+				Command_Mod* cmdTemp = (Command_Mod*) _cmd;
+				this->_index = cmdTemp->getIndex();
+				break;
+			}
 		case DEL:
-			Command_Del* cmdTemp = (Command_Del*) _cmd;
-			cmdTemp->getIndex();
-			break;
+			{
+				Command_Del* cmdTemp = (Command_Del*) _cmd;
+				this->_index = cmdTemp->getIndex();
+				break;
+			}
 		default:
 			break;
 	}
