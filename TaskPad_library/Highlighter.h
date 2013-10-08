@@ -18,7 +18,7 @@ public:
 		BlankFormat.setFontWeight(QFont::Bold);
 		BlankFormat.setForeground(QBrush("#742894"));
 		addRegex(COMMAND, "^(add|mod|del|find|undo|redo|sync)");
-		addRegex(KEYWORD, " name| due| from| to| at| ppl| note| impt"\
+		addRegex(KEYWORD, " exact| name| due| from| to| at| ppl| note| impt"\
 						"| rt| done| undone| deadline| timed| floating| #");
 		addRegex(BLANK, "__[A-Z]+__");
 	}

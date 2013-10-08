@@ -9,7 +9,7 @@ const QStringList CommandBar::COMMAND_LIST = QStringList() \
 const QStringList CommandBar::KEYWORD_LIST = QStringList() \
 	<< "name" << "due" << "from" << "to" << "at" << "ppl" \
 	<< "note" << "impt" << "rt" << "done" << "undone" <<  \
-	"deadline" << "timed" << "floating" << "''";
+	"deadline" << "timed" << "floating" << "exact";
 
 const QString CommandBar::SPACE = " ";
 const QString CommandBar::SINGLE_QUOTATION_MARK = "'";
