@@ -52,8 +52,8 @@ class Manager {
 		void setCurrTm	(std::tm);
 
 		// helpers for getting list of tasks in a specified period
-		Task*			getPointerToChosenTask	()								const;
-		unsigned		getCreatedTimeOfTask	(Task* baseTask)				const;
+		Task			getPointerToChosenTask	()								const;
+		unsigned		getCreatedTimeOfTask	(Task baseTask)				const;
 		std::tm			getTodayTm				();
 		std::tm			getNextDayTm			(std::tm currTm);
 		std::tm			getNextWeekTm			(std::tm currTm);
