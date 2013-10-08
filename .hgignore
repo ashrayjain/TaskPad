@@ -157,3 +157,7 @@ Desktop.ini
 ## Qt Ignores
 
 GeneratedFiles
+
+## data txt
+
+TaskPad_exe/TaskPad.txt
