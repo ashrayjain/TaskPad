@@ -14,7 +14,7 @@ class Messenger
 	public:
 
 		// constructor
-		Messenger(COMMAND_TYPE commandType=UNDEFINED, STATUS status=SUCCESS, list<Task> result= list<Task>(), int index =-1, string errorMsg="");
+		Messenger(COMMAND_TYPE commandType=UNDEFINED, STATUS status=SUCCESS, list<Task> resultList= list<Task>(), Task resultTask=Task(), int index =-1, string errorMsg="");
 
 		//getter methods
 		
@@ -23,6 +23,7 @@ class Messenger
 		list<Task>		getList()			const;
 		int				getIndex()			const;
 		COMMAND_TYPE	getCommandType()	const;
+		Task			getTask()			const;
 
 		// state resetter
 		void resetMessenger();
@@ -33,11 +34,13 @@ class Messenger
 		void setList		(const list<Task>&		result);
 		void setInt			(const int&				index);
 		void setCommandType	(const COMMAND_TYPE&	commandType);
+		void setTask		(const Task&			task);
 
 	private:
 		string			_errorMsg;
 		STATUS			_status;
 		list<Task>		_resultList;
+		Task			_resultTask;
 		int				_index;
 		COMMAND_TYPE	_commandType;
 };

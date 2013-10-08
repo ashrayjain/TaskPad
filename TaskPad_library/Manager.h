@@ -43,6 +43,8 @@ class Manager {
 		void removePreviousCommand					();
 		void storeIndexFromCommandToClassAttribute	();
 
+		void editTaskListInResponse					();
+
 		//state determinant functions
 		void setCurrTm	(std::tm);
 
