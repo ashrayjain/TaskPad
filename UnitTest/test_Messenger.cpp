@@ -37,7 +37,7 @@ namespace UnitTest
 			list<Task> taskList= list<Task>(myTasks,myTasks + 4);
 
 			string testErrorStr = "This is a test error Message";
-			Messenger testMessenger(ADD,ERROR_INTERMEDIATE,taskList,10,testErrorStr);
+			Messenger testMessenger(ADD,ERROR_INTERMEDIATE,taskList,Task(),10,testErrorStr);
 
 			Assert::AreEqual(testMessenger.getErrorMsg(),string(testErrorStr));
 			Assert::AreEqual(testMessenger.getIndex(),10);

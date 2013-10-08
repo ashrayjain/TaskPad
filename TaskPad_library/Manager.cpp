@@ -1,5 +1,4 @@
 #include <ctime>
-#include <algorithm>
 #include "Manager.h"
 #include "Storage.h"
 #include "Messenger.h"
@@ -33,7 +32,22 @@ Messenger Manager::processCommand(const string& newCommand) {
 			handleNormalScenarioCommands(newCommand);
 			break;
 	}
+	this->saveChanges();
 	return this->_response;
+}
+
+void Manager::saveChanges()
+{
+	switch(this->_cmd->getCommandType())
+	{
+		case MOD:
+		case DEL:
+		case ADD:
+			this->_storage->save(this->_tasks);
+			break;
+		default:
+			break;
+	}
 }
 
 /**
@@ -95,8 +109,12 @@ void Manager::editTaskListInResponse()
 	{
 		lit ++;
 	}
-	list<Task>::iterator lit2 = lit;
-	std::replace(lit,(++lit2),(*lit),this->_response.getTask());
+	this->_response.getList().erase(lit);
+	if(this->_cmd->getCommandType() != DEL)
+	{
+		this->_response.getList().push_back(this->_response.getTask());
+	}
+	return;
 }
 
 /**
@@ -148,7 +166,6 @@ bool Manager::isCommandWithIndexGiven(string newCommand) {
 				isDeleteCommandWithIndex = this->isIndexedDeleteCommand();
 				break;
 			default:
-				throw "Wrong Command with Index Given";
 				break;
 		}
 
@@ -222,13 +239,17 @@ void Manager::storeIndexFromCommandToClassAttribute() {
 	switch (_cmd->getCommandType())
 	{
 		case MOD:
-			Command_Mod* cmdTemp = (Command_Mod*) _cmd;
-			cmdTemp->getIndex();
-			break;
+			{
+				Command_Mod* cmdTemp = (Command_Mod*) _cmd;
+				this->_index = cmdTemp->getIndex();
+				break;
+			}
 		case DEL:
-			Command_Del* cmdTemp = (Command_Del*) _cmd;
-			cmdTemp->getIndex();
-			break;
+			{
+				Command_Del* cmdTemp = (Command_Del*) _cmd;
+				this->_index = cmdTemp->getIndex();
+				break;
+			}
 		default:
 			break;
 	}

@@ -25,6 +25,9 @@ class Manager {
 		//the list of tasks
 		list<Task>	_tasks;
 
+		//saver
+		void saveChanges	();
+
 		//helper functions
 		bool hasInterpretationError		();
 		bool hasNoInterpretationError	();
