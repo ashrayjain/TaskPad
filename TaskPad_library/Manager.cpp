@@ -95,7 +95,10 @@ void Manager::editTaskListInResponse()
 		lit ++;
 	}
 	this->_response.getList().erase(lit);
-	this->_response.getList().push_back(this->_response.getTask());
+	if(this->_cmd->getCommandType() != DEL)
+	{
+		this->_response.getList().push_back(this->_response.getTask());
+	}
 	return;
 }
 
