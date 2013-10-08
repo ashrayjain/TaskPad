@@ -92,7 +92,7 @@ public:
     bool getFlagFromDate()		const { return flagFromDate; }
     bool getFlagToDate()		const { return flagToDate; }
     bool getFlagDueDate()		const { return flagDueDate; }
-    
+
 protected:
     // Set of All currently used indices
     static std::set<unsigned> listOfAllIndices;
