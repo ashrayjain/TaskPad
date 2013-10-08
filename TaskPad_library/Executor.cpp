@@ -91,11 +91,12 @@ void Executor::deleteTaskByIndex(const unsigned &index, Messenger &response) {
 	bool indexFound = false;
 	for(list<Task>::iterator i = _data->begin(); i != _data->end() && !indexFound; ++i)
 		if (i->getIndex() == index) {
-			response.setList(list<Task>(1, *i));
+			setOpSuccessTask(Task(*i), response);
 			_data->erase(i);
 			indexFound = true;
+			break;
 		}
-	
+
 	if (!indexFound)
 		setIndexNotFound(index, response);
 }
@@ -114,6 +115,7 @@ void Executor::deleteByExactName(const string &name, Messenger &response) {
 			setOpSuccessTask(Task(*i), response);
 			_data->erase(i);
 			nameFound = true;
+			break;
 		}
 
 	if (!nameFound)
@@ -126,12 +128,12 @@ void Executor::deleteByApproxName(const string &name, Messenger &response) {
 		if (i->getName().find(name) != string::npos)
 			matchingResults.push_back(Task(*i));
 
-
 	if (matchingResults.size() == EMPTY_LIST_SIZE)
 		setNameNotFound(name, response);
+	else if (matchingResults.size() == SINGLE_RESULT_LIST_SIZE)
+		deleteTaskByIndex(matchingResults.front().getIndex(), response);
 	else
 		setOpIntermediateTaskList(matchingResults, response);
-
 }
 
 void Executor::modifyByIndex(Command_Mod* cmd, Messenger &response) {
@@ -279,7 +281,7 @@ bool Executor::taskMatch(const Task& lhs, const Task& rhs) const {
 
 void Executor::setOpSuccessTask(const Task &retTask, Messenger &response) {
 	response.setStatus(TP::SUCCESS);
-	response.setList(list<Task>(1, retTask));
+	response.setTask(Task(retTask));
 }
 
 void Executor::setOpSuccessTaskList(const list<Task>& results, Messenger &response) {
