@@ -280,19 +280,19 @@ void MainWindow::handleMessenger(Messenger msg){
 			getToday();
 			updateStatusBar("Task added successfully");
 			updateDetailsLabel("Added Task's Details");
-			updateDetails(msg.getList().front());
+			updateDetails(msg.getTask());
 			break;
 		case TP::DEL:
 			getToday();
 			updateStatusBar("Task deleted successfully");
 			updateDetailsLabel("Deleted Task's Details");
-			updateDetails(msg.getList().front());
+			updateDetails(msg.getTask());
 			break;
 		case TP::MOD:
 			getToday();
 			updateStatusBar("Task modified successfully");
 			updateDetailsLabel("Modified Task's Details");
-			updateDetails(msg.getList().front());
+			updateDetails(msg.getTask());
 			break;
 		case TP::FIND:
 			updateNavLabel("Search Results");
@@ -313,74 +313,27 @@ void MainWindow::handleMessenger(Messenger msg){
 	else if(msg.getStatus() == TP::DISPLAY)
 	{
 		int index = msg.getIndex();
-		list<Task>::iterator iter = lastTimeList.begin();
+		list<Task>::iterator iter = msg.getList().begin();
 		advance(iter, index);
 
 		updateDetails(*iter);
 	}
 	else if(msg.getStatus() == TP::SUCCESS_INDEXED_COMMAND)
 	{
-		Task modified_task;
-		int index = -1;
-		QTreeWidgetItem* mod_item;
-		list<Task>::iterator iter;
-
 		switch (msg.getCommandType()){
 		case TP::MOD:
-			index = msg.getIndex();
 			updateStatusBar("Task modified successfully");
 			updateDetailsLabel("Modified Task's Details");
-
-			//remove old one
-			ui.TaskList->takeTopLevelItem(index);
-			//maintain lastTimeList
-			removeItemInLastTimeList(index);
-			
-			//insert modified one
-			modified_task = msg.getList().front();
-			mod_item = extractTask(index, modified_task);
-			ui.TaskList->insertTopLevelItem(index, mod_item);
-			//maintain lastTimeList
-			iter = lastTimeList.begin();//TODO: make it into Function
-			advance(iter, index);
-			lastTimeList.insert(iter, modified_task);
-
-			//display new one
-			updateDetails(msg.getList().front());
 			break;
 		case TP::DEL:
-			index = msg.getIndex();
 			updateStatusBar("Task deleted successfully");//TODO: make it into function.. to reuse
 			updateDetailsLabel("Deleted Task's Details");
-
-			//display details
-			list<Task>::iterator iter = lastTimeList.begin();
-			advance(iter, index);
-			updateDetails(*iter);
-
-			//remove old one
-			ui.TaskList->takeTopLevelItem(index);
-			//maintain lastTimeList
-			removeItemInLastTimeList(index);
-
 			break;
 		}
-	}
-}
 
-void MainWindow::removeItemInLastTimeList(int index){
-	int i = 0;
-	list<Task> listWithoutRemovedItem;
-
-	for(list<Task>::iterator iter = lastTimeList.begin();
-		iter != lastTimeList.end();
-		advance(iter, 1)){
-		if(i != index){
-			listWithoutRemovedItem.push_back(*iter);
-		}
-		i++;
+		updateList(msg.getList());
+		updateDetails(msg.getList().front());
 	}
-	lastTimeList = listWithoutRemovedItem;
 }
 
 void MainWindow::about()

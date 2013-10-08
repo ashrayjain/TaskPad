@@ -29,13 +29,12 @@ private:
 	void updateNavLabel(QString str);
 	void updateDetailsLabel(QString str);
 	void updateList(std::list<Task> result);
-	QTreeWidgetItem* extractTask(int index,Task task);
+	QTreeWidgetItem* extractTask(int index, Task task);
 	void clearDetails();
 	void updateDetails(Task t);
 	void updateStatusBar(QString str);
 	void handleGetToday(Messenger msg);
 	void handleMessenger(Messenger msg);
-	void removeItemInLastTimeList(int index);
 	void customisedUi();
 	void mousePressEvent(QMouseEvent *event);
 	void mouseMoveEvent(QMouseEvent *event);
