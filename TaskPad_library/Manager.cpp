@@ -32,7 +32,22 @@ Messenger Manager::processCommand(const string& newCommand) {
 			handleNormalScenarioCommands(newCommand);
 			break;
 	}
+	this->saveChanges();
 	return this->_response;
+}
+
+void Manager::saveChanges()
+{
+	switch(this->_cmd->getCommandType())
+	{
+		case MOD:
+		case DEL:
+		case ADD:
+			this->_storage->save(this->_tasks);
+			break;
+		default:
+			break;
+	}
 }
 
 /**
@@ -95,7 +110,10 @@ void Manager::editTaskListInResponse()
 		lit ++;
 	}
 	this->_response.getList().erase(lit);
-	this->_response.getList().push_back(this->_response.getTask());
+	if(this->_cmd->getCommandType() != DEL)
+	{
+		this->_response.getList().push_back(this->_response.getTask());
+	}
 	return;
 }
 
@@ -148,7 +166,6 @@ bool Manager::isCommandWithIndexGiven(string newCommand) {
 				isDeleteCommandWithIndex = this->isIndexedDeleteCommand();
 				break;
 			default:
-				throw "Wrong Command with Index Given";
 				break;
 		}
 
@@ -172,7 +189,7 @@ bool Manager::isIndexedDeleteCommand() {
 
 bool Manager::isIndexWithinRange() {
 	int sizeOfCurrentList = this->_response.getList().size();
-	return (sizeOfCurrentList > this->_index);
+	return (sizeOfCurrentList >= this->_index);
 }
 
 void Manager::insertCreatedTimeIntoCommand() {
