@@ -91,7 +91,7 @@ void Executor::deleteTaskByIndex(const unsigned &index, Messenger &response) {
 	bool indexFound = false;
 	for(list<Task>::iterator i = _data->begin(); i != _data->end() && !indexFound; ++i)
 		if (i->getIndex() == index) {
-			setOpSuccessTask(Task(*i), response);
+			setOpSuccessTask(*i, response);
 			_data->erase(i);
 			indexFound = true;
 			break;
@@ -112,7 +112,7 @@ void Executor::deleteByExactName(const string &name, Messenger &response) {
 	bool nameFound = false;
 	for(list<Task>::iterator i = _data->begin(); i != _data->end() && !nameFound; ++i)
 		if (i->getName() == name) {
-			setOpSuccessTask(Task(*i), response);
+			setOpSuccessTask(*i, response);
 			_data->erase(i);
 			nameFound = true;
 			break;
