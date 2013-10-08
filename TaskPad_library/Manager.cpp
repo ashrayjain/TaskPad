@@ -1,4 +1,5 @@
-#include<ctime>
+#include <ctime>
+#include <algorithm>
 #include "Manager.h"
 #include "Storage.h"
 #include "Messenger.h"
@@ -73,6 +74,7 @@ void Manager::handleNormalScenarioCommands(string newCommand) {
 		if(this->isIndexWithinRange()) {
 			this->insertCreatedTimeIntoCommand();
 			this->_executor->executeCommand(this->_cmd,this->_response);
+			this->editTaskListInResponse();
 			this->_response.setStatus(SUCCESS_INDEXED_COMMAND);
 		}
 	}
@@ -83,6 +85,18 @@ void Manager::handleNormalScenarioCommands(string newCommand) {
 		}
 	}
 	return;
+}
+
+
+void Manager::editTaskListInResponse()
+{
+	list<Task>::iterator lit = this->_response.getList().begin();
+	for (int i = 1;i < this->_index;i++)
+	{
+		lit ++;
+	}
+	list<Task>::iterator lit2 = lit;
+	std::replace(lit,(++lit2),(*lit),this->_response.getTask());
 }
 
 /**
@@ -134,6 +148,7 @@ bool Manager::isCommandWithIndexGiven(string newCommand) {
 				isDeleteCommandWithIndex = this->isIndexedDeleteCommand();
 				break;
 			default:
+				throw "Wrong Command with Index Given";
 				break;
 		}
 
@@ -204,7 +219,20 @@ unsigned Manager::getCreatedTimeOfTask(Task* baseTask) const {
 }
 
 void Manager::storeIndexFromCommandToClassAttribute() {
-	//throw "storeIndexFromCommandToClassAttribute() not implemented!";
+	switch (_cmd->getCommandType())
+	{
+		case MOD:
+			Command_Mod* cmdTemp = (Command_Mod*) _cmd;
+			cmdTemp->getIndex();
+			break;
+		case DEL:
+			Command_Del* cmdTemp = (Command_Del*) _cmd;
+			cmdTemp->getIndex();
+			break;
+		default:
+			break;
+	}
+	return;
 }
 
 bool Manager::hasInterpretationError() {

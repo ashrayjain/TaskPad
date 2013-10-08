@@ -7,10 +7,11 @@ using namespace TP;
 
 // constructor
 
-Messenger::Messenger(COMMAND_TYPE commandType,STATUS status, list<Task> result, int index, string errorMsg)
+Messenger::Messenger(COMMAND_TYPE commandType,STATUS status, list<Task> resultList, Task resultTask, int index, string errorMsg)
 {
 	this->_status = status;
-	this->_resultList = result;
+	this->_resultList = resultList;
+	this->_resultTask = resultTask;
 	this->_errorMsg = errorMsg;
 	this->_index = index;
 	this->_commandType = commandType;
@@ -43,6 +44,11 @@ COMMAND_TYPE Messenger::getCommandType() const
 	return this->_commandType;
 }
 
+Task Messenger::getTask() const
+{
+	return this->_resultTask;
+}
+
 //setter methods
 
 void Messenger::setErrorMsg(const string& errorMsg)
@@ -70,10 +76,17 @@ void Messenger::setCommandType(const COMMAND_TYPE& commandType)
 	this->_commandType = commandType;
 }
 
+void Messenger::setTask(const Task& task)
+{
+	this->_resultTask = task;
+}
+
 void Messenger::resetMessenger()
 {
 	this->setInt(-1);
 	this->setStatus(SUCCESS);
 	this->setErrorMsg("");
 	this->setList(list<Task>());
+	this->setTask(Task());
+	this->setCommandType(UNDEFINED);
 }
