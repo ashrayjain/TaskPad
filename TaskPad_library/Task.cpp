@@ -14,17 +14,17 @@
 
 #include "Task.h"
 
-std::set<unsigned> Task::listOfAllIndices;
+std::set<unsigned long long> Task::listOfAllIndices;
 
 void Task::defaultTaskInit()
 {
-    _taskIndex = int(time(NULL));
+    _taskIndex = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     listOfAllIndices.insert(_taskIndex);
     initFlags();
     initTaskAttributes();
 }
 
-void Task::defaultTaskInit(unsigned indexToPut)
+void Task::defaultTaskInit(unsigned long long indexToPut)
 {
     if (isIndexInList(indexToPut))
     {
