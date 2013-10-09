@@ -36,11 +36,11 @@ void Executor::executeCommand(Command* cmd, Messenger &response) {
 }
 
 void Executor::executeAdd (Command_Add* cmd, Messenger &response) {
-	Task* newTask = new Task();
-	formTaskFromAddCmd(cmd, *newTask);
-	_data->push_back(*newTask);
-	_indexHash[newTask->getIndex()] = newTask;
-	setOpSuccessTask(*newTask, response);
+	Task newTask = Task();
+	formTaskFromAddCmd(cmd, newTask);
+	_data->push_back(newTask);
+	_indexHash[newTask.getIndex()] = &(_data->back());
+	setOpSuccessTask(newTask, response);
 }
 
 void Executor::executeDel (Command_Del* cmd, Messenger &response) {
