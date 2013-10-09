@@ -22,6 +22,7 @@
 #include <list>
 #include <string>
 #include <ctime>
+#include <chrono>
 #include <set>
 #include "Enum.h"
 
@@ -45,7 +46,7 @@ public:
     Task()						{ defaultTaskInit(); }
     // Constructor that takes in the index for the task
     // Note: Throws Exception on invalid index
-    Task(unsigned indexToPut)	{ defaultTaskInit(indexToPut); }
+    Task(long long indexToPut)	{ defaultTaskInit(indexToPut); }
 	~Task()						{ listOfAllIndices.erase(_taskIndex); }
 
     // Getter Functions common to all Tasks
@@ -58,7 +59,7 @@ public:
     std::list<std::time_t>	getRemindTimes()	const { return _taskRemindTimes;	}
     TP::TASK_STATE			getState()			const { return _taskState;			}
     TP::PRIORITY			getPriority()		const { return _taskPriority;		}
-    unsigned				getIndex()			const { return _taskIndex;			}
+    unsigned long long		getIndex()			const { return _taskIndex;			}
     std::time_t				getFromDate()		const { return _taskFromDate;		}
     std::time_t				getToDate()			const { return _taskToDate;			}
     std::time_t				getDueDate()		const { return _taskDueDate;		}	
@@ -97,17 +98,17 @@ public:
 
 protected:
     // Set of All currently used indices
-    static std::set<unsigned> listOfAllIndices;
+    static std::set<unsigned long long> listOfAllIndices;
 
     // Default Task Initialization
     void defaultTaskInit();
-    void defaultTaskInit(unsigned indexToPut);
+    void defaultTaskInit(unsigned long long indexToPut);
     void initFlags();
     void initTaskAttributes();
     
     // General helper functions
-    bool isIndexInList(unsigned index)			{ return listOfAllIndices.find(index) == listOfAllIndices.end();	}
-    void setTaskType(TP::TASK_TYPE taskType)	{ _taskType = taskType;	}
+    bool isIndexInList(unsigned long long index)	{ return listOfAllIndices.find(index) == listOfAllIndices.end();	}
+    void setTaskType(TP::TASK_TYPE taskType)		{ _taskType = taskType;	}
     void handleDatesChange();
 
     // Task Attributes
@@ -123,7 +124,7 @@ protected:
     std::time_t				_taskFromDate;
     std::time_t				_taskToDate;
     TP::TASK_STATE			_taskState;
-    unsigned				_taskIndex;
+    unsigned long long		_taskIndex;
 
     // Task Attribute Flags
     bool flagName;
