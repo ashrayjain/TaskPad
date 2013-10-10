@@ -38,7 +38,7 @@ Messenger Manager::processCommand(const string& newCommand) {
 
 void Manager::saveChanges()
 {
-	if(_cmd!=NULL){
+	if(this->isSuccessfulCommand()){
 		switch(this->_cmd->getCommandType())
 		{
 			case MOD:
@@ -61,7 +61,6 @@ void Manager::removePreviousCommand() {
 		delete this->_cmd;
 		this->_cmd = NULL;
 	}
-
 	return;
 }
 
@@ -116,15 +115,14 @@ void Manager::editTaskListInResponse()
 	{
 		lit ++;
 	}
-	tempList.erase(lit);
-	if(this->_cmd->getCommandType() != DEL)
+
+	if(this->_cmd->getCommandType() == DEL)
 	{
-		lit = tempList.begin();
-		for (int i = 1;i < this->_index;i++)
-		{
-			lit ++;
-		}
-		tempList.insert(lit, this->_response.getTask());
+		tempList.erase(lit);
+	}
+	else if(this->_cmd->getCommandType() == MOD)
+	{
+		(*lit) = this->_response.getTask();
 	}
 	this->_response.setList(tempList);
 	return;
@@ -271,15 +269,34 @@ void Manager::storeIndexFromCommandToClassAttribute() {
 }
 
 bool Manager::hasInterpretationError() {
-	if(this->_response.getStatus() == ERROR || this->_response.getStatus() == ERROR_INTERMEDIATE) {
-		return true;
-	}
-	//else
-	return false;
+	return !this->hasNoInterpretationError();
 }
 
 bool Manager::hasNoInterpretationError() {
-	return !this->hasInterpretationError();
+	if(this->hasNoError())
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool Manager::hasNoError()
+{
+	if(this->_response.getStatus() == ERROR || this->_response.getStatus() == ERROR_INTERMEDIATE) {
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+
+bool Manager::isSuccessfulCommand()
+{
+	return this->hasNoError();
 }
 
 std::string Manager::createFindCommand(std::tm startTm, std::tm endTm)

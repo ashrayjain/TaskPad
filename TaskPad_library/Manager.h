@@ -29,6 +29,8 @@ class Manager {
 		void saveChanges	();
 
 		//helper functions
+		bool hasNoError					();
+		bool isSuccessfulCommand		();
 		bool hasInterpretationError		();
 		bool hasNoInterpretationError	();
 		bool isIndexGiven				(string newCommand);
