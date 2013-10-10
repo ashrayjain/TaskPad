@@ -26,10 +26,18 @@ Storage::Storage(list<Task>& taskList)
 {
 }
 
-bool Storage::save(list<Task>& taskList)
+bool Storage::save(const list<Task>& taskList)
 {
 	this->openTheFileToWrite(std::ios_base::trunc);
 	this->saveTaskList(taskList);
+	this->closeTheWrittenFile();
+	return true;
+}
+
+bool Storage::save(const Task& task)
+{
+	this->openTheFileToWrite(std::ios_base::app);
+	this->saveTask(task);
 	this->closeTheWrittenFile();
 	return true;
 }
@@ -59,21 +67,28 @@ void Storage::closeTheReadFile()
 	return;
 }
 
-void Storage::saveTaskList(list<Task>& taskList)
+void Storage::saveTaskList(const list<Task>& taskList)
 {
 	this->saveTaskCount(taskList.size());
 	writeLineToFile("");
 
-	list<Task>::iterator it = taskList.begin();
+	list<Task>::const_iterator it = taskList.begin();
 	while(it != taskList.end())
 	{
 		this->saveTask(*it);
-		writeLineToFile(this->LABEL_END_OF_TASK);
 		it++;
 	}
 }
 
-void Storage::saveTask(Task& tempTask)
+void Storage::saveTask(const Task& task)
+{
+	this->saveTaskAttributes(task);
+	writeLineToFile(this->LABEL_END_OF_TASK);
+	writeLineToFile("");
+	return;
+}
+
+void Storage::saveTaskAttributes(const Task& tempTask)
 {
 	this->saveIndex(tempTask);
 	this->saveName(tempTask);
@@ -106,13 +121,13 @@ void Storage::saveTaskCount(unsigned long long taskCount)
 	saveCount(taskCount);
 }
 
-void Storage::saveIndex(Task& tempTask)
+void Storage::saveIndex(const Task& tempTask)
 {
 	saveHeader(LABEL_INDEX);
 	this->writeLineToFile(convertToString(tempTask.getIndex()));
 }
 
-void Storage::saveName(Task& tempTask)
+void Storage::saveName(const Task& tempTask)
 {
 	if(tempTask.getFlagName())
 	{
@@ -121,7 +136,7 @@ void Storage::saveName(Task& tempTask)
 	}
 }
 
-void Storage::saveLocation(Task& tempTask)
+void Storage::saveLocation(const Task& tempTask)
 {
 	if(tempTask.getFlagLocation())
 	{
@@ -130,7 +145,7 @@ void Storage::saveLocation(Task& tempTask)
 	}
 }
 
-void Storage::saveParticipants(Task& tempTask)
+void Storage::saveParticipants(const Task& tempTask)
 {
 	if(tempTask.getFlagParticipants())
 	{
@@ -148,7 +163,7 @@ void Storage::saveParticipants(Task& tempTask)
 	}
 }
 
-void Storage::saveNote(Task& tempTask)
+void Storage::saveNote(const Task& tempTask)
 {
 	if(tempTask.getFlagNote())
 	{
@@ -157,14 +172,14 @@ void Storage::saveNote(Task& tempTask)
 	}
 }
 
-void Storage::savePriority(Task& tempTask)
+void Storage::savePriority(const Task& tempTask)
 {
 	saveHeader(LABEL_PRIORITY);
 	string priorityStr = convertToString(tempTask.getPriority());
 	this->writeLineToFile(priorityStr);
 }	
 
-void Storage::saveTags(Task& tempTask)
+void Storage::saveTags(const Task& tempTask)
 {
 	if(tempTask.getFlagTags())
 	{
@@ -182,7 +197,7 @@ void Storage::saveTags(Task& tempTask)
 	}
 }
 
-void Storage::saveReminderTimes(Task& tempTask)
+void Storage::saveReminderTimes(const Task& tempTask)
 {
 	if(tempTask.getFlagRemindTimes())
 	{
@@ -199,14 +214,14 @@ void Storage::saveReminderTimes(Task& tempTask)
 	}
 }
 
-void Storage::saveState(Task& tempTask)
+void Storage::saveState(const Task& tempTask)
 {
 	saveHeader(LABEL_STATE);
 	string stateStr = convertToString(tempTask.getState());
 	this->writeLineToFile(stateStr);
 }
 
-void Storage::saveDueDate(Task& tempTask)
+void Storage::saveDueDate(const Task& tempTask)
 {
 	if(tempTask.getFlagDueDate())
 	{
@@ -216,7 +231,7 @@ void Storage::saveDueDate(Task& tempTask)
 	}
 }
 
-void Storage::saveFromDate(Task& tempTask)
+void Storage::saveFromDate(const Task& tempTask)
 {
 	if(tempTask.getFlagFromDate())
 	{
@@ -226,7 +241,7 @@ void Storage::saveFromDate(Task& tempTask)
 	}
 }
 
-void Storage::saveToDate(Task& tempTask)
+void Storage::saveToDate(const Task& tempTask)
 {
 	if(tempTask.getFlagToDate())
 	{
@@ -293,7 +308,7 @@ void Storage::emptyTheFile()
 	//throw "storage empty the file not implemented";
 }
 
-bool Storage::save(const Command&)
+bool Storage::save(const Command& cmd)
 {
 	return false;
 }
