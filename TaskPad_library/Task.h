@@ -46,8 +46,8 @@ public:
     Task()						{ defaultTaskInit(); }
     // Constructor that takes in the index for the task
     // Note: Throws Exception on invalid index
-    Task(long long indexToPut)	{ defaultTaskInit(indexToPut); }
-	~Task()						{ listOfAllIndices.erase(_taskIndex); }
+    Task(unsigned long long indexToPut)	{ defaultTaskInit(indexToPut); }
+	~Task()								{ listOfAllIndices.erase(_taskIndex); }
 
     // Getter Functions common to all Tasks
     TP::TASK_TYPE			getTaskType()		const { return _taskType;			}
