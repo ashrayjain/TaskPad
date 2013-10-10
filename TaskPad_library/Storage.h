@@ -42,8 +42,8 @@ class Storage
 
 		//file level attributes
 				void saveHeader				(std::string headerStr);
-				void saveCount				(unsigned count);
-		inline	void saveTaskCount			(unsigned taskCount);
+				void saveCount				(unsigned long long count);
+		inline	void saveTaskCount			(unsigned long long taskCount);
 
 		//generic attributes of all tasks
 		void saveIndex				(Task& tempTask);
@@ -63,7 +63,7 @@ class Storage
 
 		// stringconverters
 		string convertToString	(int num);
-		string convertToString	(unsigned index);
+		string convertToString	(unsigned long long index);
 		string convertToString	(time_t time);
 		string convertToString	(list<time_t> timeList);
 		string convertToString	(list<string> strList);

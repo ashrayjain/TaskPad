@@ -20,6 +20,8 @@ namespace TP{
 	
 	static const std::string ERROR_NAME = "Invalid name";
 	static const std::string ERROR_DUPLICATE = "Duplicate Key Word";
+	static const std::string ERROR_DATA = "Format Error: Data not within single quotation mark";
+    static const std::string ERROR_INDEX = "Invalid index";
 
     static const std::string COMMAND_TYPE_STRING[8] =	
                     { "ADD","MOD","DEL","FIND","UNDO","REDO","SYNC","UNDEFINED"	};

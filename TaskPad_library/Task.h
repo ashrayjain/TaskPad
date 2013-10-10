@@ -22,6 +22,7 @@
 #include <list>
 #include <string>
 #include <ctime>
+#include <chrono>
 #include <set>
 #include "Enum.h"
 
@@ -42,11 +43,11 @@ class Task
 {
 public:
     // Default Constructor
-    Task()						{ defaultTaskInit(); }
+    Task()								{ defaultTaskInit(); }
     // Constructor that takes in the index for the task
     // Note: Throws Exception on invalid index
-    Task(unsigned indexToPut)	{ defaultTaskInit(indexToPut); }
-	~Task()						{ listOfAllIndices.erase(_taskIndex); }
+    Task(unsigned long long indexToPut)	{ defaultTaskInit(indexToPut); }
+	~Task()								{ listOfAllIndices.erase(_taskIndex); }
 
     // Getter Functions common to all Tasks
     TP::TASK_TYPE			getTaskType()		const { return _taskType;			}
@@ -56,11 +57,11 @@ public:
     std::list<std::string>	getParticipants()	const { return _taskParticipants;	}
     std::list<std::string>	getTags()			const { return _taskTags;			}
     std::list<std::time_t>	getRemindTimes()	const { return _taskRemindTimes;	}
-    TP::TASK_STATE			getState()			const { return _taskState;		}
+    TP::TASK_STATE			getState()			const { return _taskState;			}
     TP::PRIORITY			getPriority()		const { return _taskPriority;		}
-    unsigned				getIndex()			const { return _taskIndex;		}
+    unsigned long long		getIndex()			const { return _taskIndex;			}
     std::time_t				getFromDate()		const { return _taskFromDate;		}
-    std::time_t				getToDate()			const { return _taskToDate;		}
+    std::time_t				getToDate()			const { return _taskToDate;			}
     std::time_t				getDueDate()		const { return _taskDueDate;		}	
 
     // Setter Functions common to all Tasks
@@ -70,8 +71,8 @@ public:
     void setRemindTimes(std::list<std::time_t> newRemindTimes)		{ _taskRemindTimes	= newRemindTimes;	flagRemindTimes = true;		}
     void setParticipants(std::list<std::string> newParticipants)	{ _taskParticipants = newParticipants;	flagParticipants = true;	}
     void setTags(std::list<std::string> newTags)					{ _taskTags			= newTags;			flagTags = true;			}
-    void setPriority(TP::PRIORITY newPriority)						{ _taskPriority		= newPriority;									}
-    void setState(TP::TASK_STATE newState)							{ _taskState		= newState;										}	
+	void setPriority(TP::PRIORITY newPriority)						{ _taskPriority		= newPriority;		flagPriority = true;		}
+	void setState(TP::TASK_STATE newState)							{ _taskState		= newState;			flagState = true;			}	
         
     void setRemindTimes(std::time_t newRemindTime, TP::LIST_OP op);
     void setParticipants(std::string newParticipant, TP::LIST_OP op);
@@ -83,29 +84,31 @@ public:
     
 
     // Flag Getter Functions common to all Tasks
-    bool getFlagName()			const { return flagName; }
-    bool getFlagLocation()		const { return flagLocation; }
-    bool getFlagParticipants()	const { return flagParticipants; }
-    bool getFlagNote()			const { return flagNote; }
-    bool getFlagTags()			const { return flagTags; }
-    bool getFlagRemindTimes()	const { return flagRemindTimes; }
-    bool getFlagFromDate()		const { return flagFromDate; }
-    bool getFlagToDate()		const { return flagToDate; }
-    bool getFlagDueDate()		const { return flagDueDate; }
+    bool getFlagName()			const { return flagName;			}
+    bool getFlagLocation()		const { return flagLocation;		}
+    bool getFlagParticipants()	const { return flagParticipants;	}
+    bool getFlagNote()			const { return flagNote;			}
+    bool getFlagTags()			const { return flagTags;			}
+    bool getFlagRemindTimes()	const { return flagRemindTimes;		}
+    bool getFlagFromDate()		const { return flagFromDate;		}
+    bool getFlagToDate()		const { return flagToDate;			}
+    bool getFlagDueDate()		const { return flagDueDate;			}
+	bool getFlagState()			const { return flagState;			}
+	bool getFlagPriority()		const { return flagPriority;		}
 
 protected:
     // Set of All currently used indices
-    static std::set<unsigned> listOfAllIndices;
+    static std::set<unsigned long long> listOfAllIndices;
 
     // Default Task Initialization
     void defaultTaskInit();
-    void defaultTaskInit(unsigned indexToPut);
+    void defaultTaskInit(unsigned long long indexToPut);
     void initFlags();
     void initTaskAttributes();
     
     // General helper functions
-    bool isIndexInList(unsigned index)			{ return listOfAllIndices.find(index) == listOfAllIndices.end();	}
-    void setTaskType(TP::TASK_TYPE taskType)	{ _taskType = taskType;	}
+    bool isIndexInList(unsigned long long index)	{ return listOfAllIndices.find(index) == listOfAllIndices.end();	}
+    void setTaskType(TP::TASK_TYPE taskType)		{ _taskType = taskType;	}
     void handleDatesChange();
 
     // Task Attributes
@@ -121,7 +124,7 @@ protected:
     std::time_t				_taskFromDate;
     std::time_t				_taskToDate;
     TP::TASK_STATE			_taskState;
-    unsigned				_taskIndex;
+    unsigned long long		_taskIndex;
 
     // Task Attribute Flags
     bool flagName;

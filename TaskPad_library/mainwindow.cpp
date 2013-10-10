@@ -3,6 +3,7 @@
 #include <QTextBlock>
 #include <QShortcut>
 #include <QDateTime>
+#include <QGraphicsOpacityEffect>
 #include "Enum.h"
 #include "mainwindow.h"
 #include "Manager.h"
@@ -17,7 +18,7 @@ MainWindow::MainWindow(QWidget *parent)
 	QObject::connect(ui.CloseButton, SIGNAL(clicked()), this, SLOT(close()));
 	QObject::connect(ui.MinimizeButton, SIGNAL(clicked()), this, SLOT(showMinimized()));
 	QObject::connect(ui.AboutButton, SIGNAL(clicked()), this, SLOT(about()));
-	QObject::connect(ui.HelpButton, SIGNAL(clicked()), this, SLOT(test()));
+	QObject::connect(ui.HelpButton, SIGNAL(clicked()), this, SLOT(help()));
 	(void) new QShortcut(QKeySequence(tr("Ctrl+N", "New Task")), this, SLOT(createNewTaskTemplate()));
 	//ui.CommandBar->installEventFilter(this);//filter RETURN
 	ui.CloseButton->installEventFilter(this);//filter MOUSE MOVE
@@ -35,7 +36,11 @@ MainWindow::~MainWindow()
 	delete scheduler;
 	scheduler = NULL;
 }
-
+void MainWindow::help(){
+	QMessageBox msgBox;
+	msgBox.setText("Geek doesn't need help from us :p");
+	msgBox.exec();
+}
 void MainWindow::test(){
 	int tc = 8;//select test case here
 
@@ -212,6 +217,12 @@ void MainWindow::reset(){
 }
 
 void MainWindow::getToday(){
+	QGraphicsOpacityEffect* opacity = new QGraphicsOpacityEffect(this);
+	opacity->setOpacity(qreal(40)/100);
+	ui.DetailsView->setGraphicsEffect(opacity);
+	/*ui.DetailsView->setStyleSheet(QLatin1String("QWidget#DetailsView{\n"
+"	background-image:url(:/MainWindow/Resources/details_default_bg.png);\n"
+"}"));*/
 	Messenger msg = scheduler->getTodayTasks();
 	handleGetToday(msg);
 }
@@ -253,7 +264,7 @@ bool MainWindow::eventFilter(QObject* watched, QEvent* event)
 }
 
 void MainWindow::handleGetToday(Messenger msg){
-	updateNavLabel("Today");
+	updateNavLabel("Inbox");
 	updateStatusBar("Ready");
 	updateDetailsLabel("Details");
 	clearDetails();
@@ -313,9 +324,12 @@ void MainWindow::handleMessenger(Messenger msg){
 	else if(msg.getStatus() == TP::DISPLAY)
 	{
 		int index = msg.getIndex();
-		list<Task>::iterator iter = msg.getList().begin();
-		advance(iter, index);
-
+		list<Task> tmp_list = msg.getList();
+		list<Task>::iterator iter = tmp_list.begin();
+		advance(iter, index - 1);
+		
+		updateStatusBar("Task displayed successfully");
+		updateDetailsLabel("Task's Details");
 		updateDetails(*iter);
 	}
 	else if(msg.getStatus() == TP::SUCCESS_INDEXED_COMMAND)
@@ -404,6 +418,7 @@ void MainWindow::clearDetails(){
 }
 
 void MainWindow::updateDetails(Task t){
+	ui.DetailsView->setGraphicsEffect(NULL);
 	Task task_showDetails = t;
 	//set label name
 	if(task_showDetails.getState() == TP::UNDONE){
@@ -446,6 +461,9 @@ void MainWindow::updateDetails(Task t){
 	if(task_showDetails.getFlagLocation()){
 		ui.location->setText(task_showDetails.getLocation().c_str());
 	}
+	else{
+		ui.location->setText("");
+	}
 	//set label participants
 	if(task_showDetails.getFlagParticipants()){
 		QString participants;
@@ -457,6 +475,9 @@ void MainWindow::updateDetails(Task t){
 		}
 		ui.participants->setText(participants);
 	}
+	else{
+		ui.participants->setText("");
+	}
 	//set tags label
 	if(task_showDetails.getFlagTags()){
 		QString tags;
@@ -467,6 +488,9 @@ void MainWindow::updateDetails(Task t){
 				tags += ", ";
 		}
 		ui.tags->setText(tags);
+	}
+	else{
+		ui.tags->setText("");
 	}
 	//set remind time
 	if(task_showDetails.getFlagRemindTimes()){
@@ -484,7 +508,12 @@ void MainWindow::updateDetails(Task t){
 		ui.remindTime->setText("Remind me : none");
 	}
 	//set textBox note
-	ui.note->setPlainText(task_showDetails.getNote().c_str());
+	if(task_showDetails.getFlagNote()){
+		ui.note->setPlainText(task_showDetails.getNote().c_str());
+	}
+	else{
+		ui.note->setPlainText("");
+	}
 }
 
 void MainWindow::updateStatusBar(QString str){

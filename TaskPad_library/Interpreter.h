@@ -20,13 +20,14 @@ private:
 	//variables
 	vector<string>listOfWords;
 	vector<KEY_WORDS>listOfKeyWords;
+
 	vector<string>strUT;
 	list<string>pplUT;
 	list<string>tagsUT;
+
 	string _command;
-
-	Command* result;
-
+	bool _isSuccess;
+	Command* _result;
 	Messenger _response;
 
 public:
@@ -55,7 +56,7 @@ public:
 	
 	unsigned int convertStrToUI(string keyWord, string inputInfo);
 	PRIORITY convertStrToPriority(string keyWord, string inputInfo);
-	time_t setTime(string keyWord, string inputInfo, bool& flag);
+	time_t setTime(string keyWord, string inputInfo);
 	bool integerConverter(string& requiredString, int& number);
 	bool isByIndex();
 

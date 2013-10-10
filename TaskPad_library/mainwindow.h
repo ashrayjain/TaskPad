@@ -19,6 +19,7 @@ public:
 
 protected slots:
 	void about();
+	void help();
 	void test();
 	void createNewTaskTemplate();
 

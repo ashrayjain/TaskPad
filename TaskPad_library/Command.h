@@ -89,7 +89,7 @@ protected:
 	std::list<std::time_t>	getRemindTimes()		{ return _remindTime;		}
 	TP::TASK_STATE			getTaskState()			{ return _taskState;		}
 	TP::TASK_TYPE			getTaskType()			{ return _taskType;			}
-	unsigned				getCreatedTime()		{ return _createdTime;		}
+	unsigned long long		getCreatedTime()		{ return _createdTime;		}
 	std::string				getSyncProviderName()	{ return _syncProviderName; }
 	
 	//setter for fields
@@ -107,7 +107,7 @@ protected:
 	void setRemindTimes(std::list<std::time_t> time){ _remindTime	= time;		FLAG_remindTime	= TP::EDITED; }
 	void setTaskState(TP::TASK_STATE state)			{ _taskState	= state;	FLAG_taskState	= TP::EDITED; }
 	void setTaskType(TP::TASK_TYPE type)			{ _taskType		= type;		FLAG_taskType	= TP::EDITED; }
-	void setCreatedTime(unsigned ctime)				{ _createdTime	= ctime;	FLAG_createdTime= TP::EDITED; }
+	void setCreatedTime(unsigned long long ctime)	{ _createdTime	= ctime;	FLAG_createdTime= TP::EDITED; }
 	void setSyncProviderName(std::string syncName)	{ _syncProviderName	  = syncName; 
 													  FLAG_syncProviderName = TP::EDITED; }
 
@@ -115,6 +115,7 @@ protected:
 	bool getFlagIndex()								{ return FLAG_index;			}
 	bool getFlagExact()								{ return FLAG_exact;			}
 	bool getFlagName()								{ return FLAG_name;				}
+	bool getFlagOptName()							{ return FLAG_optName;			}
 	bool getFlagDue()								{ return FLAG_due;				}
 	bool getFlagFrom()								{ return FLAG_from;				}
 	bool getFlagTo()								{ return FLAG_to;				}
@@ -144,7 +145,7 @@ private:
 	static const std::time_t						DEFAULT_TIME;
 	static const std::list<std::time_t>				DEFAULT_REMIND_TIME;
 	static const int								DEFAULT_INDEX;
-	static const unsigned							DEFAULT_CREATED_TIME;
+	static const unsigned long long					DEFAULT_CREATED_TIME;
 	
 	//flags
 	bool FLAG_index;
@@ -181,7 +182,7 @@ private:
 	std::list<std::time_t>							_remindTime;
 	std::string										_syncProviderName;
 	TP::TASK_STATE									_taskState;//done | undone
-	unsigned										_createdTime;
+	unsigned long long								_createdTime;
 	TP::TASK_TYPE									_taskType;//timed | deadline | floating
 };
 
@@ -262,7 +263,7 @@ public:
 	std::list<std::string>		getTags()			{ return Command::getTags();		}
 	std::list<std::time_t>		getRemindTimes()	{ return Command::getRemindTimes();	}
 	TP::TASK_STATE				getTaskState()		{ return Command::getTaskState();	}
-	unsigned					getCreatedTime()	{ return Command::getCreatedTime();	}
+	unsigned long long			getCreatedTime()	{ return Command::getCreatedTime();	}
 	
 	//setter for fields
 	void setIndex(int idx)							{ Command::setIndex(idx);			}
@@ -278,12 +279,13 @@ public:
 	void setTags(std::list<std::string> tags)		{ Command::setTags(tags);			}
 	void setRemindTimes(std::list<std::time_t> time){ Command::setRemindTimes(time);		}
 	void setTaskState(TP::TASK_STATE state)			{ Command::setTaskState(state);		}
-	void setCreatedTime(unsigned ctime)				{ Command::setCreatedTime(ctime);	}
+	void setCreatedTime(unsigned long long ctime)	{ Command::setCreatedTime(ctime);	}
 	
 	//getter for flags
 	bool getFlagIndex()								{ return Command::getFlagIndex();		}
 	bool getFlagExact()								{ return Command::getFlagExact();		}
 	bool getFlagName()								{ return Command::getFlagName();		}
+	bool getFlagOptName()							{ return Command::getFlagOptName();		}
 	bool getFlagDue()								{ return Command::getFlagDue();			}
 	bool getFlagFrom()								{ return Command::getFlagFrom();		}
 	bool getFlagTo()								{ return Command::getFlagTo();			}
@@ -316,12 +318,12 @@ public:
 	//getter for fields
 	int							getIndex()			{ return Command::getIndex();		}
 	std::string					getName()			{ return Command::getName();		}
-	unsigned					getCreatedTime()	{ return Command::getCreatedTime();	}
+	unsigned long long			getCreatedTime()	{ return Command::getCreatedTime();	}
 	
 	//setter for fields
 	void setIndex(int idx)							{ Command::setIndex(idx);			}
 	void setName(std::string name)					{ Command::setName(name);			}
-	void setCreatedTime(unsigned ctime)				{ Command::setCreatedTime(ctime);	}
+	void setCreatedTime(unsigned long long ctime)	{ Command::setCreatedTime(ctime);	}
 	
 	//getter for flags
 	bool getFlagIndex()								{ return Command::getFlagIndex();		}
@@ -377,6 +379,7 @@ public:
 	bool getFlagIndex()								{ return Command::getFlagIndex();		}
 	bool getFlagExact()								{ return Command::getFlagExact();		}
 	bool getFlagName()								{ return Command::getFlagName();		}
+	bool getFlagOptName()							{ return Command::getFlagOptName();		}
 	bool getFlagFrom()								{ return Command::getFlagFrom();		}
 	bool getFlagTo()								{ return Command::getFlagTo();			}
 	bool getFlagLocation()							{ return Command::getFlagLocation();	}

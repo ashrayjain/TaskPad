@@ -32,7 +32,7 @@ public:
 
 protected:
 	std::list<Task>*			_data;
-	std::map<unsigned, Task*>	_indexHash;
+	std::map<unsigned long long, Task*>	_indexHash;
 
 	void executeAdd					(Command_Add* cmd,  Messenger &response);
 	void executeDel					(Command_Del* cmd,  Messenger &response);
@@ -43,7 +43,7 @@ protected:
 	void formTaskFromAddCmd			(Command_Add* cmd, Task &newTask);
 
 	// Functions for DELETE COMMAND
-	void deleteTaskByIndex			(const unsigned &index, Messenger &reponse);	
+	void deleteTaskByIndex			(const unsigned long long &index, Messenger &reponse);	
 	void deleteTaskByName			(const string &name, Messenger &reponse, const bool &exactFlag);
 	void deleteByExactName			(const string &name, Messenger &response);
 	void deleteByApproxName			(const string &name, Messenger &response);
@@ -57,7 +57,7 @@ protected:
 
 	// Functions for FIND COMMAND
 	void formTaskFromFindCmd		(Command_Find* cmd, Task &newTask);
-	void findByIndex				(const unsigned index, Messenger &response);
+	void findByIndex				(const unsigned long long index, Messenger &response);
 	void findGeneral				(Command_Find* cmd, Messenger &response);
 	void runSearchWithTask			(const Task &taskToCompare,	list<Task> &results);
 	void runSearchWithTask			(const Task &taskToCompare, list<Task> &results, string substringName);
@@ -67,6 +67,6 @@ protected:
 	void setOpSuccessTask			(const Task &retTask, Messenger &response);
 	void setOpSuccessTaskList		(const list<Task>& results, Messenger &response);
 	void setOpIntermediateTaskList	(const list<Task> &results, Messenger &response);
-	void setIndexNotFound			(const unsigned &index, Messenger &response);
+	void setIndexNotFound			(const unsigned long long &index, Messenger &response);
 	void setNameNotFound			(const string &name, Messenger &response);
 };

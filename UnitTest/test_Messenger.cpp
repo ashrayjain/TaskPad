@@ -116,19 +116,19 @@ namespace UnitTest
 
 			list<Task> returnList = testMessenger.getList();
 			list<Task>::iterator it = returnList.begin();
-			Assert::AreEqual(((it++)->getIndex()),(unsigned) 1);
-			Assert::AreEqual(((it++)->getIndex()),(unsigned) 2);
-			Assert::AreEqual(((it++)->getIndex()),(unsigned) 3);
-			Assert::AreEqual(((it++)->getIndex()),(unsigned) 4);
+			Assert::AreEqual(((it++)->getIndex()),(unsigned long long) 1);
+			Assert::AreEqual(((it++)->getIndex()),(unsigned long long) 2);
+			Assert::AreEqual(((it++)->getIndex()),(unsigned long long) 3);
+			Assert::AreEqual(((it++)->getIndex()),(unsigned long long) 4);
 
 			Task myTasks1[] = {Task(5),Task(8),Task(10)};
 			testMessenger.setList(list<Task>(myTasks1,myTasks1+3));
 
 			returnList = testMessenger.getList();
 			it = returnList.begin();
-			Assert::AreEqual(((it++)->getIndex()),(unsigned) 5);
-			Assert::AreEqual(((it++)->getIndex()),(unsigned) 8);
-			Assert::AreEqual(((it++)->getIndex()),(unsigned) 10);
+			Assert::AreEqual(((it++)->getIndex()),(unsigned long long) 5);
+			Assert::AreEqual(((it++)->getIndex()),(unsigned long long) 8);
+			Assert::AreEqual(((it++)->getIndex()),(unsigned long long) 10);
 
 			testMessenger.setList(list<Task>());
 

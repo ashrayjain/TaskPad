@@ -4,6 +4,7 @@ using namespace std;
 
 Interpreter::Interpreter(void)
 {
+	_isSuccess=true;
 }
 
 
@@ -38,13 +39,24 @@ void Interpreter::processCommand()
 		_response.setCommandType(FIND);
 		functionFind();
 	}
+	else
+	{
+		_response.setStatus(ERROR);
+		_response.setErrorMsg("Invalid command");
+	}
 	return;
 }
 
 void Interpreter::processKeyWords()
 {
-	eliminateFalseKeyWords();
-	checkForDuplicateKeyWords();//messenger
+	if(listOfKeyWords.size()!=0){
+		eliminateFalseKeyWords();
+	}
+
+	if(listOfKeyWords.size()>1){
+		checkForDuplicateKeyWords();//messenger
+	}
+	
 
 	return;
 }
@@ -59,7 +71,7 @@ void Interpreter::eliminateFalseKeyWords()
 {
 	int numberOfKeyWords=listOfKeyWords.size();
 	int preWordIndex;
-	for(int i=0; i<numberOfKeyWords;i++)
+	for(int i=0; i<numberOfKeyWords && numberOfKeyWords!=0;i++)
 	{
 		preWordIndex=listOfKeyWords.at(i).index-1;
 
@@ -76,24 +88,25 @@ void Interpreter::eliminateFalseKeyWords()
 
 bool Interpreter::isKeyWordValid(int prevSysWordIndex)
 {
-	bool flag=false;
+	bool wordFlag=false;
 	string expectedChar="'";
 	char prevWordLastChar=listOfWords.at(prevSysWordIndex).back();
 	if(prevWordLastChar==expectedChar.at(0))
 	{
-		flag=true;
+		wordFlag=true;
 	}
+	//index case
 	else if((_command=="mod"||_command=="del"||_command=="find")&& 
-		    prevSysWordIndex==1 && 
-		    listOfWords.at(prevSysWordIndex+1)=="name")
+		prevSysWordIndex==1 && isByIndex())
 	{
-		flag=true;
+		wordFlag=true;
 	}
+	//exact case
 	else if((_command=="mod"||_command=="del"||_command=="find")&&
 			prevSysWordIndex==0 &&
 			listOfWords.at(prevSysWordIndex+1)=="exact")
 	{
-		flag=true;
+		wordFlag=true;
 	}
 	else if(listOfWords.at(prevSysWordIndex)=="done"||
 		    listOfWords.at(prevSysWordIndex)=="undone"||
@@ -101,16 +114,15 @@ bool Interpreter::isKeyWordValid(int prevSysWordIndex)
 			listOfWords.at(prevSysWordIndex)=="deadline"||
 			listOfWords.at(prevSysWordIndex)=="floating")
 	{
-		flag=true;
+		wordFlag=true;
 	}
 	else if(_command=="find"&&
-		    prevSysWordIndex==0&&
-			listOfWords.at(prevSysWordIndex+1)=="name")
+		    prevSysWordIndex==0)
 	{
-		flag=true;
+		wordFlag=true;
 	}
 
-	return flag;
+	return wordFlag;
 }
 
 void Interpreter::checkForDuplicateKeyWords()//ERROR_DUPLICATE
@@ -119,7 +131,7 @@ void Interpreter::checkForDuplicateKeyWords()//ERROR_DUPLICATE
 	string duplicatedKeyWord;
 	int numberOfKeyWords=listOfKeyWords.size();
 	for(int i=0; i<numberOfKeyWords;i++)
-		for(int j=i+1;j<numberOfKeyWords-1;j++)
+		for(int j=i+1;j<numberOfKeyWords;j++)
 		{
 			if((listOfKeyWords.at(i).keyWord==
 				listOfKeyWords.at(j).keyWord)&&
@@ -135,116 +147,100 @@ void Interpreter::checkForDuplicateKeyWords()//ERROR_DUPLICATE
 	return;
 }
 
-unsigned int Interpreter::convertStrToUI(string keyWord, string inputInfo)
-{
-	unsigned int time;
-
-	if(keyWord=="due"||
-	keyWord=="from"||
-	keyWord=="to"||
-	keyWord=="rt")
-	{
-		time=stoul(inputInfo,nullptr,10);
-	}
-
-	inputInfo;
-	stringstream extract(inputInfo);
-
-
-	/*
-	*/
-
-	return time;
-}
-
-time_t Interpreter::setTime(string keyWord,string inputInfo, bool& flag)
+time_t Interpreter::setTime(string keyWord,string inputInfo)
 {
     int year=-1,month=-1,day=-1,hour=-1,min=-1;
-    string timeComponent;   
+	time_t rawtime;
+
+	struct tm  timeinfo={0,0,0,0,0,0};
+
+	time (&rawtime);
+
+	localtime_s (&timeinfo,&rawtime);
+
 
 	if(keyWord=="due"||
-	keyWord=="from"||
-	keyWord=="to"||
-	keyWord=="rt"){
-		if(inputInfo.length()>0){
-                timeComponent=inputInfo;
+		keyWord=="from"||
+		keyWord=="to"||
+		keyWord=="rt")
+	{
 
-                stringstream timeExtracter(timeComponent);
-
-
-                getline(timeExtracter,timeComponent,'/');              
-
-                if(!integerConverter(timeComponent,day))
-                {      
-                        flag=false;
-
-                }
+		//	string timeTemplete="dd/mo/yy hh:mm";
 
 
-                timeComponent.clear();                  
-                getline(timeExtracter,timeComponent,'/');
 
-                if(timeComponent.length()>0)
-                {
+		if(inputInfo.length()>1){
 
-                        if(!integerConverter(timeComponent,month))
-                        {              
-                                flag=false;
+			_isSuccess=integerConverter(inputInfo.substr(0,2),day);
 
-                        }
-                }
+			if(_isSuccess!=false && inputInfo.length()>4 ){
 
+				if(inputInfo.at(2)=='/'){
+					_isSuccess=integerConverter(inputInfo.substr(3,2),month);		
 
-                timeComponent.clear();                  
-                getline(timeExtracter,timeComponent,' ');
-                if(timeComponent.length()>0)
-                {
+				}
+				else _isSuccess=false;
+			}	
 
-                        if(!integerConverter(timeComponent,year))
-                        {      
-                                flag=false;
+			if(_isSuccess!=false && inputInfo.length()>7){
+				if(inputInfo.at(5)=='/'){
+					_isSuccess=integerConverter(inputInfo.substr(6,2),year);
+					year=year+2000;
+				}
+				else _isSuccess=false;
+			}
 
-                        }
-                        year+=2000;
+			if(_isSuccess!=false && inputInfo.length()>10){
 
-                }
+				if(inputInfo.at(8)==' '){
+					_isSuccess=integerConverter(inputInfo.substr(9,2),hour);
+				}
+				else _isSuccess=false;
 
-                timeComponent.clear();                  
-                getline(timeExtracter,timeComponent,':');
-                if(timeComponent.length()>0)
-                {
+			}
 
-                        if(!integerConverter(timeComponent,hour))
-                        {      
-                                flag=false;
+			if(_isSuccess!=false && inputInfo.length()>13){
 
-                        }
-                }
+				if(inputInfo.at(11)==':'){
+					_isSuccess=integerConverter(inputInfo.substr(12),min);
+				}
+				else _isSuccess=false;
+			}
 
-                timeComponent.clear();                  
-                getline(timeExtracter,timeComponent);
-                if(timeComponent.length()>0)
-                {
+			if(_isSuccess!=false){
 
-                        if(!integerConverter(timeComponent,min))
-                        {      
-                                flag=false;
+				if(year==-1)year=timeinfo.tm_year+1900;
+				if(month==-1)month=timeinfo.tm_mon+1;
+				if(day==-1)day=timeinfo.tm_mday+1;
+				if(hour==-1)hour=timeinfo.tm_hour;
+				if(min==-1)min=timeinfo.tm_min;
+			}
+		}
+		else {
 
-                        }
-                }
-        }
-        else flag=false;
+			_isSuccess=false;
+		}
+
+		
+		if(!_isSuccess){
+			_response.setStatus(ERROR);
+			_response.setErrorMsg("Invalid time");
+		}
+
+		if(_isSuccess!=false){
+			struct tm  timeMessage={0,0,0,0,0,0};
+
+			timeMessage.tm_year=year-1900;
+			timeMessage.tm_mon=month-1;
+			timeMessage.tm_mday=day;
+			timeMessage.tm_hour=hour;
+			timeMessage.tm_min=min;
+
+			return mktime(&timeMessage);
+		}
 	}
 
-        struct tm * timeinfo;
-        memset(&timeinfo, 0, sizeof(struct tm));
-        timeinfo->tm_year = year - 1900;
-        timeinfo->tm_mon = month - 1;
-        timeinfo->tm_mday = day;
-        timeinfo->tm_hour=hour;
-        timeinfo->tm_min=min;
-
-        return mktime(timeinfo);
+	return mktime(&timeinfo);
 }
 
 bool Interpreter::integerConverter(string& requiredString, int& number)
@@ -253,8 +249,11 @@ bool Interpreter::integerConverter(string& requiredString, int& number)
         bool flag=true;
 
         if(requiredString.empty()==true){
-                flag=false;
+            flag=false;
         }
+		else if(requiredString.size() >= 9){
+			flag = false;
+		}
         else{
                 for(unsigned i=0;i<requiredString.length();i++){
                         if(isdigit(requiredString[i])==false){
@@ -284,6 +283,10 @@ PRIORITY Interpreter::convertStrToPriority(string keyWord, string inputInfo)
 		else if(inputInfo=="L" ||inputInfo=="LOW")
 		{
 			priority=LOW;
+		}
+		else{
+			_response.setStatus(ERROR);
+			_response.setErrorMsg("Invalid priority");
 		}
 	}
 
@@ -316,6 +319,7 @@ bool Interpreter::isByIndex()
 string Interpreter::reconstructInputInfo(int incrementIdx, int numberOfKeyWords)
 {
 	string inputInfo;
+	string expectedChar="'";
 	int firstDataWord=0;
 	int lastDataWord=0;
 
@@ -330,11 +334,16 @@ string Interpreter::reconstructInputInfo(int incrementIdx, int numberOfKeyWords)
 		lastDataWord=listOfKeyWords.at(incrementIdx+1).index-1;
 	}
 		
-	for(int j=firstDataWord; j<=lastDataWord; j++)
+	for(int j=firstDataWord; j<=lastDataWord&&_isSuccess!=false; j++)
 	{
 		if(j==firstDataWord)
 		{
 			inputInfo+=listOfWords.at(j);
+			if(inputInfo.at(0)!=expectedChar.at(0)){
+				_isSuccess=false;
+				_response.setStatus(ERROR);
+				_response.setErrorMsg(ERROR_DATA);
+			}
 		}
 		else
 		{
@@ -342,9 +351,17 @@ string Interpreter::reconstructInputInfo(int incrementIdx, int numberOfKeyWords)
 		}
 	}
 
+	if(inputInfo.size() != 0 && inputInfo.back()!=expectedChar.at(0)){
+		_isSuccess=false;
+		_response.setStatus(ERROR);
+		_response.setErrorMsg(ERROR_DATA);
+	}
+
 	//eliminate ''		
-	inputInfo.erase(inputInfo.begin());
-	inputInfo.erase(inputInfo.end()-1);
+	if(inputInfo.size() != 0){
+		inputInfo.erase(inputInfo.begin());
+		inputInfo.erase(inputInfo.end()-1);
+	}
 
 	return inputInfo;
 }
@@ -404,14 +421,14 @@ void Interpreter::allocateRt(string keyWord, list<time_t>&remindTime, string inp
 {
 	if(keyWord=="rt"){
 
-	bool flag;
+	
 	time_t rtTime;
 	string timeComponent=inputInfo;
 	stringstream timeExtracter(timeComponent);
 
 	while(getline(timeExtracter,timeComponent,',')){
 
-	//	rtTime=setTime(keyWord,timeComponent,flag);
+		rtTime=setTime(keyWord,timeComponent);
 		remindTime.push_back(rtTime);
 		}
 	}
@@ -472,7 +489,7 @@ void Interpreter::setCmdObj_Add(Command_Add* cmd, string keyWord, string inputIn
 	{
 		cmd->setRemindTimes(remindTime);
 	}
-	
+
 	return;
 }
 
@@ -666,6 +683,12 @@ void Interpreter::extractIndividualWords(string userInput)
 	{
 		listOfWords.push_back(individualWord);
 	}
+	//empty or contains only command word
+	if(listOfWords.size()<2){
+		_isSuccess=false;
+		_response.setStatus(ERROR);
+		_response.setErrorMsg("Command with no parameters / Invalid command");
+	}
 
 	return;
 }
@@ -673,6 +696,12 @@ void Interpreter::extractIndividualWords(string userInput)
 void Interpreter::extractCommand()
 {
 	_command=listOfWords.at(0);
+
+	if(_command!="add"&&_command!="mod"&&_command!="del"&&_command!="find"){
+		_isSuccess=false;
+		_response.setStatus(ERROR);
+		_response.setErrorMsg("Invalid command");
+	}
 
 	return;
 }
@@ -712,6 +741,8 @@ void Interpreter::extractKeyWords()
 		{
 			listOfKeyWords.push_back(individualWord);
 		}
+
+		//if(listOfKeyWords.empty())
 		
 	}
 	return;
@@ -723,17 +754,22 @@ void Interpreter::functionAdd()
 	int numberOfKeyWords=listOfKeyWords.size();
 	string name="";
 	string inputInfo="";
-	bool flag;
+	
 
 	list<string>tags;
 	list<string>ppl;
 	list<time_t>remindTime;
 
 	//set name
-	name=reconstructName(1,listOfKeyWords.at(0).index-1);
+	if(listOfKeyWords.size()!=0){
+		name=reconstructName(1,listOfKeyWords.at(0).index-1);
+	}
+	else{
+		name=reconstructName(1,listOfWords.size()-1);
+	}
 	cmd->setName(name);
 	
-	for(int i=0; i<numberOfKeyWords; i++)
+	for(int i=0; i<numberOfKeyWords && listOfKeyWords.size()!=0; i++)
 	{
 		string keyWord=listOfKeyWords.at(i).keyWord;
 		
@@ -748,10 +784,9 @@ void Interpreter::functionAdd()
 		//unit test
 		strUT.push_back(inputInfo);
 
-		//convert str to unsigned int
-		unsigned int time=convertStrToUI(keyWord,inputInfo);
+		//convert str to time_t
 
-		//time_t time=setTime( keyWord, inputInfo, flag);
+		time_t time=setTime( keyWord, inputInfo);
 		
 		//convert str to PRIORITY
 		PRIORITY priority=convertStrToPriority(keyWord,inputInfo);
@@ -772,7 +807,11 @@ void Interpreter::functionAdd()
 		inputInfo.clear();
 	}
 
-	result = cmd;
+	
+	if(!_isSuccess){
+	delete cmd;
+	}
+	else _result = cmd;
 	cmd=NULL;
 
 	return;
@@ -783,7 +822,6 @@ void Interpreter::functionMod()
 	Command_Mod *cmd= new Command_Mod;
 	int numberOfKeyWords=listOfKeyWords.size();
 	string inputInfo="";
-	bool flag;
 
 	list<string>tags;
 	list<string>ppl;
@@ -792,8 +830,16 @@ void Interpreter::functionMod()
 
 	if(isByIndex())
 	{
-		int index=stoi(listOfWords.at(1),nullptr,10);
-		cmd->setIndex(index);
+		if(listOfWords.at(1).size() < 9 && (listOfKeyWords.size()==0 ||listOfKeyWords.at(0).index==2)){
+
+			int index=stoi(listOfWords.at(1),nullptr,10);
+			cmd->setIndex(index);
+		}
+		else{
+			_isSuccess=false;
+			_response.setStatus(ERROR);
+			_response.setErrorMsg(ERROR_INDEX);
+		}
 	}
 	else if(listOfWords.at(1)=="exact")
 	{
@@ -803,11 +849,17 @@ void Interpreter::functionMod()
 	}
 	else
 	{
-		string name=reconstructName(1,listOfKeyWords.at(0).index-1);
+		string name;
+		if(listOfKeyWords.size()!=0){
+			name=reconstructName(1,listOfKeyWords.at(0).index-1);
+		}
+		else{
+			name=reconstructName(1,listOfWords.size()-1);
+		}
 		cmd->setName(name);
 	}
 
-	for(int i=0; i<numberOfKeyWords; i++)
+	for(int i=0; i<numberOfKeyWords&&listOfKeyWords.size()!=0; i++)
 	{
 		
 		string keyWord=listOfKeyWords.at(i).keyWord;
@@ -826,9 +878,8 @@ void Interpreter::functionMod()
 		//unit test
 		strUT.push_back(inputInfo);
 		
-		//convert str to unsigned int
-		unsigned int time=convertStrToUI(keyWord,inputInfo);
-		//time_t time=setTime( keyWord, inputInfo, flag);
+		//convert str to time_t
+		time_t time=setTime( keyWord, inputInfo);
 
 		//convert str to PRIORITY
 		PRIORITY priority=convertStrToPriority(keyWord,inputInfo);
@@ -850,7 +901,10 @@ void Interpreter::functionMod()
 	}
 
 
-	result = cmd;
+	if(!_isSuccess){
+	delete cmd;
+	}
+	else _result = cmd;
 	cmd=NULL;
 
 	
@@ -863,8 +917,15 @@ void Interpreter:: functionDel()
 	
 	if(isByIndex())
 	{
-		int index=stoi(listOfWords.at(1),nullptr,10);
-		cmd->setIndex(index);
+		if(listOfWords.size()==2){
+			int index=stoi(listOfWords.at(1),nullptr,10);
+			cmd->setIndex(index);
+		}
+		else{
+			_isSuccess=false;
+			_response.setStatus(ERROR);
+			_response.setErrorMsg(ERROR_INDEX);
+		}
 	}
 	else if(listOfWords.at(1)=="exact")
 	{
@@ -874,11 +935,20 @@ void Interpreter:: functionDel()
 	}
 	else
 	{
-		string name=reconstructName(1,listOfKeyWords.at(0).index-1);	
+		string name;
+		if(listOfKeyWords.size()!=0){
+			name=reconstructName(1,listOfKeyWords.at(0).index-1);
+		}
+		else{
+			name=reconstructName(1,listOfWords.size()-1);
+		}
 		cmd->setName(name);
 	}
 	
-	result = cmd;
+	if(!_isSuccess){
+	delete cmd;
+	}
+	else _result = cmd;
 	cmd=NULL;
 	return;
 }
@@ -888,7 +958,7 @@ void Interpreter:: functionFind()
 	Command_Find *cmd= new Command_Find;
 	int numberOfKeyWords=listOfKeyWords.size();
 	string inputInfo="";
-	bool flag;
+	
 	
 	list<string>tags;
 	list<string>ppl;
@@ -896,26 +966,43 @@ void Interpreter:: functionFind()
 
 	if(isByIndex())
 	{
-		int index=stoi(listOfWords.at(1),nullptr,10);
-		cmd->setIndex(index);
+		if(listOfKeyWords.size()==0){
+			int index=stoi(listOfWords.at(1),nullptr,10);
+			cmd->setIndex(index);
+		}
+		else{
+			_isSuccess=false;
+			_response.setStatus(ERROR);
+			_response.setErrorMsg(ERROR_INDEX);
+		}
 
-		return;// for find only
+		//return;// for find only
 	}
 	else if(listOfWords.at(1)=="exact")
 	{
-		string name =reconstructName(2,listOfKeyWords.at(1).index-1);
+		string name =reconstructName(2,listOfWords.size()-1);
 		cmd->setOptName(name);
 		cmd->setFlagExact();
 
-		return; //find only
+		//return; //find only
+	}
+	else if(listOfKeyWords.empty())
+	{
+		string name=reconstructName(1,listOfWords.size()-1);
+		cmd->setOptName(name);
+	}
+	else if(!listOfKeyWords.empty() && listOfKeyWords.at(0).index!=1)
+	{
+		string name=reconstructName(1,listOfKeyWords.at(0).index-1);
+		cmd->setOptName(name);
 	}
 	else
 	{
-//		string name=reconstructName(1,listOfKeyWords.at(0).index-1);
-	//	cmd->setOptName(name);
+		//do nothing
 	}
 
-	for(int i=0; i<numberOfKeyWords; i++)
+
+	for(int i=0; i<numberOfKeyWords && !listOfKeyWords.empty(); i++)
 	{
 		string keyWord=listOfKeyWords.at(i).keyWord;
 		
@@ -933,10 +1020,9 @@ void Interpreter:: functionFind()
 		//unit test
 		strUT.push_back(inputInfo);
 
-		//convert str to unsigned int
-		unsigned int time=convertStrToUI(keyWord,inputInfo);
+		//convert str to time_t
+		time_t time=setTime( keyWord, inputInfo);
 
-		//time_t time=setTime( keyWord, inputInfo, flag);
 		//convert str to PRIORITY
 		PRIORITY priority=convertStrToPriority(keyWord,inputInfo);
 
@@ -956,8 +1042,10 @@ void Interpreter:: functionFind()
 		inputInfo.clear();
 	}
 
-
-	result = cmd;
+	if(!_isSuccess){
+		delete cmd;
+	}
+	else _result = cmd;
 	cmd=NULL;
 
 	
@@ -1003,7 +1091,7 @@ int Interpreter:: getListOfKeyWordsSize()
 
 Command* Interpreter::get_cmdObject(string command)
 {
-	return result;
+	return _result;
 }
 
 string Interpreter::getPplUT(int userIndex)
@@ -1029,28 +1117,61 @@ APIs
 */
 Command * Interpreter::interpretCommand(string userInput, Messenger & response)
 {
+	bool success;
 	_response = response;
 	_response.setStatus(SUCCESS);
+
 	extractIndividualWords(userInput);
-	extractCommand();
-	extractKeyWords();
-	processKeyWords();
-	processCommand();
+	
+	if(_isSuccess){
+		extractCommand();
+	}
+
+	if(_isSuccess){
+		extractKeyWords();
+	}
+
+	if(_isSuccess){
+		processKeyWords();
+	}
+	
+	if(_isSuccess){
+		processCommand();
+	}
+
 	response = _response;
+	success=_isSuccess;
 	//reset
 	listOfKeyWords = vector<KEY_WORDS>();
 	listOfWords = vector<string>();
-	return get_cmdObject(_command);
+	_isSuccess=true;
+
+	if(!success){
+		return NULL;
+	}
+	else return _result;
 
 }
 
 int Interpreter::interpretIndex(string indexStr, Messenger & response)
 {
-	response.setStatus(ERROR);
-	return 0;
+	int num;
+	if(integerConverter(indexStr,num))
+	{
+		response.setStatus(SUCCESS);
+
+	}
+	else{ 
+
+		response.setStatus(ERROR);
+		//response.setErrorMsg("The index is invalid");
+	}
+
+	return num;
 }
 
 void Interpreter::interpretCommand(unsigned int index, Command* prevCommand)
 {
-
+	
+	return;
 }

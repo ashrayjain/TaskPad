@@ -94,13 +94,13 @@ void Storage::saveHeader(string headerStr)
 	writeLineToFile(headerStr,false);
 }
 
-void Storage::saveCount(unsigned count)
+void Storage::saveCount(unsigned long long count)
 {
 	std::string countStr = convertToString(count);
 	this->writeLineToFile(countStr);
 }
 
-void Storage::saveTaskCount(unsigned taskCount)
+void Storage::saveTaskCount(unsigned long long taskCount)
 {
 	saveHeader(LABEL_TASK_COUNT);
 	saveCount(taskCount);
@@ -247,7 +247,7 @@ string Storage::convertToString(int num)
 	return tmpstream.str();
 }
 
-string Storage::convertToString(unsigned index)
+string Storage::convertToString(unsigned long long index)
 {
 	stringstream tmpstream;
 	tmpstream << (index);

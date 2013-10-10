@@ -38,6 +38,8 @@ Messenger Manager::processCommand(const string& newCommand) {
 
 void Manager::saveChanges()
 {
+	if(_cmd == NULL)
+		return;
 	switch(this->_cmd->getCommandType())
 	{
 		case MOD:
@@ -91,6 +93,10 @@ void Manager::handleNormalScenarioCommands(string newCommand) {
 			this->editTaskListInResponse();
 			this->_response.setStatus(SUCCESS_INDEXED_COMMAND);
 		}
+		else {
+			this->_response.setErrorMsg(MESSAGE_INDEX_OUT_OF_RANGE);
+			this->_response.setStatus(ERROR);
+		}
 	}
 	// a generic command and has already been interpreted by isCommandWithIndexGiven() above
 	else  {
@@ -113,7 +119,12 @@ void Manager::editTaskListInResponse()
 	tempList.erase(lit);
 	if(this->_cmd->getCommandType() != DEL)
 	{
-		tempList.push_back(this->_response.getTask());
+		lit = tempList.begin();
+		for (int i = 1;i < this->_index;i++)
+		{
+			lit ++;
+		}
+		tempList.insert(lit, this->_response.getTask());
 	}
 	this->_response.setList(tempList);
 	return;
@@ -209,7 +220,7 @@ void Manager::insertCreatedTimeIntoCommand() {
 
 void Manager::insertCreatedTimeIntoDeleteCommand() {
 	Task chosenTask = getPointerToChosenTask();
-	unsigned createdTime = this->getCreatedTimeOfTask(chosenTask);
+	unsigned long long createdTime = this->getCreatedTimeOfTask(chosenTask);
 
 	Command_Del* tempCommand = (Command_Del *) this->_cmd;
 	tempCommand->setCreatedTime(createdTime);
@@ -218,7 +229,7 @@ void Manager::insertCreatedTimeIntoDeleteCommand() {
 
 void Manager::insertCreatedTimeIntoModifyCommand() {
 	Task chosenTask = this->getPointerToChosenTask();
-	unsigned createdTime = this->getCreatedTimeOfTask(chosenTask);
+	unsigned long long createdTime = this->getCreatedTimeOfTask(chosenTask);
 
 	Command_Mod* tempCommand = (Command_Mod *) this->_cmd;
 	tempCommand->setCreatedTime(createdTime);
@@ -233,8 +244,8 @@ Task Manager::getPointerToChosenTask() const {
 	return (*it);
 }
 
-unsigned Manager::getCreatedTimeOfTask(Task task) const {
-	unsigned createdTime =	task.getIndex();
+unsigned long long Manager::getCreatedTimeOfTask(Task task) const {
+	unsigned long long createdTime =	task.getIndex();
 	return createdTime;
 }
 
@@ -309,7 +320,8 @@ Messenger Manager::getTodayTasks() {
 
 	this->setCurrTm(todayTm);
 
-	return this->processCommand("find from "+today + " to "+today);
+	/*return this->processCommand("find from "+today + " to "+today);*/
+	return this->processCommand("find undone");
 }
 
 Messenger Manager::getNextPeriodTasks(PERIOD_TYPE pType)
