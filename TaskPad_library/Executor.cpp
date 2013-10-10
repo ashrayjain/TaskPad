@@ -178,7 +178,7 @@ void Executor::modifyByApproxName(Command_Mod* cmd, Messenger &response) {
 		setNameNotFound(cmd->getName(), response);
 	else if(matchingResults.size() == SINGLE_RESULT_LIST_SIZE){
 		cmd->setCreatedTime(matchingResults.front().getIndex());
-		modifyByExactName(cmd, response);
+		modifyByIndex(cmd, response);
 	}
 	else
 		setOpIntermediateTaskList(matchingResults, response);
