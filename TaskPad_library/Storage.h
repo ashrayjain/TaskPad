@@ -35,8 +35,9 @@ class Storage
 		static const string LABEL_STATE;
 		static const string LABEL_END_OF_TASK;
 
-		void saveTaskList	(list<Task>& taskList);
-		void saveTask		(Task& tempTaskTask);
+		void saveTaskList		(const list<Task>& taskList);
+		void saveTask			(const Task& task);
+		void saveTaskAttributes	(const Task& tempTaskTask);
 
 		//enum to decide the way to open the file
 
@@ -46,18 +47,18 @@ class Storage
 		inline	void saveTaskCount			(unsigned long long taskCount);
 
 		//generic attributes of all tasks
-		void saveIndex				(Task& tempTask);
-		void saveName				(Task& tempTask);
-		void saveLocation			(Task& tempTask);
-		void saveParticipants		(Task& tempTask);
-		void saveNote				(Task& tempTask);
-		void savePriority			(Task& tempTask);
-		void saveTags				(Task& tempTask);
-		void saveReminderTimes		(Task& tempTask);
-		void saveState				(Task& tempTask);
-		void saveDueDate			(Task& tempTask);
-		void saveFromDate			(Task& tempTask);
-		void saveToDate				(Task& tempTask);
+		void saveIndex				(const Task& tempTask);
+		void saveName				(const Task& tempTask);
+		void saveLocation			(const Task& tempTask);
+		void saveParticipants		(const Task& tempTask);
+		void saveNote				(const Task& tempTask);
+		void savePriority			(const Task& tempTask);
+		void saveTags				(const Task& tempTask);
+		void saveReminderTimes		(const Task& tempTask);
+		void saveState				(const Task& tempTask);
+		void saveDueDate			(const Task& tempTask);
+		void saveFromDate			(const Task& tempTask);
+		void saveToDate				(const Task& tempTask);
 
 		static string convertTimeToString(time_t time);
 
@@ -83,8 +84,9 @@ class Storage
 	public:
 		Storage(list<Task>&);
 
-		bool save	(list<Task>&);
+		bool save	(const list<Task>&);
 		bool save	(const Command&);
+		bool save	(const Task& task);
 
 		const string FILENAME;
 

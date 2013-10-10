@@ -38,14 +38,15 @@ Messenger Manager::processCommand(const string& newCommand) {
 
 void Manager::saveChanges()
 {
-	if(this->isSuccessfulCommand()){
+	if(this->isSuccessfulCommand() && this->_response.getStatus() != DISPLAY){
 		switch(this->_cmd->getCommandType())
 		{
 			case MOD:
 			case DEL:
-			case ADD:
 				this->_storage->save(this->_tasks);
 				break;
+			case ADD:
+				this->_storage->save(this->_response.getTask());
 			default:
 				break;
 		}
@@ -154,7 +155,7 @@ void Manager::handleIntermediateScenarioCommands(string newCommand) {
 bool Manager::isIndexGiven(string newCommand) {
 	this->_index = this->_interpreter->interpretIndex(newCommand,this->_response);
 
-	if(this->_response.getStatus() != ERROR) {
+	if(this->hasNoInterpretationError()) {
 		return true;
 	}
 	return false;
