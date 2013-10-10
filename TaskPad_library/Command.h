@@ -115,6 +115,7 @@ protected:
 	bool getFlagIndex()								{ return FLAG_index;			}
 	bool getFlagExact()								{ return FLAG_exact;			}
 	bool getFlagName()								{ return FLAG_name;				}
+	bool getFlagOptName()							{ return FLAG_optName;			}
 	bool getFlagDue()								{ return FLAG_due;				}
 	bool getFlagFrom()								{ return FLAG_from;				}
 	bool getFlagTo()								{ return FLAG_to;				}
@@ -284,6 +285,7 @@ public:
 	bool getFlagIndex()								{ return Command::getFlagIndex();		}
 	bool getFlagExact()								{ return Command::getFlagExact();		}
 	bool getFlagName()								{ return Command::getFlagName();		}
+	bool getFlagOptName()							{ return Command::getFlagOptName();			}
 	bool getFlagDue()								{ return Command::getFlagDue();			}
 	bool getFlagFrom()								{ return Command::getFlagFrom();		}
 	bool getFlagTo()								{ return Command::getFlagTo();			}

@@ -95,12 +95,13 @@ bool Interpreter::isKeyWordValid(int prevSysWordIndex)
 	{
 		wordFlag=true;
 	}
+	//index case
 	else if((_command=="mod"||_command=="del"||_command=="find")&& 
-		    prevSysWordIndex==1 && 
-		    listOfWords.at(prevSysWordIndex+1)=="name")
+		prevSysWordIndex==1 && isByIndex())
 	{
 		wordFlag=true;
 	}
+	//exact case
 	else if((_command=="mod"||_command=="del"||_command=="find")&&
 			prevSysWordIndex==0 &&
 			listOfWords.at(prevSysWordIndex+1)=="exact")
@@ -116,8 +117,7 @@ bool Interpreter::isKeyWordValid(int prevSysWordIndex)
 		wordFlag=true;
 	}
 	else if(_command=="find"&&
-		    prevSysWordIndex==0&&
-			listOfWords.at(prevSysWordIndex+1)=="name")
+		    prevSysWordIndex==0)
 	{
 		wordFlag=true;
 	}
@@ -484,7 +484,7 @@ void Interpreter::setCmdObj_Add(Command_Add* cmd, string keyWord, string inputIn
 	{
 		cmd->setRemindTimes(remindTime);
 	}
-	
+
 	return;
 }
 
@@ -682,7 +682,7 @@ void Interpreter::extractIndividualWords(string userInput)
 	if(listOfWords.size()<2){
 		_isSuccess=false;
 		_response.setStatus(ERROR);
-		_response.setErrorMsg("Command with no parameters");
+		_response.setErrorMsg("Command with no parameters / Invalid command");
 	}
 
 	return;
@@ -960,7 +960,7 @@ void Interpreter:: functionFind()
 
 	if(isByIndex())
 	{
-		if(listOfKeyWords.size()==0 ||listOfKeyWords.at(0).index==2){
+		if(listOfKeyWords.size()==0){
 			int index=stoi(listOfWords.at(1),nullptr,10);
 			cmd->setIndex(index);
 		}
@@ -970,7 +970,7 @@ void Interpreter:: functionFind()
 			_response.setErrorMsg(ERROR_INDEX);
 		}
 
-		return;// for find only
+		//return;// for find only
 	}
 	else if(listOfWords.at(1)=="exact")
 	{
@@ -978,15 +978,25 @@ void Interpreter:: functionFind()
 		cmd->setOptName(name);
 		cmd->setFlagExact();
 
-		return; //find only
+		//return; //find only
+	}
+	else if(listOfKeyWords.empty())
+	{
+		string name=reconstructName(1,listOfWords.size()-1);
+		cmd->setOptName(name);
+	}
+	else if(!listOfKeyWords.empty() && listOfKeyWords.at(0).index!=1)
+	{
+		string name=reconstructName(1,listOfKeyWords.at(0).index-1);
+		cmd->setOptName(name);
 	}
 	else
 	{
-//		string name=reconstructName(1,listOfKeyWords.at(0).index-1);
-	//	cmd->setOptName(name);
+		//do nothing
 	}
 
-	for(int i=0; i<numberOfKeyWords; i++)
+
+	for(int i=0; i<numberOfKeyWords && !listOfKeyWords.empty(); i++)
 	{
 		string keyWord=listOfKeyWords.at(i).keyWord;
 		
