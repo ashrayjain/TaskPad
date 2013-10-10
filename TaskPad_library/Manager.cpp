@@ -38,16 +38,15 @@ Messenger Manager::processCommand(const string& newCommand) {
 
 void Manager::saveChanges()
 {
-	if(_cmd!=NULL){//this line added by me
-		switch(this->_cmd->getCommandType()){
-			case MOD:
-			case DEL:
-			case ADD:
-				this->_storage->save(this->_tasks);
-				break;
-			default:
-				break;
-		}
+	switch(this->_cmd->getCommandType())
+	{
+		case MOD:
+		case DEL:
+		case ADD:
+			this->_storage->save(this->_tasks);
+			break;
+		default:
+			break;
 	}
 }
 
