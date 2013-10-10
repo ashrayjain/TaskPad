@@ -64,7 +64,6 @@ class Storage
 		// stringconverters
 		string convertToString	(int num);
 		string convertToString	(unsigned index);
-		string convertToString	(unsigned long long index);
 		string convertToString	(time_t time);
 		string convertToString	(list<time_t> timeList);
 		string convertToString	(list<string> strList);
