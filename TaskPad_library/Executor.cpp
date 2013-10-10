@@ -246,7 +246,7 @@ void Executor::findGeneral(Command_Find* cmd, Messenger &response) {
 	Task taskToCompare;
 	formTaskFromFindCmd(cmd, taskToCompare);
 	list<Task> results;
-	if (cmd->getOptName() != "")
+	if (cmd->getOptName() != string())
 		runSearchWithTask(taskToCompare, results, cmd->getOptName());
 	else
 		runSearchWithTask(taskToCompare, results);
