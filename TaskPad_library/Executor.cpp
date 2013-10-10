@@ -212,7 +212,7 @@ void Executor::modifyTaskTo(Task &oldTask, Command_Mod* cmd) {
 }
 
 void Executor::formTaskFromFindCmd(Command_Find* cmd, Task &newTask) {
-	if(cmd->getFlagExact() && cmd->getFlagName())
+	if(cmd->getFlagExact() && cmd->getFlagOptName())
 		newTask.setName(cmd->getOptName());
 	if(cmd->getFlagLocation())
 		newTask.setLocation(cmd->getLocation());
@@ -246,10 +246,10 @@ void Executor::findGeneral(Command_Find* cmd, Messenger &response) {
 	Task taskToCompare;
 	formTaskFromFindCmd(cmd, taskToCompare);
 	list<Task> results;
-	if (cmd->getFlagExact())
-		runSearchWithTask(taskToCompare, results);
-	else
+	if (cmd->getOptName() != string())
 		runSearchWithTask(taskToCompare, results, cmd->getOptName());
+	else
+		runSearchWithTask(taskToCompare, results);
 	setOpSuccessTaskList(results, response);
 }
 
@@ -266,21 +266,19 @@ void Executor::runSearchWithTask(const Task &taskToCompare, list<Task> &results,
 }
 
 bool Executor::taskMatch(const Task& lhs, const Task& rhs) const {
-	if (rhs.getFlagName() && lhs.getFlagName() && rhs.getName() != lhs.getName())
+	if (rhs.getFlagName() && (!lhs.getFlagName() || rhs.getName() != lhs.getName()))
 		return false;
-	else if (rhs.getFlagLocation() && lhs.getFlagLocation() && rhs.getLocation() != lhs.getLocation())
+	else if (rhs.getFlagLocation() && (!lhs.getFlagLocation() || rhs.getLocation() != lhs.getLocation()))
 		return false;
-	else if (rhs.getFlagParticipants() && lhs.getFlagParticipants() && rhs.getParticipants() != lhs.getParticipants())
+	else if (rhs.getFlagParticipants() && (!lhs.getFlagParticipants() || rhs.getParticipants() != lhs.getParticipants()))
 		return false;
-	else if (rhs.getFlagNote() && lhs.getFlagNote() && rhs.getNote() != lhs.getNote())
+	else if (rhs.getFlagNote() && (!lhs.getFlagNote() || rhs.getNote() != lhs.getNote()))
 		return false;
-	else if (rhs.getFlagRemindTimes() && lhs.getFlagRemindTimes() && rhs.getRemindTimes() != lhs.getRemindTimes())
+	else if (rhs.getFlagRemindTimes() && (!lhs.getFlagRemindTimes() || rhs.getRemindTimes() != lhs.getRemindTimes()))
 		return false;
-	else if (rhs.getFlagFromDate() && lhs.getFlagFromDate() && rhs.getFromDate() <= lhs.getFromDate())
+	else if (rhs.getFlagFromDate() && !chkFromDateBound(rhs.getFromDate(), lhs))
 		return false;
-	else if (rhs.getFlagToDate() && lhs.getFlagToDate() && rhs.getToDate() >= lhs.getToDate())
-		return false;
-	else if (rhs.getFlagDueDate() && lhs.getFlagDueDate() && rhs.getDueDate() != lhs.getDueDate())
+	else if (rhs.getFlagToDate() && !chkToDateBound(rhs.getToDate(), lhs))
 		return false;
 	else if (rhs.getFlagPriority() && rhs.getPriority() != lhs.getPriority())
 		return false;
@@ -288,6 +286,16 @@ bool Executor::taskMatch(const Task& lhs, const Task& rhs) const {
 		return false;
 	return true;
 } 
+
+bool Executor::chkFromDateBound(const time_t &fromTime, const Task &lhs) const {
+	return (lhs.getFlagFromDate() && fromTime <= lhs.getFromDate()) || 
+		(lhs.getFlagDueDate() && fromTime <= lhs.getDueDate());
+}
+
+bool Executor::chkToDateBound(const time_t &toTime, const Task &lhs) const {
+	return (lhs.getFlagToDate() && toTime >= lhs.getToDate()) || 
+		(lhs.getFlagDueDate() && toTime >= lhs.getDueDate());
+}
 
 void Executor::setOpSuccessTask(const Task &retTask, Messenger &response) {
 	response.setStatus(TP::SUCCESS);

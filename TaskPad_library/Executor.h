@@ -63,6 +63,8 @@ protected:
 	void runSearchWithTask			(const Task &taskToCompare,	list<Task> &results);
 	void runSearchWithTask			(const Task &taskToCompare, list<Task> &results, string substringName);
 	bool taskMatch					(const Task& lhs, const Task& rhs) const;
+	bool chkFromDateBound			(const time_t &fromTime, const Task &lhs) const;
+	bool chkToDateBound				(const time_t &toTime, const Task &lhs) const;
 	
 	// Setters for Messenger to return
 	void setOpSuccessTask			(const Task &retTask, Messenger &response);
