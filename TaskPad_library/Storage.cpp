@@ -254,6 +254,13 @@ string Storage::convertToString(unsigned long long index)
 	return tmpstream.str();
 }
 
+string Storage::convertToString(unsigned long long index)
+{
+	stringstream tmpstream;
+	tmpstream << (index);
+	return tmpstream.str();
+}
+
 string Storage::convertToString(time_t time)
 {
 	stringstream ss;

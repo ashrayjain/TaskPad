@@ -115,7 +115,7 @@ void Executor::deleteByExactName(const string &name, Messenger &response) {
 		if (i->getName() == name) {
 			setOpSuccessTask(*i, response);
 			_indexHash.erase(i->getIndex());
-			_data->erase(i);
+			_data->erase(i);			
 			nameFound = true;
 			break;
 		}
@@ -187,6 +187,8 @@ void Executor::modifyByApproxName(Command_Mod* cmd, Messenger &response) {
 void Executor::modifyTaskTo(Task &oldTask, Command_Mod* cmd) {
 	if(cmd->getFlagOptName())
 		oldTask.setName(cmd->getOptName());
+	if(cmd->getFlagOptName()) 
+		oldTask.setName(cmd->getOptName());//need to set exception handler in case the new name is the name of an existing task.
 	if(cmd->getFlagLocation())
 		oldTask.setLocation(cmd->getLocation());
 	if(cmd->getFlagNote())
