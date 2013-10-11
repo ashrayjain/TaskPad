@@ -35,18 +35,21 @@ class Storage
 		static const string LABEL_STATE;
 		static const string LABEL_END_OF_TASK;
 
+		////////////////////////
+		////Saving Functions///
+		//////////////////////
+
+		//savers
 		void saveTaskList		(const list<Task>& taskList);
 		void saveTask			(const Task& task);
 		void saveTaskAttributes	(const Task& tempTaskTask);
 
-		//enum to decide the way to open the file
-
 		//file level attributes
-				void saveHeader				(std::string headerStr);
+				void saveLabel				(std::string LabelStr);
 				void saveCount				(unsigned long long count);
 		inline	void saveTaskCount			(unsigned long long taskCount);
 
-		//generic attributes of all tasks
+		//saving generic attributes of all tasks
 		void saveIndex				(const Task& tempTask);
 		void saveName				(const Task& tempTask);
 		void saveLocation			(const Task& tempTask);
@@ -62,31 +65,70 @@ class Storage
 
 		static string convertTimeToString(time_t time);
 
-		// stringconverters
+		// string converters
 		string convertToString	(int num);
 		string convertToString	(unsigned long long index);
 		string convertToString	(time_t time);
-		string convertToString	(list<time_t> timeList);
-		string convertToString	(list<string> strList);
 		string convertToString	(PRIORITY priority);
 		string convertToString	(TASK_STATE state);
 
-		//file opener/closer
-
-		void openTheFileToRead();
-		void openTheFileToWrite(std::ios_base::openmode);
-		void closeTheWrittenFile();
-		void closeTheReadFile();
 		//writers
 		void writeLineToFile	(string line, bool newLine);
 		void writeLineToFile	(string line);
 		void emptyTheFile		();
+
+		//file opener/closer
+		void openTheFileToWrite(std::ios_base::openmode);
+		void closeTheWrittenFile();
+		
+		///////////////////////////
+		//// Loading Functions ////
+		///////////////////////////
+
+		//loader
+		void loadTaskList(list<Task>& taskList);
+
+		//helper functions
+		std::string getNewLabel(std::string);
+		std::string getNewData (std::string);
+		Task getNextTask();
+		unsigned long long getTaskIndex (std::string);
+
+		// task constructing functions
+		Task createNewTask(unsigned long long index);
+		void setTaskName	(Task& task,std::string name);
+		void setTaskDueDate	(Task& task, std::string dueDate);
+		void setTaskFromDate(Task& task, std::string fromDate);
+		void setTaskToDate(Task& task, std::string toDate);
+		void setTaskLocation(Task& task, std::string location);
+		void setTaskParticipant(Task& task, std::string participant);
+		void setTaskNote(Task& task, std::string note);
+		void setTaskPriority(Task& task, std::string taskPriority);
+		void setTaskTag(Task& task, std::string tag);
+		void setTaskReminderTime(Task& task, std::string reminderTime);
+		void setTaskState(Task& task, std::string taskState);
+		//reader
+		std::string getNextLineFromFile();
+
+		// reverse string converters
+		int					getIntFromString		(std::string attribute);
+		unsigned long long	getIndexFromString		(std::string attribute);
+		time_t				getTimeFromString		(std::string attribute);
+		PRIORITY			getPriorityFromString	(std::string attribute);
+		TASK_STATE			getTaskStateFromString	(std::string attribute);
+
+		//file opener/closer
+		void openTheFileToRead();
+		void closeTheReadFile();
+
 	public:
 		Storage(list<Task>&);
 
 		bool save	(const list<Task>&);
 		bool save	(const Command&);
 		bool save	(const Task& task);
+
+		void load	(list<Task>& taskList);
 
 		const string FILENAME;
 
