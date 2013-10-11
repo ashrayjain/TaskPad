@@ -16,6 +16,11 @@
 
 using namespace TP;
 
+void Executor::rebuildHash() {
+	for (std::list<Task>::iterator i = _data->begin(); i != _data->end(); i++)
+		_indexHash[i->getIndex()] = &(*i);
+}
+
 void Executor::executeCommand(Command* cmd, Messenger &response) {
 	switch (cmd->getCommandType()) {
 	case COMMAND_TYPE::ADD:
