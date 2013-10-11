@@ -47,6 +47,7 @@ void Manager::saveChanges()
 				break;
 			case ADD:
 				this->_storage->save(this->_response.getTask());
+				break;
 			default:
 				break;
 		}
