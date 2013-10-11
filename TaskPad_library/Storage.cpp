@@ -488,13 +488,16 @@ time_t Storage::getTimeFromString (std::string attribute){
 	return returnValue;
 }
 PRIORITY Storage::getPriorityFromString	(std::string attribute){
+	PRIORITY returnValue;
 	for (PRIORITY prio = HIGH; prio <= LOW; prio = static_cast<PRIORITY>(prio + 1))
 	{
 		if(attribute == PRIORITY_STRING[prio])
 		{
-			return prio;
+			returnValue = prio;
+			break;
 		}
 	}
+	return returnValue;
 }
 TASK_STATE Storage::getTaskStateFromString	(std::string attribute) {
 	for (TASK_STATE state = UNDONE; state <= DONE; state = static_cast<TASK_STATE>(state + 1))
