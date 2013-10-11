@@ -13,7 +13,7 @@
  */
 
 #include <list>
-#include <map>
+#include <unordered_map>
 #include <string>
 #include <chrono>
 #include "Task.h"
@@ -32,8 +32,9 @@ public:
 	void executeCommand	(Command* cmd, Messenger &response);
 
 protected:
-	std::list<Task>*					_data;
-	std::map<unsigned long long, Task*>	_indexHash;
+	std::list<Task>*									_data;
+	std::unordered_map<unsigned long long, Task*>		_indexHash;
+	std::unordered_map<std::string, std::list<Task*>>	_hashtagsHash;
 
 	void executeAdd					(Command_Add* cmd,  Messenger &response);
 	void executeDel					(Command_Del* cmd,  Messenger &response);
@@ -42,12 +43,14 @@ protected:
 
 	// Functions for ADD COMMAND
 	void formTaskFromAddCmd			(Command_Add* cmd, Task &newTask);
+	void handleHashTags				(Task &newTask, list<string> &hashTagsList);
 
 	// Functions for DELETE COMMAND
 	void deleteTaskByIndex			(const unsigned long long &index, Messenger &reponse);	
 	void deleteTaskByName			(const string &name, Messenger &reponse, const bool &exactFlag);
 	void deleteByExactName			(const string &name, Messenger &response);
 	void deleteByApproxName			(const string &name, Messenger &response);
+	void deleteTask					(list<Task>::iterator &i);
 
 	// Functions for MODIFY COMMAND
 	void modifyByIndex				(Command_Mod* cmd, Messenger &response);

@@ -76,7 +76,7 @@ void Executor::formTaskFromAddCmd(Command_Add* cmd, Task &newTask) {
 	if(cmd->getFlagParticipants())
 		newTask.setParticipants(cmd->getParticipants());
 	if(cmd->getFlagTags())
-		newTask.setTags(cmd->getTags());
+		handleHashTags(newTask, cmd->getTags());
 	if(cmd->getFlagPriority())
 		newTask.setPriority(cmd->getPriority());
 	if(cmd->getFlagDue())
@@ -87,13 +87,29 @@ void Executor::formTaskFromAddCmd(Command_Add* cmd, Task &newTask) {
 		newTask.setToDate(cmd->getToDate());
 }
 
+void Executor::handleHashTags(Task &newTask, list<string> &hashTagsList) {
+	newTask.setTags(hashTagsList);
+	list<list<Task*>::iterator> newHashTagPtrs;
+	for (list<string>::iterator i = hashTagsList.begin(); i != hashTagsList.end(); i++) {
+		std::unordered_map<std::string, list<Task*>>::iterator foundHashTag = _hashtagsHash.find(*i);
+		if (foundHashTag != _hashtagsHash.end()) {
+			(foundHashTag->second).push_back(&newTask);
+			newHashTagPtrs.push_back(--(foundHashTag->second.end()));
+		}
+		else {
+			_hashtagsHash[*i] = list<Task*>(1, &newTask);
+			newHashTagPtrs.push_back(--(_hashtagsHash[*i].end()));
+		}
+	}
+	newTask.setHashTagPtrs(newHashTagPtrs);
+}
+
 void Executor::deleteTaskByIndex(const unsigned long long &index, Messenger &response) {
 	bool indexFound = false;
 	for(list<Task>::iterator i = _data->begin(); i != _data->end() && !indexFound; ++i)
 		if (i->getIndex() == index) {
 			setOpSuccessTask(*i, response);
-			_indexHash.erase(i->getIndex());
-			_data->erase(i);
+			deleteTask(i);
 			indexFound = true;
 			break;
 		}
@@ -114,8 +130,7 @@ void Executor::deleteByExactName(const string &name, Messenger &response) {
 	for(list<Task>::iterator i = _data->begin(); i != _data->end() && !nameFound; ++i)
 		if (i->getName() == name) {
 			setOpSuccessTask(*i, response);
-			_indexHash.erase(i->getIndex());
-			_data->erase(i);			
+			deleteTask(i);			
 			nameFound = true;
 			break;
 		}
@@ -138,8 +153,16 @@ void Executor::deleteByApproxName(const string &name, Messenger &response) {
 		setOpIntermediateTaskList(matchingResults, response);
 }
 
+void Executor::deleteTask(list<Task>::iterator &i) {
+	_indexHash.erase(i->getIndex());
+	list<string>::iterator k = i->getTags().begin();
+	for(list<list<Task*>::iterator>::iterator j = i->getHashTagPtrs().begin(); j != i->getHashTagPtrs().end(); j++, k++)
+		_hashtagsHash[*k].erase(*j);
+	_data->erase(i);
+}
+
 void Executor::modifyByIndex(Command_Mod* cmd, Messenger &response) {
-	map<unsigned long long, Task*>::iterator result = _indexHash.find(cmd->getCreatedTime());
+	unordered_map<unsigned long long, Task*>::iterator result = _indexHash.find(cmd->getCreatedTime());
 	if (result != _indexHash.end()) {
 		modifyTaskTo(*(result->second), cmd);
 		setOpSuccessTask(*(result->second), response);
@@ -235,7 +258,7 @@ void Executor::formTaskFromFindCmd(Command_Find* cmd, Task &newTask) {
 }
 
 void Executor::findByIndex(const unsigned long long index, Messenger &response) {
-	map<unsigned long long, Task*>::iterator result = _indexHash.find(index);
+	unordered_map<unsigned long long, Task*>::iterator result = _indexHash.find(index);
 	if (result != _indexHash.end())
 		setOpSuccessTask(*(result->second), response);
 	else
@@ -321,4 +344,3 @@ void Executor::setNameNotFound(const string &name, Messenger &response) {
 	response.setStatus(TP::ERROR);
 	response.setErrorMsg(NAME_NOT_FOUND_ERROR + name);
 }
-
