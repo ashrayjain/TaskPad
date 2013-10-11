@@ -338,8 +338,8 @@ Messenger Manager::getTodayTasks() {
 
 	this->setCurrTm(todayTm);
 
-	/*return this->processCommand("find from "+today + " to "+today);*/
-	return this->processCommand("find undone");
+	return this->processCommand("find from "+today + " to "+today);
+	//return this->processCommand("find undone");
 }
 
 Messenger Manager::getNextPeriodTasks(PERIOD_TYPE pType)

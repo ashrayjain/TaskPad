@@ -28,12 +28,14 @@ const std::string	INVALID_INDEX_ERROR		= " is not a valid index!";
 class Executor
 {
 public:
-	Executor (std::list<Task>* data) { _data = data; }
+	Executor (std::list<Task>* data) { _data = data; rebuildHash(); }
 	void executeCommand	(Command* cmd, Messenger &response);
 
 protected:
 	std::list<Task>*					_data;
 	std::map<unsigned long long, Task*>	_indexHash;
+
+	void rebuildHash();
 
 	void executeAdd					(Command_Add* cmd,  Messenger &response);
 	void executeDel					(Command_Del* cmd,  Messenger &response);
