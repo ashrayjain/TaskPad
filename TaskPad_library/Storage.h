@@ -17,6 +17,7 @@ class Storage
 	private:
 		ofstream _fileWriter;
 		ifstream _fileReader;
+		bool _isFileMishandled;
 
 		static const string _fileName;
 
@@ -34,6 +35,7 @@ class Storage
 		static const string LABEL_REMINDER_TIME;
 		static const string LABEL_STATE;
 		static const string LABEL_END_OF_TASK;
+		static const string LABEL_START_OF_TASK;
 
 		////////////////////////
 		////Saving Functions///
@@ -93,6 +95,7 @@ class Storage
 		std::string getNewData (std::string);
 		Task getNextTask();
 		unsigned long long getTaskIndex (std::string);
+		bool hasNextTask();
 
 		// task constructing functions
 		Task createNewTask(unsigned long long index);
