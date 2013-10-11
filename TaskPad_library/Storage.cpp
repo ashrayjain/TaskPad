@@ -489,7 +489,6 @@ std::string Storage::getNextLineFromFile()
 void Storage::load (list<Task>& taskList)
 {
 	this->openTheFileToRead();
-	this->getNextLineFromFile();//this is to remove the first empty line from file
 	this->loadTaskList(taskList);
 	this->closeTheReadFile();
 	return;
