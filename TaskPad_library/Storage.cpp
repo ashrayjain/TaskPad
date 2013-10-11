@@ -7,6 +7,7 @@
 
 using namespace TP;
 
+const string Storage::LABEL_START_OF_TASK = "StartOfTask";
 const string Storage::_fileName = "TaskPad.txt";
 const string Storage::LABEL_TASK_COUNT = "Task Count:";
 const string Storage::LABEL_NAME = "Name:";
@@ -86,8 +87,11 @@ void Storage::saveTaskList(const list<Task>& taskList)
 void Storage::saveTask(const Task& task)
 {
 	writeLineToFile("");
-	this->saveTaskAttributes(task);
-	writeLineToFile(this->LABEL_END_OF_TASK,false);
+
+	saveLabel(this->LABEL_START_OF_TASK);
+	saveTaskAttributes(task);
+	saveLabel(this->LABEL_END_OF_TASK);
+
 	writeLineToFile("");
 	return;
 }
@@ -116,7 +120,7 @@ void Storage::saveLabel(string LabelStr)
 void Storage::saveCount(unsigned long long count)
 {
 	std::string countStr = convertToString(count);
-	this->writeLineToFile(countStr);
+	writeLineToFile(countStr);
 }
 
 void Storage::saveTaskCount(unsigned long long taskCount)
@@ -128,7 +132,7 @@ void Storage::saveTaskCount(unsigned long long taskCount)
 void Storage::saveIndex(const Task& tempTask)
 {
 	saveLabel(LABEL_INDEX);
-	this->writeLineToFile(convertToString(tempTask.getIndex()));
+	writeLineToFile(convertToString(tempTask.getIndex()));
 }
 
 void Storage::saveName(const Task& tempTask)
@@ -136,7 +140,7 @@ void Storage::saveName(const Task& tempTask)
 	if(tempTask.getFlagName())
 	{
 		saveLabel(LABEL_NAME);
-		this->writeLineToFile(tempTask.getName());
+		writeLineToFile(tempTask.getName());
 	}
 }
 
@@ -145,7 +149,7 @@ void Storage::saveLocation(const Task& tempTask)
 	if(tempTask.getFlagLocation())
 	{
 		saveLabel(LABEL_LOCATION);
-		this->writeLineToFile(tempTask.getLocation());
+		writeLineToFile(tempTask.getLocation());
 	}
 }
 
@@ -155,13 +159,15 @@ void Storage::saveParticipants(const Task& tempTask)
 	{
 		list<std::string> participantList = tempTask.getParticipants();
 		list<std::string>::iterator pit = participantList.begin();
-		string participant = "";
+		string participant;
 
 		while(pit != participantList.end())
 		{
 			saveLabel(LABEL_PARTICIPANT);
-			participant = (*pit);//convertToString(tempTask.getParticipants());
-			this->writeLineToFile(participant);
+
+			participant = (*pit);
+			writeLineToFile(participant);
+
 			pit++;
 		}
 	}
@@ -172,15 +178,16 @@ void Storage::saveNote(const Task& tempTask)
 	if(tempTask.getFlagNote())
 	{
 		saveLabel(LABEL_NOTE);
-		this->writeLineToFile(tempTask.getNote());
+		writeLineToFile(tempTask.getNote());
 	}
 }
 
 void Storage::savePriority(const Task& tempTask)
 {
 	saveLabel(LABEL_PRIORITY);
+
 	string priorityStr = convertToString(tempTask.getPriority());
-	this->writeLineToFile(priorityStr);
+	writeLineToFile(priorityStr);
 }	
 
 void Storage::saveTags(const Task& tempTask)
@@ -194,8 +201,9 @@ void Storage::saveTags(const Task& tempTask)
 		while(tagit != tagsList.end())
 		{
 			saveLabel(LABEL_TAG);
+
 			tag = (*tagit);
-			this->writeLineToFile(tag);
+			writeLineToFile(tag);
 			tagit++;
 		}
 	}
@@ -211,8 +219,9 @@ void Storage::saveReminderTimes(const Task& tempTask)
 		while(rtit != reminderList.end())
 		{
 			saveLabel(LABEL_REMINDER_TIME);
+
 			string reminderStr = convertToString(*rtit);
-			this->writeLineToFile(reminderStr);
+			writeLineToFile(reminderStr);
 			rtit++;
 		}
 	}
@@ -221,8 +230,9 @@ void Storage::saveReminderTimes(const Task& tempTask)
 void Storage::saveState(const Task& tempTask)
 {
 	saveLabel(LABEL_STATE);
+
 	string stateStr = convertToString(tempTask.getState());
-	this->writeLineToFile(stateStr);
+	writeLineToFile(stateStr);
 }
 
 void Storage::saveDueDate(const Task& tempTask)
@@ -230,8 +240,9 @@ void Storage::saveDueDate(const Task& tempTask)
 	if(tempTask.getFlagDueDate())
 	{
 		saveLabel(LABEL_DUE_DATE);
+
 		string dueDateStr = convertToString(tempTask.getDueDate());
-		this->writeLineToFile(dueDateStr);
+		writeLineToFile(dueDateStr);
 	}
 }
 
@@ -240,8 +251,9 @@ void Storage::saveFromDate(const Task& tempTask)
 	if(tempTask.getFlagFromDate())
 	{
 		saveLabel(LABEL_FROM_DATE);
+
 		string fromDateStr = convertToString(tempTask.getFromDate());
-		this->writeLineToFile(fromDateStr);
+		writeLineToFile(fromDateStr);
 	}
 }
 
@@ -250,8 +262,9 @@ void Storage::saveToDate(const Task& tempTask)
 	if(tempTask.getFlagToDate())
 	{
 		saveLabel(LABEL_TO_DATE);
+		
 		string toDateStr = convertToString(tempTask.getToDate());
-		this->writeLineToFile(toDateStr);
+		writeLineToFile(toDateStr);
 	}
 }
 
@@ -314,7 +327,7 @@ void Storage::emptyTheFile()
 
 void Storage::loadTaskList(list<Task>& taskList)
 {
-	while(_fileReader.good())
+	while(_fileReader.good() && hasNextTask())
 	{
 		taskList.push_back(this->getNextTask());
 		this->getNextLineFromFile();
@@ -324,6 +337,7 @@ void Storage::loadTaskList(list<Task>& taskList)
 
 Task Storage::getNextTask()
 {
+	bool flagTaskEnded = false;
 	std::string newLine;
 	std::string newLabel;
 	std::string newData;
@@ -335,6 +349,7 @@ Task Storage::getNextTask()
 		newData = getNewData(newLine);
 
 		if(newLabel == LABEL_END_OF_TASK) {
+			flagTaskEnded = true;
 			break;
 		}
 		else if(newLabel == LABEL_INDEX) {
@@ -375,7 +390,28 @@ Task Storage::getNextTask()
 		}
 	}
 
+	if (!flagTaskEnded)
+	{
+		this->_isFileMishandled = true;
+	}
 	return newTask;
+}
+
+bool Storage::hasNextTask()
+{
+	bool hasNextTask = false;
+
+	while(_fileReader.good())
+	{
+		hasNextTask = (getNextLineFromFile() == LABEL_START_OF_TASK);
+
+		if(hasNextTask)
+		{
+			break;
+		}
+	}
+
+	return hasNextTask;
 }
 
 std::string Storage::getNewLabel(std::string newLine)
@@ -453,10 +489,9 @@ std::string Storage::getNextLineFromFile()
 void Storage::load (list<Task>& taskList)
 {
 	this->openTheFileToRead();
-	this->getNextLineFromFile();
+	this->getNextLineFromFile();//this is to remove the first empty line from file
 	this->loadTaskList(taskList);
 	this->closeTheReadFile();
-	this->save(taskList);
 	return;
 }
 
