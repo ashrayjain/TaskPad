@@ -59,6 +59,7 @@ private:
 	void insertCompletion(const QString &completion);
 	bool isWithinPairOfQuoteLeft();
 	QVector<QPair<int, int> > getQuoteLeftPositions();
+	bool isHotkeyTemplateMode();
 	//MODEL RELATED
 	void produceModel();
 	void produceCommandModel();
