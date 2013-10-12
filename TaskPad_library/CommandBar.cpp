@@ -400,25 +400,11 @@ void CommandBar::handleKeySpace(bool *isHandled)
 void CommandBar::handleKeyDelete(bool *isHandled)
 {
 	TURN_OFF_AC
-	if(hasQuoteLeft_RHS() && !hasQuoteLeft_LHS()){
-		moveCursor(QTextCursor::Right);
-		*isHandled = true;
-	}
-	else if(hasQuoteLeft_RHS() && hasQuoteLeft_LHS()){
-		clearCharLHS();
-	}
 }
 
 void CommandBar::handleKeyBackspace(bool *isHandled)
 {
 	TURN_OFF_AC
-	if(!hasQuoteLeft_RHS() && hasQuoteLeft_LHS()){
-		moveCursor(QTextCursor::Left);
-		*isHandled = true;
-	}
-	else if(hasQuoteLeft_RHS() && hasQuoteLeft_LHS()){
-		clearCharRHS();
-	}
 }
 
 void CommandBar::handleKeyUp()
