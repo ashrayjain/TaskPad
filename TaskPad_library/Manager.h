@@ -39,7 +39,13 @@ class Manager {
 		bool isIndexedDeleteCommand		();
 		bool isIndexWithinRange			();
 
-		void handleGenericCommand					(string newCommand);
+		bool isDeleteCommand			();
+		bool isModifyCommand			();
+
+		void handleIndexCommand			();
+		void handleCommandWithIndex		();
+		void handleGenericCommand		();
+
 		void handleNormalScenarioCommands			(string newCommand);
 		void handleIntermediateScenarioCommands		(string newCommand);
 		void insertCreatedTimeIntoCommand			();
@@ -54,20 +60,18 @@ class Manager {
 		void setCurrTm	(std::tm);
 
 		// helpers for getting list of tasks in a specified period
-		Task			getPointerToChosenTask	()								const;
-		unsigned long long	getCreatedTimeOfTask	(Task baseTask)				const;
-		std::tm			getTodayTm				();
-		std::tm			getNextDayTm			(std::tm currTm);
-		std::tm			getNextWeekTm			(std::tm currTm);
-		std::tm			getNextMonthTm			(std::tm currTm);
-		std::tm			getPrevDayTm			(std::tm currTm);
-		std::tm			getPrevWeekTm			(std::tm currTm);
-		std::tm			getPrevMonthTm			(std::tm currTm);
-		std::string		getStrFromTm			(std::tm timeInfo);
-		std::string		createFindCommand		(std::tm startTm, std::tm endTm);
+		Task				getPointerToChosenTask		()							const;
+		unsigned long long	getCreatedTimeOfTask		(Task baseTask)				const;
+		std::tm				getTodayTm					();
+		std::tm				getNextDayTm				(std::tm currTm);
+		std::tm				getNextWeekTm				(std::tm currTm);
+		std::tm				getNextMonthTm				(std::tm currTm);
+		std::tm				getPrevDayTm				(std::tm currTm);
+		std::tm				getPrevWeekTm				(std::tm currTm);
+		std::tm				getPrevMonthTm				(std::tm currTm);
+		std::string			getStrFromTm				(std::tm timeInfo);
+		std::string			createFindCommand			(std::tm startTm, std::tm endTm);
 
-		//helper for destructor
-		void deleteTaskList();
 	public:
 		//constructor
 		Manager();
