@@ -333,14 +333,14 @@ std::string Manager::createFindCommand(std::tm startTm, std::tm endTm)
 	std::string startTmStr = getStrFromTm(startTm);
 	std::string endTmStr = getStrFromTm(endTm);
 
-	return "find from '" + startTmStr + "' to '" + endTmStr + "'";
+	return "find from `" + startTmStr + "` to `" + endTmStr + "`";
 }
 
 std::string Manager::getStrFromTm(std::tm timeInfo)
 {
 	char todayCharArray [80];
 
-	strftime (todayCharArray,80,"'%d/%m/%Y'",&timeInfo);
+	strftime (todayCharArray,80,"`%d/%m/%Y`",&timeInfo);
 
 	//convert the char array to a string
 	string today(todayCharArray);
