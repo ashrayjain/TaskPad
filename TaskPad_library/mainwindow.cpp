@@ -20,6 +20,8 @@ MainWindow::MainWindow(QWidget *parent)
 	QObject::connect(ui.AboutButton, SIGNAL(clicked()), this, SLOT(about()));
 	QObject::connect(ui.HelpButton, SIGNAL(clicked()), this, SLOT(help()));
 	(void) new QShortcut(QKeySequence(tr("Ctrl+N", "New Task")), this, SLOT(createNewTaskTemplate()));
+	(void) new QShortcut(QKeySequence(tr("Ctrl+T", "Today")), this, SLOT(getToday()));
+	(void) new QShortcut(QKeySequence(tr("Ctrl+I", "Inbox")), this, SLOT(getInbox()));
 	//ui.CommandBar->installEventFilter(this);//filter RETURN
 	ui.CloseButton->installEventFilter(this);//filter MOUSE MOVE
 	ui.MinimizeButton->installEventFilter(this);//filter MOUSE MOVE
@@ -217,14 +219,27 @@ void MainWindow::reset(){
 }
 
 void MainWindow::getToday(){
-	QGraphicsOpacityEffect* opacity = new QGraphicsOpacityEffect(this);
-	opacity->setOpacity(qreal(40)/100);
-	ui.DetailsView->setGraphicsEffect(opacity);
-	/*ui.DetailsView->setStyleSheet(QLatin1String("QWidget#DetailsView{\n"
-"	background-image:url(:/MainWindow/Resources/details_default_bg.png);\n"
-"}"));*/
 	Messenger msg = scheduler->getTodayTasks();
 	handleGetToday(msg);
+}
+
+void MainWindow::handleGetToday(Messenger msg){
+	updateNavLabel("Today");
+	updateStatusBar("Ready");
+	clearDetails();
+	updateList(msg.getList());
+}
+
+void MainWindow::getInbox(){
+	Messenger msg = scheduler->processCommand("find undone");
+	handleGetInbox(msg);
+}
+
+void MainWindow::handleGetInbox(Messenger msg){
+	updateNavLabel("Inbox");
+	updateStatusBar("Ready");
+	clearDetails();
+	updateList(msg.getList());
 }
 
 bool MainWindow::eventFilter(QObject* watched, QEvent* event)
@@ -261,15 +276,6 @@ bool MainWindow::eventFilter(QObject* watched, QEvent* event)
 		}
 	}
 	return QObject::eventFilter(watched, event);//normal processing
-}
-
-void MainWindow::handleGetToday(Messenger msg){
-	updateNavLabel("Inbox");
-	updateStatusBar("Ready");
-	updateDetailsLabel("Details");
-	clearDetails();
-	updateList(msg.getList());
-	lastTimeList = msg.getList();//TODO: do i need to sync this lastTimeList? or manager does it? like after delete some items..
 }
 
 void MainWindow::handleMessenger(Messenger msg){
@@ -310,7 +316,6 @@ void MainWindow::handleMessenger(Messenger msg){
 			updateStatusBar("Searched successfully");
 			clearDetails();
 			updateList(msg.getList());
-			lastTimeList = msg.getList();
 			break;
 		}
 	}
@@ -319,7 +324,6 @@ void MainWindow::handleMessenger(Messenger msg){
 		updateNavLabel("Select a task by typing its index");
 		updateStatusBar("Intermediate stage...");
 		updateList(msg.getList());
-		lastTimeList = msg.getList();
 	}
 	else if(msg.getStatus() == TP::DISPLAY)
 	{
@@ -408,6 +412,10 @@ QTreeWidgetItem* MainWindow::extractTask(int index, Task task){
 }
 
 void MainWindow::clearDetails(){
+	QGraphicsOpacityEffect* opacity = new QGraphicsOpacityEffect(this);
+	opacity->setOpacity(qreal(40)/100);
+	ui.DetailsView->setGraphicsEffect(opacity);
+	updateDetailsLabel("Details");
 	ui.name->setText("");
 	ui.dueOrFromTo->setText("");
 	ui.location->setText("");
