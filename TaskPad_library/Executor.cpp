@@ -16,6 +16,11 @@
 
 using namespace TP;
 
+void Executor::rebuildHash() {
+	for (std::list<Task>::iterator i = _data->begin(); i != _data->end(); i++)
+		_indexHash[i->getIndex()] = &(*i);
+}
+
 void Executor::executeCommand(Command* cmd, Messenger &response) {
 	switch (cmd->getCommandType()) {
 	case COMMAND_TYPE::ADD:
@@ -76,7 +81,7 @@ void Executor::formTaskFromAddCmd(Command_Add* cmd, Task &newTask) {
 	if(cmd->getFlagParticipants())
 		newTask.setParticipants(cmd->getParticipants());
 	if(cmd->getFlagTags())
-		newTask.setTags(cmd->getTags());
+		handleHashTags(newTask, cmd->getTags());
 	if(cmd->getFlagPriority())
 		newTask.setPriority(cmd->getPriority());
 	if(cmd->getFlagDue())
@@ -87,13 +92,40 @@ void Executor::formTaskFromAddCmd(Command_Add* cmd, Task &newTask) {
 		newTask.setToDate(cmd->getToDate());
 }
 
+void Executor::handleHashTags(Task &newTask, list<string> &hashTagsList) {
+	hashTagsList.push_back("test");
+	newTask.setTags(hashTagsList);
+	list<list<Task*>::iterator> newHashTagPtrs;
+	handleHashTagPtrs(newHashTagPtrs, newTask, hashTagsList);
+}
+
+void Executor::handleHashTagPtrs(list<list<Task*>::iterator> &newHashTagPtrs, Task &newTask, list<string> &hashTagsList) {
+	for (list<string>::iterator i = hashTagsList.begin(); i != hashTagsList.end(); i++) {
+		std::unordered_map<std::string, list<Task*>>::iterator foundHashTag = _hashTagsHash.find(*i);
+		if (foundHashTag != _hashTagsHash.end())
+			handleExistingHashTag(newHashTagPtrs, newTask, foundHashTag->second);
+		else
+			handleNewHashTag(newHashTagPtrs, newTask, i);
+	}
+	newTask.setHashTagPtrs(newHashTagPtrs);
+}
+
+void Executor::handleExistingHashTag(list<list<Task*>::iterator> &newHashTagPtrs, Task &newTask, list<Task*> &hashTag) {
+	hashTag.push_back(&newTask);
+	newHashTagPtrs.push_back(--hashTag.end());
+}
+
+void Executor::handleNewHashTag(list<list<Task*>::iterator> &newHashTagPtrs, Task &newTask, list<string>::iterator &hashTag) {
+	_hashTagsHash[*hashTag] = list<Task*>(1, &newTask);
+	newHashTagPtrs.push_back(--(_hashTagsHash[*hashTag].end()));
+}
+
 void Executor::deleteTaskByIndex(const unsigned long long &index, Messenger &response) {
 	bool indexFound = false;
 	for(list<Task>::iterator i = _data->begin(); i != _data->end() && !indexFound; ++i)
 		if (i->getIndex() == index) {
 			setOpSuccessTask(*i, response);
-			_indexHash.erase(i->getIndex());
-			_data->erase(i);
+			deleteTask(i);
 			indexFound = true;
 			break;
 		}
@@ -114,8 +146,7 @@ void Executor::deleteByExactName(const string &name, Messenger &response) {
 	for(list<Task>::iterator i = _data->begin(); i != _data->end() && !nameFound; ++i)
 		if (i->getName() == name) {
 			setOpSuccessTask(*i, response);
-			_indexHash.erase(i->getIndex());
-			_data->erase(i);			
+			deleteTask(i);			
 			nameFound = true;
 			break;
 		}
@@ -138,8 +169,18 @@ void Executor::deleteByApproxName(const string &name, Messenger &response) {
 		setOpIntermediateTaskList(matchingResults, response);
 }
 
+void Executor::deleteTask(list<Task>::iterator &i) {
+	_indexHash.erase(i->getIndex());
+	list<string> tags = i->getTags();
+	list<string>::iterator k = tags.begin();
+	list<list<Task*>::iterator> tagPtrs = i->getHashTagPtrs();
+	for(list<list<Task*>::iterator>::iterator j = tagPtrs.begin(); j != tagPtrs.end(); j++)
+		_hashTagsHash[*k].erase(*j);
+	_data->erase(i);
+}
+
 void Executor::modifyByIndex(Command_Mod* cmd, Messenger &response) {
-	map<unsigned long long, Task*>::iterator result = _indexHash.find(cmd->getCreatedTime());
+	unordered_map<unsigned long long, Task*>::iterator result = _indexHash.find(cmd->getCreatedTime());
 	if (result != _indexHash.end()) {
 		modifyTaskTo(*(result->second), cmd);
 		setOpSuccessTask(*(result->second), response);
@@ -185,8 +226,6 @@ void Executor::modifyByApproxName(Command_Mod* cmd, Messenger &response) {
 }
 
 void Executor::modifyTaskTo(Task &oldTask, Command_Mod* cmd) {
-	if(cmd->getFlagOptName())
-		oldTask.setName(cmd->getOptName());
 	if(cmd->getFlagOptName()) 
 		oldTask.setName(cmd->getOptName());//need to set exception handler in case the new name is the name of an existing task.
 	if(cmd->getFlagLocation())
@@ -197,8 +236,8 @@ void Executor::modifyTaskTo(Task &oldTask, Command_Mod* cmd) {
 		oldTask.setRemindTimes(cmd->getRemindTimes());
 	if(cmd->getFlagParticipants())
 		oldTask.setParticipants(cmd->getParticipants());
-	if(cmd->getFlagTags())
-		oldTask.setTags(cmd->getTags());
+	//if(cmd->getFlagTags())
+	//	oldTask.setTags(cmd->getTags());
 	if(cmd->getFlagPriority())
 		oldTask.setPriority(cmd->getPriority());
 	if(cmd->getFlagDue())
@@ -235,7 +274,7 @@ void Executor::formTaskFromFindCmd(Command_Find* cmd, Task &newTask) {
 }
 
 void Executor::findByIndex(const unsigned long long index, Messenger &response) {
-	map<unsigned long long, Task*>::iterator result = _indexHash.find(index);
+	unordered_map<unsigned long long, Task*>::iterator result = _indexHash.find(index);
 	if (result != _indexHash.end())
 		setOpSuccessTask(*(result->second), response);
 	else
@@ -321,4 +360,3 @@ void Executor::setNameNotFound(const string &name, Messenger &response) {
 	response.setStatus(TP::ERROR);
 	response.setErrorMsg(NAME_NOT_FOUND_ERROR + name);
 }
-

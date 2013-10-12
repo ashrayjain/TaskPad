@@ -61,6 +61,7 @@ void Task::initTaskAttributes()
     _taskPriority		= TP::MEDIUM;
     _taskParticipants	= std::list<std::string>();
     _taskTags			= std::list<std::string>();
+	_hashTagPtrs		= std::list<std::list<Task*>::iterator>();
     _taskRemindTimes	= std::list<std::time_t>();
     _taskDueDate		= 0;
     _taskFromDate		= 0;

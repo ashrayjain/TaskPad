@@ -13,7 +13,7 @@
  */
 
 #include <list>
-#include <map>
+#include <unordered_map>
 #include <string>
 #include <chrono>
 #include "Task.h"
@@ -28,12 +28,15 @@ const std::string	INVALID_INDEX_ERROR		= " is not a valid index!";
 class Executor
 {
 public:
-	Executor (std::list<Task>* data) { _data = data; }
+	Executor (std::list<Task>* data) { _data = data; rebuildHash(); }
 	void executeCommand	(Command* cmd, Messenger &response);
 
 protected:
-	std::list<Task>*					_data;
-	std::map<unsigned long long, Task*>	_indexHash;
+	std::list<Task>*									_data;
+	std::unordered_map<unsigned long long, Task*>		_indexHash;
+	std::unordered_map<std::string, std::list<Task*>>	_hashTagsHash;
+
+	void rebuildHash();
 
 	void executeAdd					(Command_Add* cmd,  Messenger &response);
 	void executeDel					(Command_Del* cmd,  Messenger &response);
@@ -42,12 +45,17 @@ protected:
 
 	// Functions for ADD COMMAND
 	void formTaskFromAddCmd			(Command_Add* cmd, Task &newTask);
+	void handleHashTags				(Task &newTask, list<string> &hashTagsList);
+	void handleHashTagPtrs			(list<list<Task*>::iterator> &newHashTagPtrs, Task &newTask, list<string> &hashTagsList);
+	void handleExistingHashTag		(list<list<Task*>::iterator> &newHashTagPtrs, Task &newTask, list<Task*> &hashTag);
+	void handleNewHashTag			(list<list<Task*>::iterator> &newHashTagPtrs, Task &newTask, list<string>::iterator &hashTag);
 
 	// Functions for DELETE COMMAND
 	void deleteTaskByIndex			(const unsigned long long &index, Messenger &reponse);	
 	void deleteTaskByName			(const string &name, Messenger &reponse, const bool &exactFlag);
 	void deleteByExactName			(const string &name, Messenger &response);
 	void deleteByApproxName			(const string &name, Messenger &response);
+	void deleteTask					(list<Task>::iterator &i);
 
 	// Functions for MODIFY COMMAND
 	void modifyByIndex				(Command_Mod* cmd, Messenger &response);
