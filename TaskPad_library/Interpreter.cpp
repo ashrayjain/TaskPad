@@ -362,6 +362,8 @@ string Interpreter::reconstructInputInfo(int incrementIdx, int numberOfKeyWords)
 	//eliminate ''		
 	if(inputInfo.size() != 0){
 		inputInfo.erase(inputInfo.begin());
+	}
+	if(inputInfo.size() != 0){
 		inputInfo.erase(inputInfo.end()-1);
 	}
 

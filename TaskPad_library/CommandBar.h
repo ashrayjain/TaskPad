@@ -57,6 +57,8 @@ private:
 	void clearCharRHS();
 	void clearCharLHS();
 	void insertCompletion(const QString &completion);
+	bool isWithinPairOfQuoteLeft();
+	QVector<QPair<int, int> > getQuoteLeftPositions();
 	//MODEL RELATED
 	void produceModel();
 	void produceCommandModel();
@@ -80,7 +82,8 @@ private:
 	QTextCursor lastTimeCursor;
 	QStringListModel* model;
 	QCompleter* completer;
-	QRegExp hotkeyTemplate;
+	QRegExp hotkeyTemplate;//TODO: rename it
+	QRegExp REGEXP_quoteLeft;
 	QStack<QString> inputHistory_undo;
 	QStack<QString> inputHistory_redo;
 };

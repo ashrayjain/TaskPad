@@ -19,8 +19,11 @@ const QString CommandBar::HOTKEY_TEMPLATE_NEW = "add `__NAME__` due `__DATE__` a
 
 CommandBar::CommandBar(QWidget *parent)
 	:QTextEdit(parent), inputHistory_undo(), inputHistory_redo(),\
-	hotkeyTemplate("__[A-Z]+__", Qt::CaseInsensitive)
+	hotkeyTemplate("__[A-Z]+__", Qt::CaseInsensitive),
+	REGEXP_quoteLeft("`(.*)`")
 {
+	REGEXP_quoteLeft.setPatternSyntax(QRegExp::RegExp2);
+	REGEXP_quoteLeft.setMinimal(true);
 	initWidgets();
 	initConnections();
 	hotkeyTemplate.setPatternSyntax(QRegExp::RegExp2);
@@ -133,6 +136,33 @@ void CommandBar::insertCompletion(const QString &completion)
 	}
 }
 
+bool CommandBar::isWithinPairOfQuoteLeft(){
+	bool result = false;
+	QVector<QPair<int, int> > quoteLeftPositions = getQuoteLeftPositions();
+	for(int i = 0; i < quoteLeftPositions.size(); i++){
+		int leftPos = quoteLeftPositions[i].first;
+		int rightPos = quoteLeftPositions[i].second;
+		int currentPos = textCursor().position();
+		if(leftPos < currentPos && currentPos < rightPos){
+			result = true;
+			break;
+		}
+	}
+	return result;
+}
+
+QVector<QPair<int, int> > CommandBar::getQuoteLeftPositions(){
+	QVector<QPair<int, int> > result;
+	QString currentLine = getCurrentLine();
+	int index = REGEXP_quoteLeft.indexIn(currentLine);
+	while (index > -1) {//TODO: magic number
+		int length = REGEXP_quoteLeft.matchedLength();
+		result.push_back(QPair<int, int>(index, index + length - 1));
+		index = REGEXP_quoteLeft.indexIn(currentLine, index + length);//find next
+	}
+	return result;
+}
+
 bool CommandBar::isLastCharLetter(QString str)
 {
 	const int END_INDEX = str.length() - 1;
@@ -215,7 +245,10 @@ void CommandBar::clearCharLHS()
 
 void CommandBar::produceModel()
 {
-	if(containsCommand())
+	if(isWithinPairOfQuoteLeft()){
+		model->setStringList(QStringList());
+	}
+	else if(containsCommand())
 	{
 		produceKeywordModel();
 	}
@@ -307,7 +340,7 @@ void CommandBar::handleKeyQuoteLeft(bool *isHandled)
 		cursor.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor);
 		cursor.insertText(SPACE);
 	}
-	else if((!hasSpace_LHS() && cursor.atEnd())){
+	else{
 		cursor.clearSelection();
 		cursor.insertText(SPACE + QUOTE_LEFT + QUOTE_LEFT);
 		cursor.movePosition(QTextCursor::Left, QTextCursor::MoveAnchor);
