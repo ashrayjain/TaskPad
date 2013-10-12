@@ -15,7 +15,7 @@ const QString CommandBar::SPACE = " ";
 const QString CommandBar::SINGLE_QUOTATION_MARK = "'";
 const QString CommandBar::QUOTE_LEFT = "`";
 const QString CommandBar::EMPTY = "";
-const QString CommandBar::HOTKEY_TEMPLATE_NEW = "add '__NAME__' due '__DATE__' at '__WHERE__' note '__NOTE__'";
+const QString CommandBar::HOTKEY_TEMPLATE_NEW = "add `__NAME__` due `__DATE__` at `__WHERE__` note `__NOTE__`";
 
 CommandBar::CommandBar(QWidget *parent)
 	:QTextEdit(parent), inputHistory_undo(), inputHistory_redo(),\
@@ -55,7 +55,6 @@ void CommandBar::initConnections()
 {
 	connect(this, SIGNAL(textChanged()), this, SLOT(performCompletion()));
 	(void) new QShortcut(QKeySequence(tr("Shift+Tab", "HotKey Template: Go Backwards")), this, SLOT(hkTemplateGoBackwards()));
-	(void) new QShortcut(QKeySequence(tr("Alt+'", "Insert Single Quotation Mark")), this, SLOT(insertSingleQuotationMark()));
 }
 
 QString CommandBar::getCurrentLine()
@@ -308,6 +307,11 @@ void CommandBar::handleKeyQuoteLeft(bool *isHandled)
 		cursor.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor);
 		cursor.insertText(SPACE);
 	}
+	else if((!hasSpace_LHS() && cursor.atEnd())){
+		cursor.clearSelection();
+		cursor.insertText(SPACE + QUOTE_LEFT + QUOTE_LEFT);
+		cursor.movePosition(QTextCursor::Left, QTextCursor::MoveAnchor);
+	}
 	setTextCursor(cursor);
 	*isHandled = true;
 }
@@ -343,10 +347,6 @@ void CommandBar::hkTemplateGoBackwards(){
 			setTextCursor(lastTimeCursor);
 		}
 	}
-}
-
-void CommandBar::insertSingleQuotationMark(){
-	insertPlainText(SINGLE_QUOTATION_MARK);
 }
 
 void CommandBar::handleKeyTab(bool *isHandled)
