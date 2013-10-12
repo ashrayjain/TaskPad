@@ -467,8 +467,9 @@ void MainWindow::updateDetails(Task t){
 	//set label participants
 	if(task_showDetails.getFlagParticipants()){
 		QString participants;
-		for(list<string>::iterator iter = task_showDetails.getParticipants().begin();
-			iter != task_showDetails.getParticipants().end();
+		list<string> listOfParticipants =  task_showDetails.getParticipants();
+		for(list<string>::iterator iter = listOfParticipants.begin();
+			iter != listOfParticipants.end();
 			advance(iter, 1)){
 				participants += iter->c_str();
 				participants += ", ";
@@ -481,8 +482,9 @@ void MainWindow::updateDetails(Task t){
 	//set tags label
 	if(task_showDetails.getFlagTags()){
 		QString tags;
-		for(list<string>::iterator iter = task_showDetails.getTags().begin();
-			iter != task_showDetails.getTags().end();
+		list<string> listOfTags = task_showDetails.getTags();
+		for(list<string>::iterator iter = listOfTags.begin();
+			iter != listOfTags.end();
 			advance(iter, 1)){
 				tags += iter->c_str();
 				tags += ", ";
@@ -495,8 +497,9 @@ void MainWindow::updateDetails(Task t){
 	//set remind time
 	if(task_showDetails.getFlagRemindTimes()){
 		QString remindTimes;
-		for(list<time_t>::iterator iter = task_showDetails.getRemindTimes().begin();
-			iter != task_showDetails.getRemindTimes().end();
+		list<time_t> listOfRemindTimes = task_showDetails.getRemindTimes();
+		for(list<time_t>::iterator iter = listOfRemindTimes.begin();
+			iter != listOfRemindTimes.end();
 			advance(iter, 1)){
 				remindTimes += QDateTime::fromTime_t(*iter).toString("dd/MM/yyyy");
 				remindTimes += ", ";
