@@ -1,4 +1,5 @@
 #include <ctime>
+#include <cassert>
 #include "Manager.h"
 #include "Storage.h"
 #include "Messenger.h"
@@ -38,7 +39,7 @@ Messenger Manager::processCommand(const string& newCommand) {
 
 void Manager::saveChanges()
 {
-	if(this->isSuccessfulCommand() && this->_response.getStatus() != DISPLAY){
+	if(this->isSuccessfulCommand()){
 		switch(this->_cmd->getCommandType())
 		{
 			case MOD:
@@ -76,58 +77,79 @@ void Manager::removePreviousCommand() {
 */
 void Manager::handleNormalScenarioCommands(string newCommand) {
 	if(isIndexGiven(newCommand)) {
-		if(isIndexWithinRange()) {
-			this->_response.setInt(this->_index);
-			this->_response.setStatus(DISPLAY);
-		}
-		else {
-			this->_response.setErrorMsg(MESSAGE_INDEX_OUT_OF_RANGE);
-			this->_response.setStatus(ERROR);
-		}
+		this->handleIndexCommand();
 	}
 	else if (isCommandWithIndexGiven(newCommand)) {
 		this->storeIndexFromCommandToClassAttribute();
-
-		if(this->isIndexWithinRange()) {
-			this->insertCreatedTimeIntoCommand();
-			this->_executor->executeCommand(this->_cmd,this->_response);
-			this->editTaskListInResponse();
-			this->_response.setStatus(SUCCESS_INDEXED_COMMAND);
-		}
-		else {
-			this->_response.setErrorMsg(MESSAGE_INDEX_OUT_OF_RANGE);
-			this->_response.setStatus(ERROR);
-		}
+		this->handleCommandWithIndex();
 	}
-	// a generic command and has already been interpreted by isCommandWithIndexGiven() above
 	else  {
-		if(this->hasNoInterpretationError()) {
-			this->_executor->executeCommand(this->_cmd,this->_response);
-		}
+	// a generic command and has already been interpreted by isCommandWithIndexGiven() above
+		this->handleGenericCommand();
 	}
 	return;
 }
 
+void Manager::handleIndexCommand() {
+	if(isIndexWithinRange()) {
+		this->_response.setInt(this->_index);
+		this->_response.setStatus(DISPLAY);
+	}
+	else {
+		this->_response.setErrorMsg(MESSAGE_INDEX_OUT_OF_RANGE);
+		this->_response.setStatus(ERROR);
+	}
+}
+
+void Manager::handleCommandWithIndex()
+{
+	if(this->isIndexWithinRange()) {
+		this->insertCreatedTimeIntoCommand();
+		this->_executor->executeCommand(this->_cmd,this->_response);
+		this->editTaskListInResponse();
+		this->_response.setStatus(SUCCESS_INDEXED_COMMAND);
+	}
+	else {
+		this->_response.setErrorMsg(MESSAGE_INDEX_OUT_OF_RANGE);
+		this->_response.setStatus(ERROR);
+	}
+}
+
+void Manager::handleGenericCommand()
+{
+	if(hasNoInterpretationError()) {
+		this->_executor->executeCommand(this->_cmd,this->_response);
+	}
+}
 
 void Manager::editTaskListInResponse()
 {
+	assert(isDeleteCommand() || isModifyCommand());
+
 	list<Task> tempList = this->_response.getList();
 	list<Task>::iterator lit = tempList.begin();
-	for (int i = 1;i < this->_index;i++)
-	{
-		lit ++;
-	}
+	advance (lit,(_index - 1));
 
-	if(this->_cmd->getCommandType() == DEL)
+	if(isDeleteCommand())
 	{
 		tempList.erase(lit);
 	}
-	else if(this->_cmd->getCommandType() == MOD)
+	else if(isModifyCommand())
 	{
 		(*lit) = this->_response.getTask();
 	}
 	this->_response.setList(tempList);
 	return;
+}
+
+bool Manager::isDeleteCommand()
+{
+	return (this->_cmd->getCommandType() == DEL);
+}
+
+bool Manager::isModifyCommand()
+{
+	return (this->_cmd->getCommandType() == MOD);
 }
 
 /**
@@ -168,7 +190,7 @@ bool Manager::isCommandWithIndexGiven(string newCommand) {
 	this->_cmd = this->_interpreter->interpretCommand(newCommand,this->_response);
 	this->_response.setList(tempStorage);
 
-	if (this->hasNoInterpretationError()) {
+	if (hasNoInterpretationError()) {
 		bool isModifyCommandWithIndex = false, isDeleteCommandWithIndex = false;
 
 		switch (this->_cmd->getCommandType()) {
@@ -206,6 +228,9 @@ bool Manager::isIndexWithinRange() {
 }
 
 void Manager::insertCreatedTimeIntoCommand() {
+	assert(_cmd != NULL);
+	assert(isModifyCommand() || isDeleteCommand());
+
 	switch(this->_cmd->getCommandType()) {
 		case MOD:
 			this->insertCreatedTimeIntoModifyCommand();
@@ -213,8 +238,6 @@ void Manager::insertCreatedTimeIntoCommand() {
 		case DEL:
 			this->insertCreatedTimeIntoDeleteCommand();
 			break;
-		default:
-			throw MESSAGE_ERROR_UNEXPECTED_COMMAND_TYPE_WITH_INDEX;
 	}
 }
 
@@ -245,11 +268,13 @@ Task Manager::getPointerToChosenTask() const {
 }
 
 unsigned long long Manager::getCreatedTimeOfTask(Task task) const {
-	unsigned long long createdTime =	task.getIndex();
+	unsigned long long createdTime = task.getIndex();
 	return createdTime;
 }
 
 void Manager::storeIndexFromCommandToClassAttribute() {
+	assert(isModifyCommand() || isDeleteCommand());
+
 	switch (_cmd->getCommandType())
 	{
 		case MOD:
@@ -264,8 +289,6 @@ void Manager::storeIndexFromCommandToClassAttribute() {
 				this->_index = cmdTemp->getIndex();
 				break;
 			}
-		default:
-			break;
 	}
 	return;
 }
@@ -298,7 +321,11 @@ bool Manager::hasNoError()
 
 bool Manager::isSuccessfulCommand()
 {
-	return this->hasNoError();
+	if(this->_response.getStatus() == SUCCESS)
+	{
+		return true;
+	}
+	return false;
 }
 
 std::string Manager::createFindCommand(std::tm startTm, std::tm endTm)
@@ -306,7 +333,7 @@ std::string Manager::createFindCommand(std::tm startTm, std::tm endTm)
 	std::string startTmStr = getStrFromTm(startTm);
 	std::string endTmStr = getStrFromTm(endTm);
 
-	return "find duefrom '" + startTmStr + "' dueto '" + endTmStr + "' from '" + startTmStr + "' to '" + endTmStr + "'";
+	return "find from '" + startTmStr + "' to '" + endTmStr + "'";
 }
 
 std::string Manager::getStrFromTm(std::tm timeInfo)
@@ -345,25 +372,24 @@ Messenger Manager::getTodayTasks() {
 
 Messenger Manager::getNextPeriodTasks(PERIOD_TYPE pType)
 {
-	std::tm currTm = this->_currTm;
 	std::tm nextTm;
 
 	switch(pType)
 	{
 		case DAY:
-			nextTm = this->getNextDayTm(currTm);
+			nextTm = this->getNextDayTm(_currTm);
 			break;
 		case WEEK:
-			nextTm = this->getNextWeekTm(currTm);
+			nextTm = this->getNextWeekTm(_currTm);
 			break;
 		case MONTH:
-			nextTm = this->getNextMonthTm(currTm);
+			nextTm = this->getNextMonthTm(_currTm);
 			break;
 	}
 
 	this->setCurrTm(nextTm);
 
-	std::string command = this->createFindCommand(currTm,nextTm);
+	std::string command = this->createFindCommand(_currTm,nextTm);
 	
 	return this->processCommand(command);
 }
@@ -457,10 +483,6 @@ void Manager::resetStatus() {
 	this->setCurrTm(getTodayTm());
 }
 
-void Manager::deleteTaskList()
-{
-}
-
 Manager::~Manager() {
 	//this->_storage->save(this->_tasks);
 	delete this->_interpreter;
@@ -468,5 +490,4 @@ Manager::~Manager() {
 	delete this->_storage;
 	this->removePreviousCommand();
 	this->_response.resetMessenger();
-	this->deleteTaskList();
 }
