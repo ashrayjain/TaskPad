@@ -13,13 +13,17 @@ const QStringList CommandBar::KEYWORD_LIST = QStringList() \
 
 const QString CommandBar::SPACE = " ";
 const QString CommandBar::SINGLE_QUOTATION_MARK = "'";
+const QString CommandBar::QUOTE_LEFT = "`";
 const QString CommandBar::EMPTY = "";
-const QString CommandBar::HOTKEY_TEMPLATE_NEW = "add '__NAME__' due '__DATE__' at '__WHERE__' note '__NOTE__'";
+const QString CommandBar::HOTKEY_TEMPLATE_NEW = "add `__NAME__` due `__DATE__` at `__WHERE__` note `__NOTE__`";
 
 CommandBar::CommandBar(QWidget *parent)
 	:QTextEdit(parent), inputHistory_undo(), inputHistory_redo(),\
-	hotkeyTemplate("__[A-Z]+__", Qt::CaseInsensitive)
+	hotkeyTemplate("__[A-Z]+__", Qt::CaseInsensitive),
+	REGEXP_quoteLeft("`(.*)`")
 {
+	REGEXP_quoteLeft.setPatternSyntax(QRegExp::RegExp2);
+	REGEXP_quoteLeft.setMinimal(true);
 	initWidgets();
 	initConnections();
 	hotkeyTemplate.setPatternSyntax(QRegExp::RegExp2);
@@ -98,22 +102,6 @@ void CommandBar::performCompletion()
 		{
 			performCompletion(completionPrefix);
 		}
-		else//not a word, may be single quotation mark
-		{
-			if(hasSingleQuotationMark_LHS())
-			{
-				if(hasSingleQuotationMark_RHS())// case: '<cursor here>' --> '<cursor here>
-				{
-					clearSingleQuotationMark_RHS();
-					insertSpace();
-				}
-				else// case: '<cursor here> --> '<cursor here>'
-				{
-					insertSingleQuotationMark_RHS();
-				}
-				//TODO: need a case, if RHS single quotation is deleted, while LHS sq is left
-			}
-		}
 	}
 }
 
@@ -148,6 +136,45 @@ void CommandBar::insertCompletion(const QString &completion)
 	}
 }
 
+bool CommandBar::isWithinPairOfQuoteLeft(){
+	bool result = false;
+	QVector<QPair<int, int> > quoteLeftPositions = getQuoteLeftPositions();
+	for(int i = 0; i < quoteLeftPositions.size(); i++){
+		int leftPos = quoteLeftPositions[i].first;
+		int rightPos = quoteLeftPositions[i].second;
+		int currentPos = textCursor().position();
+		if(leftPos < currentPos && currentPos < rightPos){
+			result = true;
+			break;
+		}
+	}
+	return result;
+}
+
+QVector<QPair<int, int> > CommandBar::getQuoteLeftPositions(){
+	QVector<QPair<int, int> > result;
+	QString currentLine = getCurrentLine();
+	int index = REGEXP_quoteLeft.indexIn(currentLine);
+	while (index > -1) {//TODO: magic number
+		int length = REGEXP_quoteLeft.matchedLength();
+		result.push_back(QPair<int, int>(index, index + length - 1));
+		index = REGEXP_quoteLeft.indexIn(currentLine, index + length);//find next
+	}
+	return result;
+}
+
+bool CommandBar::isHotkeyTemplateMode(){
+	bool result = true;
+
+	QTextCursor cursor = textCursor();
+	cursor.movePosition(QTextCursor::Start);
+	QTextCursor result_cursor = document()->find(hotkeyTemplate, cursor);
+	if(result_cursor.isNull()){
+		result = false;
+	}
+	return result;
+}
+
 bool CommandBar::isLastCharLetter(QString str)
 {
 	const int END_INDEX = str.length() - 1;
@@ -165,7 +192,7 @@ QString CommandBar::getWordUnderCursor()
 	return completionPrefix;
 }
 
-bool CommandBar::hasSingleQuotationMark(QTextCursor::MoveOperation direction)
+bool CommandBar::hasKeywordNearby(QString keyword, QTextCursor::MoveOperation direction)
 {
 	bool result;
 
@@ -173,24 +200,43 @@ bool CommandBar::hasSingleQuotationMark(QTextCursor::MoveOperation direction)
 	cursor.movePosition(direction, QTextCursor::KeepAnchor);
 	QString str = cursor.selectedText();
 
-	result = str == SINGLE_QUOTATION_MARK;
+	result = str == keyword;
 	return result;
 }
 
 bool CommandBar::hasSingleQuotationMark_RHS()
 {
-	return hasSingleQuotationMark(QTextCursor::Right);
+	return hasKeywordNearby(SINGLE_QUOTATION_MARK, QTextCursor::Right);
 }
 
 bool CommandBar::hasSingleQuotationMark_LHS()
 {
-	return hasSingleQuotationMark(QTextCursor::Left);
+	return hasKeywordNearby(SINGLE_QUOTATION_MARK, QTextCursor::Left);
 }
 
-void CommandBar::clearSingleQuotationMark_RHS()
+bool CommandBar::hasQuoteLeft_RHS()
 {
+	return hasKeywordNearby(QUOTE_LEFT, QTextCursor::Right);
+}
+
+bool CommandBar::hasQuoteLeft_LHS()
+{
+	return hasKeywordNearby(QUOTE_LEFT, QTextCursor::Left);
+}
+
+bool CommandBar::hasSpace_RHS()
+{
+	return hasKeywordNearby(SPACE, QTextCursor::Right);
+}
+
+bool CommandBar::hasSpace_LHS()
+{
+	return hasKeywordNearby(SPACE, QTextCursor::Left);
+}
+
+void CommandBar::clearCharNearby(QTextCursor::MoveOperation direction){
 	QTextCursor cursor = textCursor();
-	cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor);
+	cursor.movePosition(direction, QTextCursor::KeepAnchor);
 
 	TEXT_EDIT_BEGIN
 	cursor.removeSelectedText();
@@ -199,30 +245,22 @@ void CommandBar::clearSingleQuotationMark_RHS()
 	setTextCursor(cursor);
 }
 
-void CommandBar::insertSingleQuotationMark_RHS()
+void CommandBar::clearCharRHS()
 {
-	QTextCursor cursor = textCursor();
-	int insertionPosition = cursor.position();
-
-	TEXT_EDIT_BEGIN
-	cursor.insertText(SINGLE_QUOTATION_MARK);
-	TEXT_EDIT_END
-
-	cursor.setPosition(insertionPosition);//back to prev. cursor position
-	setTextCursor(cursor);
+	clearCharNearby(QTextCursor::Right);
 }
 
-void CommandBar::insertSpace()
+void CommandBar::clearCharLHS()
 {
-	QTextCursor cursor = textCursor();
-	TEXT_EDIT_BEGIN
-	cursor.insertText(SPACE);
-	TEXT_EDIT_END
+	clearCharNearby(QTextCursor::Left);
 }
 
 void CommandBar::produceModel()
 {
-	if(containsCommand())
+	if(isWithinPairOfQuoteLeft()){
+		model->setStringList(QStringList());
+	}
+	else if(containsCommand())
 	{
 		produceKeywordModel();
 	}
@@ -272,6 +310,9 @@ bool CommandBar::handleKeyPress(QKeyEvent*event)
 	bool isHandled = false;
 	switch(event->key())
 	{
+	case Qt::Key_QuoteLeft:
+			handleKeyQuoteLeft(&isHandled);
+		break;
 	case Qt::Key_Escape:
 			handleKeyEscape(&isHandled);
 		break;
@@ -282,8 +323,10 @@ bool CommandBar::handleKeyPress(QKeyEvent*event)
 			handleKeySpace(&isHandled);
 		break;
 	case Qt::Key_Delete:	// Fallthrough
+			handleKeyDelete(&isHandled);
+		break;
 	case Qt::Key_Backspace:
-			handleKeyDeleteAndBackspace();
+			handleKeyBackspace(&isHandled);
 		break;
 	case Qt::Key_Up:
 			handleKeyUp();
@@ -296,6 +339,26 @@ bool CommandBar::handleKeyPress(QKeyEvent*event)
 		break;
 	}
 	return isHandled;
+}
+
+void CommandBar::handleKeyQuoteLeft(bool *isHandled)
+{
+	QTextCursor cursor = textCursor();
+	if((hasSpace_LHS() && cursor.atEnd()) || (hasSpace_LHS() && hasSpace_RHS())){
+		cursor.insertText(QUOTE_LEFT + QUOTE_LEFT);
+		cursor.movePosition(QTextCursor::Left, QTextCursor::MoveAnchor);
+	}
+	else if(hasQuoteLeft_RHS()){
+		cursor.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor);
+		cursor.insertText(SPACE);
+	}
+	else{
+		cursor.clearSelection();
+		cursor.insertText(SPACE + QUOTE_LEFT + QUOTE_LEFT);
+		cursor.movePosition(QTextCursor::Left, QTextCursor::MoveAnchor);
+	}
+	setTextCursor(cursor);
+	*isHandled = true;
 }
 
 void CommandBar::handleKeyEscape(bool *isHandled)
@@ -312,7 +375,7 @@ void CommandBar::handleKeyEscape(bool *isHandled)
 //TODO: combind this with go forwards
 void CommandBar::hkTemplateGoBackwards(){
 	QTextCursor cursor = textCursor();
-	if(hotkeyTemplateMode)
+	if(isHotkeyTemplateMode())
 	{
 		lastTimeCursor = document()->find(hotkeyTemplate, lastTimeCursor, QTextDocument::FindBackward);
 		if(lastTimeCursor.isNull())
@@ -335,7 +398,7 @@ void CommandBar::handleKeyTab(bool *isHandled)
 {
 	//TODO: tab control need to be consistent
 	QTextCursor cursor = textCursor();
-	if(hotkeyTemplateMode)
+	if(isHotkeyTemplateMode())//TODO: field hotkeyTemplateMode seems to be non-sense
 	{
 		lastTimeCursor = document()->find(hotkeyTemplate, lastTimeCursor);
 		if(lastTimeCursor.isNull())
@@ -379,11 +442,14 @@ void CommandBar::handleKeySpace(bool *isHandled)
 	}
 }
 
-void CommandBar::handleKeyDeleteAndBackspace()
+void CommandBar::handleKeyDelete(bool *isHandled)
 {
 	TURN_OFF_AC
-	if(hasSingleQuotationMark_LHS() && hasSingleQuotationMark_RHS())
-		clearSingleQuotationMark_RHS();
+}
+
+void CommandBar::handleKeyBackspace(bool *isHandled)
+{
+	TURN_OFF_AC
 }
 
 void CommandBar::handleKeyUp()

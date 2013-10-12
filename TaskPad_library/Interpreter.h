@@ -11,6 +11,8 @@ using namespace std;
 class Interpreter
 {
 private:
+	static const string DELIMITER;
+
 	typedef struct KEY_WORDS
 	{
 		int index;

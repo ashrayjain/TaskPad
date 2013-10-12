@@ -347,9 +347,9 @@ QTextEdit#cmdBar:hover {
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>14</y>
+       <y>11</y>
        <width>371</width>
-       <height>20</height>
+       <height>24</height>
       </rect>
      </property>
      <property name="text">
