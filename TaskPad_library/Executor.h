@@ -56,6 +56,7 @@ protected:
 	void deleteByExactName			(const string &name, Messenger &response);
 	void deleteByApproxName			(const string &name, Messenger &response);
 	void deleteTask					(list<Task>::iterator &i);
+	void deleteHashTags				(Task &task);
 
 	// Functions for MODIFY COMMAND
 	void modifyByIndex				(Command_Mod* cmd, Messenger &response);
@@ -63,13 +64,17 @@ protected:
 	void modifyByExactName			(Command_Mod* cmd, Messenger &response);
 	void modifyByApproxName			(Command_Mod* cmd, Messenger &response);
 	void modifyTaskTo				(Task &oldTask, Command_Mod* cmd);
+	void handleHashTagsModify		(Task &oldTask, list<string> &newTags);
 
 	// Functions for FIND COMMAND
 	void formTaskFromFindCmd		(Command_Find* cmd, Task &newTask);
 	void findByIndex				(const unsigned long long index, Messenger &response);
 	void findGeneral				(Command_Find* cmd, Messenger &response);
+	void findByTags					(Command_Find* cmd, Messenger &response);
+	void getCustomDataRangeByTags	(list<Task*> &customDataRange, list<string> &tags);
 	void runSearchWithTask			(const Task &taskToCompare,	list<Task> &results);
 	void runSearchWithTask			(const Task &taskToCompare, list<Task> &results, string substringName);
+	void runSearchWithTaskOnData	(const Task &taskToCompare, list<Task> &results, list<Task*> &customData);
 	bool taskMatch					(const Task& lhs, const Task& rhs) const;
 	bool chkFromDateBound			(const time_t &fromTime, const Task &lhs) const;
 	bool chkToDateBound				(const time_t &toTime, const Task &lhs) const;

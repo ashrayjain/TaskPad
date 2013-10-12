@@ -45,6 +45,8 @@ void Executor::executeAdd (Command_Add* cmd, Messenger &response) {
 	formTaskFromAddCmd(cmd, newTask);
 	_data->push_back(newTask);
 	_indexHash[newTask.getIndex()] = &(_data->back());
+	if(cmd->getFlagTags())
+		handleHashTags(_data->back(), cmd->getTags());
 	setOpSuccessTask(newTask, response);
 }
 
@@ -65,7 +67,9 @@ void Executor::executeMod (Command_Mod* cmd, Messenger &response) {
 void Executor::executeFind (Command_Find* cmd, Messenger &response) {
 	if(cmd->getFlagIndex())
 		findByIndex(cmd->getIndex(), response);
-	else 
+	else if(cmd->getFlagTags())
+		findByTags(cmd, response);
+	else
 		findGeneral(cmd, response);
 }
 
@@ -80,8 +84,6 @@ void Executor::formTaskFromAddCmd(Command_Add* cmd, Task &newTask) {
 		newTask.setRemindTimes(cmd->getRemindTimes());
 	if(cmd->getFlagParticipants())
 		newTask.setParticipants(cmd->getParticipants());
-	if(cmd->getFlagTags())
-		handleHashTags(newTask, cmd->getTags());
 	if(cmd->getFlagPriority())
 		newTask.setPriority(cmd->getPriority());
 	if(cmd->getFlagDue())
@@ -93,7 +95,8 @@ void Executor::formTaskFromAddCmd(Command_Add* cmd, Task &newTask) {
 }
 
 void Executor::handleHashTags(Task &newTask, list<string> &hashTagsList) {
-	hashTagsList.push_back("test");
+	// for testing Hash Tags until the Interpreter is fixed
+	// hashTagsList.push_back("#TestHash");
 	newTask.setTags(hashTagsList);
 	list<list<Task*>::iterator> newHashTagPtrs;
 	handleHashTagPtrs(newHashTagPtrs, newTask, hashTagsList);
@@ -171,12 +174,16 @@ void Executor::deleteByApproxName(const string &name, Messenger &response) {
 
 void Executor::deleteTask(list<Task>::iterator &i) {
 	_indexHash.erase(i->getIndex());
-	list<string> tags = i->getTags();
-	list<string>::iterator k = tags.begin();
-	list<list<Task*>::iterator> tagPtrs = i->getHashTagPtrs();
-	for(list<list<Task*>::iterator>::iterator j = tagPtrs.begin(); j != tagPtrs.end(); j++)
-		_hashTagsHash[*k].erase(*j);
+	deleteHashTags(*i);
 	_data->erase(i);
+}
+
+void Executor::deleteHashTags(Task &task) {
+	list<string> tags = task.getTags();
+	list<list<Task*>::iterator> tagPtrs = task.getHashTagPtrs();
+	list<string>::iterator k = tags.begin();
+	for (list<list<Task*>::iterator>::iterator j = tagPtrs.begin(); j != tagPtrs.end(); j++, k++)
+		_hashTagsHash[*k].erase(*j);
 }
 
 void Executor::modifyByIndex(Command_Mod* cmd, Messenger &response) {
@@ -236,8 +243,8 @@ void Executor::modifyTaskTo(Task &oldTask, Command_Mod* cmd) {
 		oldTask.setRemindTimes(cmd->getRemindTimes());
 	if(cmd->getFlagParticipants())
 		oldTask.setParticipants(cmd->getParticipants());
-	//if(cmd->getFlagTags())
-	//	oldTask.setTags(cmd->getTags());
+	if(cmd->getFlagTags())
+		handleHashTagsModify(oldTask, cmd->getTags());
 	if(cmd->getFlagPriority())
 		oldTask.setPriority(cmd->getPriority());
 	if(cmd->getFlagDue())
@@ -248,6 +255,11 @@ void Executor::modifyTaskTo(Task &oldTask, Command_Mod* cmd) {
 		oldTask.setToDate(cmd->getToDate());
 	if(cmd->getFlagTaskState())
 		oldTask.setState(cmd->getTaskState());
+}
+
+void Executor::handleHashTagsModify(Task &oldTask, list<string> &newTags) {
+	deleteHashTags(oldTask);
+	handleHashTags(oldTask, newTags);
 }
 
 void Executor::formTaskFromFindCmd(Command_Find* cmd, Task &newTask) {
@@ -261,8 +273,6 @@ void Executor::formTaskFromFindCmd(Command_Find* cmd, Task &newTask) {
 		newTask.setRemindTimes(cmd->getRemindTimes());
 	if(cmd->getFlagParticipants())
 		newTask.setParticipants(cmd->getParticipants());
-	if(cmd->getFlagTags())
-		newTask.setTags(cmd->getTags());
 	if(cmd->getFlagPriority())
 		newTask.setPriority(cmd->getPriority());
 	if(cmd->getFlagFrom())
@@ -292,6 +302,21 @@ void Executor::findGeneral(Command_Find* cmd, Messenger &response) {
 	setOpSuccessTaskList(results, response);
 }
 
+void Executor::findByTags(Command_Find* cmd, Messenger &response) {
+	Task taskToCompare;
+	list<Task*> customDataRange;
+	list<Task> results;
+	formTaskFromFindCmd(cmd, taskToCompare);
+	getCustomDataRangeByTags(customDataRange, cmd->getTags());
+	runSearchWithTaskOnData(taskToCompare, results, customDataRange);
+	setOpSuccessTaskList(results, response);
+}
+
+void Executor::getCustomDataRangeByTags(list<Task*> &customDataRange, list<string> &tags) {
+	for(list<string>::iterator i = tags.begin(); i != tags.end(); ++i)
+		customDataRange.insert(customDataRange.end(), _hashTagsHash[*i].begin(), _hashTagsHash[*i].end());
+}
+
 void Executor::runSearchWithTask(const Task &taskToCompare, list<Task> &results) {
 	for(list<Task>::iterator i = _data->begin(); i != _data->end(); ++i)
 		if (taskMatch(*i, taskToCompare))
@@ -302,6 +327,12 @@ void Executor::runSearchWithTask(const Task &taskToCompare, list<Task> &results,
 	for(list<Task>::iterator i = _data->begin(); i != _data->end(); ++i)
 		if (i->getFlagName() && i->getName().find(substringName) != string::npos && taskMatch(*i, taskToCompare))
 			results.push_back(Task(*i));
+}
+
+void Executor::runSearchWithTaskOnData(const Task &taskToCompare, list<Task> &results, list<Task*> &customData) {
+	for(list<Task*>::iterator i = customData.begin(); i != customData.end(); ++i)
+		if (taskMatch(**i, taskToCompare))
+			results.push_back(Task(**i));
 }
 
 bool Executor::taskMatch(const Task& lhs, const Task& rhs) const {
