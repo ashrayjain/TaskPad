@@ -163,6 +163,18 @@ QVector<QPair<int, int> > CommandBar::getQuoteLeftPositions(){
 	return result;
 }
 
+bool CommandBar::isHotkeyTemplateMode(){
+	bool result = true;
+
+	QTextCursor cursor = textCursor();
+	cursor.movePosition(QTextCursor::Start);
+	QTextCursor result_cursor = document()->find(hotkeyTemplate, cursor);
+	if(result_cursor.isNull()){
+		result = false;
+	}
+	return result;
+}
+
 bool CommandBar::isLastCharLetter(QString str)
 {
 	const int END_INDEX = str.length() - 1;
@@ -363,7 +375,7 @@ void CommandBar::handleKeyEscape(bool *isHandled)
 //TODO: combind this with go forwards
 void CommandBar::hkTemplateGoBackwards(){
 	QTextCursor cursor = textCursor();
-	if(hotkeyTemplateMode)
+	if(isHotkeyTemplateMode())
 	{
 		lastTimeCursor = document()->find(hotkeyTemplate, lastTimeCursor, QTextDocument::FindBackward);
 		if(lastTimeCursor.isNull())
@@ -386,7 +398,7 @@ void CommandBar::handleKeyTab(bool *isHandled)
 {
 	//TODO: tab control need to be consistent
 	QTextCursor cursor = textCursor();
-	if(hotkeyTemplateMode)
+	if(isHotkeyTemplateMode())//TODO: field hotkeyTemplateMode seems to be non-sense
 	{
 		lastTimeCursor = document()->find(hotkeyTemplate, lastTimeCursor);
 		if(lastTimeCursor.isNull())
