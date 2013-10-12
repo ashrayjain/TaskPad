@@ -62,7 +62,9 @@ public:
     unsigned long long		getIndex()			const { return _taskIndex;			}
     std::time_t				getFromDate()		const { return _taskFromDate;		}
     std::time_t				getToDate()			const { return _taskToDate;			}
-    std::time_t				getDueDate()		const { return _taskDueDate;		}	
+    std::time_t				getDueDate()		const { return _taskDueDate;		}
+	
+	std::list<std::list<Task*>::iterator>	getHashTagPtrs()	  { return _hashTagPtrs;		}
 
     // Setter Functions common to all Tasks
     void setName(std::string newName)								{ _taskName			= newName;			flagName = true;			}		
@@ -82,6 +84,7 @@ public:
     void setToDate(std::time_t newToDate);
     void setDueDate(std::time_t newDueDate);
     
+	void setHashTagPtrs(std::list<std::list<Task*>::iterator> newHashTagPtrs)	{ _hashTagPtrs		= newHashTagPtrs;								}
 
     // Flag Getter Functions common to all Tasks
     bool getFlagName()			const { return flagName;			}
@@ -125,6 +128,9 @@ protected:
     std::time_t				_taskToDate;
     TP::TASK_STATE			_taskState;
     unsigned long long		_taskIndex;
+	
+	// Ptrs to hash table for hashtags
+	std::list<std::list<Task*>::iterator>	_hashTagPtrs;
 
     // Task Attribute Flags
     bool flagName;
