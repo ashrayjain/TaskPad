@@ -2,6 +2,8 @@
 
 using namespace std;
 
+const string Interpreter::DELIMITER = "`";
+
 Interpreter::Interpreter(void)
 {
 	_isSuccess=true;
@@ -89,7 +91,7 @@ void Interpreter::eliminateFalseKeyWords()
 bool Interpreter::isKeyWordValid(int prevSysWordIndex)
 {
 	bool wordFlag=false;
-	string expectedChar="'";
+	string expectedChar=DELIMITER;
 	char prevWordLastChar=listOfWords.at(prevSysWordIndex).back();
 	if(prevWordLastChar==expectedChar.at(0))
 	{
@@ -319,7 +321,7 @@ bool Interpreter::isByIndex()
 string Interpreter::reconstructInputInfo(int incrementIdx, int numberOfKeyWords)
 {
 	string inputInfo;
-	string expectedChar="'";
+	string expectedChar=DELIMITER;
 	int firstDataWord=0;
 	int lastDataWord=0;
 
@@ -360,6 +362,8 @@ string Interpreter::reconstructInputInfo(int incrementIdx, int numberOfKeyWords)
 	//eliminate ''		
 	if(inputInfo.size() != 0){
 		inputInfo.erase(inputInfo.begin());
+	}
+	if(inputInfo.size() != 0){
 		inputInfo.erase(inputInfo.end()-1);
 	}
 
@@ -369,7 +373,7 @@ string Interpreter::reconstructInputInfo(int incrementIdx, int numberOfKeyWords)
 string Interpreter::reconstructName(int startIndex, int endIndex)//ERROR_NAME
 {
 	string name="";
-	string expectedChar="'";
+	string expectedChar=DELIMITER;
 		
 	for(int j=startIndex; j<=endIndex; j++)
 	{
