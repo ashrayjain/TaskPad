@@ -26,7 +26,6 @@ public:
 protected slots:
 	void performCompletion();
 	void hkTemplateGoBackwards();
-	void insertSingleQuotationMark();
 
 private:
 	static const QStringList COMMAND_LIST;
