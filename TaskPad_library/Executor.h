@@ -34,7 +34,7 @@ public:
 protected:
 	std::list<Task>*									_data;
 	std::unordered_map<unsigned long long, Task*>		_indexHash;
-	std::unordered_map<std::string, std::list<Task*>>	_hashtagsHash;
+	std::unordered_map<std::string, std::list<Task*>>	_hashTagsHash;
 
 	void rebuildHash();
 
@@ -46,6 +46,9 @@ protected:
 	// Functions for ADD COMMAND
 	void formTaskFromAddCmd			(Command_Add* cmd, Task &newTask);
 	void handleHashTags				(Task &newTask, list<string> &hashTagsList);
+	void handleHashTagPtrs			(list<list<Task*>::iterator> &newHashTagPtrs, Task &newTask, list<string> &hashTagsList);
+	void handleExistingHashTag		(list<list<Task*>::iterator> &newHashTagPtrs, Task &newTask, list<Task*> &hashTag);
+	void handleNewHashTag			(list<list<Task*>::iterator> &newHashTagPtrs, Task &newTask, list<string>::iterator &hashTag);
 
 	// Functions for DELETE COMMAND
 	void deleteTaskByIndex			(const unsigned long long &index, Messenger &reponse);	
