@@ -26,12 +26,14 @@ public:
 protected slots:
 	void performCompletion();
 	void hkTemplateGoBackwards();
+	void insertSingleQuotationMark();
 
 private:
 	static const QStringList COMMAND_LIST;
 	static const QStringList KEYWORD_LIST;
 	static const QString SPACE;
 	static const QString SINGLE_QUOTATION_MARK;
+	static const QString QUOTE_LEFT;
 	static const QString EMPTY;
 	//HOTKEY TEMPLATE RELATED
 	static const QString HOTKEY_TEMPLATE_NEW;
@@ -45,12 +47,16 @@ private:
 	void performCompletion(const QString&);
 	QString getWordUnderCursor();
 	bool isLastCharLetter(QString str);
-	bool hasSingleQuotationMark(QTextCursor::MoveOperation);
+	bool hasKeywordNearby(QString keyword, QTextCursor::MoveOperation direction);
 	bool hasSingleQuotationMark_LHS();
 	bool hasSingleQuotationMark_RHS();
-	void clearSingleQuotationMark_RHS();
-	void insertSingleQuotationMark_RHS();
-	void insertSpace();
+	bool hasQuoteLeft_RHS();
+	bool hasQuoteLeft_LHS();
+	bool hasSpace_LHS();
+	bool hasSpace_RHS();
+	void clearCharNearby(QTextCursor::MoveOperation direction);
+	void clearCharRHS();
+	void clearCharLHS();
 	void insertCompletion(const QString &completion);
 	//MODEL RELATED
 	void produceModel();
@@ -60,10 +66,12 @@ private:
 	//KEY PRESS RELATED
 	void keyPressEvent(QKeyEvent*event);
 	bool handleKeyPress(QKeyEvent*event);
+	void handleKeyQuoteLeft(bool *isHandled);
 	void handleKeyEscape(bool *isHandled);
 	void handleKeyTab(bool *isHandled);
 	void handleKeySpace(bool *isHandled);
-	void handleKeyDeleteAndBackspace();
+	void handleKeyDelete(bool *isHandled);
+	void handleKeyBackspace(bool *isHandled);
 	void handleKeyUp();
 	void handleKeyDown();
 	void handleKeyDefault();
