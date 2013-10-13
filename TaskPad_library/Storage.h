@@ -21,7 +21,6 @@ class Storage
 
 		static const string _fileName;
 
-		static const string LABEL_TASK_COUNT;
 		static const string LABEL_NAME;
 		static const string LABEL_INDEX;
 		static const string LABEL_DUE_DATE;
@@ -47,10 +46,8 @@ class Storage
 		void saveTaskAttributes	(const Task& tempTaskTask);
 
 		//file level attributes
-				void saveTaskLevelLabel			(std::string LabelStr);
-				void saveAttributeLevelLabel	(std::string LabelStr);
-				void saveCount					(unsigned long long count);
-		inline	void saveTaskCount				(unsigned long long taskCount);
+		void saveTaskLevelLabel			(std::string LabelStr);
+		void saveAttributeLevelLabel	(std::string LabelStr);
 
 		//saving generic attributes of all tasks
 		void saveIndex				(const Task& tempTask);
@@ -80,7 +77,7 @@ class Storage
 		void emptyTheFile		();
 
 		//file opener/closer
-		void openTheFileToWrite(std::ios_base::openmode);
+		void openTheFileToWrite(std::ios_base::openmode, std::string fileName = _fileName);
 		void closeTheWrittenFile();
 		
 		///////////////////////////

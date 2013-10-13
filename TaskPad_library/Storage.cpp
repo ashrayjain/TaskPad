@@ -9,19 +9,18 @@ using namespace TP;
 
 const string Storage::LABEL_START_OF_TASK = "StartOfTask";
 const string Storage::_fileName = "TaskPad.txt";
-const string Storage::LABEL_TASK_COUNT = "Task Count:";
-const string Storage::LABEL_NAME = "Name:";
-const string Storage::LABEL_INDEX = "Index:";
-const string Storage::LABEL_DUE_DATE = "Due:";
-const string Storage::LABEL_FROM_DATE = "StartTime:";
-const string Storage::LABEL_TO_DATE = "EndTime:";
-const string Storage::LABEL_LOCATION = "Location:";
-const string Storage::LABEL_PARTICIPANT = "Participant:";
-const string Storage::LABEL_NOTE = "Note:";
-const string Storage::LABEL_PRIORITY = "Priority:";
-const string Storage::LABEL_TAG = "Tag:";
-const string Storage::LABEL_REMINDER_TIME = "Reminder:";
-const string Storage::LABEL_STATE = "State:";
+const string Storage::LABEL_NAME = "name:";
+const string Storage::LABEL_INDEX = "index:";
+const string Storage::LABEL_DUE_DATE = "due:";
+const string Storage::LABEL_FROM_DATE = "from:";
+const string Storage::LABEL_TO_DATE = "to:";
+const string Storage::LABEL_LOCATION = "at:";
+const string Storage::LABEL_PARTICIPANT = "ppl:";
+const string Storage::LABEL_NOTE = "note:";
+const string Storage::LABEL_PRIORITY = "impt:";
+const string Storage::LABEL_TAG = "#:";
+const string Storage::LABEL_REMINDER_TIME = "rt:";
+const string Storage::LABEL_STATE = "state:";
 const string Storage::LABEL_END_OF_TASK = "EndOfTask";
 
 Storage::Storage(list<Task>& taskList)
@@ -45,9 +44,9 @@ bool Storage::save(const Task& task)
 	return true;
 }
 
-void Storage::openTheFileToWrite(std::ios_base::openmode mode)
+void Storage::openTheFileToWrite(std::ios_base::openmode mode, std::string fileName)
 {
-	this->_fileWriter.open(this->_fileName,mode);
+	this->_fileWriter.open(fileName,mode);
 	return;
 }
 
@@ -118,18 +117,6 @@ void Storage::saveTaskLevelLabel(std::string LabelStr)
 void Storage::saveAttributeLevelLabel(string LabelStr)
 {
 	writeLineToFile(LabelStr,false);
-}
-
-void Storage::saveCount(unsigned long long count)
-{
-	std::string countStr = convertToString(count);
-	writeLineToFile(countStr);
-}
-
-void Storage::saveTaskCount(unsigned long long taskCount)
-{
-	saveAttributeLevelLabel(LABEL_TASK_COUNT);
-	saveCount(taskCount);
 }
 
 void Storage::saveIndex(const Task& tempTask)
