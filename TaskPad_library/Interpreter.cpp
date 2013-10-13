@@ -270,7 +270,10 @@ bool Interpreter::integerConverter(string& requiredString, int& number)
                 }
         }
         number=atoi(requiredString.c_str());
-       
+        
+		if(number <= 0)
+			flag = false;
+
         return flag;
 
 }
@@ -1174,7 +1177,7 @@ int Interpreter::interpretIndex(string indexStr, Messenger & response)
 	else{ 
 
 		response.setStatus(ERROR);
-		//response.setErrorMsg("The index is invalid");
+		response.setErrorMsg("The index is invalid");
 	}
 
 	return num;
