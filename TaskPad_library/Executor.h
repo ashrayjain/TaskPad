@@ -20,11 +20,6 @@
 #include "Messenger.h"
 #include "Command.h"
 
-const unsigned		EMPTY_LIST_SIZE			= 0;
-const unsigned		SINGLE_RESULT_LIST_SIZE	= 1;
-const std::string	NAME_NOT_FOUND_ERROR	= "No results for name: ";
-const std::string	INVALID_INDEX_ERROR		= " is not a valid index!";
-
 class Executor
 {
 public:
@@ -35,6 +30,12 @@ protected:
 	std::list<Task>*									_data;
 	std::unordered_map<unsigned long long, Task*>		_indexHash;
 	std::unordered_map<std::string, std::list<Task*>>	_hashTagsHash;
+
+	// Class constants
+	static const unsigned		EMPTY_LIST_SIZE;
+	static const unsigned		SINGLE_RESULT_LIST_SIZE;
+	static const std::string	NAME_NOT_FOUND_ERROR;
+	static const std::string	INVALID_INDEX_ERROR;
 
 	void rebuildHashes();
 	void rebuildIndexHash();

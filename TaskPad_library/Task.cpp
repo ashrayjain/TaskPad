@@ -14,7 +14,23 @@
 
 #include "Task.h"
 
-std::set<unsigned long long> Task::listOfAllIndices;
+std::set<unsigned long long>				Task::listOfAllIndices;
+
+const std::string							Task::INDEX_INVALID_ERROR	= "is not a valid index!";
+
+const std::string							Task::DEFAULT_NAME			= "";
+const std::string							Task::DEFAULT_LOCATION		= "";
+const std::string							Task::DEFAULT_NOTE			= "";
+const TP::PRIORITY							Task::DEFAULT_PRIORITY		= TP::MEDIUM;
+const std::list<std::string>				Task::DEFAULT_PARTICIPANTS	= std::list<std::string>();
+const std::list<std::string>				Task::DEFAULT_TAGS			= std::list<std::string>();
+const std::list<std::list<Task*>::iterator>	Task::DEFAULT_HASHTAG_PTRS	= std::list<std::list<Task*>::iterator>();
+const std::list<std::time_t>				Task::DEFAULT_REMINDTIMES	= std::list<std::time_t>();
+const std::time_t							Task::DEFAULT_DUEDATE		= 0;
+const std::time_t							Task::DEFAULT_FROMDATE		= 0;
+const std::time_t							Task::DEFAULT_TODATE		= 0;
+const TP::TASK_STATE						Task::DEFAULT_STATE			= TP::UNDONE;	
+const TP::TASK_TYPE							Task::DEFAULT_TYPE			= TP::FLOATING;
 
 void Task::defaultTaskInit()
 {
@@ -55,19 +71,19 @@ void Task::initFlags()
 
 void Task::initTaskAttributes()
 {
-    _taskName			= "";
-    _taskLocation		= "";
-    _taskNote			= "";
-    _taskPriority		= TP::MEDIUM;
-    _taskParticipants	= std::list<std::string>();
-    _taskTags			= std::list<std::string>();
-	_hashTagPtrs		= std::list<std::list<Task*>::iterator>();
-    _taskRemindTimes	= std::list<std::time_t>();
-    _taskDueDate		= 0;
-    _taskFromDate		= 0;
-    _taskToDate			= 0;
-    _taskState			= TP::UNDONE;
-    _taskType			= TP::FLOATING;
+	_taskName			= DEFAULT_NAME;
+	_taskLocation		= DEFAULT_LOCATION;
+	_taskNote			= DEFAULT_NOTE;
+	_taskPriority		= DEFAULT_PRIORITY;
+    _taskParticipants	= DEFAULT_PARTICIPANTS;
+    _taskTags			= DEFAULT_TAGS;
+	_hashTagPtrs		= DEFAULT_HASHTAG_PTRS;
+    _taskRemindTimes	= DEFAULT_REMINDTIMES;
+    _taskDueDate		= DEFAULT_DUEDATE;
+    _taskFromDate		= DEFAULT_FROMDATE;
+    _taskToDate			= DEFAULT_TODATE;
+    _taskState			= DEFAULT_STATE;
+    _taskType			= DEFAULT_TYPE;
 }
 
 void Task::setRemindTimes(std::time_t newRemindTime, TP::LIST_OP op) {
@@ -75,7 +91,7 @@ void Task::setRemindTimes(std::time_t newRemindTime, TP::LIST_OP op) {
         _taskRemindTimes.push_back(newRemindTime);
     else if (op == TP::REMOVE_ELEMENT)
         _taskRemindTimes.remove(newRemindTime);
-    flagRemindTimes = true;
+	flagRemindTimes = _taskRemindTimes != DEFAULT_REMINDTIMES;
 }
 
 void Task::setParticipants(std::string newParticipant, TP::LIST_OP op) {
@@ -83,7 +99,7 @@ void Task::setParticipants(std::string newParticipant, TP::LIST_OP op) {
         _taskParticipants.push_back(newParticipant);
     else if (op == TP::REMOVE_ELEMENT)
         _taskParticipants.remove(newParticipant);
-    flagParticipants = true;
+	flagParticipants = _taskParticipants != DEFAULT_PARTICIPANTS;
 }
 
 void Task::setTags(std::string newTag, TP::LIST_OP op) {
@@ -91,7 +107,7 @@ void Task::setTags(std::string newTag, TP::LIST_OP op) {
         _taskTags.push_back(newTag);
     else if (op == TP::REMOVE_ELEMENT)
         _taskTags.remove(newTag);
-    flagTags = true;
+	flagTags = _taskTags !=DEFAULT_TAGS;
 }
 
 void Task::setFromDate(std::time_t newFromDate) {
