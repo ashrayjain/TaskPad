@@ -321,7 +321,7 @@ bool Manager::hasNoError()
 
 bool Manager::isSuccessfulCommand()
 {
-	if(this->_response.getStatus() == SUCCESS)
+	if(this->_response.getStatus() == SUCCESS || this->_response.getStatus() == SUCCESS_INDEXED_COMMAND)
 	{
 		return true;
 	}
