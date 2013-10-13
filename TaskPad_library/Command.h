@@ -100,7 +100,7 @@ protected:
 	void setFromDate(std::time_t fromDate)			{ _fromDate		= fromDate;	FLAG_from		= TP::EDITED; }
 	void setToDate(std::time_t toDate)				{ _toDate		= toDate;	FLAG_to			= TP::EDITED; }
 	void setLocation(std::string location)			{ _location		= location;	FLAG_location	= TP::EDITED; }
-	void setParticipants(std::list<std::string> ppl){ _participants	= ppl;		FLAG_location	= TP::EDITED; }
+	void setParticipants(std::list<std::string> ppl){ _participants	= ppl;		FLAG_participants= TP::EDITED; }
 	void setNote(std::string note)					{ _note			= note;		FLAG_note		= TP::EDITED; }
 	void setPriority(TP::PRIORITY priority)			{ _priority		= priority;	FLAG_priority	= TP::EDITED; }
 	void setTags(std::list<std::string> tags)		{ _tags			= tags;		FLAG_tags		= TP::EDITED; }
