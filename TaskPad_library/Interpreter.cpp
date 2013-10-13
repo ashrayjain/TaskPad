@@ -200,6 +200,9 @@ time_t Interpreter::setTime(string keyWord,string inputInfo)
 				else _isSuccess=false;
 
 			}
+			else{
+				hour = 0;
+			}
 
 			if(_isSuccess!=false && inputInfo.length()>13){
 
@@ -207,6 +210,9 @@ time_t Interpreter::setTime(string keyWord,string inputInfo)
 					_isSuccess=integerConverter(inputInfo.substr(12),min);
 				}
 				else _isSuccess=false;
+			}
+			else{
+				min = 0;
 			}
 
 			if(_isSuccess!=false){

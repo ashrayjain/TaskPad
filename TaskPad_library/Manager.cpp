@@ -340,7 +340,7 @@ std::string Manager::getStrFromTm(std::tm timeInfo)
 {
 	char todayCharArray [80];
 
-	strftime (todayCharArray,80,"`%d/%m/%Y`",&timeInfo);
+	strftime (todayCharArray,80,"`%d/%m/%y`",&timeInfo);
 
 	//convert the char array to a string
 	string today(todayCharArray);
