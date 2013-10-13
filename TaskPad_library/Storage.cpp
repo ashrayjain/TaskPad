@@ -88,11 +88,10 @@ void Storage::saveTask(const Task& task)
 {
 	writeLineToFile("");
 
-	saveLabel(this->LABEL_START_OF_TASK);
+	saveTaskLevelLabel(this->LABEL_START_OF_TASK);
 	saveTaskAttributes(task);
-	saveLabel(this->LABEL_END_OF_TASK);
+	saveTaskLevelLabel(this->LABEL_END_OF_TASK);
 
-	writeLineToFile("");
 	return;
 }
 
@@ -112,7 +111,11 @@ void Storage::saveTaskAttributes(const Task& tempTask)
 	this->saveState(tempTask);
 }
 
-void Storage::saveLabel(string LabelStr)
+void Storage::saveTaskLevelLabel(std::string LabelStr)
+{
+	writeLineToFile(LabelStr);
+}
+void Storage::saveAttributeLevelLabel(string LabelStr)
 {
 	writeLineToFile(LabelStr,false);
 }
@@ -125,13 +128,13 @@ void Storage::saveCount(unsigned long long count)
 
 void Storage::saveTaskCount(unsigned long long taskCount)
 {
-	saveLabel(LABEL_TASK_COUNT);
+	saveAttributeLevelLabel(LABEL_TASK_COUNT);
 	saveCount(taskCount);
 }
 
 void Storage::saveIndex(const Task& tempTask)
 {
-	saveLabel(LABEL_INDEX);
+	saveAttributeLevelLabel(LABEL_INDEX);
 	writeLineToFile(convertToString(tempTask.getIndex()));
 }
 
@@ -139,7 +142,7 @@ void Storage::saveName(const Task& tempTask)
 {
 	if(tempTask.getFlagName())
 	{
-		saveLabel(LABEL_NAME);
+		saveAttributeLevelLabel(LABEL_NAME);
 		writeLineToFile(tempTask.getName());
 	}
 }
@@ -148,7 +151,7 @@ void Storage::saveLocation(const Task& tempTask)
 {
 	if(tempTask.getFlagLocation())
 	{
-		saveLabel(LABEL_LOCATION);
+		saveAttributeLevelLabel(LABEL_LOCATION);
 		writeLineToFile(tempTask.getLocation());
 	}
 }
@@ -163,7 +166,7 @@ void Storage::saveParticipants(const Task& tempTask)
 
 		while(pit != participantList.end())
 		{
-			saveLabel(LABEL_PARTICIPANT);
+			saveAttributeLevelLabel(LABEL_PARTICIPANT);
 
 			participant = (*pit);
 			writeLineToFile(participant);
@@ -177,14 +180,14 @@ void Storage::saveNote(const Task& tempTask)
 {
 	if(tempTask.getFlagNote())
 	{
-		saveLabel(LABEL_NOTE);
+		saveAttributeLevelLabel(LABEL_NOTE);
 		writeLineToFile(tempTask.getNote());
 	}
 }
 
 void Storage::savePriority(const Task& tempTask)
 {
-	saveLabel(LABEL_PRIORITY);
+	saveAttributeLevelLabel(LABEL_PRIORITY);
 
 	string priorityStr = convertToString(tempTask.getPriority());
 	writeLineToFile(priorityStr);
@@ -200,7 +203,7 @@ void Storage::saveTags(const Task& tempTask)
 
 		while(tagit != tagsList.end())
 		{
-			saveLabel(LABEL_TAG);
+			saveAttributeLevelLabel(LABEL_TAG);
 
 			tag = (*tagit);
 			writeLineToFile(tag);
@@ -218,7 +221,7 @@ void Storage::saveReminderTimes(const Task& tempTask)
 
 		while(rtit != reminderList.end())
 		{
-			saveLabel(LABEL_REMINDER_TIME);
+			saveAttributeLevelLabel(LABEL_REMINDER_TIME);
 
 			string reminderStr = convertToString(*rtit);
 			writeLineToFile(reminderStr);
@@ -229,7 +232,7 @@ void Storage::saveReminderTimes(const Task& tempTask)
 
 void Storage::saveState(const Task& tempTask)
 {
-	saveLabel(LABEL_STATE);
+	saveAttributeLevelLabel(LABEL_STATE);
 
 	string stateStr = convertToString(tempTask.getState());
 	writeLineToFile(stateStr);
@@ -239,7 +242,7 @@ void Storage::saveDueDate(const Task& tempTask)
 {
 	if(tempTask.getFlagDueDate())
 	{
-		saveLabel(LABEL_DUE_DATE);
+		saveAttributeLevelLabel(LABEL_DUE_DATE);
 
 		string dueDateStr = convertToString(tempTask.getDueDate());
 		writeLineToFile(dueDateStr);
@@ -250,7 +253,7 @@ void Storage::saveFromDate(const Task& tempTask)
 {
 	if(tempTask.getFlagFromDate())
 	{
-		saveLabel(LABEL_FROM_DATE);
+		saveAttributeLevelLabel(LABEL_FROM_DATE);
 
 		string fromDateStr = convertToString(tempTask.getFromDate());
 		writeLineToFile(fromDateStr);
@@ -261,7 +264,7 @@ void Storage::saveToDate(const Task& tempTask)
 {
 	if(tempTask.getFlagToDate())
 	{
-		saveLabel(LABEL_TO_DATE);
+		saveAttributeLevelLabel(LABEL_TO_DATE);
 		
 		string toDateStr = convertToString(tempTask.getToDate());
 		writeLineToFile(toDateStr);
@@ -306,11 +309,6 @@ string Storage::convertToString(TASK_STATE state)
 /****************************************************/
 /***************** Actual Writers ****************/
 /****************************************************/
-
-void Storage::writeLineToFile(string line)
-{
-	writeLineToFile(line,true);
-}
 
 void Storage::writeLineToFile(string line, bool newLine)
 {
@@ -534,13 +532,17 @@ PRIORITY Storage::getPriorityFromString	(std::string attribute){
 	return returnValue;
 }
 TASK_STATE Storage::getTaskStateFromString	(std::string attribute) {
+	TASK_STATE returnValue;
 	for (TASK_STATE state = UNDONE; state <= DONE; state = static_cast<TASK_STATE>(state + 1))
 	{
 		if(attribute == TASK_STATE_STRING[state])
 		{
-			return state;
+			returnValue = state;
+			break;
 		}
 	}
+
+	return returnValue;
 }
 
 Storage::~Storage()
