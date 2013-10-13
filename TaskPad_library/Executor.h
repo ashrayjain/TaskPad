@@ -28,7 +28,7 @@ const std::string	INVALID_INDEX_ERROR		= " is not a valid index!";
 class Executor
 {
 public:
-	Executor (std::list<Task>* data) { _data = data; rebuildHash(); }
+	Executor (std::list<Task>* data) { _data = data; rebuildHashes(); }
 	void executeCommand	(Command* cmd, Messenger &response);
 
 protected:
@@ -36,7 +36,9 @@ protected:
 	std::unordered_map<unsigned long long, Task*>		_indexHash;
 	std::unordered_map<std::string, std::list<Task*>>	_hashTagsHash;
 
-	void rebuildHash();
+	void rebuildHashes();
+	void rebuildIndexHash();
+	void rebuildHashTagsHash();
 
 	void executeAdd					(Command_Add* cmd,  Messenger &response);
 	void executeDel					(Command_Del* cmd,  Messenger &response);
@@ -46,7 +48,7 @@ protected:
 	// Functions for ADD COMMAND
 	void formTaskFromAddCmd			(Command_Add* cmd, Task &newTask);
 	void handleHashTags				(Task &newTask, list<string> &hashTagsList);
-	void handleHashTagPtrs			(list<list<Task*>::iterator> &newHashTagPtrs, Task &newTask, list<string> &hashTagsList);
+	void handleHashTagPtrs			(Task &newTask, list<string> &hashTagsList);
 	void handleExistingHashTag		(list<list<Task*>::iterator> &newHashTagPtrs, Task &newTask, list<Task*> &hashTag);
 	void handleNewHashTag			(list<list<Task*>::iterator> &newHashTagPtrs, Task &newTask, list<string>::iterator &hashTag);
 

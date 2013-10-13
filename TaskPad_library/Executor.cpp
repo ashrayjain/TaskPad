@@ -16,9 +16,20 @@
 
 using namespace TP;
 
-void Executor::rebuildHash() {
+void Executor::rebuildHashes() {
+	rebuildIndexHash();
+	rebuildHashTagsHash();
+}
+
+void Executor::rebuildIndexHash() {
 	for (std::list<Task>::iterator i = _data->begin(); i != _data->end(); i++)
 		_indexHash[i->getIndex()] = &(*i);
+}
+
+void Executor::rebuildHashTagsHash() {
+	for (std::list<Task>::iterator i = _data->begin(); i != _data->end(); i++)
+		if(i->getFlagTags())
+			handleHashTagPtrs(*i, i->getTags());
 }
 
 void Executor::executeCommand(Command* cmd, Messenger &response) {
@@ -98,11 +109,11 @@ void Executor::handleHashTags(Task &newTask, list<string> &hashTagsList) {
 	// for testing Hash Tags until the Interpreter is fixed
 	// hashTagsList.push_back("#TestHash");
 	newTask.setTags(hashTagsList);
-	list<list<Task*>::iterator> newHashTagPtrs;
-	handleHashTagPtrs(newHashTagPtrs, newTask, hashTagsList);
+	handleHashTagPtrs(newTask, hashTagsList);
 }
 
-void Executor::handleHashTagPtrs(list<list<Task*>::iterator> &newHashTagPtrs, Task &newTask, list<string> &hashTagsList) {
+void Executor::handleHashTagPtrs(Task &newTask, list<string> &hashTagsList) {
+	list<list<Task*>::iterator> newHashTagPtrs;
 	for (list<string>::iterator i = hashTagsList.begin(); i != hashTagsList.end(); i++) {
 		std::unordered_map<std::string, list<Task*>>::iterator foundHashTag = _hashTagsHash.find(*i);
 		if (foundHashTag != _hashTagsHash.end())
