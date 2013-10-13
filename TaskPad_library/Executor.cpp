@@ -281,9 +281,9 @@ void Executor::executeFind (Command_Find* cmd, Messenger &response) {
 	if(cmd->getFlagIndex())
 		findByIndex(cmd->getIndex(), response);
 	//else if(cmd->getFlagTags())
-		findByTags(cmd, response);
-	//else
-	//	findGeneral(cmd, response);
+	//	findByTags(cmd, response);
+	else
+		findGeneral(cmd, response);
 }
 
 void Executor::formTaskFromFindCmd(Command_Find* cmd, Task &newTask) {
