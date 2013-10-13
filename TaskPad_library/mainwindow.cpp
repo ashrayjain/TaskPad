@@ -350,7 +350,10 @@ void MainWindow::handleMessenger(Messenger msg){
 			break;
 		}
 
-		updateList(msg.getList());
+		if(ui.Navigation_taskList->text() == "Today")
+			updateList(msg.getList(), true);
+		else
+			updateList(msg.getList());
 		updateDetails(msg.getTask());
 	}
 }
