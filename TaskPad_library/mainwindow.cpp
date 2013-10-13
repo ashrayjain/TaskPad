@@ -224,10 +224,11 @@ void MainWindow::getToday(){
 }
 
 void MainWindow::handleGetToday(Messenger msg){
+	bool isToday = true;
 	updateNavLabel("Today");
 	updateStatusBar("Ready");
 	clearDetails();
-	updateList(msg.getList());
+	updateList(msg.getList(), isToday);
 }
 
 void MainWindow::getInbox(){
@@ -376,7 +377,7 @@ void MainWindow::updateDetailsLabel(QString str){
 	ui.Navigation_detailsView->setText(str);
 }
 
-void MainWindow::updateList(std::list<Task> result){
+void MainWindow::updateList(std::list<Task> result, bool isToday){
 	QTreeWidgetItem* item = NULL;
 
 	ui.TaskList->clear();
@@ -386,7 +387,12 @@ void MainWindow::updateList(std::list<Task> result){
 		iter != result.end();
 		std::advance(iter, 1))
 	{
-		item = extractTask(count, *iter);
+		if(isToday){
+			item = extractTaskForToday(count, *iter);
+		}
+		else{//not today
+			item = extractTask(count, *iter);
+		}
 		ui.TaskList->addTopLevelItem(item);
 		count++;
 	}
@@ -404,6 +410,42 @@ QTreeWidgetItem* MainWindow::extractTask(int index, Task task){
 		QDateTime toTime = QDateTime::fromTime_t(task.getToDate());
 		strList = QStringList() << QString::number(index) << task.getName().c_str() << \
 			"From " + fromTime.toString("dd/MM/yyyy") + " to " + toTime.toString("dd/MM/yyyy");
+	}
+	else{//TaskType == TP::FLOATING
+		strList = QStringList() << QString::number(index) << task.getName().c_str() << "";
+	}
+	return new QTreeWidgetItem(strList);
+}
+
+QTreeWidgetItem* MainWindow::extractTaskForToday(int index, Task task){
+	QStringList strList;
+	if(task.getTaskType() == TP::DEADLINE){
+		QDateTime time = QDateTime::fromTime_t(task.getDueDate());
+		QTime due_hour_n_min = time.time();
+		QString dueStr;
+		if(due_hour_n_min.hour() == 0 && due_hour_n_min.minute() == 0){
+			dueStr = "Due today";
+		}
+		else{
+			dueStr = "Due " + time.toString("hh:mm");
+		}
+
+		strList = QStringList() << QString::number(index) << task.getName().c_str() << \
+			dueStr;
+	}
+	else if(task.getTaskType() == TP::TIMED){
+		QDateTime fromTime = QDateTime::fromTime_t(task.getFromDate());
+		QDateTime toTime = QDateTime::fromTime_t(task.getToDate());
+		QString fromToStr;
+		if(fromTime.time().hour() == 0 && fromTime.time().minute() == 0 &&
+			toTime.time().hour() == 0 && toTime.time().minute() == 0){
+			fromToStr = "All-day";
+		}
+		else{
+			fromToStr ="From " + fromTime.toString("hh:mm") + " to " + toTime.toString("hh:mm");
+		}
+		strList = QStringList() << QString::number(index) << task.getName().c_str() << \
+			fromToStr;
 	}
 	else{//TaskType == TP::FLOATING
 		strList = QStringList() << QString::number(index) << task.getName().c_str() << "";
@@ -455,12 +497,30 @@ void MainWindow::updateDetails(Task t){
 	//set label dueOrFromTo
 	if(task_showDetails.getTaskType() == TP::DEADLINE){
 		QDateTime time = QDateTime::fromTime_t(task_showDetails.getDueDate());
-		ui.dueOrFromTo->setText("Due  " + time.toString("dd/MM/yyyy"));
+		QTime hour_n_min = time.time();
+		if(hour_n_min.hour() == 0 & hour_n_min.minute() == 0){
+			ui.dueOrFromTo->setText("Due  " + time.toString("dd/MM/yyyy"));
+		}
+		else{
+			ui.dueOrFromTo->setText("Due  " + time.toString("dd/MM/yyyy  hh:mm"));
+		}
 	}
 	else if(task_showDetails.getTaskType() == TP::TIMED){
 		QDateTime fromTime = QDateTime::fromTime_t(task_showDetails.getFromDate());
 		QDateTime toTime = QDateTime::fromTime_t(task_showDetails.getToDate());
-		ui.dueOrFromTo->setText("From  " + fromTime.toString("dd/MM/yyyy") + "  to  " + toTime.toString("dd/MM/yyyy"));
+		QString fromTimeStr;
+		QString toTimeStr;
+		QString fromToStr;
+
+		QTime from_hour_n_min = fromTime.time();
+		if(fromTime.time().hour() == 0 && fromTime.time().minute() == 0 &&
+			toTime.time().hour() == 0 && toTime.time().minute() == 0){
+			fromToStr = "All-day";
+		}
+		else{
+			fromToStr = "From  " + fromTime.toString("dd/MM/yyyy  hh:mm") + "  to  " + toTime.toString("dd/MM/yyyy  hh:mm");
+		}
+		ui.dueOrFromTo->setText(fromToStr);
 	}
 	else{//TaskType == TP::FLOATING
 		ui.dueOrFromTo->setText("");
