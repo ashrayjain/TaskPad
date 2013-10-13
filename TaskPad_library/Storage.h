@@ -47,9 +47,10 @@ class Storage
 		void saveTaskAttributes	(const Task& tempTaskTask);
 
 		//file level attributes
-				void saveLabel				(std::string LabelStr);
-				void saveCount				(unsigned long long count);
-		inline	void saveTaskCount			(unsigned long long taskCount);
+				void saveTaskLevelLabel			(std::string LabelStr);
+				void saveAttributeLevelLabel	(std::string LabelStr);
+				void saveCount					(unsigned long long count);
+		inline	void saveTaskCount				(unsigned long long taskCount);
 
 		//saving generic attributes of all tasks
 		void saveIndex				(const Task& tempTask);
@@ -75,8 +76,7 @@ class Storage
 		string convertToString	(TASK_STATE state);
 
 		//writers
-		void writeLineToFile	(string line, bool newLine);
-		void writeLineToFile	(string line);
+		void writeLineToFile	(string line, bool newLine = true);
 		void emptyTheFile		();
 
 		//file opener/closer
