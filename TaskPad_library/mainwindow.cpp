@@ -572,7 +572,7 @@ void MainWindow::updateDetails(Task t){
 		for(list<time_t>::iterator iter = listOfRemindTimes.begin();
 			iter != listOfRemindTimes.end();
 			advance(iter, 1)){
-				remindTimes += QDateTime::fromTime_t(*iter).toString("dd/MM/yyyy");
+				remindTimes += QDateTime::fromTime_t(*iter).toString("dd/MM/yyyy hh:mm");
 				remindTimes += ", ";
 		}
 		ui.remindTime->setText("Remind me : " + remindTimes);
