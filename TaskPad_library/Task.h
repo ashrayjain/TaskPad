@@ -29,8 +29,6 @@
 #ifndef TASKPAD_TASK_H
 #define TASKPAD_TASK_H
 
-const std::string INDEX_INVALID_ERROR = "is not a valid index!";
-
 /*
  *=======================
  
@@ -67,14 +65,14 @@ public:
 	std::list<std::list<Task*>::iterator>	getHashTagPtrs()	  { return _hashTagPtrs;		}
 
     // Setter Functions common to all Tasks
-    void setName(std::string newName)								{ _taskName			= newName;			flagName = true;			}		
-    void setLocation(std::string newLocation)						{ _taskLocation		= newLocation;		flagLocation = true;		}
-    void setNote(std::string newNote)								{ _taskNote			= newNote;			flagNote = true;			}
-    void setRemindTimes(std::list<std::time_t> newRemindTimes)		{ _taskRemindTimes	= newRemindTimes;	flagRemindTimes = true;		}
-    void setParticipants(std::list<std::string> newParticipants)	{ _taskParticipants = newParticipants;	flagParticipants = true;	}
-    void setTags(std::list<std::string> newTags)					{ _taskTags			= newTags;			flagTags = true;			}
-	void setPriority(TP::PRIORITY newPriority)						{ _taskPriority		= newPriority;		flagPriority = true;		}
-	void setState(TP::TASK_STATE newState)							{ _taskState		= newState;			flagState = true;			}	
+	void setName(std::string newName)								{ _taskName			= newName;			flagName			= _taskName	!= DEFAULT_NAME;				}		
+    void setLocation(std::string newLocation)						{ _taskLocation		= newLocation;		flagLocation		= _taskLocation	!= DEFAULT_LOCATION;		}
+	void setNote(std::string newNote)								{ _taskNote			= newNote;			flagNote			= _taskNote	!= DEFAULT_NOTE;				}
+    void setRemindTimes(std::list<std::time_t> newRemindTimes)		{ _taskRemindTimes	= newRemindTimes;	flagRemindTimes		= _taskRemindTimes != DEFAULT_REMINDTIMES;	}
+    void setParticipants(std::list<std::string> newParticipants)	{ _taskParticipants = newParticipants;	flagParticipants	= _taskParticipants != DEFAULT_PARTICIPANTS;}
+    void setTags(std::list<std::string> newTags)					{ _taskTags			= newTags;			flagTags			= _taskTags	!= DEFAULT_TAGS;				}
+	void setPriority(TP::PRIORITY newPriority)						{ _taskPriority		= newPriority;		flagPriority		= true;										}
+	void setState(TP::TASK_STATE newState)							{ _taskState		= newState;			flagState			= true;										}	
         
     void setRemindTimes(std::time_t newRemindTime, TP::LIST_OP op);
     void setParticipants(std::string newParticipant, TP::LIST_OP op);
@@ -84,7 +82,7 @@ public:
     void setToDate(std::time_t newToDate);
     void setDueDate(std::time_t newDueDate);
     
-	void setHashTagPtrs(std::list<std::list<Task*>::iterator> newHashTagPtrs)	{ _hashTagPtrs		= newHashTagPtrs;								}
+	void setHashTagPtrs(std::list<std::list<Task*>::iterator> newHashTagPtrs)	{ _hashTagPtrs = newHashTagPtrs; }
 
     // Flag Getter Functions common to all Tasks
     bool getFlagName()			const { return flagName;			}
@@ -100,6 +98,24 @@ public:
 	bool getFlagPriority()		const { return flagPriority;		}
 
 protected:
+	// Task Class Constants
+	static const std::string							INDEX_INVALID_ERROR;
+	
+	// Default Attributes Values
+	static const std::string							DEFAULT_NAME;
+	static const std::string							DEFAULT_LOCATION;
+	static const std::string							DEFAULT_NOTE;
+	static const TP::PRIORITY							DEFAULT_PRIORITY;
+	static const std::list<std::string>					DEFAULT_PARTICIPANTS;
+	static const std::list<std::string>					DEFAULT_TAGS;
+	static const std::list<std::list<Task*>::iterator>	DEFAULT_HASHTAG_PTRS;
+	static const std::list<std::time_t>					DEFAULT_REMINDTIMES;
+	static const std::time_t							DEFAULT_DUEDATE;
+	static const std::time_t							DEFAULT_FROMDATE;
+	static const std::time_t							DEFAULT_TODATE;
+	static const TP::TASK_STATE							DEFAULT_STATE;	
+	static const TP::TASK_TYPE							DEFAULT_TYPE;
+
     // Set of All currently used indices
     static std::set<unsigned long long> listOfAllIndices;
 

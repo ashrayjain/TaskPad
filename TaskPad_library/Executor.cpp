@@ -16,6 +16,11 @@
 
 using namespace TP;
 
+const unsigned		Executor::EMPTY_LIST_SIZE			= 0;
+const unsigned		Executor::SINGLE_RESULT_LIST_SIZE	= 1;
+const std::string	Executor::NAME_NOT_FOUND_ERROR		= "No results for name: ";
+const std::string	Executor::INVALID_INDEX_ERROR		= " is not a valid index!";
+
 void Executor::rebuildHashes() {
 	rebuildIndexHash();
 	rebuildHashTagsHash();
@@ -51,37 +56,14 @@ void Executor::executeCommand(Command* cmd, Messenger &response) {
 	}
 }
 
+// Add functions
+
 void Executor::executeAdd (Command_Add* cmd, Messenger &response) {
 	Task newTask = Task();
 	formTaskFromAddCmd(cmd, newTask);
 	_data->push_back(newTask);
 	_indexHash[newTask.getIndex()] = &(_data->back());
-	if(cmd->getFlagTags())
-		handleHashTags(_data->back(), cmd->getTags());
 	setOpSuccessTask(newTask, response);
-}
-
-void Executor::executeDel (Command_Del* cmd, Messenger &response) {
-	if (cmd->getFlagCreatedTime())
-		deleteTaskByIndex(cmd->getCreatedTime(), response);
-	else
-		deleteTaskByName(cmd->getName(), response, cmd->getFlagExact());
-}
-
-void Executor::executeMod (Command_Mod* cmd, Messenger &response) {
-	if(cmd->getFlagCreatedTime())
-		modifyByIndex(cmd, response);
-	else
-		modifyByName(cmd, response);
-}
-
-void Executor::executeFind (Command_Find* cmd, Messenger &response) {
-	if(cmd->getFlagIndex())
-		findByIndex(cmd->getIndex(), response);
-	else if(cmd->getFlagTags())
-		findByTags(cmd, response);
-	else
-		findGeneral(cmd, response);
 }
 
 void Executor::formTaskFromAddCmd(Command_Add* cmd, Task &newTask) {
@@ -103,11 +85,13 @@ void Executor::formTaskFromAddCmd(Command_Add* cmd, Task &newTask) {
 		newTask.setFromDate(cmd->getFromDate());
 	if(cmd->getFlagTo())
 		newTask.setToDate(cmd->getToDate());
+	//if(cmd->getFlagTags())
+	handleHashTags(newTask, cmd->getTags());
 }
 
 void Executor::handleHashTags(Task &newTask, list<string> &hashTagsList) {
 	// for testing Hash Tags until the Interpreter is fixed
-	// hashTagsList.push_back("#TestHash");
+	hashTagsList.push_back("#TestHash");
 	newTask.setTags(hashTagsList);
 	handleHashTagPtrs(newTask, hashTagsList);
 }
@@ -132,6 +116,15 @@ void Executor::handleExistingHashTag(list<list<Task*>::iterator> &newHashTagPtrs
 void Executor::handleNewHashTag(list<list<Task*>::iterator> &newHashTagPtrs, Task &newTask, list<string>::iterator &hashTag) {
 	_hashTagsHash[*hashTag] = list<Task*>(1, &newTask);
 	newHashTagPtrs.push_back(--(_hashTagsHash[*hashTag].end()));
+}
+
+// Delete Functions
+
+void Executor::executeDel (Command_Del* cmd, Messenger &response) {
+	if (cmd->getFlagCreatedTime())
+		deleteTaskByIndex(cmd->getCreatedTime(), response);
+	else
+		deleteTaskByName(cmd->getName(), response, cmd->getFlagExact());
 }
 
 void Executor::deleteTaskByIndex(const unsigned long long &index, Messenger &response) {
@@ -195,6 +188,15 @@ void Executor::deleteHashTags(Task &task) {
 	list<string>::iterator k = tags.begin();
 	for (list<list<Task*>::iterator>::iterator j = tagPtrs.begin(); j != tagPtrs.end(); j++, k++)
 		_hashTagsHash[*k].erase(*j);
+}
+
+// Modify Functions
+
+void Executor::executeMod (Command_Mod* cmd, Messenger &response) {
+	if(cmd->getFlagCreatedTime())
+		modifyByIndex(cmd, response);
+	else
+		modifyByName(cmd, response);
 }
 
 void Executor::modifyByIndex(Command_Mod* cmd, Messenger &response) {
@@ -273,6 +275,17 @@ void Executor::handleHashTagsModify(Task &oldTask, list<string> &newTags) {
 	handleHashTags(oldTask, newTags);
 }
 
+// Find functions
+
+void Executor::executeFind (Command_Find* cmd, Messenger &response) {
+	if(cmd->getFlagIndex())
+		findByIndex(cmd->getIndex(), response);
+	//else if(cmd->getFlagTags())
+		findByTags(cmd, response);
+	//else
+	//	findGeneral(cmd, response);
+}
+
 void Executor::formTaskFromFindCmd(Command_Find* cmd, Task &newTask) {
 	if(cmd->getFlagExact() && cmd->getFlagOptName())
 		newTask.setName(cmd->getOptName());
@@ -324,6 +337,7 @@ void Executor::findByTags(Command_Find* cmd, Messenger &response) {
 }
 
 void Executor::getCustomDataRangeByTags(list<Task*> &customDataRange, list<string> &tags) {
+	tags.push_back("#TestHash");
 	for(list<string>::iterator i = tags.begin(); i != tags.end(); ++i)
 		customDataRange.insert(customDataRange.end(), _hashTagsHash[*i].begin(), _hashTagsHash[*i].end());
 }
@@ -378,6 +392,8 @@ bool Executor::chkToDateBound(const time_t &toTime, const Task &lhs) const {
 		(lhs.getFlagDueDate() && toTime >= lhs.getDueDate());
 }
 
+// Status setting functions
+
 void Executor::setOpSuccessTask(const Task &retTask, Messenger &response) {
 	response.setStatus(TP::SUCCESS);
 	response.setTask(Task(retTask));
@@ -395,7 +411,7 @@ void Executor::setOpIntermediateTaskList(const list<Task>& results, Messenger &r
 
 void Executor::setIndexNotFound(const unsigned long long &index, Messenger &response) {
 	response.setStatus(TP::ERROR);
-	response.setErrorMsg(std::to_string(index) + INDEX_INVALID_ERROR);
+	response.setErrorMsg(std::to_string(index) + INVALID_INDEX_ERROR);
 }
 
 void Executor::setNameNotFound(const string &name, Messenger &response) {
