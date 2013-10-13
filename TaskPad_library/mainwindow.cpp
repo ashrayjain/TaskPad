@@ -515,7 +515,7 @@ void MainWindow::updateDetails(Task t){
 		QTime from_hour_n_min = fromTime.time();
 		if(fromTime.time().hour() == 0 && fromTime.time().minute() == 0 &&
 			toTime.time().hour() == 0 && toTime.time().minute() == 0){
-			fromToStr = "All-day";
+			fromToStr = "All-day event:  from  " + fromTime.toString("dd/MM/yyyy") + "  to  " + toTime.toString("dd/MM/yyyy");
 		}
 		else{
 			fromToStr = "From  " + fromTime.toString("dd/MM/yyyy  hh:mm") + "  to  " + toTime.toString("dd/MM/yyyy  hh:mm");
