@@ -8,6 +8,7 @@ syntax: glob
 *.suo
 *.user
 *.sln.docstates
+*.png
 
 ## Build results
 
@@ -161,3 +162,4 @@ GeneratedFiles
 ## data txt
 
 TaskPad_exe/TaskPad.txt
+*.png
