@@ -270,9 +270,6 @@ bool Interpreter::integerConverter(string& requiredString, int& number)
                 }
         }
         number=atoi(requiredString.c_str());
-        
-		if(number <= 0)
-			flag = false;
 
         return flag;
 
