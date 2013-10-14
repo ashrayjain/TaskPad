@@ -170,7 +170,9 @@ time_t Interpreter::setTime(string keyWord,string inputInfo)
 		//	string timeTemplete="dd/mo/yy hh:mm";
 
 
-
+		if(inputInfo.length()==0){
+			return 0;
+		}
 		if(inputInfo.length()>1){
 
 			_isSuccess=integerConverter(inputInfo.substr(0,2),day);
