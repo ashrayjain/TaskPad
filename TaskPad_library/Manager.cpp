@@ -224,7 +224,7 @@ bool Manager::isIndexedDeleteCommand() {
 
 bool Manager::isIndexWithinRange() {
 	int sizeOfCurrentList = this->_response.getList().size();
-	return (sizeOfCurrentList >= this->_index);
+	return (0 <= this->_index) && (this->_index <= sizeOfCurrentList);
 }
 
 void Manager::insertCreatedTimeIntoCommand() {
