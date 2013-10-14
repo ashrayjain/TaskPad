@@ -91,7 +91,7 @@ void Executor::formTaskFromAddCmd(Command_Add* cmd, Task &newTask) {
 
 void Executor::handleHashTags(Task &newTask, list<string> &hashTagsList) {
 	// for testing Hash Tags until the Interpreter is fixed
-	hashTagsList.push_back("#TestHash");
+	//hashTagsList.push_back("#TestHash");
 	newTask.setTags(hashTagsList);
 	handleHashTagPtrs(newTask, hashTagsList);
 }
