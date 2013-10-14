@@ -63,6 +63,7 @@ void Executor::executeAdd (Command_Add* cmd, Messenger &response) {
 	formTaskFromAddCmd(cmd, newTask);
 	_data->push_back(newTask);
 	_indexHash[newTask.getIndex()] = &(_data->back());
+	handleHashTagPtrs(_data->back(), _data->back().getTags());
 	setOpSuccessTask(newTask, response);
 }
 
@@ -85,15 +86,8 @@ void Executor::formTaskFromAddCmd(Command_Add* cmd, Task &newTask) {
 		newTask.setFromDate(cmd->getFromDate());
 	if(cmd->getFlagTo())
 		newTask.setToDate(cmd->getToDate());
-	//if(cmd->getFlagTags())
-	handleHashTags(newTask, cmd->getTags());
-}
-
-void Executor::handleHashTags(Task &newTask, list<string> &hashTagsList) {
-	// for testing Hash Tags until the Interpreter is fixed
-	//hashTagsList.push_back("#TestHash");
-	newTask.setTags(hashTagsList);
-	handleHashTagPtrs(newTask, hashTagsList);
+	if(cmd->getFlagTags())
+		newTask.setTags(cmd->getTags());
 }
 
 void Executor::handleHashTagPtrs(Task &newTask, list<string> &hashTagsList) {
@@ -272,7 +266,8 @@ void Executor::modifyTaskTo(Task &oldTask, Command_Mod* cmd) {
 
 void Executor::handleHashTagsModify(Task &oldTask, list<string> &newTags) {
 	deleteHashTags(oldTask);
-	handleHashTags(oldTask, newTags);
+	oldTask.setTags(newTags);
+	handleHashTagPtrs(oldTask, newTags);
 }
 
 // Find functions
@@ -280,8 +275,8 @@ void Executor::handleHashTagsModify(Task &oldTask, list<string> &newTags) {
 void Executor::executeFind (Command_Find* cmd, Messenger &response) {
 	if(cmd->getFlagIndex())
 		findByIndex(cmd->getIndex(), response);
-	//else if(cmd->getFlagTags())
-	//	findByTags(cmd, response);
+	else if(cmd->getFlagTags())
+		findByTags(cmd, response);
 	else
 		findGeneral(cmd, response);
 }
@@ -337,7 +332,7 @@ void Executor::findByTags(Command_Find* cmd, Messenger &response) {
 }
 
 void Executor::getCustomDataRangeByTags(list<Task*> &customDataRange, list<string> &tags) {
-	tags.push_back("#TestHash");
+	//tags.push_back("#TestHash");
 	for(list<string>::iterator i = tags.begin(); i != tags.end(); ++i)
 		customDataRange.insert(customDataRange.end(), _hashTagsHash[*i].begin(), _hashTagsHash[*i].end());
 }

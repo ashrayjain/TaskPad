@@ -48,7 +48,6 @@ protected:
 
 	// Functions for ADD COMMAND
 	void formTaskFromAddCmd			(Command_Add* cmd, Task &newTask);
-	void handleHashTags				(Task &newTask, list<string> &hashTagsList);
 	void handleHashTagPtrs			(Task &newTask, list<string> &hashTagsList);
 	void handleExistingHashTag		(list<list<Task*>::iterator> &newHashTagPtrs, Task &newTask, list<Task*> &hashTag);
 	void handleNewHashTag			(list<list<Task*>::iterator> &newHashTagPtrs, Task &newTask, list<string>::iterator &hashTag);
