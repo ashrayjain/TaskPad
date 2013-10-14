@@ -279,6 +279,8 @@ void Executor::executeFind (Command_Find* cmd, Messenger &response) {
 		findByTags(cmd, response);
 	else
 		findGeneral(cmd, response);
+	if(cmd->getFlagTaskType())
+		filterResponseListByType(response, list<TP::TASK_TYPE>(1, cmd->getTaskType()));
 }
 
 void Executor::formTaskFromFindCmd(Command_Find* cmd, Task &newTask) {
@@ -335,6 +337,14 @@ void Executor::getCustomDataRangeByTags(list<Task*> &customDataRange, list<strin
 	//tags.push_back("#TestHash");
 	for(list<string>::iterator i = tags.begin(); i != tags.end(); ++i)
 		customDataRange.insert(customDataRange.end(), _hashTagsHash[*i].begin(), _hashTagsHash[*i].end());
+}
+
+void Executor::filterResponseListByType(Messenger &response, list<TP::TASK_TYPE> &types) {
+	list<Task> newResults, oldResults = response.getList();
+	for (list<Task>::iterator i = oldResults.begin(); i != oldResults.end(); ++i)
+		if (find(types.begin(), types.end(), i->getTaskType()) != types.end())
+			newResults.push_back(*i);
+	setOpSuccessTaskList(newResults, response);
 }
 
 void Executor::runSearchWithTask(const Task &taskToCompare, list<Task> &results) {
