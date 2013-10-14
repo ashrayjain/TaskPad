@@ -50,9 +50,9 @@ void Storage::openTheFileToWrite(std::ios_base::openmode mode, std::string fileN
 	return;
 }
 
-void Storage::openTheFileToRead()
+void Storage::openTheFileToRead(std::string fileName)
 {
-	this->_fileReader.open(this->_fileName);
+	this->_fileReader.open(fileName);
 	return;
 }
 

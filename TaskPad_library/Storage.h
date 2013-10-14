@@ -77,7 +77,7 @@ class Storage
 		void emptyTheFile		();
 
 		//file opener/closer
-		void openTheFileToWrite(std::ios_base::openmode, std::string fileName = _fileName);
+		void openTheFileToWrite(std::ios_base::openmode = ios::trunc, std::string fileName = _fileName);
 		void closeTheWrittenFile();
 		
 		///////////////////////////
@@ -118,7 +118,7 @@ class Storage
 		TASK_STATE			getTaskStateFromString	(std::string attribute);
 
 		//file opener/closer
-		void openTheFileToRead();
+		void openTheFileToRead(std::string fileName = _fileName);
 		void closeTheReadFile();
 
 	public:
