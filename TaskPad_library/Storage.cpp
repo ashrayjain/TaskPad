@@ -1,10 +1,10 @@
+#include <list>
+#include <sstream>
+#include <string>
 #include "Storage.h"
 #include "Task.h"
 #include "Enum.h"
 #include "Logger.h"
-#include <list>
-#include <sstream>
-#include <string>
 
 using namespace TP;
 
@@ -26,6 +26,8 @@ const string Storage::LABEL_END_OF_TASK = "EndOfTask";
 
 Storage::Storage(list<Task>& taskList)
 {
+	_logger = Logger::getLogger();
+	_logger->log("Storage","called constructor!");
 	this->load(taskList);
 }
 
@@ -416,7 +418,12 @@ std::string Storage::getNewLabel(std::string newLine)
 std::string Storage::getNewData(std::string newLine)
 {
 	int pos = newLine.find_first_of(" ");
-	return newLine.substr(pos+1);
+	if(pos != std::string::npos) {
+		return newLine.substr(pos+1);
+	}
+	else {
+		return "";
+	}
 }
 
 unsigned long long Storage::getTaskIndex(std::string indexStr)

@@ -82,17 +82,17 @@ void Manager::removePreviousCommand() {
 void Manager::handleNormalScenarioCommands(string newCommand) {
 	_logger->log("Manager","handling normal scenario command");
 	if(isIndexGiven(newCommand)) {
-		_logger->log("Manager","index given by user",_logger->IMPT_INFO);
+		_logger->log("Manager","index given by user",NOTICELOG);
 		this->handleIndexCommand();
 	}
 	else if (isCommandWithIndexGiven(newCommand)) {
-		_logger->log("Manager","command with index given by user",_logger->IMPT_INFO);
+		_logger->log("Manager","command with index given by user",NOTICELOG);
 		this->storeIndexFromCommandToClassAttribute();
 		this->handleCommandWithIndex();
 	}
 	else  {
 	// a generic command and has already been interpreted by isCommandWithIndexGiven() above
-		_logger->log("Manager","generic command given by user",_logger->IMPT_INFO);
+		_logger->log("Manager","generic command given by user",NOTICELOG);
 		this->handleGenericCommand();
 	}
 	return;
