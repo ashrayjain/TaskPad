@@ -77,9 +77,12 @@ class Storage
 		void emptyTheFile		();
 
 		//file opener/closer
-		void openTheFileToWrite(std::ios_base::openmode = ios::trunc, std::string fileName = _fileName);
-		void closeTheWrittenFile();
+		void openTheFileToWrite		(std::string fileName = _fileName, std::ios_base::openmode = ios::trunc);
+		void closeTheWrittenFile	();
 		
+		//removes Task files
+		void removeTaskFiles();
+
 		///////////////////////////
 		//// Loading Functions ////
 		///////////////////////////

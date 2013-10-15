@@ -8,6 +8,7 @@
 #include "Command.h"
 #include "Task.h"
 #include "Enum.h"
+#include "Logger.h"
 
 using namespace TP;
 
@@ -15,6 +16,7 @@ const string Manager::MESSAGE_INDEX_OUT_OF_RANGE = "Given index is out of range!
 const string Manager::MESSAGE_ERROR_UNEXPECTED_COMMAND_TYPE_WITH_INDEX = "Unexpected Command with index!!";
 
 Manager::Manager() {
+	this->_logger = Logger::getLogger();
 	this->_storage = new Storage(_tasks);
 	this->_executor = new Executor(&_tasks);
 	this->_interpreter = new Interpreter;
@@ -23,6 +25,7 @@ Manager::Manager() {
 }
 
 Messenger Manager::processCommand(const string& newCommand) {
+	_logger->log("Manager", "processing Command");
 	switch(this->_response.getStatus()) {
 		case INTERMEDIATE:
 		case ERROR_INTERMEDIATE:
@@ -34,6 +37,8 @@ Messenger Manager::processCommand(const string& newCommand) {
 			break;
 	}
 	this->saveChanges();
+
+	_logger -> log("Mananger", "leaving processCommand() \n");
 	return this->_response;
 }
 
@@ -44,9 +49,8 @@ void Manager::saveChanges()
 		{
 			case MOD:
 			case DEL:
-				this->_storage->save(this->_tasks);
-				break;
 			case ADD:
+				_logger->log("Manager","saving changes");
 				this->_storage->save(this->_response.getTask());
 				break;
 			default:
@@ -76,15 +80,19 @@ void Manager::removePreviousCommand() {
  *
 */
 void Manager::handleNormalScenarioCommands(string newCommand) {
+	_logger->log("Manager","handling normal scenario command");
 	if(isIndexGiven(newCommand)) {
+		_logger->log("Manager","index given by user",_logger->IMPT_INFO);
 		this->handleIndexCommand();
 	}
 	else if (isCommandWithIndexGiven(newCommand)) {
+		_logger->log("Manager","command with index given by user",_logger->IMPT_INFO);
 		this->storeIndexFromCommandToClassAttribute();
 		this->handleCommandWithIndex();
 	}
 	else  {
 	// a generic command and has already been interpreted by isCommandWithIndexGiven() above
+		_logger->log("Manager","generic command given by user",_logger->IMPT_INFO);
 		this->handleGenericCommand();
 	}
 	return;
@@ -492,7 +500,7 @@ void Manager::resetStatus() {
 }
 
 Manager::~Manager() {
-	//this->_storage->save(this->_tasks);
+	this->_storage->save(this->_tasks);
 	delete this->_interpreter;
 	delete this->_executor;
 	delete this->_storage;

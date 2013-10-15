@@ -8,6 +8,7 @@ class Interpreter;
 class Executor;
 class Storage;
 class Command;
+class Logger;
 
 class Manager {
 	private:
@@ -15,6 +16,7 @@ class Manager {
 		Interpreter*	_interpreter;
 		Executor*		_executor;
 		Storage*		_storage;
+		Logger*			_logger;
 
 		//state determinants
 		Command*	_cmd;

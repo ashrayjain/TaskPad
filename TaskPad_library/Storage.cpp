@@ -1,6 +1,7 @@
 #include "Storage.h"
 #include "Task.h"
 #include "Enum.h"
+#include "Logger.h"
 #include <list>
 #include <sstream>
 #include <string>
@@ -30,21 +31,28 @@ Storage::Storage(list<Task>& taskList)
 
 bool Storage::save(const list<Task>& taskList)
 {
-	this->openTheFileToWrite(std::ios_base::trunc);
+	this->openTheFileToWrite();
 	this->saveTaskList(taskList);
 	this->closeTheWrittenFile();
+	this->removeTaskFiles();
 	return true;
+}
+
+void Storage::removeTaskFiles()
+{
+	return;
 }
 
 bool Storage::save(const Task& task)
 {
-	this->openTheFileToWrite(std::ios_base::app);
+	std::string fileName = convertToString(task.getIndex()) + ".task";
+	this->openTheFileToWrite(fileName);
 	this->saveTask(task);
 	this->closeTheWrittenFile();
 	return true;
 }
 
-void Storage::openTheFileToWrite(std::ios_base::openmode mode, std::string fileName)
+void Storage::openTheFileToWrite(std::string fileName, std::ios_base::openmode mode)
 {
 	this->_fileWriter.open(fileName,mode);
 	return;
@@ -71,10 +79,6 @@ void Storage::closeTheReadFile()
 
 void Storage::saveTaskList(const list<Task>& taskList)
 {
-	/*
-	this->saveTaskCount(taskList.size());
-	writeLineToFile("");
-	*/
 	list<Task>::const_iterator it = taskList.begin();
 	while(it != taskList.end())
 	{
