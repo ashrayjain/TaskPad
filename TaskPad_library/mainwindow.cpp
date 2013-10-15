@@ -16,7 +16,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
 	//TODO: make it SLAP
 	trayIcon = new QSystemTrayIcon(this);
-	trayIcon->setIcon(QIcon(":/MainWindow/Resources/tp-icon.png"));
+	trayIcon->setIcon(QIcon(":/MainWindow/Resources/logo.png"));
 	trayIcon->show();
 	trayIcon->showMessage("TaskPad", "Hello world!");
 	ui.setupUi(this);
