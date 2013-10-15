@@ -9,5 +9,6 @@
         <file>Resources/details_low_bg.png</file>
         <file>Resources/details_normal_bg.png</file>
         <file>Resources/mainwindow_bg.png</file>
+        <file>Resources/tp-icon.png</file>
     </qresource>
 </RCC>
