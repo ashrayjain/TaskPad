@@ -15,7 +15,11 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>TaskPad</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="mainwindow.qrc">
+    <normaloff>:/MainWindow/Resources/logo.png</normaloff>:/MainWindow/Resources/logo.png</iconset>
   </property>
   <property name="styleSheet">
    <string notr="true">QMainWindow#MainWindowClass {
