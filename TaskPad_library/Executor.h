@@ -74,6 +74,7 @@ protected:
 	void findGeneral				(Command_Find* cmd, Messenger &response);
 	void findByTags					(Command_Find* cmd, Messenger &response);
 	void getCustomDataRangeByTags	(list<Task*> &customDataRange, list<string> &tags);
+	void filterResponseListByType	(Messenger &response, list<TP::TASK_TYPE> &types);
 	void runSearchWithTask			(const Task &taskToCompare,	list<Task> &results);
 	void runSearchWithTask			(const Task &taskToCompare, list<Task> &results, string substringName);
 	void runSearchWithTaskOnData	(const Task &taskToCompare, list<Task> &results, list<Task*> &customData);
