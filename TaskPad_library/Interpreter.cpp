@@ -422,6 +422,11 @@ void Interpreter::allocatePpl(string keyWord, list<string>&ppl, string inputInfo
 		stringstream timeExtracter(pplComponent);
 
 		while(getline(timeExtracter,pplComponent,',')){
+			std::stringstream trimmer;
+			//trim!
+			trimmer << pplComponent;
+			pplComponent.clear();
+			trimmer >> pplComponent;
 			ppl.push_back(pplComponent);
 		}
 	}
@@ -456,6 +461,11 @@ void Interpreter::allocateTags(string keyWord, list<string>&tags, string inputIn
 	stringstream timeExtracter(pplComponent);
 
 	while(getline(timeExtracter,pplComponent,',')){
+		std::stringstream trimmer;
+		//trim!
+		trimmer << pplComponent;
+		pplComponent.clear();
+		trimmer >> pplComponent;
 		tags.push_back(pplComponent);
 		}
 	}

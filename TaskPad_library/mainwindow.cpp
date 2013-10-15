@@ -567,11 +567,13 @@ void MainWindow::updateDetails(Task t){
 	if(task_showDetails.getFlagParticipants()){
 		QString participants;
 		list<string> listOfParticipants =  task_showDetails.getParticipants();
-		for(list<string>::iterator iter = listOfParticipants.begin();
-			iter != listOfParticipants.end();
+		list<string>::iterator iter = listOfParticipants.begin();
+		participants += iter->c_str();
+		iter++;
+		for(;iter != listOfParticipants.end();
 			advance(iter, 1)){
-				participants += iter->c_str();
 				participants += ", ";
+				participants += iter->c_str();
 		}
 		ui.participants->setText(participants);
 	}
@@ -582,11 +584,15 @@ void MainWindow::updateDetails(Task t){
 	if(task_showDetails.getFlagTags()){
 		QString tags;
 		list<string> listOfTags = task_showDetails.getTags();
-		for(list<string>::iterator iter = listOfTags.begin();
-			iter != listOfTags.end();
+		list<string>::iterator iter = listOfTags.begin();
+		tags += "#";
+		tags += iter->c_str();
+		iter++;
+		for(;iter != listOfTags.end();
 			advance(iter, 1)){
-				tags += iter->c_str();
 				tags += ", ";
+				tags += "#";
+				tags += iter->c_str();
 		}
 		ui.tags->setText(tags);
 	}
