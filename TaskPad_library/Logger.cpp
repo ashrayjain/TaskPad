@@ -62,6 +62,7 @@ void Logger::log (std::string callingClass, std::string message, LOG_TYPE logTyp
 				break;
 			case FATAL:
 				logFatal(completeMessage);
+				throw "Fatal log occurred!";
 				break;
 		}
 		_logWriter.flush();
