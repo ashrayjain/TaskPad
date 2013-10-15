@@ -8,6 +8,7 @@
 //forward definitions
 class Task;
 class Command;
+class Logger;
 
 using namespace std;
 using namespace TP;
@@ -18,6 +19,7 @@ class Storage
 		ofstream _fileWriter;
 		ifstream _fileReader;
 		bool _isFileMishandled;
+		Logger* _logger;
 
 		static const string _fileName;
 
