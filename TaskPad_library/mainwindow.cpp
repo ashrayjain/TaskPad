@@ -345,6 +345,9 @@ void MainWindow::handleMessenger(Messenger msg){
 			updateStatusBar("Searched successfully");
 			clearDetails();
 			updateList(msg.getList());
+			if(msg.getList().size() == 1){
+				updateDetails(msg.getList().front());
+			}
 			break;
 		}
 	}
