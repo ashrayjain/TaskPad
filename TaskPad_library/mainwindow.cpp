@@ -4,6 +4,7 @@
 #include <QShortcut>
 #include <QDateTime>
 #include <QGraphicsOpacityEffect>
+#include <QTimer>
 #include "Enum.h"
 #include "mainwindow.h"
 #include "Manager.h"
@@ -13,8 +14,15 @@
 MainWindow::MainWindow(QWidget *parent)
 	: QMainWindow(parent) 
 {
+	//TODO: make it SLAP
+	trayIcon = new QSystemTrayIcon(this);
+	trayIcon->setIcon(QIcon(":/MainWindow/Resources/tp-icon.png"));
+	trayIcon->show();
+	trayIcon->showMessage("TaskPad", "Hello world!");
 	ui.setupUi(this);
 	customisedUi();
+	QObject::connect(trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, 
+		SLOT(iconIsActived(QSystemTrayIcon::ActivationReason)));
 	QObject::connect(ui.CloseButton, SIGNAL(clicked()), this, SLOT(close()));
 	QObject::connect(ui.MinimizeButton, SIGNAL(clicked()), this, SLOT(showMinimized()));
 	QObject::connect(ui.AboutButton, SIGNAL(clicked()), this, SLOT(about()));
@@ -38,6 +46,12 @@ MainWindow::~MainWindow()
 	delete scheduler;
 	scheduler = NULL;
 }
+
+void MainWindow::iconIsActived(QSystemTrayIcon::ActivationReason){
+	show();
+	setWindowState(Qt::WindowActive);
+}
+
 void MainWindow::help(){
 	QMessageBox msgBox;
 	msgBox.setText("Geek doesn't need help from us :p");
@@ -241,6 +255,20 @@ void MainWindow::handleGetInbox(Messenger msg){
 	updateStatusBar("Ready");
 	clearDetails();
 	updateList(msg.getList());
+}
+
+void MainWindow::showReminder(){
+	trayIcon->showMessage("TaskPad", "msg here");
+}
+
+void MainWindow::changeEvent(QEvent* event){
+	if(event->type()==QEvent::WindowStateChange){
+		if(windowState() == Qt::WindowMinimized)
+		{
+			QTimer::singleShot(0, this, SLOT(hide()));
+		}
+	}
+	QMainWindow::changeEvent(event);
 }
 
 bool MainWindow::eventFilter(QObject* watched, QEvent* event)

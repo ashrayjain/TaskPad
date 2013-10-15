@@ -1,6 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <QSystemTrayIcon>
 #include <list>
 #include "Task.h"
 #include "Messenger.h"
@@ -24,8 +25,10 @@ protected slots:
 	void createNewTaskTemplate();
 	void getToday();
 	void getInbox();
+	void iconIsActived(QSystemTrayIcon::ActivationReason);
 
 private:
+	void showReminder();
 	void keyPressEvent(QKeyEvent*event);
 	void reset();
 	void updateNavLabel(QString str);
@@ -42,10 +45,13 @@ private:
 	void customisedUi();
 	void mousePressEvent(QMouseEvent *event);
 	void mouseMoveEvent(QMouseEvent *event);
+
+	QSystemTrayIcon* trayIcon;
 	Ui::MainWindowClass ui;
 	QPoint windowPosition;
 	QPoint mousePressPosition;
 	QPoint mouseMovePosition;
+	void changeEvent(QEvent* event);
 	bool eventFilter(QObject* watched, QEvent* event);
 
 	Manager* scheduler;
