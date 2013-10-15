@@ -11,7 +11,6 @@
 #include "lastColumnDelegate.h"
 #include "CommandBar.h"
 
-
 MainWindow::MainWindow(QWidget *parent)
 	: QMainWindow(parent) 
 {
