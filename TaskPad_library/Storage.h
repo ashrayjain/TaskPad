@@ -130,7 +130,6 @@ class Storage
 		Storage(list<Task>&);
 
 		bool save	(const list<Task>&);
-		bool save	(const Command&);
 		bool save	(const Task& task);
 
 		void load	(list<Task>& taskList);
