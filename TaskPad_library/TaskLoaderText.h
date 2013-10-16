@@ -44,8 +44,8 @@ class TaskLoaderText :public TaskLoader
 		TP::TASK_STATE			getTaskStateFromString	(std::string attribute);
 
 		//file opener/closer
-		void openTheFileToRead(std::string fileName);
-		void closeTheReadFile();
+		void openFile(const std::string& fileName, std::ios_base::openmode = std::ios::in);
+		void closeFile();
 };
 
 #endif
