@@ -5,11 +5,12 @@
 #include "Task.h"
 #include "Enum.h"
 #include "Logger.h"
+#include "TaskLoaderText.h"
 
 using namespace TP;
+const string Storage::_fileName = "TaskPad.txt";
 
 const string Storage::LABEL_START_OF_TASK = "StartOfTask";
-const string Storage::_fileName = "TaskPad.txt";
 const string Storage::LABEL_NAME = "name:";
 const string Storage::LABEL_INDEX = "index:";
 const string Storage::LABEL_DUE_DATE = "due:";
@@ -484,6 +485,7 @@ std::string Storage::getNextLineFromFile()
 
 void Storage::load (list<Task>& taskList)
 {
+
 	this->openTheFileToRead();
 	this->loadTaskList(taskList);
 	this->closeTheReadFile();
