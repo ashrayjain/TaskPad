@@ -20,6 +20,8 @@ const unsigned		Executor::EMPTY_LIST_SIZE			= 0;
 const unsigned		Executor::SINGLE_RESULT_LIST_SIZE	= 1;
 const std::string	Executor::NAME_NOT_FOUND_ERROR		= "No results for name: ";
 const std::string	Executor::INVALID_INDEX_ERROR		= " is not a valid index!";
+const std::string	Executor::UNDOSTACK_EMPTY_MSG		= "Nothing to Undo!";
+const std::string	Executor::REDOSTACK_EMPTY_MSG		= "Nothing to Redo!";
 
 void Executor::rebuildHashes() {
 	rebuildIndexHash();
@@ -41,17 +43,43 @@ void Executor::executeCommand(Command* cmd, Messenger &response) {
 	switch (cmd->getCommandType()) {
 	case COMMAND_TYPE::ADD:
 		executeAdd (dynamic_cast<Command_Add*>(cmd), response);
+		if (isCmdSuccessful(response))
+			stackForUndo(cmd, response);
+		break;
+	case COMMAND_TYPE::DEL:
+		executeDel (dynamic_cast<Command_Del*>(cmd), response);
+		if (isCmdSuccessful(response))
+			stackForUndo(cmd, response);
+		break;
+	case COMMAND_TYPE::MOD:
+		executeMod (dynamic_cast<Command_Mod*>(cmd), response);
+		if (isCmdSuccessful(response))
+			stackForUndo(cmd, response);
+		break;
+	case COMMAND_TYPE::FIND:
+		executeFind(dynamic_cast<Command_Find*>(cmd), response);
+		break;
+	case COMMAND_TYPE::UNDO:
+		executeUndo(dynamic_cast<Command_Undo*>(cmd), response);
+		break;
+	case COMMAND_TYPE::REDO:
+		executeRedo(dynamic_cast<Command_Redo*>(cmd), response);
+		break;
+	default:
+		break;
+	}
+}
+
+void Executor::executeCommandWithoutUndoRedo(Command* cmd, Messenger &response) {
+	switch (cmd->getCommandType()) {
+	case COMMAND_TYPE::ADD:
+		executeAdd (dynamic_cast<Command_Add*>(cmd), response);
 		break;
 	case COMMAND_TYPE::DEL:
 		executeDel (dynamic_cast<Command_Del*>(cmd), response);
 		break;
 	case COMMAND_TYPE::MOD:
 		executeMod (dynamic_cast<Command_Mod*>(cmd), response);
-		break;
-	case COMMAND_TYPE::FIND:
-		executeFind(dynamic_cast<Command_Find*>(cmd), response);
-		break;
-	default:
 		break;
 	}
 }
@@ -196,6 +224,7 @@ void Executor::executeMod (Command_Mod* cmd, Messenger &response) {
 void Executor::modifyByIndex(Command_Mod* cmd, Messenger &response) {
 	unordered_map<unsigned long long, Task*>::iterator result = _indexHash.find(cmd->getCreatedTime());
 	if (result != _indexHash.end()) {
+		_interimTask = *(result->second);
 		modifyTaskTo(*(result->second), cmd);
 		setOpSuccessTask(*(result->second), response);
 	}
@@ -214,6 +243,7 @@ void Executor::modifyByExactName(Command_Mod* cmd, Messenger &response) {
 	bool nameFound = false;
 	for(list<Task>::iterator i = _data->begin(); i != _data->end() && !nameFound; ++i)
 		if (i->getName() == cmd->getName()) {
+			_interimTask = *i;
 			modifyTaskTo(*i, cmd);
 			setOpSuccessTask(Task(*i), response);
 			nameFound = true;
@@ -334,7 +364,6 @@ void Executor::findByTags(Command_Find* cmd, Messenger &response) {
 }
 
 void Executor::getCustomDataRangeByTags(list<Task*> &customDataRange, list<string> &tags) {
-	//tags.push_back("#TestHash");
 	for(list<string>::iterator i = tags.begin(); i != tags.end(); ++i)
 		customDataRange.insert(customDataRange.end(), _hashTagsHash[*i].begin(), _hashTagsHash[*i].end());
 }
@@ -397,29 +426,182 @@ bool Executor::chkToDateBound(const time_t &toTime, const Task &lhs) const {
 		(lhs.getFlagDueDate() && toTime >= lhs.getDueDate());
 }
 
+// Undo and Redo functions
+
+void Executor::executeUndo(Command_Undo* cmd, Messenger &response) {
+	Command* undoCmd;
+	if (_undoStack.empty())
+		setUndoStackEmptyError(response);
+	else {
+		undoCmd = getTransposeCommand(_undoStack.top().first, _undoStack.top().second);
+		executeCommandWithoutUndoRedo(undoCmd, response);
+		// Not sure if need to do this...tested without this
+		// will test more after interpreter can handle Undo and Redo ;)
+		//delete undoCmd;
+		_redoStack.push(_undoStack.top());
+		_undoStack.pop();
+	}
+}
+
+void Executor::executeRedo(Command_Redo* cmd, Messenger &response) {
+	Command* redoCmd;
+	if (_redoStack.empty())
+		setRedoStackEmptyError(response);
+	else {
+		executeCommandWithoutUndoRedo(_redoStack.top().first, response);
+		_undoStack.push(_redoStack.top());
+		_redoStack.pop();
+	}
+}
+
+Command* Executor::getTransposeCommand(Command* cmd, Task &task) {
+	switch (cmd->getCommandType()) {
+	case COMMAND_TYPE::ADD:
+		return getTransposeCommand(dynamic_cast<Command_Add*>(cmd), task);
+		break;
+	case COMMAND_TYPE::DEL:
+		return getTransposeCommand(dynamic_cast<Command_Del*>(cmd), task);
+		break;
+	case COMMAND_TYPE::MOD:
+		return getTransposeCommand(dynamic_cast<Command_Mod*>(cmd), task);
+		break;
+	default:
+		break;
+	}
+	return cmd;
+}
+
+Command* Executor::getTransposeCommand(Command_Add* cmd, Task &task) {
+	Command_Del* transposeCmd = new Command_Del();
+	transposeCmd->setCreatedTime(task.getIndex());
+	return transposeCmd;
+}
+
+Command* Executor::getTransposeCommand(Command_Del* cmd, Task &task) {
+	Command_Add* transposeCmd = new Command_Add();
+	formAddCmdFromTask(task, transposeCmd);
+	return transposeCmd;
+}
+
+void Executor::formAddCmdFromTask(Task &task, Command_Add* cmd) {
+	if(task.getFlagName())
+		cmd->setName(task.getName());
+	if(task.getFlagLocation())
+		cmd->setLocation(task.getLocation());
+	if(task.getFlagNote())
+		cmd->setNote(task.getNote());
+	if(task.getFlagRemindTimes())
+		cmd->setRemindTimes(task.getRemindTimes());
+	if(task.getFlagParticipants())
+		cmd->setParticipants(task.getParticipants());
+	if(task.getFlagPriority())
+		cmd->setPriority(task.getPriority());
+	if(task.getFlagDueDate())
+		cmd->setDueDate(task.getDueDate());
+	if(task.getFlagFromDate())
+		cmd->setFromDate(task.getFromDate());
+	if(task.getFlagToDate())
+		cmd->setToDate(task.getToDate());
+	if(task.getFlagTags())
+		cmd->setTags(task.getTags());
+}
+
+Command* Executor::getTransposeCommand(Command_Mod* cmd, Task &task) {
+	Command_Mod* transposeCmd = new Command_Mod();
+	getCmdForSubtractingCmdFromTask(transposeCmd, cmd, task);
+	return transposeCmd;
+}
+
+void Executor::getCmdForSubtractingCmdFromTask(Command_Mod* subtractCmd, Command_Mod* cmd, Task &task) {
+	if(cmd->getFlagOptName()) 
+		subtractCmd->setOptName(task.getName());
+	if(cmd->getFlagLocation())
+		subtractCmd->setLocation(task.getLocation());
+	if(cmd->getFlagNote())
+		subtractCmd->setNote(task.getNote());
+	if(cmd->getFlagRemindTimes())
+		subtractCmd->setRemindTimes(task.getRemindTimes());
+	if(cmd->getFlagParticipants())
+		subtractCmd->setParticipants(task.getParticipants());
+	if(cmd->getFlagTags())
+		subtractCmd->setTags(task.getTags());
+	if(cmd->getFlagPriority())
+		subtractCmd->setPriority(task.getPriority());
+	if(cmd->getFlagDue())
+		subtractCmd->setDueDate(task.getDueDate());
+	if(cmd->getFlagFrom())
+		subtractCmd->setFromDate(task.getFromDate());
+	if(cmd->getFlagTo())
+		subtractCmd->setToDate(task.getToDate());
+	if(cmd->getFlagTaskState())
+		subtractCmd->setTaskState(task.getState());
+}
+
+bool Executor::isCmdSuccessful(const Messenger &response) const {
+	return response.getStatus() == TP::STATUS::SUCCESS;
+}
+
+void Executor::stackForUndo(Command* cmd, Messenger &response) {
+	if(cmd->getCommandType() == TP::COMMAND_TYPE::MOD) {
+		Command_Mod* newCmd = new Command_Mod();
+		*newCmd = *(dynamic_cast<Command_Mod*>(cmd));
+		_undoStack.push(pair<Command*, Task>(newCmd, _interimTask));
+	}
+	else if(cmd->getCommandType() == TP::COMMAND_TYPE::ADD) {
+		Command_Add* newCmd = new Command_Add();
+		*newCmd = *(dynamic_cast<Command_Add*>(cmd));
+		_undoStack.push(pair<Command*, Task>(newCmd, response.getTask()));
+	}
+	else {
+		Command_Del* newCmd = new Command_Del();
+		*newCmd = *(dynamic_cast<Command_Del*>(cmd));
+		_undoStack.push(pair<Command*, Task>(newCmd, response.getTask()));
+	}
+	clearRedoStack();
+}
+
+void Executor::clearRedoStack() {
+	while(!_redoStack.empty()) {
+		delete _redoStack.top().first;
+		_redoStack.pop();
+	}
+}
+
 // Status setting functions
 
 void Executor::setOpSuccessTask(const Task &retTask, Messenger &response) {
-	response.setStatus(TP::SUCCESS);
+	response.setStatus(TP::STATUS::SUCCESS);
 	response.setTask(Task(retTask));
 }
 
 void Executor::setOpSuccessTaskList(const list<Task>& results, Messenger &response) {
-	response.setStatus(TP::SUCCESS);
+	response.setStatus(TP::STATUS::SUCCESS);
 	response.setList(results);
 }
 
 void Executor::setOpIntermediateTaskList(const list<Task>& results, Messenger &response) {
-	response.setStatus(TP::INTERMEDIATE);
+	response.setStatus(TP::STATUS::INTERMEDIATE);
 	response.setList(results);
 }
 
 void Executor::setIndexNotFound(const unsigned long long &index, Messenger &response) {
-	response.setStatus(TP::ERROR);
+	response.setStatus(TP::STATUS::ERROR);
 	response.setErrorMsg(std::to_string(index) + INVALID_INDEX_ERROR);
 }
 
 void Executor::setNameNotFound(const string &name, Messenger &response) {
-	response.setStatus(TP::ERROR);
+	response.setStatus(TP::STATUS::ERROR);
 	response.setErrorMsg(NAME_NOT_FOUND_ERROR + name);
 }
+
+void Executor::setUndoStackEmptyError(Messenger &response) {
+	response.setStatus(TP::STATUS::ERROR);
+	response.setErrorMsg(UNDOSTACK_EMPTY_MSG);
+}
+
+void Executor::setRedoStackEmptyError(Messenger &response) {
+	response.setStatus(TP::STATUS::ERROR);
+	response.setErrorMsg(REDOSTACK_EMPTY_MSG);
+}
+
+
