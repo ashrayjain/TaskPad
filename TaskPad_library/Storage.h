@@ -9,6 +9,7 @@
 class Task;
 class Command;
 class Logger;
+class TaskLoader;
 
 using namespace std;
 using namespace TP;
@@ -20,6 +21,7 @@ class Storage
 		ifstream _fileReader;
 		bool _isFileMishandled;
 		Logger* _logger;
+		TaskLoader* _loader;
 
 		static const string _fileName;
 
@@ -84,47 +86,6 @@ class Storage
 		
 		//removes Task files
 		void removeTaskFiles();
-
-		///////////////////////////
-		//// Loading Functions ////
-		///////////////////////////
-
-		//loader
-		void loadTaskList(list<Task>& taskList);
-
-		//helper functions
-		std::string getNewLabel(std::string);
-		std::string getNewData (std::string);
-		Task getNextTask();
-		unsigned long long getTaskIndex (std::string);
-		bool hasNextTask();
-
-		// task constructing functions
-		Task createNewTask(unsigned long long index);
-		void setTaskName	(Task& task,std::string name);
-		void setTaskDueDate	(Task& task, std::string dueDate);
-		void setTaskFromDate(Task& task, std::string fromDate);
-		void setTaskToDate(Task& task, std::string toDate);
-		void setTaskLocation(Task& task, std::string location);
-		void setTaskParticipant(Task& task, std::string participant);
-		void setTaskNote(Task& task, std::string note);
-		void setTaskPriority(Task& task, std::string taskPriority);
-		void setTaskTag(Task& task, std::string tag);
-		void setTaskReminderTime(Task& task, std::string reminderTime);
-		void setTaskState(Task& task, std::string taskState);
-		//reader
-		std::string getNextLineFromFile();
-
-		// reverse string converters
-		int					getIntFromString		(std::string attribute);
-		unsigned long long	getIndexFromString		(std::string attribute);
-		time_t				getTimeFromString		(std::string attribute);
-		PRIORITY			getPriorityFromString	(std::string attribute);
-		TASK_STATE			getTaskStateFromString	(std::string attribute);
-
-		//file opener/closer
-		void openTheFileToRead(std::string fileName = _fileName);
-		void closeTheReadFile();
 
 	public:
 		Storage(list<Task>&);

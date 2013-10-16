@@ -178,19 +178,19 @@ string TaskLoaderText::getNextLineFromFile()
 
 void TaskLoaderText::load (list<Task>& taskList, const string& fileName)
 {
-	this->openTheFileToRead(fileName);
+	this->openFile(fileName);
 	this->loadTaskList(taskList);
-	this->closeTheReadFile();
+	this->closeFile();
 	return;
 }
 
-void TaskLoaderText::openTheFileToRead(std::string fileName)
+void TaskLoaderText::openFile(const std::string& fileName,  std::ios_base::openmode)
 {
 	this->_fileReader.open(fileName);
 	return;
 }
 
-void TaskLoaderText::closeTheReadFile()
+void TaskLoaderText::closeFile()
 {
 	this->_fileReader.close();
 	return;

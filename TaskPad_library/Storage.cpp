@@ -29,6 +29,8 @@ Storage::Storage(list<Task>& taskList)
 {
 	_logger = Logger::getLogger();
 	_logger->log("Storage","called constructor!");
+
+	_loader = NULL;
 	this->load(taskList);
 }
 
@@ -61,22 +63,10 @@ void Storage::openTheFileToWrite(std::string fileName, std::ios_base::openmode m
 	return;
 }
 
-void Storage::openTheFileToRead(std::string fileName)
-{
-	this->_fileReader.open(fileName);
-	return;
-}
-
 void Storage::closeTheWrittenFile()
 {
 	this->_fileWriter.flush();
 	this->_fileWriter.close();
-	return;
-}
-
-void Storage::closeTheReadFile()
-{
-	this->_fileReader.close();
 	return;
 }
 
@@ -121,6 +111,7 @@ void Storage::saveTaskLevelLabel(std::string LabelStr)
 {
 	writeLineToFile(LabelStr);
 }
+
 void Storage::saveAttributeLevelLabel(string LabelStr)
 {
 	writeLineToFile(LabelStr,false);
@@ -317,232 +308,16 @@ void Storage::emptyTheFile()
 	//throw "storage empty the file not implemented";
 }
 
-void Storage::loadTaskList(list<Task>& taskList)
-{
-	while(_fileReader.good() && hasNextTask())
-	{
-		taskList.push_back(this->getNextTask());
-		this->getNextLineFromFile();
-	}
-	return;
-}
-
-Task Storage::getNextTask()
-{
-	bool flagTaskEnded = false;
-	std::string newLine;
-	std::string newLabel;
-	std::string newData;
-	Task newTask;
-
-	while(_fileReader.good()) {
-		newLine = getNextLineFromFile();
-		newLabel = getNewLabel(newLine);
-		newData = getNewData(newLine);
-
-		if(newLabel == LABEL_END_OF_TASK) {
-			flagTaskEnded = true;
-			break;
-		}
-		else if(newLabel == LABEL_INDEX) {
-			newTask = createNewTask(getTaskIndex(newData));
-		}
-		else if(newLabel == LABEL_NAME) {
-			setTaskName(newTask, newData);
-		}
-		else if(newLabel == LABEL_DUE_DATE)	{
-			setTaskDueDate(newTask,newData);
-		}
-		else if(newLabel == LABEL_FROM_DATE) {
-			setTaskFromDate(newTask,newData);
-		}
-		else if(newLabel == LABEL_TO_DATE) {
-			setTaskToDate(newTask,newData);
-		}
-		else if(newLabel == LABEL_LOCATION)	{
-			setTaskLocation(newTask,newData);
-		}
-		else if(newLabel == LABEL_PARTICIPANT) {
-			setTaskParticipant(newTask,newData);
-		}
-		else if(newLabel == LABEL_NOTE) {
-			setTaskNote(newTask,newData);
-		}
-		else if(newLabel == LABEL_PRIORITY)	{
-			setTaskPriority(newTask,newData);
-		}
-		else if(newLabel == LABEL_TAG) {
-			setTaskTag(newTask,newData);
-		}
-		else if(newLabel == LABEL_REMINDER_TIME) {
-			setTaskReminderTime(newTask,newData);
-		}
-		else if(newLabel == LABEL_STATE) {
-			setTaskState(newTask,newData);
-		}
-	}
-
-	if (!flagTaskEnded)
-	{
-		this->_isFileMishandled = true;
-	}
-	return newTask;
-}
-
-bool Storage::hasNextTask()
-{
-	bool hasNextTask = false;
-
-	while(_fileReader.good())
-	{
-		hasNextTask = (getNextLineFromFile() == LABEL_START_OF_TASK);
-
-		if(hasNextTask)
-		{
-			break;
-		}
-	}
-
-	return hasNextTask;
-}
-
-std::string Storage::getNewLabel(std::string newLine)
-{
-	std::string label;
-	stringstream tempStream(newLine);
-
-	tempStream >> label;
-
-	return label;
-}
-
-std::string Storage::getNewData(std::string newLine)
-{
-	int pos = newLine.find_first_of(" ");
-	if(pos != std::string::npos) {
-		return newLine.substr(pos+1);
-	}
-	else {
-		return "";
-	}
-}
-
-unsigned long long Storage::getTaskIndex(std::string indexStr)
-{
-	return getIndexFromString(indexStr);
-}
-
-Task Storage::createNewTask(unsigned long long index) {
-	return Task(index);
-}
-void Storage::setTaskName	(Task& task,std::string taskName) {
-	task.setName(taskName);
-}
-void Storage::setTaskDueDate	(Task& task, std::string dueDateStr) {
-	time_t dueDate = getTimeFromString(dueDateStr);
-	task.setDueDate(dueDate);
-}
-void Storage::setTaskFromDate(Task& task, std::string fromDateStr) {
-	time_t fromDate = getTimeFromString(fromDateStr);
-	task.setFromDate(fromDate);
-}
-void Storage::setTaskToDate(Task& task, std::string toDateStr) {
-	time_t toDate = getTimeFromString(toDateStr);
-	task.setToDate(toDate);
-}
-void Storage::setTaskLocation(Task& task, std::string location) {
-	task.setLocation(location);
-}
-void Storage::setTaskParticipant(Task& task, std::string participant) {
-	task.setParticipants(participant,ADD_ELEMENT);
-}
-void Storage::setTaskNote(Task& task, std::string note) {
-	task.setNote(note);
-}
-void Storage::setTaskPriority(Task& task, std::string taskPriorityStr) {
-	PRIORITY taskPriority = getPriorityFromString(taskPriorityStr);
-	task.setPriority(taskPriority);
-}
-void Storage::setTaskTag(Task& task, std::string tag) {
-	task.setTags(tag,ADD_ELEMENT);
-}
-void Storage::setTaskReminderTime(Task& task, std::string reminderTimeStr) {
-	time_t reminderTime = getTimeFromString(reminderTimeStr);
-	task.setRemindTimes(reminderTime,ADD_ELEMENT);
-}
-void Storage::setTaskState(Task& task, std::string taskStateStr) {
-	TASK_STATE taskState = getTaskStateFromString(taskStateStr);
-	task.setState(taskState);
-}
-
-std::string Storage::getNextLineFromFile()
-{
-	std::string nextLine;
-	getline(_fileReader,nextLine);
-
-	return nextLine;
-}
-
 void Storage::load (list<Task>& taskList)
 {
+	_loader = new TaskLoaderText;
 
-	this->openTheFileToRead();
-	this->loadTaskList(taskList);
-	this->closeTheReadFile();
+	_loader->load(taskList,_fileName);
+
+	delete _loader;
+	_loader = NULL;
+
 	return;
-}
-
-
-// From String converters
-
-int	Storage::getIntFromString (std::string attribute) {
-	stringstream tempStream(attribute);
-	int returnValue;
-
-	tempStream >> returnValue;
-
-	return returnValue;
-}
-unsigned long long Storage::getIndexFromString		(std::string attribute){
-	stringstream tempStream(attribute);
-	unsigned long long returnValue;
-
-	tempStream >> returnValue;
-
-	return returnValue;
-}
-time_t Storage::getTimeFromString (std::string attribute){
-	stringstream tempStream(attribute);
-	time_t returnValue;
-
-	tempStream >> returnValue;
-
-	return returnValue;
-}
-PRIORITY Storage::getPriorityFromString	(std::string attribute){
-	PRIORITY returnValue;
-	for (PRIORITY prio = HIGH; prio <= LOW; prio = static_cast<PRIORITY>(prio + 1))
-	{
-		if(attribute == PRIORITY_STRING[prio])
-		{
-			returnValue = prio;
-			break;
-		}
-	}
-	return returnValue;
-}
-TASK_STATE Storage::getTaskStateFromString	(std::string attribute) {
-	TASK_STATE returnValue;
-	for (TASK_STATE state = UNDONE; state <= DONE; state = static_cast<TASK_STATE>(state + 1))
-	{
-		if(attribute == TASK_STATE_STRING[state])
-		{
-			returnValue = state;
-			break;
-		}
-	}
-
-	return returnValue;
 }
 
 Storage::~Storage()

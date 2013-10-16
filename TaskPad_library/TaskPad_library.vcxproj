@@ -24,6 +24,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Command.h" />
+    <ClInclude Include="FileHandler.h" />
     <ClInclude Include="TaskLoader.h" />
     <ClInclude Include="TaskLoaderText.h" />
     <ClInclude Include="TaskSaver.h" />
