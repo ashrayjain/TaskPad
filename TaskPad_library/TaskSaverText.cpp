@@ -1,78 +1,39 @@
-#include <list>
+#ifndef _TASKSAVERTEXT_CPP_
+#define _TASKSAVERTEXT_CPP_
+
+#include <fstream>
 #include <sstream>
-#include <string>
-#include "Storage.h"
-#include "Task.h"
+#include "TaskSaverText.h"
 #include "Enum.h"
-#include "Logger.h"
-#include "TaskLoaderText.h"
+#include "Task.h"
 
 using namespace TP;
 using namespace std;
 
-const string Storage::_fileName = "TaskPad.txt";
-
-const string Storage::LABEL_START_OF_TASK = "StartOfTask";
-const string Storage::LABEL_NAME = "name:";
-const string Storage::LABEL_INDEX = "index:";
-const string Storage::LABEL_DUE_DATE = "due:";
-const string Storage::LABEL_FROM_DATE = "from:";
-const string Storage::LABEL_TO_DATE = "to:";
-const string Storage::LABEL_LOCATION = "at:";
-const string Storage::LABEL_PARTICIPANT = "ppl:";
-const string Storage::LABEL_NOTE = "note:";
-const string Storage::LABEL_PRIORITY = "impt:";
-const string Storage::LABEL_TAG = "#:";
-const string Storage::LABEL_REMINDER_TIME = "rt:";
-const string Storage::LABEL_STATE = "state:";
-const string Storage::LABEL_END_OF_TASK = "EndOfTask";
-
-Storage::Storage(list<Task>& taskList)
+void TaskSaverText::save(const list<Task>& taskList, const std::string& fileName)
 {
-	_logger = Logger::getLogger();
-	_logger->log("Storage","called constructor!");
-
-	_loader = NULL;
-	this->load(taskList);
+	this->openFile(fileName);
+	this->saveTaskList(taskList);
+	this->closeFile();
+	this->removeTaskFiles();
+	return;
 }
 
-void Storage::removeTaskFiles()
+void TaskSaverText::removeTaskFiles()
 {
 	return;
 }
 
-bool Storage::save(const list<Task>& taskList)
-{
-	this->openTheFileToWrite();
-	this->saveTaskList(taskList);
-	this->closeTheWrittenFile();
-	this->removeTaskFiles();
-	return true;
-}
-
-bool Storage::save(const Task& task)
+void TaskSaverText::save(const Task& task)
 {
 	std::string fileName = convertToString(task.getIndex()) + ".task";
-	this->openTheFileToWrite(fileName);
+	this->openFile(fileName);
 	this->saveTask(task);
-	this->closeTheWrittenFile();
-	return true;
-}
-
-void Storage::openTheFileToWrite(std::string fileName, std::ios_base::openmode mode)
-{
-	this->_fileWriter.open(fileName,mode);
+	this->closeFile();
 	return;
 }
 
-void Storage::closeTheWrittenFile()
-{
-	this->_fileWriter.flush();
-	this->_fileWriter.close();
-	return;
-}
-
-void Storage::saveTaskList(const list<Task>& taskList)
+void TaskSaverText::saveTaskList(const list<Task>& taskList)
 {
 	list<Task>::const_iterator it = taskList.begin();
 	while(it != taskList.end())
@@ -82,7 +43,7 @@ void Storage::saveTaskList(const list<Task>& taskList)
 	}
 }
 
-void Storage::saveTask(const Task& task)
+void TaskSaverText::saveTask(const Task& task)
 {
 	writeLineToFile("");
 
@@ -93,7 +54,7 @@ void Storage::saveTask(const Task& task)
 	return;
 }
 
-void Storage::saveTaskAttributes(const Task& tempTask)
+void TaskSaverText::saveTaskAttributes(const Task& tempTask)
 {
 	this->saveIndex(tempTask);
 	this->saveName(tempTask);
@@ -109,23 +70,23 @@ void Storage::saveTaskAttributes(const Task& tempTask)
 	this->saveState(tempTask);
 }
 
-void Storage::saveTaskLevelLabel(std::string LabelStr)
+void TaskSaverText::saveTaskLevelLabel(std::string LabelStr)
 {
 	writeLineToFile(LabelStr);
 }
 
-void Storage::saveAttributeLevelLabel(string LabelStr)
+void TaskSaverText::saveAttributeLevelLabel(string LabelStr)
 {
 	writeLineToFile(LabelStr,false);
 }
 
-void Storage::saveIndex(const Task& tempTask)
+void TaskSaverText::saveIndex(const Task& tempTask)
 {
 	saveAttributeLevelLabel(LABEL_INDEX);
 	writeLineToFile(convertToString(tempTask.getIndex()));
 }
 
-void Storage::saveName(const Task& tempTask)
+void TaskSaverText::saveName(const Task& tempTask)
 {
 	if(tempTask.getFlagName())
 	{
@@ -134,7 +95,7 @@ void Storage::saveName(const Task& tempTask)
 	}
 }
 
-void Storage::saveLocation(const Task& tempTask)
+void TaskSaverText::saveLocation(const Task& tempTask)
 {
 	if(tempTask.getFlagLocation())
 	{
@@ -143,7 +104,7 @@ void Storage::saveLocation(const Task& tempTask)
 	}
 }
 
-void Storage::saveParticipants(const Task& tempTask)
+void TaskSaverText::saveParticipants(const Task& tempTask)
 {
 	if(tempTask.getFlagParticipants())
 	{
@@ -163,7 +124,7 @@ void Storage::saveParticipants(const Task& tempTask)
 	}
 }
 
-void Storage::saveNote(const Task& tempTask)
+void TaskSaverText::saveNote(const Task& tempTask)
 {
 	if(tempTask.getFlagNote())
 	{
@@ -172,7 +133,7 @@ void Storage::saveNote(const Task& tempTask)
 	}
 }
 
-void Storage::savePriority(const Task& tempTask)
+void TaskSaverText::savePriority(const Task& tempTask)
 {
 	saveAttributeLevelLabel(LABEL_PRIORITY);
 
@@ -180,7 +141,7 @@ void Storage::savePriority(const Task& tempTask)
 	writeLineToFile(priorityStr);
 }	
 
-void Storage::saveTags(const Task& tempTask)
+void TaskSaverText::saveTags(const Task& tempTask)
 {
 	if(tempTask.getFlagTags())
 	{
@@ -199,7 +160,7 @@ void Storage::saveTags(const Task& tempTask)
 	}
 }
 
-void Storage::saveReminderTimes(const Task& tempTask)
+void TaskSaverText::saveReminderTimes(const Task& tempTask)
 {
 	if(tempTask.getFlagRemindTimes())
 	{
@@ -217,7 +178,7 @@ void Storage::saveReminderTimes(const Task& tempTask)
 	}
 }
 
-void Storage::saveState(const Task& tempTask)
+void TaskSaverText::saveState(const Task& tempTask)
 {
 	saveAttributeLevelLabel(LABEL_STATE);
 
@@ -225,7 +186,7 @@ void Storage::saveState(const Task& tempTask)
 	writeLineToFile(stateStr);
 }
 
-void Storage::saveDueDate(const Task& tempTask)
+void TaskSaverText::saveDueDate(const Task& tempTask)
 {
 	if(tempTask.getFlagDueDate())
 	{
@@ -236,7 +197,7 @@ void Storage::saveDueDate(const Task& tempTask)
 	}
 }
 
-void Storage::saveFromDate(const Task& tempTask)
+void TaskSaverText::saveFromDate(const Task& tempTask)
 {
 	if(tempTask.getFlagFromDate())
 	{
@@ -247,7 +208,7 @@ void Storage::saveFromDate(const Task& tempTask)
 	}
 }
 
-void Storage::saveToDate(const Task& tempTask)
+void TaskSaverText::saveToDate(const Task& tempTask)
 {
 	if(tempTask.getFlagToDate())
 	{
@@ -262,33 +223,33 @@ void Storage::saveToDate(const Task& tempTask)
 /************** To String Converters ****************/
 /****************************************************/
 
-string Storage::convertToString(int num)
+string TaskSaverText::convertToString(int num)
 {
 	stringstream tmpstream;
 	tmpstream << (num);
 	return tmpstream.str();
 }
 
-string Storage::convertToString(unsigned long long index)
+string TaskSaverText::convertToString(unsigned long long index)
 {
 	stringstream tmpstream;
 	tmpstream << (index);
 	return tmpstream.str();
 }
 
-string Storage::convertToString(time_t time)
+string TaskSaverText::convertToString(time_t time)
 {
 	stringstream ss;
 	ss << (time);
 	return ss.str();
 }
 
-string Storage::convertToString(PRIORITY priority)
+string TaskSaverText::convertToString(PRIORITY priority)
 {
 	return PRIORITY_STRING[priority];
 }
 
-string Storage::convertToString(TASK_STATE state)
+string TaskSaverText::convertToString(TASK_STATE state)
 {
 	return TASK_STATE_STRING[state];
 }
@@ -297,7 +258,7 @@ string Storage::convertToString(TASK_STATE state)
 /***************** Actual Writers ****************/
 /****************************************************/
 
-void Storage::writeLineToFile(string line, bool newLine)
+void TaskSaverText::writeLineToFile(string line, bool newLine)
 {
 	if(newLine)
 		_fileWriter << line << endl;
@@ -305,27 +266,9 @@ void Storage::writeLineToFile(string line, bool newLine)
 		_fileWriter << line << " ";
 }
 
-void Storage::emptyTheFile()
+void TaskSaverText::emptyTheFile()
 {
 	//throw "storage empty the file not implemented";
 }
 
-void Storage::load (list<Task>& taskList)
-{
-	_loader = new TaskLoaderText;
-
-	_loader->load(taskList,_fileName);
-
-	delete _loader;
-	_loader = NULL;
-
-	return;
-}
-
-Storage::~Storage()
-{
-	/*
-	this->_fileReader.close();
-	this->_fileWriter.close();
-	*/
-}
+#endif
