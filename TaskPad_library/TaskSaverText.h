@@ -1,44 +1,16 @@
-#ifndef _STORAGE_H_
-#define _STORAGE_H_
+#ifndef _TASKSAVERTEXT_H_
+#define _TASKSAVERTEXT_H_
 
-#include<fstream>
-#include<list>
+#include <list>
+#include "TaskSaver.h"
 #include "Enum.h"
 
-//forward definitions
-class Task;
-class Command;
-class Logger;
-class TaskLoader;
-
-class Storage
+class TaskSaverText: public TaskSaver
 {
+	public:
+		void save (const std::list<Task>& taskList, const std::string& fileName);
+		void save (const Task& task);
 	private:
-		std::ofstream _fileWriter;
-		Logger* _logger;
-		TaskLoader* _loader;
-
-		static const std::string _fileName;
-
-		static const std::string LABEL_NAME;
-		static const std::string LABEL_INDEX;
-		static const std::string LABEL_DUE_DATE;
-		static const std::string LABEL_FROM_DATE;
-		static const std::string LABEL_TO_DATE;
-		static const std::string LABEL_LOCATION;
-		static const std::string LABEL_PARTICIPANT;
-		static const std::string LABEL_NOTE;
-		static const std::string LABEL_PRIORITY;
-		static const std::string LABEL_TAG;
-		static const std::string LABEL_REMINDER_TIME;
-		static const std::string LABEL_STATE;
-		static const std::string LABEL_END_OF_TASK;
-		static const std::string LABEL_START_OF_TASK;
-
-		////////////////////////
-		////Saving Functions///
-		//////////////////////
-
 		//savers
 		void saveTaskList		(const std::list<Task>& taskList);
 		void saveTask			(const Task& task);
@@ -74,24 +46,9 @@ class Storage
 		//writers
 		void writeLineToFile	(std::string line, bool newLine = true);
 		void emptyTheFile		();
-
-		//file opener/closer
-		void openTheFileToWrite		(std::string fileName = _fileName, std::ios_base::openmode = std::ios::trunc);
-		void closeTheWrittenFile	();
-		
+				
 		//removes Task files
 		void removeTaskFiles();
-
-	public:
-		Storage(std::list<Task>&);
-
-		bool save	(const std::list<Task>&);
-		bool save	(const Task& task);
-
-		void load	(std::list<Task>& taskList);
-
-		const std::string FILENAME;
-
-		~Storage();
 };
+
 #endif
