@@ -422,9 +422,7 @@ bool Executor::taskMatch(const Task& lhs, const Task& rhs) const {
 		return false;
 	else if (rhs.getFlagRemindTimes() && (!lhs.getFlagRemindTimes() || rhs.getRemindTimes() != lhs.getRemindTimes()))
 		return false;
-	else if (rhs.getFlagFromDate() && !chkFromDateBound(rhs.getFromDate(), lhs))
-		return false;
-	else if (rhs.getFlagToDate() && !chkToDateBound(rhs.getToDate(), lhs))
+	else if (!validDateChk(lhs, rhs))
 		return false;
 	else if (rhs.getFlagPriority() && rhs.getPriority() != lhs.getPriority())
 		return false;
@@ -432,6 +430,11 @@ bool Executor::taskMatch(const Task& lhs, const Task& rhs) const {
 		return false;
 	return true;
 } 
+
+bool Executor::validDateChk(const Task &lhs, const Task &rhs) const {
+	return (rhs.getFlagFromDate() && chkFromDateBound(rhs.getFromDate(), lhs)) ||
+		(rhs.getFlagToDate() && chkToDateBound(rhs.getToDate(), lhs));
+}
 
 bool Executor::chkFromDateBound(const time_t &fromTime, const Task &lhs) const {
 	return (lhs.getFlagFromDate() && fromTime <= lhs.getFromDate()) || 
