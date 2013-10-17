@@ -13,6 +13,7 @@
 //
 #include <QtWidgets/QApplication>
 #include "../TaskPad_library/mainwindow.h"
+//#include <vld.h>
 
 int main(int argc, char *argv[])
 {

@@ -432,8 +432,13 @@ bool Executor::taskMatch(const Task& lhs, const Task& rhs) const {
 } 
 
 bool Executor::validDateChk(const Task &lhs, const Task &rhs) const {
-	return (rhs.getFlagFromDate() && chkFromDateBound(rhs.getFromDate(), lhs)) ||
-		(rhs.getFlagToDate() && chkToDateBound(rhs.getToDate(), lhs));
+	bool retVal = false;
+	if (!rhs.getFlagFromDate() && !rhs.getFlagToDate())
+		retVal = true;
+	else if ((rhs.getFlagFromDate() && chkFromDateBound(rhs.getFromDate(), lhs)) ||
+		(rhs.getFlagToDate() && chkToDateBound(rhs.getToDate(), lhs)))
+		retVal = true;
+	return retVal;
 }
 
 bool Executor::chkFromDateBound(const time_t &fromTime, const Task &lhs) const {
@@ -597,6 +602,14 @@ void Executor::clearRedoStack() {
 		_redoStack.pop();
 	}
 }
+
+void Executor::clearUndoStack() {
+	while(!_undoStack.empty()) {
+		delete _undoStack.top().first;
+		_undoStack.pop();
+	}
+}
+
 
 // Status setting functions
 
