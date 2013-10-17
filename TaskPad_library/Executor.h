@@ -22,11 +22,13 @@
 #include "Messenger.h"
 #include "Command.h"
 
+
 class Executor
 {
 public:
 	Executor (std::list<Task>* data) { _data = data; rebuildHashes(); }
 	void executeCommand	(Command* cmd, Messenger &response);
+	~Executor ()					 { clearRedoStack(); clearUndoStack(); }
 
 protected:
 	std::list<Task>*									_data;
@@ -108,6 +110,7 @@ protected:
 	bool		isCmdSuccessful					(const Messenger &response) const;
 	void		stackForUndo					(Command* cmd, Messenger &response);
 	void		clearRedoStack					();
+	void		clearUndoStack					();
 
 	// Setters for Messenger to return
 	void setOpSuccessTask			(const Task &retTask, Messenger &response);
