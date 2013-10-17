@@ -588,13 +588,11 @@ void MainWindow::updateDetails(Task t){
 		QString tags;
 		list<string> listOfTags = task_showDetails.getTags();
 		list<string>::iterator iter = listOfTags.begin();
-		tags += "#";
 		tags += iter->c_str();
 		iter++;
 		for(;iter != listOfTags.end();
 			advance(iter, 1)){
 				tags += ", ";
-				tags += "#";
 				tags += iter->c_str();
 		}
 		ui.tags->setText(tags);
@@ -606,11 +604,13 @@ void MainWindow::updateDetails(Task t){
 	if(task_showDetails.getFlagRemindTimes()){
 		QString remindTimes;
 		list<time_t> listOfRemindTimes = task_showDetails.getRemindTimes();
-		for(list<time_t>::iterator iter = listOfRemindTimes.begin();
-			iter != listOfRemindTimes.end();
+		list<time_t>::iterator iter = listOfRemindTimes.begin();
+		remindTimes += QDateTime::fromTime_t(*iter).toString("dd/MM/yyyy hh:mm");
+		iter++;
+		for(;iter != listOfRemindTimes.end();
 			advance(iter, 1)){
-				remindTimes += QDateTime::fromTime_t(*iter).toString("dd/MM/yyyy hh:mm");
 				remindTimes += ", ";
+				remindTimes += QDateTime::fromTime_t(*iter).toString("dd/MM/yyyy hh:mm");
 		}
 		ui.remindTime->setText("Remind me : " + remindTimes);
 	}
