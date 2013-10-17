@@ -17,6 +17,7 @@
 #include <list>
 #include <unordered_map>
 #include <stack>
+#include <queue>
 #include "Task.h"
 #include "Messenger.h"
 #include "Command.h"
@@ -31,6 +32,7 @@ protected:
 	std::list<Task>*									_data;
 	std::unordered_map<unsigned long long, Task*>		_indexHash;
 	std::unordered_map<std::string, std::list<Task*>>	_hashTagsHash;
+	std::priority_queue<std::pair<time_t, Task*>>		_remindTimesPQueue;
 	std::stack<std::pair<Command*, Task>>				_undoStack;
 	std::stack<std::pair<Command*, Task>>				_redoStack;
 	Task												_interimTask;
@@ -43,9 +45,12 @@ protected:
 	static const std::string	UNDOSTACK_EMPTY_MSG;
 	static const std::string	REDOSTACK_EMPTY_MSG;
 
-	void rebuildHashes();
-	void rebuildIndexHash();
-	void rebuildHashTagsHash();
+	void	rebuildHashes();
+	void	rebuildIndexHash();
+	void	rebuildHashTagsHash();
+	void	buildRemindTimesQueue();
+	time_t	getNextDayTime();
+	void	buildRemindTimesQueueBeforeTime(time_t remindTime);
 
 	// Functions for ADD COMMAND
 	void executeAdd					(Command_Add* cmd,  Messenger &response);
@@ -92,6 +97,7 @@ protected:
 	void		executeCommandWithoutUndoRedo	(Command* cmd, Messenger &response);
 	void		executeUndo						(Command_Undo* cmd, Messenger &response);
 	void		executeRedo						(Command_Redo* cmd, Messenger &response);
+	Command*	updateDelCmdForUndoStack		(Command_Del* cmd, Task &task);
 	Command*	getTransposeCommand				(Command* cmd, Task &task);
 	Command*	getTransposeCommand				(Command_Add* cmd, Task &task);
 	Command*	getTransposeCommand				(Command_Del* cmd, Task &task);
