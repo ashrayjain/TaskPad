@@ -24,6 +24,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Command.h" />
+    <ClInclude Include="FileHandler.h" />
+    <ClInclude Include="TaskLoader.h" />
+    <ClInclude Include="TaskLoaderText.h" />
+    <ClInclude Include="TaskSaver.h" />
+    <ClInclude Include="TaskSaverText.h" />
     <CustomBuild Include="CommandBar.h">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc%27ing CommandBar.h...</Message>
@@ -115,6 +120,9 @@
     <ClCompile Include="Messenger.cpp" />
     <ClCompile Include="Storage.cpp" />
     <ClCompile Include="Task.cpp" />
+    <ClCompile Include="TaskLoader.cpp" />
+    <ClCompile Include="TaskLoaderText.cpp" />
+    <ClCompile Include="TaskSaverText.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="mainwindow.qrc">
