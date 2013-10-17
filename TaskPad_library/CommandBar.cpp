@@ -15,7 +15,7 @@ const QString CommandBar::SPACE = " ";
 const QString CommandBar::SINGLE_QUOTATION_MARK = "'";
 const QString CommandBar::QUOTE_LEFT = "`";
 const QString CommandBar::EMPTY = "";
-const QString CommandBar::HOTKEY_TEMPLATE_NEW = "add `__NAME__` due `__DATE__` from `__DATE__` to `__DATE__` at `__WHERE__` ppl `__PARTICIPANTS__` # `__TAGS__` rt `__REMINDTIME__` note `__NOTE__`";
+const QString CommandBar::HOTKEY_TEMPLATE_NEW = "add `__NAME__` due `__DATE__` from `__DATE__` to `__DATE__` impt `__PRIORITY__` at `__WHERE__` ppl `__PARTICIPANTS__` #__TAGS__ rt `__REMINDTIME__` note `__NOTE__`";
 
 CommandBar::CommandBar(QWidget *parent)
 	:QTextEdit(parent), inputHistory_undo(), inputHistory_redo(),\
