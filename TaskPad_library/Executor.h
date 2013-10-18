@@ -17,20 +17,24 @@
 #include <list>
 #include <unordered_map>
 #include <stack>
+#include <queue>
 #include "Task.h"
 #include "Messenger.h"
 #include "Command.h"
+
 
 class Executor
 {
 public:
 	Executor (std::list<Task>* data) { _data = data; rebuildHashes(); }
 	void executeCommand	(Command* cmd, Messenger &response);
+	~Executor ()					 { clearRedoStack(); clearUndoStack(); }
 
 protected:
 	std::list<Task>*									_data;
 	std::unordered_map<unsigned long long, Task*>		_indexHash;
 	std::unordered_map<std::string, std::list<Task*>>	_hashTagsHash;
+	std::priority_queue<std::pair<time_t, Task*>>		_remindTimesPQueue;
 	std::stack<std::pair<Command*, Task>>				_undoStack;
 	std::stack<std::pair<Command*, Task>>				_redoStack;
 	Task												_interimTask;
@@ -43,9 +47,12 @@ protected:
 	static const std::string	UNDOSTACK_EMPTY_MSG;
 	static const std::string	REDOSTACK_EMPTY_MSG;
 
-	void rebuildHashes();
-	void rebuildIndexHash();
-	void rebuildHashTagsHash();
+	void	rebuildHashes();
+	void	rebuildIndexHash();
+	void	rebuildHashTagsHash();
+	void	buildRemindTimesQueue();
+	time_t	getNextDayTime();
+	void	buildRemindTimesQueueBeforeTime(time_t remindTime);
 
 	// Functions for ADD COMMAND
 	void executeAdd					(Command_Add* cmd,  Messenger &response);
@@ -84,6 +91,7 @@ protected:
 	void runSearchWithTask			(const Task &taskToCompare, list<Task> &results, string substringName);
 	void runSearchWithTaskOnData	(const Task &taskToCompare, list<Task> &results, list<Task*> &customData);
 	bool taskMatch					(const Task& lhs, const Task& rhs) const;
+	bool validDateChk				(const Task &lhs, const Task &rhs) const;
 	bool chkFromDateBound			(const time_t &fromTime, const Task &lhs) const;
 	bool chkToDateBound				(const time_t &toTime, const Task &lhs) const;
 	
@@ -92,6 +100,7 @@ protected:
 	void		executeCommandWithoutUndoRedo	(Command* cmd, Messenger &response);
 	void		executeUndo						(Command_Undo* cmd, Messenger &response);
 	void		executeRedo						(Command_Redo* cmd, Messenger &response);
+	Command*	updateDelCmdForUndoStack		(Command_Del* cmd, Task &task);
 	Command*	getTransposeCommand				(Command* cmd, Task &task);
 	Command*	getTransposeCommand				(Command_Add* cmd, Task &task);
 	Command*	getTransposeCommand				(Command_Del* cmd, Task &task);
@@ -101,6 +110,7 @@ protected:
 	bool		isCmdSuccessful					(const Messenger &response) const;
 	void		stackForUndo					(Command* cmd, Messenger &response);
 	void		clearRedoStack					();
+	void		clearUndoStack					();
 
 	// Setters for Messenger to return
 	void setOpSuccessTask			(const Task &retTask, Messenger &response);

@@ -26,6 +26,7 @@ const std::string	Executor::REDOSTACK_EMPTY_MSG		= "Nothing to Redo!";
 void Executor::rebuildHashes() {
 	rebuildIndexHash();
 	rebuildHashTagsHash();
+	buildRemindTimesQueue();
 }
 
 void Executor::rebuildIndexHash() {
@@ -37,6 +38,22 @@ void Executor::rebuildHashTagsHash() {
 	for (std::list<Task>::iterator i = _data->begin(); i != _data->end(); i++)
 		if(i->getFlagTags())
 			handleHashTagPtrs(*i, i->getTags());
+}
+
+void Executor::buildRemindTimesQueue() {
+	time_t remindTimeDeadline = getNextDayTime();
+	buildRemindTimesQueueBeforeTime(remindTimeDeadline);
+}
+
+time_t Executor::getNextDayTime() {
+	time_t now = time(NULL);
+	struct tm* now_tm = localtime(&now);
+	now_tm->tm_mday++;
+	return mktime(now_tm);
+}
+
+void Executor::buildRemindTimesQueueBeforeTime(time_t remindTime) {
+
 }
 
 void Executor::executeCommand(Command* cmd, Messenger &response) {
@@ -405,9 +422,7 @@ bool Executor::taskMatch(const Task& lhs, const Task& rhs) const {
 		return false;
 	else if (rhs.getFlagRemindTimes() && (!lhs.getFlagRemindTimes() || rhs.getRemindTimes() != lhs.getRemindTimes()))
 		return false;
-	else if (rhs.getFlagFromDate() && !chkFromDateBound(rhs.getFromDate(), lhs))
-		return false;
-	else if (rhs.getFlagToDate() && !chkToDateBound(rhs.getToDate(), lhs))
+	else if (!validDateChk(lhs, rhs))
 		return false;
 	else if (rhs.getFlagPriority() && rhs.getPriority() != lhs.getPriority())
 		return false;
@@ -415,6 +430,16 @@ bool Executor::taskMatch(const Task& lhs, const Task& rhs) const {
 		return false;
 	return true;
 } 
+
+bool Executor::validDateChk(const Task &lhs, const Task &rhs) const {
+	bool retVal = false;
+	if (!rhs.getFlagFromDate() && !rhs.getFlagToDate())
+		retVal = true;
+	else if ((rhs.getFlagFromDate() && chkFromDateBound(rhs.getFromDate(), lhs)) ||
+		(rhs.getFlagToDate() && chkToDateBound(rhs.getToDate(), lhs)))
+		retVal = true;
+	return retVal;
+}
 
 bool Executor::chkFromDateBound(const time_t &fromTime, const Task &lhs) const {
 	return (lhs.getFlagFromDate() && fromTime <= lhs.getFromDate()) || 
@@ -438,7 +463,12 @@ void Executor::executeUndo(Command_Undo* cmd, Messenger &response) {
 		// Not sure if need to do this...tested without this
 		// will test more after interpreter can handle Undo and Redo ;)
 		//delete undoCmd;
-		_redoStack.push(_undoStack.top());
+		if (_undoStack.top().first->getCommandType() == TP::COMMAND_TYPE::DEL) {
+			pair<Command*, Task> newPair(updateDelCmdForUndoStack(dynamic_cast<Command_Del*>(_undoStack.top().first), response.getTask()), _undoStack.top().second);
+			_redoStack.push(newPair);
+		}
+		else
+			_redoStack.push(_undoStack.top());
 		_undoStack.pop();
 	}
 }
@@ -448,10 +478,15 @@ void Executor::executeRedo(Command_Redo* cmd, Messenger &response) {
 	if (_redoStack.empty())
 		setRedoStackEmptyError(response);
 	else {
-		executeCommandWithoutUndoRedo(_redoStack.top().first, response);
+		executeCommandWithoutUndoRedo(_redoStack.top().first, response);		
 		_undoStack.push(_redoStack.top());
 		_redoStack.pop();
 	}
+}
+
+Command* Executor::updateDelCmdForUndoStack(Command_Del* cmd, Task &task) {
+	cmd->setCreatedTime(task.getIndex());
+	return cmd;
 }
 
 Command* Executor::getTransposeCommand(Command* cmd, Task &task) {
@@ -473,7 +508,7 @@ Command* Executor::getTransposeCommand(Command* cmd, Task &task) {
 
 Command* Executor::getTransposeCommand(Command_Add* cmd, Task &task) {
 	Command_Del* transposeCmd = new Command_Del();
-	transposeCmd->setCreatedTime(task.getIndex());
+	transposeCmd->setCreatedTime(_data->back().getIndex());
 	return transposeCmd;
 }
 
@@ -513,6 +548,7 @@ Command* Executor::getTransposeCommand(Command_Mod* cmd, Task &task) {
 }
 
 void Executor::getCmdForSubtractingCmdFromTask(Command_Mod* subtractCmd, Command_Mod* cmd, Task &task) {
+	subtractCmd->setCreatedTime(task.getIndex());
 	if(cmd->getFlagOptName()) 
 		subtractCmd->setOptName(task.getName());
 	if(cmd->getFlagLocation())
@@ -566,6 +602,14 @@ void Executor::clearRedoStack() {
 		_redoStack.pop();
 	}
 }
+
+void Executor::clearUndoStack() {
+	while(!_undoStack.empty()) {
+		delete _undoStack.top().first;
+		_undoStack.pop();
+	}
+}
+
 
 // Status setting functions
 
