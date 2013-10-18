@@ -5,86 +5,63 @@
 #include <string>
 #include <sstream>
 #include <vector>
-
+#include<regex>
 using namespace std;
 
-class Interpreter
-{
-private:
-	static const string DELIMITER;
+#ifndef _INTERPRETER_H_
+#define _INTERPRETER_H_
 
-	typedef struct KEY_WORDS
-	{
-		int index;
-		string keyWord;
-	};
 
-	//variables
-	vector<string>listOfWords;
-	vector<KEY_WORDS>listOfKeyWords;
 
-	vector<string>strUT;
-	list<string>pplUT;
-	list<string>tagsUT;
-
-	string _command;
-	bool _isSuccess;
-	Command* _result;
-	Messenger _response;
+class Interpreter{
 
 public:
-	Interpreter(void);
-	~Interpreter(void);
+	Interpreter(){}
 
-	//auxillary functions for UnitTest
-	string getIndividualWord(int userIndex);
-	string getstrUT(int userIndex);
-	string getKeyWord(int userIndex);
-	int getListOfKeyWordsSize();
-	Command* get_cmdObject(string command);
-	string getPplUT(int userIndex);
-	string getTagsUT(int userIndex);
+	Command* interpretCommand(std::string commandStr, Messenger &response);
 
-	//auxillary functions for component functions
-	bool isKeyWordValid(int prevSysWordIndex);
-	void eliminateFalseKeyWords();
-	void checkForDuplicateKeyWords();
-	string reconstructInputInfo(int incrementIdx, int numberOfKeyWords);
-	string reconstructName(int startIndex, int endIndex);
-	void allocatePpl(string keyWord, list<string>&ppl, string inputInfo);
-	void allocateRt(string keyWord, list<time_t>&remindTime, string inputInfo);
-	void allocateTags(string keyWord, list<string>&tags, string inputInfo);
 
-	
-	unsigned int convertStrToUI(string keyWord, string inputInfo);
-	PRIORITY convertStrToPriority(string keyWord, string inputInfo);
-	time_t setTime(string keyWord, string inputInfo);
+	void interpretCommand(unsigned ActualIndex, Command *prevCommand);
+
+	int interpretIndex(std::string indexStr, Messenger &response); 
+
+protected:
+
+	Command* interpretAdd(Command_Add* commandType, std::string commandStr, Messenger &response, bool &flag);
+	Command* interpretModify(Command_Mod* commandType, std::string commandStr, Messenger &response, bool &flag);
+	Command* interpretFind(Command_Find* commandType, std::string commandStr, Messenger &response, bool &flag);
+	Command* interpretDelete(Command_Del*commandType,std::string commandStr, Messenger &response, bool &flag);
+	Command* interpretRedo(Command_Redo*commandType,std::string commandStr, Messenger &response, bool &flag);
+	Command* interpretUndo(Command_Undo*commandType,std::string commandStr, Messenger &response, bool &flag);
+	Command* interpretSync(Command_Sync*commandType,std::string commandStr, Messenger &response, bool &flag);
+
+	time_t setTime(string commandStr, bool& _isSuccess); 
+
+
 	bool integerConverter(string& requiredString, int& number);
-	bool isByIndex();
 
-	void setCmdObj_Add(Command_Add* cmd, string keyWord, string inputInfo, unsigned int time, PRIORITY priority, list<string>ppl, list<string>tags, list<time_t>remindTime);
-	void setCmdObj_Mod(Command_Mod* cmd, string keyWord, string inputInfo, unsigned int time, PRIORITY priority, list<string>ppl, list<string>tags, list<time_t>remindTime);
-	void setCmdObj_Find(Command_Find* cmd, string keyWord, string inputInfo, unsigned int time, PRIORITY priority, list<string>ppl, list<string>tags, list<time_t>remindTime);
-	//void setCmdObj_Del(Command_Del* cmd);
 
-	//component functions
-	void functionAdd();
-	void functionMod();
-	void functionDel();
-	void functionFind();
+	bool checkCommand(string command, int& commandType);
 
-	//principal functions
-	void extractIndividualWords(string userInput);
-	void extractCommand();
-	void extractKeyWords();
-	void processKeyWords();
-	void processCommand();
-	
-public:
-	//APIs
-	Command * interpretCommand(string userInput, Messenger & response);
-	int interpretIndex(string indexStr, Messenger & response);
-	void interpretCommand(unsigned int index, Command* prevCommand);
 
+	int	                getIndexMessage(string command,bool&flag);			
+	bool              getNameMessage(string command,bool&flag,string& content);
+	bool              getOptNameMessage(string command, bool&flag, string& content);
+	bool				getDueDateMessage(string command, bool&flag,time_t& content);
+	bool				getFromDateMessage(string command, bool&flag,time_t& content);	
+	bool				getToDateMessage(string command, bool&flag,time_t& content);
+	bool				getLocationMessage(string command, bool&flag,string& content);
+	bool	getParticipantsMessage(string command, bool&flag,list<std::string>& content);
+	bool				getNoteMessage(string command, bool&flag,string& content);
+	bool			getPriorityMessage(string command, bool&flag,PRIORITY& content);
+	bool	getTagsMessage(string command, bool&flag,list<std::string>& content);
+	bool	getRemindTimesMessage(string command, bool&flag,list<std::time_t>& content);
+	bool			getTaskStateMessage(string command, bool&flag,TASK_STATE& content);
+	bool			getTaskTypeMessage(string command, bool&flag,TASK_TYPE& content);
+	bool				getSyncProviderNameMessage(string command, bool&flag,string& content);
+	unsigned long long		getCreatedTimeMessage(string command, bool&flag);
 };
+
+#endif
+
 
