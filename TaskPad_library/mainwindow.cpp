@@ -6,6 +6,7 @@
 #include <QGraphicsOpacityEffect>
 #include <QTimer>
 #include <cassert>
+#include "libqxt/qxtglobalshortcut.h"
 #include "Enum.h"
 #include "mainwindow.h"
 #include "Manager.h"
@@ -22,6 +23,8 @@ MainWindow::MainWindow(QWidget *parent)
 	trayIcon->showMessage("TaskPad", "Hello world!");
 	ui.setupUi(this);
 	customisedUi();
+	QxtGlobalShortcut * sc = new QxtGlobalShortcut(QKeySequence("Alt+`"), this);
+    connect(sc, SIGNAL(activated()),this, SLOT(showWindow()));
 	QObject::connect(trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, 
 		SLOT(iconIsActived(QSystemTrayIcon::ActivationReason)));
 	QObject::connect(ui.CloseButton, SIGNAL(clicked()), this, SLOT(close()));
@@ -50,6 +53,10 @@ MainWindow::~MainWindow()
 }
 
 void MainWindow::iconIsActived(QSystemTrayIcon::ActivationReason){
+	showWindow();
+}
+
+void MainWindow::showWindow(){
 	show();
 	setWindowState(Qt::WindowActive);
 }
