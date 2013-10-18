@@ -158,7 +158,7 @@
     <ClCompile Include="quickadd_window.cpp" />
     <ClCompile Include="Storage.cpp" />
     <ClCompile Include="Task.cpp" />
-    <ClCompile Include="TaskLoader.cpp" />
+    <ClCompile Include="FileHandler.cpp" />
     <ClCompile Include="TaskLoaderText.cpp" />
     <ClCompile Include="TaskSaverText.cpp" />
   </ItemGroup>

@@ -51,7 +51,7 @@ void Manager::saveChanges()
 			case DEL:
 			case ADD:
 				_logger->log("Manager","saving changes");
-				this->_storage->save(this->_response.getTask());
+				this->_storage->save(this->_response.getTask(),this->_response.getCommandType());
 				break;
 			default:
 				break;

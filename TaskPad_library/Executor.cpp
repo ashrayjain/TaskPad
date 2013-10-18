@@ -125,8 +125,6 @@ void Executor::formTaskFromAddCmd(Command_Add* cmd, Task &newTask) {
 		newTask.setParticipants(cmd->getParticipants());
 	if(cmd->getFlagPriority())
 		newTask.setPriority(cmd->getPriority());
-	if(cmd->getFlagDue())
-		newTask.setDueDate(cmd->getDueDate());
 	if(cmd->getFlagFrom())
 		newTask.setFromDate(cmd->getFromDate());
 	if(cmd->getFlagTo())
@@ -301,8 +299,6 @@ void Executor::modifyTaskTo(Task &oldTask, Command_Mod* cmd) {
 		handleHashTagsModify(oldTask, cmd->getTags());
 	if(cmd->getFlagPriority())
 		oldTask.setPriority(cmd->getPriority());
-	if(cmd->getFlagDue())
-		oldTask.setDueDate(cmd->getDueDate());
 	if(cmd->getFlagFrom())
 		oldTask.setFromDate(cmd->getFromDate());
 	if(cmd->getFlagTo())
@@ -442,33 +438,27 @@ bool Executor::validDateChk(const Task &lhs, const Task &rhs) const {
 }
 
 bool Executor::chkFromDateBound(const time_t &fromTime, const Task &lhs) const {
-	return (lhs.getFlagFromDate() && fromTime <= lhs.getFromDate()) || 
+	return (lhs.getFlagToDate() && fromTime <= lhs.getToDate()) || 
 		(lhs.getFlagDueDate() && fromTime <= lhs.getDueDate());
 }
 
 bool Executor::chkToDateBound(const time_t &toTime, const Task &lhs) const {
-	return (lhs.getFlagToDate() && toTime >= lhs.getToDate()) || 
+	return (lhs.getFlagFromDate() && toTime >= lhs.getFromDate()) || 
 		(lhs.getFlagDueDate() && toTime >= lhs.getDueDate());
 }
 
 // Undo and Redo functions
 
 void Executor::executeUndo(Command_Undo* cmd, Messenger &response) {
-	Command* undoCmd;
 	if (_undoStack.empty())
 		setUndoStackEmptyError(response);
 	else {
-		undoCmd = getTransposeCommand(_undoStack.top().first, _undoStack.top().second);
+		Command* undoCmd = getTransposeCommand(_undoStack.top().first, _undoStack.top().second);
 		executeCommandWithoutUndoRedo(undoCmd, response);
-		// Not sure if need to do this...tested without this
-		// will test more after interpreter can handle Undo and Redo ;)
-		//delete undoCmd;
-		if (_undoStack.top().first->getCommandType() == TP::COMMAND_TYPE::DEL) {
-			pair<Command*, Task> newPair(updateDelCmdForUndoStack(dynamic_cast<Command_Del*>(_undoStack.top().first), response.getTask()), _undoStack.top().second);
-			_redoStack.push(newPair);
-		}
-		else
-			_redoStack.push(_undoStack.top());
+		delete undoCmd;
+		if (_undoStack.top().first->getCommandType() == TP::COMMAND_TYPE::DEL)
+			dynamic_cast<Command_Del*>(_undoStack.top().first)->setCreatedTime(response.getTask().getIndex());
+		_redoStack.push(_undoStack.top());
 		_undoStack.pop();
 	}
 }

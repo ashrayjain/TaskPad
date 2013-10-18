@@ -103,13 +103,13 @@
     <ClInclude Include="TaskLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TaskLoaderText.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="FileHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TaskSaverText.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TaskLoaderText.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="libqxt\qxtglobal.h">
@@ -180,10 +180,10 @@
     <ClCompile Include="TaskLoaderText.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TaskLoader.cpp">
+    <ClCompile Include="TaskSaverText.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TaskSaverText.cpp">
+    <ClCompile Include="FileHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="libqxt\qxtglobalshortcut.cpp">
