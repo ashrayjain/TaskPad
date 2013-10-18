@@ -9,6 +9,7 @@
 #include "libqxt/qxtglobalshortcut.h"
 #include "Enum.h"
 #include "mainwindow.h"
+#include "quickadd_window.h"
 #include "Manager.h"
 #include "lastColumnDelegate.h"
 #include "CommandBar.h"
@@ -17,14 +18,16 @@ MainWindow::MainWindow(QWidget *parent)
 	: QMainWindow(parent) 
 {
 	//TODO: make it SLAP
+	isQuickAddOpen = false;
 	trayIcon = new QSystemTrayIcon(this);
 	trayIcon->setIcon(QIcon(":/MainWindow/Resources/logo.png"));
 	trayIcon->show();
-	trayIcon->showMessage("TaskPad", "Hello world!");
 	ui.setupUi(this);
 	customisedUi();
 	QxtGlobalShortcut * sc = new QxtGlobalShortcut(QKeySequence("Alt+`"), this);
-    connect(sc, SIGNAL(activated()),this, SLOT(showWindow()));
+    connect(sc, SIGNAL(activated()),this, SLOT(showQuickAddWindow()));
+	QxtGlobalShortcut * sc2 = new QxtGlobalShortcut(QKeySequence("Ctrl+Alt+t"), this);
+    connect(sc2, SIGNAL(activated()),this, SLOT(showWindow()));
 	QObject::connect(trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, 
 		SLOT(iconIsActived(QSystemTrayIcon::ActivationReason)));
 	QObject::connect(ui.CloseButton, SIGNAL(clicked()), this, SLOT(close()));
@@ -40,6 +43,7 @@ MainWindow::MainWindow(QWidget *parent)
 	ui.HelpButton->installEventFilter(this);//filter MOUSE MOVE
 	ui.AboutButton->installEventFilter(this);//filter MOUSE MOVE
 	ui.cmdBar->installEventFilter(this);
+	ui.TaskList->installEventFilter(this);
 
 	scheduler = new Manager();
 	getToday();
@@ -59,6 +63,20 @@ void MainWindow::iconIsActived(QSystemTrayIcon::ActivationReason){
 void MainWindow::showWindow(){
 	show();
 	setWindowState(Qt::WindowActive);
+	ui.cmdBar->setFocus();
+}
+
+void MainWindow::showQuickAddWindow(){
+	QString input;
+
+	if(!isQuickAddOpen){
+		isQuickAddOpen = true;
+		//no need to delete quickAddWindow
+		//since it's set (Qt::WA_DeleteOnClose)
+		//refer to: http://qt-project.org/doc/qt-5.0/qtcore/qt.html#WidgetAttribute-enum
+		quickAddWindow = new QuickAddWindow(this);
+		quickAddWindow->show();
+	}
 }
 
 void MainWindow::help(){
@@ -68,10 +86,12 @@ void MainWindow::help(){
 }
 
 void MainWindow::keyPressEvent(QKeyEvent* event){
+	ui.cmdBar->setFocus();
 	if(event->key() == Qt::Key_Escape)
 	{
 		reset();
 	}
+	QMainWindow::keyPressEvent(event);
 }
 
 void MainWindow::reset(){
@@ -82,6 +102,12 @@ void MainWindow::reset(){
 void MainWindow::getToday(){
 	Messenger msg = scheduler->getTodayTasks();
 	handleGetToday(msg);
+}
+
+void MainWindow::handleInput(QString input, bool isFromQuickAdd){
+	string inputStdString = input.toLocal8Bit().constData();
+	Messenger msg = scheduler->processCommand(inputStdString);
+	handleMessenger(msg, isFromQuickAdd);
 }
 
 void MainWindow::handleGetToday(Messenger msg){
@@ -108,6 +134,10 @@ void MainWindow::showReminder(){
 	trayIcon->showMessage("TaskPad", "msg here");
 }
 
+void MainWindow::showTrayMsg(QString msg){
+	trayIcon->showMessage("TaskPad", msg);
+}
+
 void MainWindow::changeEvent(QEvent* event){
 	if(event->type()==QEvent::WindowStateChange){
 		if(windowState() == Qt::WindowMinimized)
@@ -128,6 +158,19 @@ bool MainWindow::eventFilter(QObject* watched, QEvent* event)
 			return true;
 		}
 	}
+	/*else if(watched == ui.TaskList)
+	{
+		if(event->type() == QEvent::KeyPress)
+		{
+			QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+			QString currentStr = ui.cmdBar->getCurrentLine();
+			QString appendStr(keyEvent->key());
+			ui.cmdBar->setText(currentStr + appendStr);
+			ui.cmdBar->setFocus();
+			ui.cmdBar->moveCursor(QTextCursor::EndOfLine);
+			return true;
+		}
+	}*/
 	else if(watched == ui.cmdBar)
 	{
 		if(event->type() == QEvent::KeyPress)
@@ -144,8 +187,7 @@ bool MainWindow::eventFilter(QObject* watched, QEvent* event)
 				msgBox.setText(currentInput);
 				msgBox.exec();*/
 				if(!currentInput.isEmpty()){
-					Messenger msg = scheduler->processCommand(currentInput.toLocal8Bit().constData());
-					handleMessenger(msg);
+					handleInput(currentInput);
 				}
 				return true;//stop Key return or Key enter
 			}
@@ -154,16 +196,20 @@ bool MainWindow::eventFilter(QObject* watched, QEvent* event)
 	return QObject::eventFilter(watched, event);//normal processing
 }
 
-void MainWindow::handleMessenger(Messenger msg){
+void MainWindow::handleMessenger(Messenger msg, bool fromQuickAdd){
 	//not SLAP now
 	if(msg.getStatus() == TP::ERROR)
 	{
 		updateStatusBar(msg.getErrorMsg().c_str());
+		if(fromQuickAdd){
+			showTrayMsg(msg.getErrorMsg().c_str());
+		}
 	}
 	else if(msg.getStatus() == TP::ERROR_INTERMEDIATE)
 	{
 		updateNavLabel("Select a task by typing its index");
 		updateStatusBar("Wrong input. Press ECS to cancel");
+		//QuickAdd cannot reach here, as it calls reset every time before submit
 	}
 	else if(msg.getStatus() == TP::SUCCESS)
 	{
@@ -209,12 +255,22 @@ void MainWindow::handleMessenger(Messenger msg){
 			updateDetails(msg.getTask());
 			break;
 		}
+		if(fromQuickAdd){
+			quickAddWindow->close();
+			isQuickAddOpen = false;
+			showTrayMsg("Success!");
+		}
 	}
 	else if(msg.getStatus() == TP::INTERMEDIATE)
 	{
 		updateNavLabel("Select a task by typing its index");
 		updateStatusBar("Intermediate stage...");
 		updateList(msg.getList());
+		if(fromQuickAdd){
+			quickAddWindow->close();
+			isQuickAddOpen = false;
+			showWindow();
+		}
 	}
 	else if(msg.getStatus() == TP::DISPLAY)
 	{
@@ -227,6 +283,11 @@ void MainWindow::handleMessenger(Messenger msg){
 		updateStatusBar("Task displayed successfully");
 		updateDetailsLabel("Task's Details");
 		updateDetails(*iter);
+		if(fromQuickAdd){
+			quickAddWindow->close();
+			isQuickAddOpen = false;
+			showWindow();
+		}
 	}
 	else if(msg.getStatus() == TP::SUCCESS_INDEXED_COMMAND)
 	{
@@ -246,6 +307,11 @@ void MainWindow::handleMessenger(Messenger msg){
 		else
 			updateList(msg.getList());
 		updateDetails(msg.getTask());
+		if(fromQuickAdd){//TODO: can refactor this
+			quickAddWindow->close();
+			isQuickAddOpen = false;
+			showWindow();
+		}
 	}
 }
 
@@ -260,6 +326,7 @@ void MainWindow::about()
 
 void MainWindow::createNewTaskTemplate()
 {
+	ui.cmdBar->setFocus();
 	ui.cmdBar->createNewTaskTemplate();
 }
 

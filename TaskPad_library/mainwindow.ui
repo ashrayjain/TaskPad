@@ -18,7 +18,7 @@
    <string>TaskPad</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="mainwindow.qrc">
+   <iconset resource="images.qrc">
     <normaloff>:/MainWindow/Resources/logo.png</normaloff>:/MainWindow/Resources/logo.png</iconset>
   </property>
   <property name="styleSheet">
@@ -639,7 +639,7 @@ QToolButton#HelpButton:hover
   <customwidget>
    <class>CommandBar</class>
    <extends>QTextEdit</extends>
-   <header>CommandBar.h</header>
+   <header>commandbar.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>
@@ -658,7 +658,7 @@ QToolButton#HelpButton:hover
   <tabstop>CloseButton</tabstop>
  </tabstops>
  <resources>
-  <include location="mainwindow.qrc"/>
+  <include location="images.qrc"/>
  </resources>
  <connections/>
 </ui>

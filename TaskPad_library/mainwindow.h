@@ -25,10 +25,12 @@ protected slots:
 	void getToday();
 	void getInbox();
 	void showWindow();
+	void showQuickAddWindow();
 	void iconIsActived(QSystemTrayIcon::ActivationReason);
 
 private:
 	void showReminder();
+	void showTrayMsg(QString msg);
 	void keyPressEvent(QKeyEvent*event);
 	void reset();
 	void updateNavLabel(QString str);
@@ -39,9 +41,10 @@ private:
 	void clearDetails();
 	void updateDetails(Task t);
 	void updateStatusBar(QString str);
+	void handleInput(QString input, bool isFromQuickAdd = false);
 	void handleGetToday(Messenger msg);
 	void handleGetInbox(Messenger msg);
-	void handleMessenger(Messenger msg);
+	void handleMessenger(Messenger msg, bool isFromQuickAdd = false);
 	void customisedUi();
 	void mousePressEvent(QMouseEvent *event);
 	void mouseMoveEvent(QMouseEvent *event);
@@ -54,7 +57,11 @@ private:
 	void changeEvent(QEvent* event);
 	bool eventFilter(QObject* watched, QEvent* event);
 
+	bool isQuickAddOpen;
+	QDialog* quickAddWindow;
 	Manager* scheduler;
+
+	friend class QuickAddWindow;
 };
 
 #endif // MAINWINDOW_H

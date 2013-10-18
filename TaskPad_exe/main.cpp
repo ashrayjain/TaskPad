@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
 {
 	QApplication app(argc, argv);
 
-	Q_INIT_RESOURCE(mainwindow);
+	Q_INIT_RESOURCE(images);
 	MainWindow window;
 	window.show();
 
