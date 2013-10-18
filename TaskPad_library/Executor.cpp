@@ -450,21 +450,15 @@ bool Executor::chkToDateBound(const time_t &toTime, const Task &lhs) const {
 // Undo and Redo functions
 
 void Executor::executeUndo(Command_Undo* cmd, Messenger &response) {
-	Command* undoCmd;
 	if (_undoStack.empty())
 		setUndoStackEmptyError(response);
 	else {
-		undoCmd = getTransposeCommand(_undoStack.top().first, _undoStack.top().second);
+		Command* undoCmd = getTransposeCommand(_undoStack.top().first, _undoStack.top().second);
 		executeCommandWithoutUndoRedo(undoCmd, response);
-		// Not sure if need to do this...tested without this
-		// will test more after interpreter can handle Undo and Redo ;)
-		//delete undoCmd;
-		if (_undoStack.top().first->getCommandType() == TP::COMMAND_TYPE::DEL) {
-			pair<Command*, Task> newPair(updateDelCmdForUndoStack(dynamic_cast<Command_Del*>(_undoStack.top().first), response.getTask()), _undoStack.top().second);
-			_redoStack.push(newPair);
-		}
-		else
-			_redoStack.push(_undoStack.top());
+		delete undoCmd;
+		if (_undoStack.top().first->getCommandType() == TP::COMMAND_TYPE::DEL)
+			dynamic_cast<Command_Del*>(_undoStack.top().first)->setCreatedTime(response.getTask().getIndex());
+		_redoStack.push(_undoStack.top());
 		_undoStack.pop();
 	}
 }
