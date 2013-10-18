@@ -182,11 +182,8 @@ bool MainWindow::eventFilter(QObject* watched, QEvent* event)
 			else if(keyEvent->key() == Qt::Key_Return || keyEvent->key() == Qt::Key_Enter)
 			{
 				QString currentInput = ui.cmdBar->getCurrentLine();//TODO: can shrink into one API
-				ui.cmdBar->pushCurrentLine();
-				/*QMessageBox msgBox;
-				msgBox.setText(currentInput);
-				msgBox.exec();*/
 				if(!currentInput.isEmpty()){
+					ui.cmdBar->pushCurrentLine();
 					handleInput(currentInput);
 				}
 				return true;//stop Key return or Key enter
@@ -367,10 +364,21 @@ QTreeWidgetItem* MainWindow::extractTask(int index, Task task){
 			"Due " + time.toString("dd/MM/yyyy");
 	}
 	else if(task.getTaskType() == TP::TIMED){
-		QDateTime fromTime = QDateTime::fromTime_t(task.getFromDate());
-		QDateTime toTime = QDateTime::fromTime_t(task.getToDate());
+		QString fromTimeStr, toTimeStr;
+		if(task.getFlagFromDate()){
+			QDateTime fromTime = QDateTime::fromTime_t(task.getFromDate());
+			fromTimeStr = "From " + fromTime.toString("dd/MM/yyyy");
+		}
+		if(task.getFlagToDate()){
+			QDateTime toTime = QDateTime::fromTime_t(task.getToDate());
+			if(task.getFlagFromDate())
+				toTimeStr = " to " + toTime.toString("dd/MM/yyyy");
+			else
+				toTimeStr = "To " + toTime.toString("dd/MM/yyyy");
+		}
+		
 		strList = QStringList() << QString::number(index) << task.getName().c_str() << \
-			"From " + fromTime.toString("dd/MM/yyyy") + " to " + toTime.toString("dd/MM/yyyy");
+			fromTimeStr + toTimeStr;
 	}
 	else{//TaskType == TP::FLOATING
 		strList = QStringList() << QString::number(index) << task.getName().c_str() << "";
@@ -378,6 +386,7 @@ QTreeWidgetItem* MainWindow::extractTask(int index, Task task){
 	return new QTreeWidgetItem(strList);
 }
 
+//TODO: can combine into one
 QTreeWidgetItem* MainWindow::extractTaskForToday(int index, Task task){
 	QStringList strList;
 	if(task.getTaskType() == TP::DEADLINE){
@@ -395,18 +404,21 @@ QTreeWidgetItem* MainWindow::extractTaskForToday(int index, Task task){
 			dueStr;
 	}
 	else if(task.getTaskType() == TP::TIMED){
-		QDateTime fromTime = QDateTime::fromTime_t(task.getFromDate());
-		QDateTime toTime = QDateTime::fromTime_t(task.getToDate());
-		QString fromToStr;
-		if(fromTime.time().hour() == 0 && fromTime.time().minute() == 0 &&
-			toTime.time().hour() == 0 && toTime.time().minute() == 0){
-			fromToStr = "All-day";
+		QString fromTimeStr, toTimeStr;
+		if(task.getFlagFromDate()){
+			QDateTime fromTime = QDateTime::fromTime_t(task.getFromDate());
+			fromTimeStr = "From " + fromTime.toString("dd/MM/yyyy");
 		}
-		else{
-			fromToStr ="From " + fromTime.toString("hh:mm") + " to " + toTime.toString("hh:mm");
+		if(task.getFlagToDate()){
+			QDateTime toTime = QDateTime::fromTime_t(task.getToDate());
+			if(task.getFlagFromDate())
+				toTimeStr = " to " + toTime.toString("dd/MM/yyyy");
+			else
+				toTimeStr = "To " + toTime.toString("dd/MM/yyyy");
 		}
+		
 		strList = QStringList() << QString::number(index) << task.getName().c_str() << \
-			fromToStr;
+			fromTimeStr + toTimeStr;
 	}
 	else{//TaskType == TP::FLOATING
 		strList = QStringList() << QString::number(index) << task.getName().c_str() << "";
@@ -467,21 +479,20 @@ void MainWindow::updateDetails(Task t){
 		}
 	}
 	else if(task_showDetails.getTaskType() == TP::TIMED){
-		QDateTime fromTime = QDateTime::fromTime_t(task_showDetails.getFromDate());
-		QDateTime toTime = QDateTime::fromTime_t(task_showDetails.getToDate());
-		QString fromTimeStr;
-		QString toTimeStr;
-		QString fromToStr;
-
-		QTime from_hour_n_min = fromTime.time();
-		if(fromTime.time().hour() == 0 && fromTime.time().minute() == 0 &&
-			toTime.time().hour() == 0 && toTime.time().minute() == 0){
-			fromToStr = "All-day event:  from  " + fromTime.toString("dd/MM/yyyy") + "  to  " + toTime.toString("dd/MM/yyyy");
+		//TODO: redundent... make into one function
+		QString fromTimeStr, toTimeStr;
+		if(task_showDetails.getFlagFromDate()){
+			QDateTime fromTime = QDateTime::fromTime_t(task_showDetails.getFromDate());
+			fromTimeStr = "From " + fromTime.toString("dd/MM/yyyy");
 		}
-		else{
-			fromToStr = "From  " + fromTime.toString("dd/MM/yyyy  hh:mm") + "  to  " + toTime.toString("dd/MM/yyyy  hh:mm");
+		if(task_showDetails.getFlagToDate()){
+			QDateTime toTime = QDateTime::fromTime_t(task_showDetails.getToDate());
+			if(task_showDetails.getFlagFromDate())
+				toTimeStr = " to " + toTime.toString("dd/MM/yyyy");
+			else
+				toTimeStr = "To " + toTime.toString("dd/MM/yyyy");
 		}
-		ui.dueOrFromTo->setText(fromToStr);
+		ui.dueOrFromTo->setText(fromTimeStr + toTimeStr);
 	}
 	else{//TaskType == TP::FLOATING
 		ui.dueOrFromTo->setText("");

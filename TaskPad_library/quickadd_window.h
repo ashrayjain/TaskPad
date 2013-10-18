@@ -10,8 +10,6 @@ class QuickAddWindow: public QDialog
 
 public:
 	QuickAddWindow(QWidget *parent = 0);
-	QString getInputString();
-	bool hasResult();
 
 private:
 	void customisedUi();
@@ -23,7 +21,6 @@ private:
 	QPoint windowPosition;
 	QPoint mousePressPosition;
 	QPoint mouseMovePosition;
-	bool isInputSuccessful;
 	QString inputStr;
 	MainWindow* parentWindow;
 };
