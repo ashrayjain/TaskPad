@@ -91,13 +91,13 @@
     <ClInclude Include="TaskLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TaskLoaderText.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="FileHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TaskSaverText.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TaskLoaderText.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

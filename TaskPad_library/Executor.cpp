@@ -125,8 +125,6 @@ void Executor::formTaskFromAddCmd(Command_Add* cmd, Task &newTask) {
 		newTask.setParticipants(cmd->getParticipants());
 	if(cmd->getFlagPriority())
 		newTask.setPriority(cmd->getPriority());
-	if(cmd->getFlagDue())
-		newTask.setDueDate(cmd->getDueDate());
 	if(cmd->getFlagFrom())
 		newTask.setFromDate(cmd->getFromDate());
 	if(cmd->getFlagTo())
@@ -301,8 +299,6 @@ void Executor::modifyTaskTo(Task &oldTask, Command_Mod* cmd) {
 		handleHashTagsModify(oldTask, cmd->getTags());
 	if(cmd->getFlagPriority())
 		oldTask.setPriority(cmd->getPriority());
-	if(cmd->getFlagDue())
-		oldTask.setDueDate(cmd->getDueDate());
 	if(cmd->getFlagFrom())
 		oldTask.setFromDate(cmd->getFromDate());
 	if(cmd->getFlagTo())
@@ -442,12 +438,12 @@ bool Executor::validDateChk(const Task &lhs, const Task &rhs) const {
 }
 
 bool Executor::chkFromDateBound(const time_t &fromTime, const Task &lhs) const {
-	return (lhs.getFlagFromDate() && fromTime <= lhs.getFromDate()) || 
+	return (lhs.getFlagToDate() && fromTime <= lhs.getToDate()) || 
 		(lhs.getFlagDueDate() && fromTime <= lhs.getDueDate());
 }
 
 bool Executor::chkToDateBound(const time_t &toTime, const Task &lhs) const {
-	return (lhs.getFlagToDate() && toTime >= lhs.getToDate()) || 
+	return (lhs.getFlagFromDate() && toTime >= lhs.getFromDate()) || 
 		(lhs.getFlagDueDate() && toTime >= lhs.getDueDate());
 }
 
