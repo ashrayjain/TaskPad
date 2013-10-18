@@ -33,6 +33,9 @@
       <Extensions>cpp;moc</Extensions>
       <SourceControlFiles>False</SourceControlFiles>
     </Filter>
+    <Filter Include="libqxt">
+      <UniqueIdentifier>{97252c11-83c8-492d-ac61-cb21734b7bc4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="mainwindow.ui">
@@ -52,6 +55,9 @@
     </CustomBuild>
     <CustomBuild Include="Highlighter.h">
       <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="libqxt\qxtglobalshortcut.h">
+      <Filter>libqxt</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
@@ -99,6 +105,12 @@
     </ClInclude>
     <ClInclude Include="TaskLoaderText.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libqxt\qxtglobal.h">
+      <Filter>libqxt</Filter>
+    </ClInclude>
+    <ClInclude Include="libqxt\qxtglobalshortcut_p.h">
+      <Filter>libqxt</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -167,6 +179,18 @@
     </ClCompile>
     <ClCompile Include="TaskSaverText.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libqxt\qxtglobalshortcut.cpp">
+      <Filter>libqxt</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_qxtglobalshortcut.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_qxtglobalshortcut.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="libqxt\qxtglobalshortcut_win.cpp">
+      <Filter>libqxt</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
