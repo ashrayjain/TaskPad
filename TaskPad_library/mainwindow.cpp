@@ -5,6 +5,7 @@
 #include <QDateTime>
 #include <QGraphicsOpacityEffect>
 #include <QTimer>
+#include <cassert>
 #include "Enum.h"
 #include "mainwindow.h"
 #include "Manager.h"
@@ -349,6 +350,18 @@ void MainWindow::handleMessenger(Messenger msg){
 				updateDetails(msg.getList().front());
 			}
 			break;
+		case TP::UNDO:
+			getToday();
+			updateStatusBar("Undo successfully");
+			updateDetailsLabel("Undo Task's Details");
+			updateDetails(msg.getTask());
+			break;
+		case TP::REDO:
+			getToday();
+			updateStatusBar("Redo successfully");
+			updateDetailsLabel("Redo Task's Details");
+			updateDetails(msg.getTask());
+			break;
 		}
 	}
 	else if(msg.getStatus() == TP::INTERMEDIATE)
@@ -360,6 +373,7 @@ void MainWindow::handleMessenger(Messenger msg){
 	else if(msg.getStatus() == TP::DISPLAY)
 	{
 		int index = msg.getIndex();
+		assert(index > 0);
 		list<Task> tmp_list = msg.getList();
 		list<Task>::iterator iter = tmp_list.begin();
 		advance(iter, index - 1);
@@ -561,7 +575,7 @@ void MainWindow::updateDetails(Task t){
 	}
 	//set label location
 	if(task_showDetails.getFlagLocation()){
-		ui.location->setText(task_showDetails.getLocation().c_str());
+		ui.location->setText(("@" + task_showDetails.getLocation()).c_str());
 	}
 	else{
 		ui.location->setText("");
@@ -588,13 +602,11 @@ void MainWindow::updateDetails(Task t){
 		QString tags;
 		list<string> listOfTags = task_showDetails.getTags();
 		list<string>::iterator iter = listOfTags.begin();
-		tags += "#";
 		tags += iter->c_str();
 		iter++;
 		for(;iter != listOfTags.end();
 			advance(iter, 1)){
 				tags += ", ";
-				tags += "#";
 				tags += iter->c_str();
 		}
 		ui.tags->setText(tags);
@@ -606,11 +618,13 @@ void MainWindow::updateDetails(Task t){
 	if(task_showDetails.getFlagRemindTimes()){
 		QString remindTimes;
 		list<time_t> listOfRemindTimes = task_showDetails.getRemindTimes();
-		for(list<time_t>::iterator iter = listOfRemindTimes.begin();
-			iter != listOfRemindTimes.end();
+		list<time_t>::iterator iter = listOfRemindTimes.begin();
+		remindTimes += QDateTime::fromTime_t(*iter).toString("dd/MM/yyyy hh:mm");
+		iter++;
+		for(;iter != listOfRemindTimes.end();
 			advance(iter, 1)){
-				remindTimes += QDateTime::fromTime_t(*iter).toString("dd/MM/yyyy hh:mm");
 				remindTimes += ", ";
+				remindTimes += QDateTime::fromTime_t(*iter).toString("dd/MM/yyyy hh:mm");
 		}
 		ui.remindTime->setText("Remind me : " + remindTimes);
 	}
