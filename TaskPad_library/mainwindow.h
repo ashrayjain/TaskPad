@@ -24,6 +24,7 @@ protected slots:
 	void createNewTaskTemplate();
 	void getToday();
 	void getInbox();
+	void showWindow();
 	void iconIsActived(QSystemTrayIcon::ActivationReason);
 
 private:
