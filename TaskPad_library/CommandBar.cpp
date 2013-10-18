@@ -15,7 +15,15 @@ const QString CommandBar::SPACE = " ";
 const QString CommandBar::SINGLE_QUOTATION_MARK = "'";
 const QString CommandBar::QUOTE_LEFT = "`";
 const QString CommandBar::EMPTY = "";
-const QString CommandBar::HOTKEY_TEMPLATE_NEW = "add `__NAME__` due `__DATE__` from `__DATE__` to `__DATE__` impt `__PRIORITY__` at `__WHERE__` ppl `__PARTICIPANTS__` #__TAGS__ rt `__REMINDTIME__` note `__NOTE__`";
+const QString CommandBar::HOTKEY_TEMPLATE_ADD = "add `__NAME__` due `__DATE__` impt `__PRIORITY__` at `__WHERE__` ppl `__PARTICIPANTS__` #__TAGS__ rt `__REMINDTIME__` note `__NOTE__`";
+const QString CommandBar::HOTKEY_TEMPLATE_ADD_TIMED = "add `__NAME__` from `__DATE__` to `__DATE__` impt `__PRIORITY__` at `__WHERE__` ppl `__PARTICIPANTS__` #__TAGS__ rt `__REMINDTIME__` note `__NOTE__`";
+const QString CommandBar::HOTKEY_TEMPLATE_MOD_BY_NAME = "mod `__NAME__` __DONE__ name `__MODIFIEDNAME__` from `__DATE__` to `__DATE__` impt `__PRIORITY__` at `__WHERE__` ppl `__PARTICIPANTS__` #__TAGS__ rt `__REMINDTIME__` note `__NOTE__`";
+const QString CommandBar::HOTKEY_TEMPLATE_MOD_BY_INDEX = "mod __INDEX__ __DONE__ name `__MODIFIEDNAME__` from `__DATE__` to `__DATE__` impt `__PRIORITY__` at `__WHERE__` ppl `__PARTICIPANTS__` #__TAGS__ rt `__REMINDTIME__` note `__NOTE__`";
+const QString CommandBar::HOTKEY_TEMPLATE_DEL_BY_NAME = "del `__NAME__`";
+const QString CommandBar::HOTKEY_TEMPLATE_DEL_BY_INDEX = "del __INDEX__";
+const QString CommandBar::HOTKEY_TEMPLATE_FIND = "find name `__NAME__` from `__DATE__` to `__DATE__` impt `__PRIORITY__` at `__WHERE__` ppl `__PARTICIPANTS__` #__TAGS__ note `__NOTE__`";
+const QString CommandBar::HOTKEY_TEMPLATE_UNDO = "undo";
+const QString CommandBar::HOTKEY_TEMPLATE_REDO = "redo";
 
 CommandBar::CommandBar(QWidget *parent)
 	:QTextEdit(parent), inputHistory_undo(), inputHistory_redo(),\
@@ -57,6 +65,24 @@ void CommandBar::initCompleter()
 void CommandBar::initConnections()
 {
 	connect(this, SIGNAL(textChanged()), this, SLOT(performCompletion()));
+	(void) new QShortcut(QKeySequence(tr("Ctrl+N", "New Task")), 
+		this, SLOT(createTemplateAdd()));
+	(void) new QShortcut(QKeySequence(tr("Ctrl+Shift+N", "New Task")), 
+		this, SLOT(createTemplateAddTimed()));
+	(void) new QShortcut(QKeySequence(tr("Ctrl+Shift+M", "Modify Task by Name")), 
+		this, SLOT(createTemplateModByName()));
+	(void) new QShortcut(QKeySequence(tr("Ctrl+M", "Modify Task by Index")), 
+		this, SLOT(createTemplateModByIndex()));
+	(void) new QShortcut(QKeySequence(tr("Ctrl+Shift+D", "Delete Task by Name")), 
+		this, SLOT(createTemplateDelByName()));
+	(void) new QShortcut(QKeySequence(tr("Ctrl+D", "Delete Task by Index")), 
+		this, SLOT(createTemplateDelByIndex()));
+	(void) new QShortcut(QKeySequence(tr("Ctrl+F", "Find Task")), 
+		this, SLOT(createTemplateFind()));
+	(void) new QShortcut(QKeySequence(tr("Ctrl+U", "Undo")), 
+		this, SLOT(createTemplateUndo()));
+	(void) new QShortcut(QKeySequence(tr("Ctrl+R", "Redo")), 
+		this, SLOT(createTemplateRedo()));
 	(void) new QShortcut(QKeySequence(tr("Shift+Tab", "HotKey Template: Go Backwards")), this, SLOT(hkTemplateGoBackwards()));
 }
 
@@ -494,17 +520,43 @@ void CommandBar::handleKeyDefault()
 	TURN_ON_AC
 }
 
-void CommandBar::createNewTaskTemplate()
+void CommandBar::createTemplate(QString templateStr)
 {
 	pushCurrentLine();
 	TEXT_EDIT_BEGIN
-	insertPlainText(HOTKEY_TEMPLATE_NEW);
+	insertPlainText(templateStr);
 	TEXT_EDIT_END
-	
 	moveCursor(QTextCursor::Start);
-
 	lastTimeCursor = document()->find(hotkeyTemplate, textCursor());
-	setTextCursor(lastTimeCursor);
+	if(!lastTimeCursor.isNull())
+		setTextCursor(lastTimeCursor);
+	hotkeyTemplateMode = true;
+}
 
-	hotkeyTemplateMode = true;//TODO: need dynamically change this mode
+void CommandBar::createTemplateAdd(){
+	createTemplate(HOTKEY_TEMPLATE_ADD);
+}
+void CommandBar::createTemplateAddTimed(){
+	createTemplate(HOTKEY_TEMPLATE_ADD_TIMED);
+}
+void CommandBar::createTemplateModByName(){
+	createTemplate(HOTKEY_TEMPLATE_MOD_BY_NAME);
+}
+void CommandBar::createTemplateModByIndex(){
+	createTemplate(HOTKEY_TEMPLATE_MOD_BY_INDEX);
+}
+void CommandBar::createTemplateDelByName(){
+	createTemplate(HOTKEY_TEMPLATE_DEL_BY_NAME);
+}
+void CommandBar::createTemplateDelByIndex(){
+	createTemplate(HOTKEY_TEMPLATE_DEL_BY_INDEX);
+}
+void CommandBar::createTemplateFind(){
+	createTemplate(HOTKEY_TEMPLATE_FIND);
+}
+void CommandBar::createTemplateUndo(){
+	createTemplate(HOTKEY_TEMPLATE_UNDO);
+}
+void CommandBar::createTemplateRedo(){
+	createTemplate(HOTKEY_TEMPLATE_REDO);
 }
