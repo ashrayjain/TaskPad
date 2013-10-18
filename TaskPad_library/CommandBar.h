@@ -18,12 +18,19 @@ class CommandBar: public QTextEdit
 
 public:
 	CommandBar(QWidget *parent);
-	
 	QString getCurrentLine();
 	void pushCurrentLine();
-	void createNewTaskTemplate();
 
 protected slots:
+	void createTemplateAdd();
+	void createTemplateAddTimed();
+	void createTemplateModByName();
+	void createTemplateModByIndex();
+	void createTemplateDelByName();
+	void createTemplateDelByIndex();
+	void createTemplateFind();
+	void createTemplateUndo();
+	void createTemplateRedo();
 	void performCompletion();
 	void hkTemplateGoBackwards();
 
@@ -35,7 +42,15 @@ private:
 	static const QString QUOTE_LEFT;
 	static const QString EMPTY;
 	//HOTKEY TEMPLATE RELATED
-	static const QString HOTKEY_TEMPLATE_NEW;
+	static const QString HOTKEY_TEMPLATE_ADD;
+	static const QString HOTKEY_TEMPLATE_ADD_TIMED;
+	static const QString HOTKEY_TEMPLATE_MOD_BY_NAME;
+	static const QString HOTKEY_TEMPLATE_MOD_BY_INDEX;
+	static const QString HOTKEY_TEMPLATE_DEL_BY_NAME;
+	static const QString HOTKEY_TEMPLATE_DEL_BY_INDEX;
+	static const QString HOTKEY_TEMPLATE_FIND;
+	static const QString HOTKEY_TEMPLATE_UNDO;
+	static const QString HOTKEY_TEMPLATE_REDO;
 	//INIT RELATED
 	void initWidgets();
 	void initCompleter();
@@ -60,6 +75,7 @@ private:
 	bool isWithinPairOfQuoteLeft();
 	QVector<QPair<int, int> > getQuoteLeftPositions();
 	bool isHotkeyTemplateMode();
+	void createTemplate(QString templateStr);
 	//MODEL RELATED
 	void produceModel();
 	void produceCommandModel();

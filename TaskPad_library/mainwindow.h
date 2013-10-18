@@ -21,7 +21,6 @@ public:
 protected slots:
 	void about();
 	void help();
-	void createNewTaskTemplate();
 	void getToday();
 	void getInbox();
 	void showWindow();

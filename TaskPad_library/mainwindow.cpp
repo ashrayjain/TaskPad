@@ -34,7 +34,6 @@ MainWindow::MainWindow(QWidget *parent)
 	QObject::connect(ui.MinimizeButton, SIGNAL(clicked()), this, SLOT(showMinimized()));
 	QObject::connect(ui.AboutButton, SIGNAL(clicked()), this, SLOT(about()));
 	QObject::connect(ui.HelpButton, SIGNAL(clicked()), this, SLOT(help()));
-	(void) new QShortcut(QKeySequence(tr("Ctrl+N", "New Task")), this, SLOT(createNewTaskTemplate()));
 	(void) new QShortcut(QKeySequence(tr("Ctrl+T", "Today")), this, SLOT(getToday()));
 	(void) new QShortcut(QKeySequence(tr("Ctrl+I", "Inbox")), this, SLOT(getInbox()));
 	//ui.CommandBar->installEventFilter(this);//filter RETURN
@@ -96,6 +95,7 @@ void MainWindow::keyPressEvent(QKeyEvent* event){
 
 void MainWindow::reset(){
 	scheduler->resetStatus();
+	ui.cmdBar->clear();
 	getToday();
 }
 
@@ -319,12 +319,6 @@ void MainWindow::about()
     Msgbox.setText("TaskPad is a product created by Team F12-1C.\n"
 		"Members: ASHRAY, KAI, JIANGZE, THYAGESH, ZIXUAN.");
     Msgbox.exec();
-}
-
-void MainWindow::createNewTaskTemplate()
-{
-	ui.cmdBar->setFocus();
-	ui.cmdBar->createNewTaskTemplate();
 }
 
 void MainWindow::updateNavLabel(QString str){
