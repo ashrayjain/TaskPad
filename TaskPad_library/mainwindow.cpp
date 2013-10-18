@@ -44,6 +44,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
+	trayIcon->hide();
 	delete scheduler;
 	scheduler = NULL;
 }
@@ -57,168 +58,6 @@ void MainWindow::help(){
 	QMessageBox msgBox;
 	msgBox.setText("Geek doesn't need help from us :p");
 	msgBox.exec();
-}
-void MainWindow::test(){
-	int tc = 8;//select test case here
-
-	Task t1;
-	t1.setName("task 1 task 1");
-	t1.setLocation("NUS LT27");
-	t1.setDueDate(time(NULL));
-
-	Task t2;
-	t2.setName("task 2 task 2");
-	t2.setLocation("COM1 B1-13");
-	t2.setFromDate(time(NULL));
-	t2.setToDate(time(NULL));
-
-	Task mod_t2;
-	mod_t2.setName("task 2 task 2___MOD");
-	mod_t2.setLocation("COM1 B1-13");
-
-	Task t3;
-	t3.setName("task 3 task 3");
-	t3.setLocation("NTU + NUS somewhere lol");
-	t3.setFromDate(time(NULL));
-	t3.setToDate(time(NULL));
-	t3.setPriority(TP::HIGH);
-	t3.setState(TP::DONE);
-
-	Task t4;
-	t4.setName("task 4 task 4");
-	t4.setLocation("PGP DR4");
-	t4.setFromDate(time(NULL));
-	t4.setToDate(time(NULL));
-
-	list<Task> taskList;
-	taskList.push_back(t1);//0
-	taskList.push_back(t2);//1
-	taskList.push_back(t3);//2
-	taskList.push_back(t4);//3
-
-	list<Task> taskList2;
-	taskList2.push_back(t3);
-	taskList2.push_back(t2);
-	taskList2.push_back(t1);
-
-	list<Task> taskList3;
-	taskList3.push_back(t3);
-
-	//************************************************************
-
-	//TC1: (ERROR)
-	if(tc == -1){
-		Messenger tc1msg;
-		tc1msg.setStatus(TP::ERROR);
-		tc1msg.setCommandType(TP::FIND);
-		tc1msg.setList(taskList);
-		tc1msg.setErrorMsg("I wanna sleep zzz..");
-		handleMessenger(tc1msg);
-	}
-	//TC1: get Today
-	if(tc == 0){
-		Messenger tc1msg;
-		tc1msg.setStatus(TP::SUCCESS);
-		tc1msg.setCommandType(TP::FIND);
-		tc1msg.setList(taskList);
-		handleGetToday(tc1msg);
-	}
-	//TC2: add a simple task (SUCCESS)
-	else if(tc == 1){
-		Messenger tc1msg;
-		tc1msg.setStatus(TP::SUCCESS);
-		tc1msg.setCommandType(TP::ADD);
-		tc1msg.setList(taskList2);//the first task is t3
-		handleMessenger(tc1msg);
-	}
-	//TC3: modify a task (SUCCESS)
-	else if(tc == 2){
-		Messenger tc1msg;
-		tc1msg.setStatus(TP::SUCCESS);
-		tc1msg.setCommandType(TP::MOD);
-		tc1msg.setList(taskList2);//the first task is t3
-		handleMessenger(tc1msg);
-	}
-	//TC4: modify a task (SUCCESS)
-	else if(tc == 3){
-		Messenger tc1msg;
-		tc1msg.setStatus(TP::SUCCESS);
-		tc1msg.setCommandType(TP::DEL);
-		tc1msg.setList(taskList2);//the first task is t3
-		handleMessenger(tc1msg);
-	}
-	//TC5: modify a task (INTERMEDIATE)
-	else if(tc == 4){
-		Messenger tc1msg;
-		tc1msg.setStatus(TP::INTERMEDIATE);
-		tc1msg.setCommandType(TP::MOD);
-		tc1msg.setList(taskList2);
-		handleMessenger(tc1msg);
-	}
-	//TC6: find a task (SUCCESS)
-	else if(tc == 5){
-		Messenger tc1msg;
-		tc1msg.setStatus(TP::SUCCESS);
-		tc1msg.setCommandType(TP::FIND);
-		tc1msg.setList(taskList2);
-		handleMessenger(tc1msg);
-	}
-	//TC7: display a task (DISPLAY)
-	else if(tc == 6){
-		//get today
-		Messenger tc0msg;
-		tc0msg.setStatus(TP::SUCCESS);
-		tc0msg.setCommandType(TP::FIND);
-		tc0msg.setList(taskList);
-		handleGetToday(tc0msg);
-		//display 1 (start from 0)
-		Messenger tc1msg;
-		tc1msg.setStatus(TP::DISPLAY);
-		tc1msg.setInt(1);
-		handleMessenger(tc1msg);
-	}
-	//TC8: CWI mod (SUCCESS_INDEXED_COMMAND)
-	else if(tc == 7){
-		//get today
-		Messenger tc0msg;
-		tc0msg.setStatus(TP::SUCCESS);
-		tc0msg.setCommandType(TP::FIND);
-		tc0msg.setList(taskList);
-		handleGetToday(tc0msg);
-		//mod 1
-		Messenger tc1msg;
-		tc1msg.setCommandType(TP::MOD);
-		tc1msg.setStatus(TP::SUCCESS_INDEXED_COMMAND);
-		tc1msg.setInt(1);
-		list<Task> tmp;
-		tmp.push_back(mod_t2);
-		tc1msg.setList(tmp);
-		handleMessenger(tc1msg);
-	}
-	//TC9: CWI DEL (SUCCESS_INDEXED_COMMAND)
-	else if(tc == 8){
-		//get today
-		Messenger tc0msg;
-		tc0msg.setStatus(TP::SUCCESS);
-		tc0msg.setCommandType(TP::FIND);
-		tc0msg.setList(taskList);
-		handleGetToday(tc0msg);
-		//mod 1
-		Messenger tc1msg;
-		tc1msg.setCommandType(TP::DEL);
-		tc1msg.setStatus(TP::SUCCESS_INDEXED_COMMAND);
-		tc1msg.setInt(1);
-		handleMessenger(tc1msg);
-	}
-	//TC10: (ERROR_INTERMEDIATE)
-	else if(tc == 9){
-		//get today
-		Messenger tc0msg;
-		tc0msg.setStatus(TP::ERROR_INTERMEDIATE);
-		tc0msg.setCommandType(TP::FIND);
-		tc0msg.setList(taskList);
-		handleMessenger(tc0msg);
-	}
 }
 
 void MainWindow::keyPressEvent(QKeyEvent* event){
@@ -652,7 +491,7 @@ void MainWindow::customisedUi(){
 	//magic number
 	ui.TaskList->header()->resizeSection(0, 70);
 	ui.TaskList->header()->resizeSection(1, 220);
-	ui.TaskList->setItemDelegate(new LastColumnDelegate(2));
+	ui.TaskList->setItemDelegate(new LastColumnDelegate(2, ui.TaskList));
 }
 
 void MainWindow::mousePressEvent(QMouseEvent *event){
