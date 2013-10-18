@@ -16,32 +16,24 @@ bool QuickAddWindow::eventFilter(QObject* watched, QEvent* event)
 		{
 			QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
 			if(keyEvent->key() == Qt::Key_Escape){
-				isInputSuccessful = false;
 				parentWindow->isQuickAddOpen = false;
 				close();
 			}
 			else if(keyEvent->key() == Qt::Key_Return || keyEvent->key() == Qt::Key_Enter)
 			{
 				QString currentInput = ui.cmdBar->getCurrentLine();
-				ui.cmdBar->pushCurrentLine();
-				isInputSuccessful = true;
-				inputStr = currentInput;
-				parentWindow->reset();
-				parentWindow->handleInput(inputStr, true);//true --> FROM_QUICK_ADD
-				//wait for mainwindow to decide whether close it or not
+				if(!currentInput.isEmpty()){
+					ui.cmdBar->pushCurrentLine();
+					inputStr = currentInput;
+					parentWindow->reset();
+					parentWindow->handleInput(inputStr, true);//true --> FROM_QUICK_ADD
+					//wait for mainwindow to decide whether close it or not
+				}
 				return true;
 			}
 		}
 	}
 	return QObject::eventFilter(watched, event);//normal processing
-}
-
-QString QuickAddWindow::getInputString(){
-	return inputStr;
-}
-
-bool QuickAddWindow::hasResult(){
-	return isInputSuccessful;
 }
 
 void QuickAddWindow::customisedUi(){
