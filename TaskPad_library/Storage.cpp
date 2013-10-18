@@ -31,11 +31,11 @@ bool Storage::save(const list<Task>& taskList)
 	return true;
 }
 
-bool Storage::save(const Task& task)
+bool Storage::save(const Task& task, const TP::COMMAND_TYPE& cType)
 {
 	_saver = new TaskSaverText;
 
-	_saver->save(task);
+	_saver->save(task,cType);
 
 	delete _saver;
 	_saver = NULL;

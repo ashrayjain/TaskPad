@@ -6,4 +6,4 @@ FileName: TaskPadLog.txt
 MinLogLevel: INFOLOG
 
 # For the class to Monitor, give the value that you pass as the first parameter to the log function of the Logger
-ClasstoMonitor: Manager
+ClasstoMonitor:

@@ -6,9 +6,19 @@
 #include "TaskSaverText.h"
 #include "Enum.h"
 #include "Task.h"
+#include "Logger.h"
 
 using namespace TP;
 using namespace std;
+
+const std::string TaskSaverText::TASK_DIRECTORY = "Tasks\\";
+const std::string TaskSaverText::RECORD_MODIFIED_FILE_NAME = "savedTasks.txt";
+const std::string TaskSaverText::RECORD_DELETED_FILE_NAME = "deletedTasks.txt";
+
+TaskSaverText::TaskSaverText()
+{
+	this->_logger = Logger::getLogger();
+}
 
 void TaskSaverText::save(const list<Task>& taskList, const std::string& fileName)
 {
@@ -16,20 +26,52 @@ void TaskSaverText::save(const list<Task>& taskList, const std::string& fileName
 	this->saveTaskList(taskList);
 	this->closeFile();
 	this->removeTaskFiles();
+	this->removeSaveRecord();
+	this->removeDeleteRecord();
 	return;
 }
 
 void TaskSaverText::removeTaskFiles()
 {
-	return;
+	ifstream record(RECORD_MODIFIED_FILE_NAME);
+	std::string nextTaskFile;
+
+	while(record.good())
+	{
+		getline(record, nextTaskFile);
+		if(nextTaskFile!= "")
+		{
+			_logger->log("TaskSaverText","removing file: "+nextTaskFile,NOTICELOG);
+
+			if(int ret = std::remove(nextTaskFile.c_str()) != 0)
+			{
+				_logger->log("TaskSaverText","error num: " + convertToString(ret),ERRORLOG);
+			}
+			nextTaskFile = "";
+		}
+	}
+	record.close();
 }
 
-void TaskSaverText::save(const Task& task)
+void TaskSaverText::save(const Task& task, const COMMAND_TYPE& cType)
 {
-	std::string fileName = convertToString(task.getIndex()) + ".task";
-	this->openFile(fileName);
-	this->saveTask(task);
-	this->closeFile();
+	if (cType == DEL)
+	{
+		ofstream record(RECORD_DELETED_FILE_NAME, ios_base::app);
+		record << task.getIndex() << endl;
+		record.close();
+	}
+	else
+	{
+		std::string fileName = convertToString(task.getIndex()) + ".task";
+		std::string taskFileName = TASK_DIRECTORY + fileName;
+
+		this->openFile(taskFileName);
+		this->saveTask(task);
+		this->closeFile();
+
+		this->updateSaveRecord(taskFileName);
+	}
 	return;
 }
 
@@ -254,6 +296,36 @@ string TaskSaverText::convertToString(TASK_STATE state)
 	return TASK_STATE_STRING[state];
 }
 
+void TaskSaverText::updateSaveRecord	(std::string entry)
+{
+	ofstream record(RECORD_MODIFIED_FILE_NAME,std::ios_base::app);
+	record<<entry<<endl;
+	record.close();
+	return;
+}
+
+void TaskSaverText::removeSaveRecord	()
+{
+	//empty the file just in case
+	ofstream record(RECORD_MODIFIED_FILE_NAME,ios_base::trunc);
+	record.close();
+
+	//delete the file
+	std::remove(RECORD_MODIFIED_FILE_NAME.c_str());
+	return;
+}
+
+void TaskSaverText::removeDeleteRecord	()
+{
+	//empty the file just in case
+	ofstream record(RECORD_DELETED_FILE_NAME,ios_base::trunc);
+	record.close();
+
+	//delete the file
+	std::remove(RECORD_DELETED_FILE_NAME.c_str());
+	return;
+}
+
 /****************************************************/
 /***************** Actual Writers ****************/
 /****************************************************/
@@ -264,11 +336,6 @@ void TaskSaverText::writeLineToFile(string line, bool newLine)
 		_fileWriter << line << endl;
 	else
 		_fileWriter << line << " ";
-}
-
-void TaskSaverText::emptyTheFile()
-{
-	//throw "storage empty the file not implemented";
 }
 
 #endif
