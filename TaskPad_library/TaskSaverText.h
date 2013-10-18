@@ -5,12 +5,27 @@
 #include "TaskSaver.h"
 #include "Enum.h"
 
+class Logger;
+
 class TaskSaverText: public TaskSaver
 {
 	public:
 		void save (const std::list<Task>& taskList, const std::string& fileName);
-		void save (const Task& task);
+		void save (const Task& task, const TP::COMMAND_TYPE& cType);
+
+		const static std::string TASK_DIRECTORY;
+		const static std::string RECORD_MODIFIED_FILE_NAME;
+		const static std::string RECORD_DELETED_FILE_NAME;
+		TaskSaverText();
 	private:
+
+		Logger* _logger;
+
+		//save records
+		void updateSaveRecord	(std::string entry);
+		void removeSaveRecord	();
+		void removeDeleteRecord	();
+
 		//savers
 		void saveTaskList		(const std::list<Task>& taskList);
 		void saveTask			(const Task& task);
@@ -45,7 +60,6 @@ class TaskSaverText: public TaskSaver
 
 		//writers
 		void writeLineToFile	(std::string line, bool newLine = true);
-		void emptyTheFile		();
 				
 		//removes Task files
 		void removeTaskFiles();

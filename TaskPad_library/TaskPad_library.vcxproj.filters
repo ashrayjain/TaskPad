@@ -174,10 +174,10 @@
     <ClCompile Include="TaskLoaderText.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TaskLoader.cpp">
+    <ClCompile Include="TaskSaverText.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TaskSaverText.cpp">
+    <ClCompile Include="FileHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="libqxt\qxtglobalshortcut.cpp">
