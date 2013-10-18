@@ -11,4 +11,7 @@
         <file>Resources/mainwindow_bg.png</file>
         <file>Resources/logo.png</file>
     </qresource>
+    <qresource prefix="/QuickAddWindow">
+        <file>Resources/quick_add.png</file>
+    </qresource>
 </RCC>

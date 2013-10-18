@@ -44,9 +44,6 @@
     <CustomBuild Include="mainwindow.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="mainwindow.qrc">
-      <Filter>Resource Files</Filter>
-    </CustomBuild>
     <CustomBuild Include="LastColumnDelegate.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
@@ -58,6 +55,15 @@
     </CustomBuild>
     <CustomBuild Include="libqxt\qxtglobalshortcut.h">
       <Filter>libqxt</Filter>
+    </CustomBuild>
+    <CustomBuild Include="quickadd_window.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="quickadd_window.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="images.qrc">
+      <Filter>Resource Files</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
@@ -112,6 +118,9 @@
     <ClInclude Include="libqxt\qxtglobalshortcut_p.h">
       <Filter>libqxt</Filter>
     </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_quickadd_window.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GeneratedFiles\Debug\moc_mainwindow.cpp">
@@ -119,9 +128,6 @@
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Release\moc_mainwindow.cpp">
       <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\qrc_mainwindow.cpp">
-      <Filter>Generated Files</Filter>
     </ClCompile>
     <ClCompile Include="mainwindow.cpp">
       <Filter>Source Files</Filter>
@@ -191,6 +197,18 @@
     </ClCompile>
     <ClCompile Include="libqxt\qxtglobalshortcut_win.cpp">
       <Filter>libqxt</Filter>
+    </ClCompile>
+    <ClCompile Include="quickadd_window.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_quickadd_window.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_quickadd_window.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\qrc_images.cpp">
+      <Filter>Generated Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
