@@ -25,7 +25,7 @@ class Storage
 		Storage (std::list<Task>& taskList);
 
 		bool save	(const std::list<Task>&);
-		bool save	(const Task& task);
+		bool save	(const Task& task, const TP::COMMAND_TYPE& cType);
 
 		void load	(std::list<Task>& taskList);
 
