@@ -60,7 +60,7 @@ public:
     unsigned long long		getIndex()			const { return _taskIndex;			}
     std::time_t				getFromDate()		const { return _taskFromDate;		}
     std::time_t				getToDate()			const { return _taskToDate;			}
-    std::time_t				getDueDate()		const { return _taskDueDate;		}
+    std::time_t				getDueDate()		const { return _taskFromDate;		}
 	
 	std::list<std::list<Task*>::iterator>	getHashTagPtrs()	  { return _hashTagPtrs;		}
 
@@ -93,9 +93,9 @@ public:
     bool getFlagRemindTimes()	const { return flagRemindTimes;		}
     bool getFlagFromDate()		const { return flagFromDate;		}
     bool getFlagToDate()		const { return flagToDate;			}
-    bool getFlagDueDate()		const { return flagDueDate;			}
 	bool getFlagState()			const { return flagState;			}
 	bool getFlagPriority()		const { return flagPriority;		}
+	bool getFlagDueDate()		const { return flagFromDate && flagToDate && _taskFromDate == _taskToDate;	}
 
 protected:
 	// Task Class Constants
@@ -110,7 +110,6 @@ protected:
 	static const std::list<std::string>					DEFAULT_TAGS;
 	static const std::list<std::list<Task*>::iterator>	DEFAULT_HASHTAG_PTRS;
 	static const std::list<std::time_t>					DEFAULT_REMINDTIMES;
-	static const std::time_t							DEFAULT_DUEDATE;
 	static const std::time_t							DEFAULT_FROMDATE;
 	static const std::time_t							DEFAULT_TODATE;
 	static const TP::TASK_STATE							DEFAULT_STATE;	
@@ -139,7 +138,6 @@ protected:
     std::list<std::string>	_taskParticipants;
     std::list<std::string>	_taskTags;
     std::list<std::time_t>	_taskRemindTimes;
-    std::time_t				_taskDueDate;
     std::time_t				_taskFromDate;
     std::time_t				_taskToDate;
     TP::TASK_STATE			_taskState;
@@ -150,7 +148,6 @@ protected:
 
     // Task Attribute Flags
     bool flagName;
-    bool flagDueDate;
     bool flagFromDate;
     bool flagToDate;
     bool flagLocation;

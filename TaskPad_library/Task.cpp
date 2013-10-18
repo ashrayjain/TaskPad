@@ -26,7 +26,6 @@ const std::list<std::string>				Task::DEFAULT_PARTICIPANTS	= std::list<std::stri
 const std::list<std::string>				Task::DEFAULT_TAGS			= std::list<std::string>();
 const std::list<std::list<Task*>::iterator>	Task::DEFAULT_HASHTAG_PTRS	= std::list<std::list<Task*>::iterator>();
 const std::list<std::time_t>				Task::DEFAULT_REMINDTIMES	= std::list<std::time_t>();
-const std::time_t							Task::DEFAULT_DUEDATE		= 0;
 const std::time_t							Task::DEFAULT_FROMDATE		= 0;
 const std::time_t							Task::DEFAULT_TODATE		= 0;
 const TP::TASK_STATE						Task::DEFAULT_STATE			= TP::UNDONE;	
@@ -57,7 +56,6 @@ void Task::defaultTaskInit(unsigned long long indexToPut)
 void Task::initFlags()
 {
     flagName		 = false;
-    flagDueDate		 = false;
     flagFromDate	 = false;
     flagToDate		 = false;
     flagLocation	 = false;
@@ -79,7 +77,6 @@ void Task::initTaskAttributes()
     _taskTags			= DEFAULT_TAGS;
 	_hashTagPtrs		= DEFAULT_HASHTAG_PTRS;
     _taskRemindTimes	= DEFAULT_REMINDTIMES;
-    _taskDueDate		= DEFAULT_DUEDATE;
     _taskFromDate		= DEFAULT_FROMDATE;
     _taskToDate			= DEFAULT_TODATE;
     _taskState			= DEFAULT_STATE;
@@ -122,16 +119,16 @@ void Task::setToDate(std::time_t newToDate) {
     handleDatesChange();
 }
 
-void Task::setDueDate(std::time_t newDueDate) {	
-    _taskDueDate = newDueDate;
-	flagDueDate = newDueDate!=0;
-    handleDatesChange();
+void Task::setDueDate(std::time_t newDueDate) {
+	_taskFromDate = _taskToDate = newDueDate;
+	flagFromDate = flagToDate = newDueDate!=0;
+
 }
 
 void Task::handleDatesChange() {
     if (getFlagDueDate() == true)
         setTaskType(TP::DEADLINE);
-    else if (getFlagFromDate() == true && getFlagToDate() == true)
+    else if (getFlagFromDate())
         setTaskType(TP::TIMED);
     else
         setTaskType(TP::FLOATING);
