@@ -104,7 +104,7 @@ void Executor::executeCommandWithoutUndoRedo(Command* cmd, Messenger &response) 
 // Add functions
 
 void Executor::executeAdd (Command_Add* cmd, Messenger &response) {
-	Task newTask = Task();
+	Task newTask = Task(cmd->getName());
 	formTaskFromAddCmd(cmd, newTask);
 	_data->push_back(newTask);
 	_indexHash[newTask.getIndex()] = &(_data->back());
@@ -113,8 +113,6 @@ void Executor::executeAdd (Command_Add* cmd, Messenger &response) {
 }
 
 void Executor::formTaskFromAddCmd(Command_Add* cmd, Task &newTask) {
-	if(cmd->getFlagName())
-		newTask.setName(cmd->getName());
 	if(cmd->getFlagLocation())
 		newTask.setLocation(cmd->getLocation());
 	if(cmd->getFlagNote())
@@ -303,6 +301,8 @@ void Executor::modifyTaskTo(Task &oldTask, Command_Mod* cmd) {
 		oldTask.setFromDate(cmd->getFromDate());
 	if(cmd->getFlagTo())
 		oldTask.setToDate(cmd->getToDate());
+	if(cmd->getFlagDue())
+		oldTask.setDueDate(cmd->getDueDate());
 	if(cmd->getFlagTaskState())
 		oldTask.setState(cmd->getTaskState());
 }
