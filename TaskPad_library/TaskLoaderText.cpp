@@ -10,11 +10,20 @@
 using namespace TP;
 using namespace std;
 
+const std::string TaskLoaderText::TASK_DIRECTORY = "Tasks\\";
+const std::string TaskLoaderText::RECORD_MODIFIED_FILE_NAME = "savedTasks.txt";
+const std::string TaskLoaderText::RECORD_DELETED_FILE_NAME = "deletedTasks.txt";
+
 void TaskLoaderText::loadTaskList(list<Task>& taskList)
 {
+
 	while(_fileReader.good() && hasNextTask())
 	{
-		taskList.push_back(this->getNextTask());
+		Task nextTask = this->getNextTask();
+		if(nextTask.getFlagIndex())
+		{
+			taskList.push_back(nextTask);
+		}
 		this->getNextLineFromFile();
 	}
 	return;
@@ -22,23 +31,32 @@ void TaskLoaderText::loadTaskList(list<Task>& taskList)
 
 Task TaskLoaderText::getNextTask()
 {
-	bool flagTaskEnded = false;
 	string newLine;
 	string newLabel;
 	string newData;
 	Task newTask;
 
 	while(_fileReader.good()) {
+
 		newLine = getNextLineFromFile();
 		newLabel = getNewLabel(newLine);
 		newData = getNewData(newLine);
 
 		if(newLabel == LABEL_END_OF_TASK) {
-			flagTaskEnded = true;
 			break;
 		}
 		else if(newLabel == LABEL_INDEX) {
-			newTask = createNewTask(getTaskIndex(newData));
+			bool taskHasBeenDeleted = deletedIndices.find(newData) == deletedIndices.end();
+
+			if(taskHasBeenDeleted) {
+				this->skipThisTask();
+				newTask = Task();
+				break;
+			}
+			else {
+				int newIndex = getTaskIndex(newData);
+				newTask = createNewTask(newIndex);
+			}
 		}
 		else if(newLabel == LABEL_NAME) {
 			setTaskName(newTask, newData);
@@ -75,11 +93,22 @@ Task TaskLoaderText::getNextTask()
 		}
 	}
 
-	if (!flagTaskEnded)
-	{
-		this->_isFileMishandled = true;
-	}
 	return newTask;
+}
+
+void TaskLoaderText::skipThisTask()
+{
+	bool hasNextTask = false;
+
+	while(_fileReader.good())
+	{
+		hasNextTask = (getNextLineFromFile() == LABEL_START_OF_TASK);
+
+		if(hasNextTask)
+		{
+			break;
+		}
+	}
 }
 
 bool TaskLoaderText::hasNextTask()
