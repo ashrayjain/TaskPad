@@ -382,7 +382,9 @@ QTreeWidgetItem* MainWindow::extractTask(int index, Task task){
 		strList = QStringList() << QString::number(index) << task.getName().c_str() << \
 			"Due " + time.toString("dd/MM/yyyy");
 	}
-	else if(task.getTaskType() == TP::TIMED){
+	else if(task.getTaskType() == TP::TIMED ||
+		task.getFlagFromDate() ||
+		task.getFlagToDate()){
 		QString fromTimeStr, toTimeStr;
 		if(task.getFlagFromDate()){
 			QDateTime fromTime = QDateTime::fromTime_t(task.getFromDate());
@@ -422,7 +424,9 @@ QTreeWidgetItem* MainWindow::extractTaskForToday(int index, Task task){
 		strList = QStringList() << QString::number(index) << task.getName().c_str() << \
 			dueStr;
 	}
-	else if(task.getTaskType() == TP::TIMED){
+	else if(task.getTaskType() == TP::TIMED ||
+		task.getFlagFromDate() ||
+		task.getFlagToDate()){
 		QString fromTimeStr, toTimeStr;
 		if(task.getFlagFromDate()){
 			QDateTime fromTime = QDateTime::fromTime_t(task.getFromDate());
@@ -497,19 +501,34 @@ void MainWindow::updateDetails(Task t){
 			ui.dueOrFromTo->setText("Due  " + time.toString("dd/MM/yyyy  hh:mm"));
 		}
 	}
-	else if(task_showDetails.getTaskType() == TP::TIMED){
+	else if(task_showDetails.getTaskType() == TP::TIMED ||
+		task_showDetails.getFlagFromDate() ||
+		task_showDetails.getFlagToDate()){
 		//TODO: redundent... make into one function
 		QString fromTimeStr, toTimeStr;
 		if(task_showDetails.getFlagFromDate()){
 			QDateTime fromTime = QDateTime::fromTime_t(task_showDetails.getFromDate());
-			fromTimeStr = "From " + fromTime.toString("dd/MM/yyyy");
+			QTime hour_n_min = fromTime.time();
+			if(hour_n_min.hour() == 0 & hour_n_min.minute() == 0)
+				fromTimeStr = "From " + fromTime.toString("dd/MM/yyyy");
+			else
+				fromTimeStr = "From " + fromTime.toString("dd/MM/yyyy  hh:mm");
 		}
 		if(task_showDetails.getFlagToDate()){
 			QDateTime toTime = QDateTime::fromTime_t(task_showDetails.getToDate());
-			if(task_showDetails.getFlagFromDate())
-				toTimeStr = " to " + toTime.toString("dd/MM/yyyy");
-			else
-				toTimeStr = "To " + toTime.toString("dd/MM/yyyy");
+			QTime hour_n_min = toTime.time();
+			if(task_showDetails.getFlagFromDate()){
+				if(hour_n_min.hour() == 0 & hour_n_min.minute() == 0)
+					toTimeStr = " to " + toTime.toString("dd/MM/yyyy");
+				else
+					toTimeStr = " to " + toTime.toString("dd/MM/yyyy  hh:mm");
+			}
+			else{
+				if(hour_n_min.hour() == 0 & hour_n_min.minute() == 0)
+					toTimeStr = "To " + toTime.toString("dd/MM/yyyy");
+				else
+					toTimeStr = "To " + toTime.toString("dd/MM/yyyy  hh:mm");
+			}
 		}
 		ui.dueOrFromTo->setText(fromTimeStr + toTimeStr);
 	}
