@@ -20,6 +20,7 @@ public:
 	CommandBar(QWidget *parent);
 	QString getCurrentLine();
 	void pushCurrentLine();
+	void setQuickAddMode();
 
 protected slots:
 	void createTemplateAdd();
@@ -103,5 +104,15 @@ private:
 	QRegExp REGEXP_quoteLeft;
 	QStack<QString> inputHistory_undo;
 	QStack<QString> inputHistory_redo;
+	//Short cut
+	QShortcut* newDeadlineTask;
+	QShortcut* newTimedTask;
+	QShortcut* modifyByName;
+	QShortcut* modifyByIndex;
+	QShortcut* delByName;
+	QShortcut* delByIndex;
+	QShortcut* find;
+	QShortcut* undo;
+	QShortcut* redo;
 };
 #endif

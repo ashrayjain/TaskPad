@@ -25,6 +25,9 @@ protected slots:
 	void getInbox();
 	void showWindow();
 	void showQuickAddWindow();
+	void closeQuickAddWindow();
+	void handleQuickAddRequest(QString requestStr);
+	bool isCommandAdd(QString requestStr);
 	void iconIsActived(QSystemTrayIcon::ActivationReason);
 
 private:
@@ -40,10 +43,10 @@ private:
 	void clearDetails();
 	void updateDetails(Task t);
 	void updateStatusBar(QString str);
-	void handleInput(QString input, bool isFromQuickAdd = false);
 	void handleGetToday(Messenger msg);
 	void handleGetInbox(Messenger msg);
-	void handleMessenger(Messenger msg, bool isFromQuickAdd = false);
+	void handleMessenger(Messenger msg);
+	void handleDisplay(Messenger msg);
 	void customisedUi();
 	void mousePressEvent(QMouseEvent *event);
 	void mouseMoveEvent(QMouseEvent *event);

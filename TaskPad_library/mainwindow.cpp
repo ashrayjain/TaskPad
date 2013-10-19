@@ -73,9 +73,57 @@ void MainWindow::showQuickAddWindow(){
 		//no need to delete quickAddWindow
 		//since it's set (Qt::WA_DeleteOnClose)
 		//refer to: http://qt-project.org/doc/qt-5.0/qtcore/qt.html#WidgetAttribute-enum
-		quickAddWindow = new QuickAddWindow(this);
+		quickAddWindow = new QuickAddWindow();
+		quickAddWindow->setAttribute(Qt::WA_DeleteOnClose);
+		QuickAddWindow *qa = (QuickAddWindow*) quickAddWindow;
+		connect(qa, SIGNAL(windowClosed()), this, SLOT(closeQuickAddWindow()));
+		connect(qa, SIGNAL(requestSubmitted(QString)), this, SLOT(handleQuickAddRequest(QString)));
 		quickAddWindow->show();
 	}
+}
+
+void MainWindow::closeQuickAddWindow(){
+	QuickAddWindow *qa = (QuickAddWindow*) quickAddWindow;
+	disconnect(qa, SIGNAL(windowClosed()), this, SLOT(closeQuickAddWindow()));
+	disconnect(qa, SIGNAL(requestSubmitted(QString)), this, SLOT(handleQuickAddRequest(QString)));
+	quickAddWindow->close();
+	isQuickAddOpen = false;
+}
+
+void MainWindow::handleQuickAddRequest(QString requestStr){
+	const int FIRST_ITEM = 1;
+	if(isCommandAdd(requestStr) ||
+		requestStr.toInt() == FIRST_ITEM){
+			reset();
+			string requestStdStr = requestStr.toLocal8Bit().constData();
+			Messenger msg = scheduler->processCommand(requestStdStr);
+			if(msg.getStatus() == TP::ERROR)
+			{
+				showTrayMsg(msg.getErrorMsg().c_str());
+			}
+			else if(msg.getStatus() == TP::SUCCESS)
+			{
+				getToday();
+				closeQuickAddWindow();
+				showTrayMsg("Success!");
+			}
+			else if(msg.getStatus() == TP::DISPLAY)
+			{
+				closeQuickAddWindow();
+				handleDisplay(msg);
+				showWindow();
+			}
+	}
+	else{
+		showTrayMsg("Only Add Command and Display 1 are supported");
+	}
+}
+
+bool MainWindow::isCommandAdd(QString requestStr){
+	const int CANT_FIND = -1;
+	const QString COMMAND_ADD = "^add.*";
+	const QRegExp REGEX_CMD_ADD(COMMAND_ADD);
+	return REGEX_CMD_ADD.indexIn(requestStr) != CANT_FIND;
 }
 
 void MainWindow::help(){
@@ -102,12 +150,6 @@ void MainWindow::reset(){
 void MainWindow::getToday(){
 	Messenger msg = scheduler->getTodayTasks();
 	handleGetToday(msg);
-}
-
-void MainWindow::handleInput(QString input, bool isFromQuickAdd){
-	string inputStdString = input.toLocal8Bit().constData();
-	Messenger msg = scheduler->processCommand(inputStdString);
-	handleMessenger(msg, isFromQuickAdd);
 }
 
 void MainWindow::handleGetToday(Messenger msg){
@@ -182,9 +224,11 @@ bool MainWindow::eventFilter(QObject* watched, QEvent* event)
 			else if(keyEvent->key() == Qt::Key_Return || keyEvent->key() == Qt::Key_Enter)
 			{
 				QString currentInput = ui.cmdBar->getCurrentLine();//TODO: can shrink into one API
+				ui.cmdBar->pushCurrentLine();
 				if(!currentInput.isEmpty()){
-					ui.cmdBar->pushCurrentLine();
-					handleInput(currentInput);
+					string inputStdString = currentInput.toLocal8Bit().constData();
+					Messenger msg = scheduler->processCommand(inputStdString);
+					handleMessenger(msg);
 				}
 				return true;//stop Key return or Key enter
 			}
@@ -193,14 +237,11 @@ bool MainWindow::eventFilter(QObject* watched, QEvent* event)
 	return QObject::eventFilter(watched, event);//normal processing
 }
 
-void MainWindow::handleMessenger(Messenger msg, bool fromQuickAdd){
+void MainWindow::handleMessenger(Messenger msg){
 	//not SLAP now
 	if(msg.getStatus() == TP::ERROR)
 	{
 		updateStatusBar(msg.getErrorMsg().c_str());
-		if(fromQuickAdd){
-			showTrayMsg(msg.getErrorMsg().c_str());
-		}
 	}
 	else if(msg.getStatus() == TP::ERROR_INTERMEDIATE)
 	{
@@ -252,39 +293,16 @@ void MainWindow::handleMessenger(Messenger msg, bool fromQuickAdd){
 			updateDetails(msg.getTask());
 			break;
 		}
-		if(fromQuickAdd){
-			quickAddWindow->close();
-			isQuickAddOpen = false;
-			showTrayMsg("Success!");
-		}
 	}
 	else if(msg.getStatus() == TP::INTERMEDIATE)
 	{
 		updateNavLabel("Select a task by typing its index");
 		updateStatusBar("Intermediate stage...");
 		updateList(msg.getList());
-		if(fromQuickAdd){
-			quickAddWindow->close();
-			isQuickAddOpen = false;
-			showWindow();
-		}
 	}
 	else if(msg.getStatus() == TP::DISPLAY)
 	{
-		int index = msg.getIndex();
-		assert(index > 0);
-		list<Task> tmp_list = msg.getList();
-		list<Task>::iterator iter = tmp_list.begin();
-		advance(iter, index - 1);
-		
-		updateStatusBar("Task displayed successfully");
-		updateDetailsLabel("Task's Details");
-		updateDetails(*iter);
-		if(fromQuickAdd){
-			quickAddWindow->close();
-			isQuickAddOpen = false;
-			showWindow();
-		}
+		handleDisplay(msg);
 	}
 	else if(msg.getStatus() == TP::SUCCESS_INDEXED_COMMAND)
 	{
@@ -304,12 +322,19 @@ void MainWindow::handleMessenger(Messenger msg, bool fromQuickAdd){
 		else
 			updateList(msg.getList());
 		updateDetails(msg.getTask());
-		if(fromQuickAdd){//TODO: can refactor this
-			quickAddWindow->close();
-			isQuickAddOpen = false;
-			showWindow();
-		}
 	}
+}
+
+void MainWindow::handleDisplay(Messenger msg){
+	int index = msg.getIndex();
+	assert(index > 0);
+	list<Task> tmp_list = msg.getList();
+	list<Task>::iterator iter = tmp_list.begin();
+	advance(iter, index - 1);
+
+	updateStatusBar("Task displayed successfully");
+	updateDetailsLabel("Task's Details");
+	updateDetails(*iter);
 }
 
 void MainWindow::about()
