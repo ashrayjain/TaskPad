@@ -2,8 +2,11 @@
 #define _TASKLOADERTEXT_H_
 
 #include <list>
+#include <set>
 #include "TaskLoader.h"
 #include "Enum.h"
+
+class Logger;
 
 class TaskLoaderText :public TaskLoader
 {
@@ -15,18 +18,23 @@ class TaskLoaderText :public TaskLoader
 		const static std::string RECORD_DELETED_FILE_NAME;
 
 	private:
-		//recovery attributes
-		std::set<std::string> deletedIndices;
+
+		//recovery system
+		void recoverUnsavedChanges	(std::list<Task>& taskList);
+		void loadDeletedIndices		();
+		void loadModifiedTasks		(std::list<Task>& taskList);
+		std::set<std::string> recoveredIndices;
+
 		//loader
 		void loadTaskList	(std::list<Task>& taskList);
 
 		//helper functions
-		std::string getNewLabel				(std::string);
-		std::string getNewData				(std::string);
-		Task getNextTask					();
-		void skipThisTask					();
-		unsigned long long getTaskIndex		(std::string);
-		bool hasNextTask					();
+		std::string			getNewLabel		(std::string);
+		std::string			getNewData		(std::string);
+		Task				getNextTask		();
+		void				skipThisTask	();
+		unsigned long long	getTaskIndex	(std::string);
+		bool				hasNextTask		();
 
 		// task constructing functions
 		Task createNewTask			(unsigned long long index);
