@@ -1,5 +1,6 @@
 #include "Interpreter.h"
 
+
 void Interpreter::interpretCommand(unsigned ActualIndex, Command *prevCommand){
 
 	TP::COMMAND_TYPE taskType;
@@ -50,9 +51,10 @@ bool Interpreter::checkCommand(string command, int& commandType){
 	int num=-1;
 
 
-	string generalAddCase="((( due| from| to| impt| at| ppl| note| rt) `[^`]*`)|( #[^ ]*)){0,9}";
-	string generalModCase="((( name| due| impt| at| ppl| note| rt) `[^`]*`)|(( done| undone)( |$))|( (#)[^ ]*)){0,9}";
-	string generalFindCase="((( name| from| to| impt| at| ppl| note) `[^`]*`)|( #[^ ]*)|(( done| undone)( |$))|(( timed| deadline| floating)( |$))){0,11}";
+	string generalAddCase="((( due| from| to| impt| at| ppl| note| rt) `[^`]*`)|( #[^( |`)]*))*";
+	string generalModCase="((( due| from| name| to| impt| at| ppl| note| rt) `[^`]*`)|( done| undone)|( (#)[^( |`)]*))*";
+	string generalFindCase="((( due| from| name| to| impt| at| ppl| note| rt) `[^`]*`)|( #[^( |`)]*)|( done| undone)|(( timed| deadline| floating)( |$)))*";
+
 
 
 	regex test_add_command("^add `([^`]+)`"+generalAddCase); 
@@ -164,14 +166,15 @@ Command* Interpreter::interpretCommand(std::string commandStr, Messenger &respon
 		case 3:
 			{
 				Command_Mod* Mod_pointer=new Command_Mod();
-				stringstream extractIndex(commandStr);
+				string getIndex=commandStr;
+				stringstream extractIndex(getIndex);
 				string content;
-				extractIndex>>commandStr;
-				commandStr.clear();
-				extractIndex>>commandStr;
+				extractIndex>>getIndex;
+				getIndex.clear();
+				extractIndex>>getIndex;
 				int index;
 
-				index=getIndexMessage(commandStr,flag);
+				index=getIndexMessage(getIndex,flag);
 				Mod_pointer->setIndex(index);
 
 				returnCommand=interpretModify(Mod_pointer, commandStr, response,flag);
@@ -708,13 +711,65 @@ int Interpreter:: getIndexMessage(string command,bool& flag){
 }	
 
 
+bool Interpreter::checkKeyWord(string command, int position){
+
+	vector<int> positionForNotion; 
+	positionForNotion.push_back(-1); // dummy value;
+	bool isKeyWord=true;
+
+
+	for(int i=0;i<command.length();i++)
+	{
+		if(command.at(i)=='`'){
+
+			positionForNotion.push_back(i);
+		}
+
+	}
+	int count=1;
+
+	while(isKeyWord &&count<(int)positionForNotion.size()){
+
+		if(position>positionForNotion[count] && position<positionForNotion[count+1]){
+
+			isKeyWord=false;
+
+		}
+		count=count+2;
+	}
+
+	return isKeyWord;
+} 
+
+bool Interpreter::checkDuplicate(string command, string cmdTemplate,int startPosition){
+
+	string subString=command.substr(startPosition+1);
+	smatch match;
+	regex extractTemplete(cmdTemplate);
+	string commandStr;
+	bool isDuplicate=false;
+
+	if (regex_search(subString, match, extractTemplete)){
+
+		commandStr=match[0];
+
+	}
+	if(commandStr.length()>0){
+
+		isDuplicate=true;
+	}
+
+	return isDuplicate;
+}
+
 bool Interpreter:: getNameMessage(string command, bool&flag, string& content){ 
 
-	regex extractTemplete(" name `[^`]*`( |$)");
+	regex extractTemplete(" name `[^`]*`");
 	smatch match;
 	string commandStr;
 	string preContent;
 	bool isNotEmpty=true;
+
 
 	if (regex_search(command, match, extractTemplete)){
 
@@ -729,6 +784,11 @@ bool Interpreter:: getNameMessage(string command, bool&flag, string& content){
 		getline(extract,preContent,'`');
 
 		content=preContent;
+
+		if(checkDuplicate(command," name `[^`]*`",match.position())==true){
+
+			flag=false;
+		}
 
 	}
 	else{
@@ -743,7 +803,7 @@ bool Interpreter:: getNameMessage(string command, bool&flag, string& content){
 }
 bool Interpreter::getOptNameMessage(string command, bool&flag,string& content){ 
 
-	regex extractTemplete(" name `[^`]*`( |$)");
+	regex extractTemplete(" name `[^`]*`");
 	smatch match;
 	string commandStr;
 	string preContent;
@@ -763,6 +823,11 @@ bool Interpreter::getOptNameMessage(string command, bool&flag,string& content){
 
 		content=preContent;
 
+		if(checkDuplicate(command," name `[^`]*`",match.position())==true){
+
+			flag=false;
+		}
+
 	}
 	else{
 
@@ -776,7 +841,7 @@ bool Interpreter::getOptNameMessage(string command, bool&flag,string& content){
 
 bool Interpreter::getDueDateMessage(string command, bool&flag, time_t& content){
 
-	regex extractTemplete(" due `[^`]*`( |$)");
+	regex extractTemplete(" due `[^`]*`");
 	smatch match;
 	string commandStr;
 	string preContent;
@@ -795,6 +860,34 @@ bool Interpreter::getDueDateMessage(string command, bool&flag, time_t& content){
 		getline(extract,preContent,'`');
 
 		content=setTime(preContent,flag);
+
+		//convertToTime(preContent,content,flag);
+
+		if(checkDuplicate(command," due `[^`]*`",match.position())==true){
+
+			flag=false;
+		}
+		// check from
+		commandStr.clear();
+		regex checkFrom("from `[^`]*`");
+		if (regex_search(command, match,checkFrom)){
+
+			commandStr=match[0];
+
+		}
+		if(!commandStr.empty()) flag=false;
+
+		// check to
+
+		commandStr.clear();
+		regex checkTo("to `[^`]*`");
+		if (regex_search(command, match,checkFrom)){
+
+			commandStr=match[0];
+
+		}
+		if(!commandStr.empty()) flag=false;
+
 
 	}
 	else{
@@ -803,13 +896,12 @@ bool Interpreter::getDueDateMessage(string command, bool&flag, time_t& content){
 
 	}
 
-
 	return isNotEmpty;
 }
 
 bool	Interpreter::getFromDateMessage(string command, bool&flag, time_t& content){
 
-	regex extractTemplete(" from `[^`]*`( |$)");
+	regex extractTemplete(" from `[^`]*`");
 	smatch match;
 	string commandStr;
 	string preContent;
@@ -828,6 +920,23 @@ bool	Interpreter::getFromDateMessage(string command, bool&flag, time_t& content)
 		getline(extract,preContent,'`');
 
 		content=setTime(preContent,flag);
+
+		if(checkDuplicate(command," from `[^`]*`",match.position())==true){
+
+			flag=false;
+		}		
+
+
+		regex checkDue(" due `[^`]*`");
+		commandStr.clear();
+		if (regex_search(command, match, checkDue)){
+
+			commandStr=match[0];
+
+		}
+		if(!commandStr.empty())flag=false;
+
+
 
 	}
 	else{
@@ -843,7 +952,7 @@ bool	Interpreter::getFromDateMessage(string command, bool&flag, time_t& content)
 
 bool Interpreter::getToDateMessage(string command, bool&flag, time_t& content){
 
-	regex extractTemplete(" to `[^`]*`( |$)");
+	regex extractTemplete(" to `[^`]*`");
 	smatch match;
 	string commandStr;
 	string preContent;
@@ -863,6 +972,22 @@ bool Interpreter::getToDateMessage(string command, bool&flag, time_t& content){
 
 		content=setTime(preContent,flag);
 
+		if(checkDuplicate(command," to `[^`]*`",match.position())==true){
+
+			flag=false;
+		}
+
+
+		regex checkDue(" due `[^`]*`");
+		commandStr.clear();
+		if (regex_search(command, match, checkDue)){
+
+			commandStr=match[0];
+
+		}
+		if(!commandStr.empty())flag=false;
+
+
 	}
 	else{
 
@@ -877,7 +1002,7 @@ bool Interpreter::getToDateMessage(string command, bool&flag, time_t& content){
 
 bool Interpreter::getLocationMessage(string command, bool&flag, string& content){
 
-	regex extractTemplete(" at `([^`]*)`( |$)");
+	regex extractTemplete(" at `[^`]*`");
 	smatch match;
 	string commandStr;
 	string preContent;
@@ -897,6 +1022,11 @@ bool Interpreter::getLocationMessage(string command, bool&flag, string& content)
 
 		content=preContent;
 
+		if(checkDuplicate(command," at `[^`]*`",match.position())==true){
+
+			flag=false;
+		}		
+
 	}
 	else{
 
@@ -911,7 +1041,7 @@ bool Interpreter::getLocationMessage(string command, bool&flag, string& content)
 
 bool Interpreter::getParticipantsMessage(string command, bool&flag, list<std::string>& content){
 	list<string>pplList;
-	regex extractTemplete(" ppl `[^`]*`( |$)");
+	regex extractTemplete(" ppl `[^`]*`");
 	smatch match;
 	string commandStr;
 	string preContent;
@@ -940,6 +1070,13 @@ bool Interpreter::getParticipantsMessage(string command, bool&flag, list<std::st
 		}
 
 		content=pplList;
+
+
+		if(checkDuplicate(command," ppl `[^`]*`",match.position())==true){
+
+			flag=false;
+		}	
+
 	}
 	else{
 
@@ -953,7 +1090,7 @@ bool Interpreter::getParticipantsMessage(string command, bool&flag, list<std::st
 
 bool	Interpreter::getNoteMessage(string command, bool&flag,string& content){
 
-	regex extractTemplete("note `[^`]*`( |$)");
+	regex extractTemplete(" note `[^`]*`");
 	smatch match;
 	string commandStr;
 	string preContent;
@@ -973,6 +1110,11 @@ bool	Interpreter::getNoteMessage(string command, bool&flag,string& content){
 
 		content=preContent;
 
+		if(checkDuplicate(command," note `[^`]*`",match.position())==true){
+
+			flag=false;
+		}	
+
 	}
 	else{
 
@@ -986,7 +1128,7 @@ bool	Interpreter::getNoteMessage(string command, bool&flag,string& content){
 
 }
 bool Interpreter::getPriorityMessage(string command, bool&flag,TP::PRIORITY& content){ // need to force type
-	regex extractTemplete(" impt `[^`]*`( |$)");
+	regex extractTemplete(" impt `[^`]*`");
 	smatch match;
 	string commandStr;
 	string preContent;
@@ -1022,8 +1164,16 @@ bool Interpreter::getPriorityMessage(string command, bool&flag,TP::PRIORITY& con
 
 			priority=MEDIUM;
 		}
-
+		else {
+			flag=false;
+		}
 		content=priority;
+
+		if(checkDuplicate(command," impt `[^`]*`",match.position())==true){
+
+			flag=false;
+		}
+
 	}
 	else {
 
@@ -1035,46 +1185,52 @@ bool Interpreter::getPriorityMessage(string command, bool&flag,TP::PRIORITY& con
 bool Interpreter::getTagsMessage(string command, bool&flag,list<std::string>& content){
 
 	list<string>tagList;
-	regex extractTemplete(" #[^ ]*( |$)");
+	regex extractTemplete("\\s(#[^( |`)]*)(\\s|$)");
+
 	smatch match;
 	string commandStr;
 	string preContent;
 	bool isNotEmpty=true;
+	string subStirng=command;
 
-	if (regex_search(command, match, extractTemplete)){
+	int count=0;
+
+	if (regex_search(subStirng, match, extractTemplete)){
 
 		commandStr=match[0];
 
 	}
 
-	if(!commandStr.empty()){
+	while(!commandStr.empty()){
 
-		stringstream extract1(commandStr);
-		getline(extract1,preContent,'#');
-		preContent.clear();
-		getline(extract1,preContent,' ');
+		if(checkKeyWord(subStirng,match.position())==true){
 
-		stringstream extractIndividual(preContent);
-		string tag="";
-		getline(extractIndividual,tag,',');
-		while(!tag.empty()){
+			stringstream extract(commandStr);
+			string tagContent;
+			getline(extract,tagContent,'#');
+			tagContent.clear();
+			getline(extract,tagContent,' ');
+			tagList.push_back(tagContent);
+			count++;
+		}	
 
-			tagList.push_back(tag);
-			tag.clear();
-			getline(extractIndividual,tag,',');
+
+		subStirng=subStirng.substr(match.position()+1);
+		commandStr.clear();
+
+		if (regex_search(subStirng, match, extractTemplete)){
+
+			commandStr=match[0];
 
 		}
-		content=tagList;
 
 	}
-	else{
 
+	if(count==0){
 		isNotEmpty=false;
 	}
 
-
-
-
+	content=tagList;
 	return isNotEmpty;
 
 }	
@@ -1082,7 +1238,7 @@ bool Interpreter::getTagsMessage(string command, bool&flag,list<std::string>& co
 bool Interpreter::	getRemindTimesMessage(string command, bool&flag,list<std::time_t>&content){
 
 	list<time_t>rtList;
-	regex extractTemplete(" rt `[^`]*`( |$)");
+	regex extractTemplete(" rt `[^`]*`");
 	smatch match;
 	string commandStr;
 	string preContent;
@@ -1112,6 +1268,10 @@ bool Interpreter::	getRemindTimesMessage(string command, bool&flag,list<std::tim
 		}
 		content=rtList;
 
+		if(checkDuplicate(command," rt `[^`]*`",match.position())==true){
+
+			flag=false;
+		}
 	}
 	else{
 
@@ -1129,27 +1289,63 @@ bool Interpreter::getTaskStateMessage(string command, bool&flag, TP::TASK_STATE&
 	string commandStr;
 	smatch match;
 	bool isNotEmpty=true;
-	regex extractTemplete("( done| undone)");
-	if (regex_search(command, match, extractTemplete)){
+	regex extractTemplete("\\s(done|undone)(\\s|$)");
+	string subStirng=command;
+
+	int startIndex=0;
+	string::const_iterator startPos = command.begin();
+	string::const_iterator endPos = command.end();
+
+	vector<string>result;
+	int count=0;
+	string test;
+	if (regex_search(subStirng, match, extractTemplete)){
 
 		commandStr=match[0];
 
 	}
-	if(!commandStr.empty()){
-		if(commandStr==" done"){
 
-			task_state=DONE;
+	while(!commandStr.empty()){
+
+		if(checkKeyWord(command,startIndex+match.position())==true){
+
+			result.push_back(commandStr);
+			count++;
+		}	
+
+		startIndex=startIndex+match.position()+1;
+		startPos=startPos+match.position()+1;
+
+		commandStr.clear();
+		if(startPos!=endPos){
+			if (regex_search(startPos,endPos, match, extractTemplete)){
+
+				commandStr=match[0];
+
+			}
 		}
-		else task_state=UNDONE;
-
-
-		content=task_state;
 	}
 
-	else {
-
+	if(count==0){
 		isNotEmpty=false;
 	}
+	else if(count==1){
+		if(result.at(0).find("undone")!=string::npos){
+
+			content=UNDONE;
+		}
+
+		else {
+			content=DONE;	
+
+		}
+	}
+
+	else{
+
+		flag=false;
+	}
+
 	return isNotEmpty;
 }
 
@@ -1158,37 +1354,69 @@ bool Interpreter::getTaskTypeMessage(string command, bool&flag, TP::TASK_TYPE& c
 	TASK_TYPE task_type;
 	string commandStr;
 	smatch match;
-	regex extractTemplete("( deadline| timed| floating)");
+	regex extractTemplete("\\s(timed|deadline|floating)(\\s|$)");
+	string subStirng=command;
 
+	string::const_iterator startPos = command.begin();
+	string::const_iterator endPos = command.end();
+
+	int startIndex=0;
+	vector<string>result;
+	int count=0;
 	bool isNotEmpty=true;
 
 
-	if (regex_search(command, match, extractTemplete)){
+	if (regex_search(startPos,endPos, match, extractTemplete)){
 
 		commandStr=match[0];
 
 	}
-	if(!commandStr.empty()){		
 
-		if(commandStr==" deadline"){
-			task_type=DEADLINE;
+	while(!commandStr.empty()){
+
+		if(checkKeyWord(command,startIndex+match.position())==true){
+
+			result.push_back(commandStr);
+			count++;
+		}	
+
+		startIndex=startIndex+match.position()+1;
+		startPos=startPos+match.position()+1;
+
+		commandStr.clear();
+		if(startPos!=endPos){
+			if (regex_search(startPos,endPos, match, extractTemplete)){
+
+				commandStr=match[0];
+
+			}
 		}
-		else if(commandStr==" timed"){
-
-			task_type=TIMED;
-		}
-		else{
-
-			task_type=FLOATING;
-		}
-
-		content=task_type;
 	}
 
-
-	else {
+	if(count==0){
 		isNotEmpty=false;
 	}
+	else if(count==1){
+		if(result.at(0).find("timed")!=string::npos){
+
+			content=TIMED;
+		}
+		else if(result.at(0).find("deadline")!=string::npos){
+
+			content=DEADLINE;
+
+		}
+		else {
+			content=FLOATING;
+
+
+		}
+	}
+	else{
+
+		flag=false;
+	}
+
 	return isNotEmpty;
 }
 
@@ -1222,9 +1450,88 @@ bool Interpreter::getSyncProviderNameMessage(string command, bool&flag, string&c
 	}
 	return isNotEmpty;
 }
-
+/*
 time_t Interpreter::setTime(string commandStr,bool& _isSuccess)
 {
+int year=-1,month=-1,day=-1,hour=-1,min=-1;
+time_t rawtime;
+string inputInfo=commandStr;
+struct tm  timeinfo={0,0,0,0,0,0};
+
+time (&rawtime);
+
+localtime_s (&timeinfo,&rawtime);
+
+
+//	string timeTemplete="dd/mo/yy hh:mm";
+
+if(inputInfo.length()>1){
+
+_isSuccess=integerConverter(inputInfo.substr(0,2),day);
+
+if(_isSuccess!=false && inputInfo.length()>4 ){
+
+if(inputInfo.at(2)=='/'){
+_isSuccess=integerConverter(inputInfo.substr(3,2),month);		
+
+}
+else _isSuccess=false;
+}	
+
+if(_isSuccess!=false && inputInfo.length()>7){
+if(inputInfo.at(5)=='/'){
+_isSuccess=integerConverter(inputInfo.substr(6,2),year);
+year=year+2000;
+}
+else _isSuccess=false;
+}
+
+if(_isSuccess!=false && inputInfo.length()>10){
+
+if(inputInfo.at(8)==' '){
+_isSuccess=integerConverter(inputInfo.substr(9,2),hour);
+}
+else _isSuccess=false;
+
+}
+
+if(_isSuccess!=false && inputInfo.length()>13){
+
+if(inputInfo.at(11)==':'){
+_isSuccess=integerConverter(inputInfo.substr(12),min);
+}
+else _isSuccess=false;
+}
+
+if(_isSuccess!=false){
+
+if(year==-1)year=timeinfo.tm_year+1900;
+if(month==-1)month=timeinfo.tm_mon+1;
+if(day==-1)day=timeinfo.tm_mday+1;
+if(hour==-1)hour=timeinfo.tm_hour;
+if(min==-1)min=timeinfo.tm_min;
+}
+
+if(_isSuccess!=false){
+struct tm  timeMessage={0,0,0,0,0,0};
+
+timeMessage.tm_year=year-1900;
+timeMessage.tm_mon=month-1;
+timeMessage.tm_mday=day;
+timeMessage.tm_hour=hour;
+timeMessage.tm_min=min;
+
+return mktime(&timeMessage);
+}
+
+
+}
+
+return mktime(&timeinfo);
+}
+
+*/
+time_t Interpreter::setTime(string commandStr,bool& flag){
 	int year=-1,month=-1,day=-1,hour=-1,min=-1;
 	time_t rawtime;
 	string inputInfo=commandStr;
@@ -1234,75 +1541,114 @@ time_t Interpreter::setTime(string commandStr,bool& _isSuccess)
 
 	localtime_s (&timeinfo,&rawtime);
 
+	int countSlash=0;
+	for(int i=0;i<commandStr.length();i++){
 
-	//	string timeTemplete="dd/mo/yy hh:mm";
+		if(commandStr.at(i)=='/'){
 
-
-
-	if(inputInfo.length()>1){
-
-		_isSuccess=integerConverter(inputInfo.substr(0,2),day);
-
-		if(_isSuccess!=false && inputInfo.length()>4 ){
-
-			if(inputInfo.at(2)=='/'){
-				_isSuccess=integerConverter(inputInfo.substr(3,2),month);		
-
-			}
-			else _isSuccess=false;
-		}	
-
-		if(_isSuccess!=false && inputInfo.length()>7){
-			if(inputInfo.at(5)=='/'){
-				_isSuccess=integerConverter(inputInfo.substr(6,2),year);
-				year=year+2000;
-			}
-			else _isSuccess=false;
+			countSlash++;
 		}
-
-		if(_isSuccess!=false && inputInfo.length()>10){
-
-			if(inputInfo.at(8)==' '){
-				_isSuccess=integerConverter(inputInfo.substr(9,2),hour);
-			}
-			else _isSuccess=false;
-
-		}
-
-		if(_isSuccess!=false && inputInfo.length()>13){
-
-			if(inputInfo.at(11)==':'){
-				_isSuccess=integerConverter(inputInfo.substr(12),min);
-			}
-			else _isSuccess=false;
-		}
-
-		if(_isSuccess!=false){
-
-			if(year==-1)year=timeinfo.tm_year+1900;
-			if(month==-1)month=timeinfo.tm_mon+1;
-			if(day==-1)day=timeinfo.tm_mday+1;
-			if(hour==-1)hour=timeinfo.tm_hour;
-			if(min==-1)min=timeinfo.tm_min;
-		}
-
-		if(_isSuccess!=false){
-			struct tm  timeMessage={0,0,0,0,0,0};
-
-			timeMessage.tm_year=year-1900;
-			timeMessage.tm_mon=month-1;
-			timeMessage.tm_mday=day;
-			timeMessage.tm_hour=hour;
-			timeMessage.tm_min=min;
-
-			return mktime(&timeMessage);
-		}
-
 
 	}
+	string content;
+	switch(countSlash){
 
-	return mktime(&timeinfo);
+	case 0: 
+	{	
+		stringstream extract(commandStr);
+		getline(extract,content,' ');
+		flag=integerConverter(content,day);
+		content.clear();
+		getline(extract,content,':');
+		if(!content.empty()){
+
+			flag=integerConverter(content,hour);
+		}
+		content.clear();
+		getline(extract,content);
+		if(!content.empty()){
+
+			flag=integerConverter(content,min);
+		}
+		break;
+	}
+	case 1:
+	{	
+		stringstream extract(commandStr);
+		content.clear();
+		getline(extract,content,'/');  
+		flag=integerConverter(content,day);
+		content.clear();
+		getline(extract,content,' '); 
+		flag=integerConverter(content,month);
+		
+		content.clear();
+		getline(extract,content,':');
+		if(!content.empty()){
+
+			flag=integerConverter(content,hour);
+		}
+		content.clear();
+		getline(extract,content);
+		if(!content.empty()){
+
+			flag=integerConverter(content,min);
+		}
+
+		break;
+	}
+	case 2:
+	{	
+		stringstream extract(commandStr);
+		content.clear();
+		getline(extract,content,'/');  
+		flag=integerConverter(content,day);
+		content.clear();
+		getline(extract,content,'/'); 
+		flag=integerConverter(content,month);
+		content.clear();
+		getline(extract,content,' '); 
+		flag=integerConverter(content,year);
+		if(year<100)year=year+2000;
+		content.clear();
+		getline(extract,content,':');
+		if(!content.empty()){
+
+			flag=integerConverter(content,hour);
+		}
+		content.clear();
+		getline(extract,content);
+		if(!content.empty()){
+
+			flag=integerConverter(content,min);
+		}
+		 break;
+	}
+	default:
+		break;
+	}
+if(flag!=false){
+
+if(year==-1)year=timeinfo.tm_year+1900;
+if(month==-1)month=timeinfo.tm_mon+1;
+if(day==-1)day=timeinfo.tm_mday+1;
+if(hour==-1)hour=12;
+if(min==-1)min=0;
 }
+
+struct tm  timeMessage={0,0,0,0,0,0};
+
+timeMessage.tm_year=year-1900;
+timeMessage.tm_mon=month-1;
+timeMessage.tm_mday=day;
+timeMessage.tm_hour=hour;
+timeMessage.tm_min=min;
+
+return mktime(&timeMessage);
+
+
+}
+
 
 
 
@@ -1326,3 +1672,5 @@ bool Interpreter::integerConverter(string& requiredString, int& number)
 	return flag;
 
 }
+
+

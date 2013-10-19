@@ -59,7 +59,17 @@ protected:
 	bool			getTaskStateMessage(string command, bool&flag,TASK_STATE& content);
 	bool			getTaskTypeMessage(string command, bool&flag,TASK_TYPE& content);
 	bool				getSyncProviderNameMessage(string command, bool&flag,string& content);
+	bool              checkDuplicate(string command, string cmdTemplate,int startPosition);
+	bool             checkKeyWord(string command, int position);       
+	void              convertToTime(string timeStr, time_t &result,bool&flag);
+
 	unsigned long long		getCreatedTimeMessage(string command, bool&flag);
+
+	string Interpreter::trim(string str);
+
+
+
+
 };
 
 #endif
