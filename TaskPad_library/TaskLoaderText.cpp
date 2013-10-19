@@ -44,6 +44,7 @@ void TaskLoaderText::recoverUnsavedChanges(list<Task>& taskList)
 
 void TaskLoaderText::loadDeletedIndices()
 {
+	Logger::getLogger()->log("TaskLoaderText","entering loadDeletedIndices");
 	ifstream record(RECORD_DELETED_FILE_NAME);
 	std::string nextTaskIndex;
 
@@ -62,6 +63,7 @@ void TaskLoaderText::loadDeletedIndices()
 
 void TaskLoaderText::loadModifiedTasks(list<Task>& taskList)
 {
+	Logger::getLogger()->log("TaskLoaderText","entering loadModifiedTasks");
 	ifstream recoverFile(RECORD_MODIFIED_FILE_NAME);
 	std::string nextTaskFile;
 	Task nextTask;
@@ -74,9 +76,13 @@ void TaskLoaderText::loadModifiedTasks(list<Task>& taskList)
 			this->openFile(nextTaskFile);
 
 			nextTask = this->getNextTask();
-			if(true )//nextTask.getFlagIndex())
+			if(nextTask.getFlagIndex())
 			{
 				taskList.push_back(nextTask);
+			}
+			else
+			{
+				Logger::getLogger()->log("TaskLoaderText","flagIndex false for task with fileName "+nextTaskFile,NOTICELOG);
 			}
 
 			this->closeFile();
@@ -89,11 +95,14 @@ void TaskLoaderText::loadModifiedTasks(list<Task>& taskList)
 
 void TaskLoaderText::loadTaskList(list<Task>& taskList)
 {
+	Logger::getLogger()->log("TaskLoaderText","entering loadTaskList");
 	while(_fileReader.good() && hasNextTask())
 	{
 		Task nextTask = this->getNextTask();
-		if(true)//nextTask.getFlagIndex())
+
+		if(nextTask.getFlagIndex())
 		{
+			Logger::getLogger()->log("TaskLoaderText","created proper task",NOTICELOG);
 			taskList.push_back(nextTask);
 		}
 		this->getNextLineFromFile();
@@ -103,6 +112,7 @@ void TaskLoaderText::loadTaskList(list<Task>& taskList)
 
 Task TaskLoaderText::getNextTask()
 {
+	Logger::getLogger()->log("TaskLoaderText","entering getNextTask");
 	string newLine;
 	string newLabel;
 	string newData;
@@ -115,9 +125,10 @@ Task TaskLoaderText::getNextTask()
 		newData = getNewData(newLine);
 
 		if(newLabel == LABEL_INDEX) {
-			bool taskHasBeenDeleted = recoveredIndices.find(newData) == recoveredIndices.end();
+			bool taskHasBeenDeleted = recoveredIndices.find(newData) != recoveredIndices.end();
 
 			if(taskHasBeenDeleted) {
+				Logger::getLogger()->log("TaskLoaderText","deleted task found: "+newData, NOTICELOG);
 				this->skipThisTask();
 				newTask = Task();
 				break;
@@ -126,9 +137,12 @@ Task TaskLoaderText::getNextTask()
 				try {
 					int newIndex = getTaskIndex(newData);
 					newTask = createNewTask(newIndex);
+					Logger::getLogger()->log("TaskLoaderText","created new task with index: "+newData);
 				}
 				catch (exception e) {
-
+					Logger::getLogger()->log("TaskLoaderText","recovered task duplicate in masterFile: "+newData, NOTICELOG);
+					newTask = Task();
+					return newTask;
 				}
 			}
 		}
@@ -175,13 +189,13 @@ Task TaskLoaderText::getNextTask()
 
 void TaskLoaderText::skipThisTask()
 {
-	bool hasNextTask = false;
+	bool hasEnded = false;
 
 	while(_fileReader.good())
 	{
-		hasNextTask = (getNextLineFromFile() == LABEL_START_OF_TASK);
+		hasEnded = (getNextLineFromFile() == LABEL_END_OF_TASK);
 
-		if(hasNextTask)
+		if(hasEnded)
 		{
 			break;
 		}
