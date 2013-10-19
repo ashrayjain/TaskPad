@@ -6,6 +6,7 @@
 #include "TaskLoaderText.h"
 #include "Task.h"
 #include "Enum.h"
+#include "Logger.h"
 
 using namespace TP;
 using namespace std;
@@ -14,13 +15,84 @@ const std::string TaskLoaderText::TASK_DIRECTORY = "Tasks\\";
 const std::string TaskLoaderText::RECORD_MODIFIED_FILE_NAME = "savedTasks.txt";
 const std::string TaskLoaderText::RECORD_DELETED_FILE_NAME = "deletedTasks.txt";
 
+void TaskLoaderText::load (list<Task>& taskList, const string& fileName)
+{
+	this->recoverUnsavedChanges(taskList);
+	this->openFile(fileName);
+	this->loadTaskList(taskList);
+	this->closeFile();
+	return;
+}
+
+void TaskLoaderText::openFile(const std::string& fileName,  std::ios_base::openmode)
+{
+	this->_fileReader.open(fileName);
+	return;
+}
+
+void TaskLoaderText::closeFile()
+{
+	this->_fileReader.close();
+	return;
+}
+
+void TaskLoaderText::recoverUnsavedChanges(list<Task>& taskList)
+{
+	this->loadDeletedIndices();
+	this->loadModifiedTasks(taskList);
+}
+
+void TaskLoaderText::loadDeletedIndices()
+{
+	ifstream record(RECORD_DELETED_FILE_NAME);
+	std::string nextTaskIndex;
+
+	while(record.good())
+	{
+		getline(record, nextTaskIndex);
+		if(nextTaskIndex!= "")
+		{
+			this->recoveredIndices.insert(nextTaskIndex);
+			Logger::getLogger()->log("TaskLoaderText","reading deleted tasks file: " + nextTaskIndex,NOTICELOG);
+			nextTaskIndex = "";
+		}
+	}
+	record.close();
+}
+
+void TaskLoaderText::loadModifiedTasks(list<Task>& taskList)
+{
+	ifstream recoverFile(RECORD_MODIFIED_FILE_NAME);
+	std::string nextTaskFile;
+	Task nextTask;
+
+	while(recoverFile.good())
+	{
+		getline(recoverFile,nextTaskFile);
+		if(nextTaskFile != "")
+		{
+			this->openFile(nextTaskFile);
+
+			nextTask = this->getNextTask();
+			if(true )//nextTask.getFlagIndex())
+			{
+				taskList.push_back(nextTask);
+			}
+
+			this->closeFile();
+		}
+	}
+
+	return;
+}
+
+
 void TaskLoaderText::loadTaskList(list<Task>& taskList)
 {
-
 	while(_fileReader.good() && hasNextTask())
 	{
 		Task nextTask = this->getNextTask();
-		if(nextTask.getFlagIndex())
+		if(true)//nextTask.getFlagIndex())
 		{
 			taskList.push_back(nextTask);
 		}
@@ -42,11 +114,8 @@ Task TaskLoaderText::getNextTask()
 		newLabel = getNewLabel(newLine);
 		newData = getNewData(newLine);
 
-		if(newLabel == LABEL_END_OF_TASK) {
-			break;
-		}
-		else if(newLabel == LABEL_INDEX) {
-			bool taskHasBeenDeleted = deletedIndices.find(newData) == deletedIndices.end();
+		if(newLabel == LABEL_INDEX) {
+			bool taskHasBeenDeleted = recoveredIndices.find(newData) == recoveredIndices.end();
 
 			if(taskHasBeenDeleted) {
 				this->skipThisTask();
@@ -54,8 +123,13 @@ Task TaskLoaderText::getNextTask()
 				break;
 			}
 			else {
-				int newIndex = getTaskIndex(newData);
-				newTask = createNewTask(newIndex);
+				try {
+					int newIndex = getTaskIndex(newData);
+					newTask = createNewTask(newIndex);
+				}
+				catch (exception e) {
+
+				}
 			}
 		}
 		else if(newLabel == LABEL_NAME) {
@@ -90,6 +164,9 @@ Task TaskLoaderText::getNextTask()
 		}
 		else if(newLabel == LABEL_STATE) {
 			setTaskState(newTask,newData);
+		}
+		else if(newLabel == LABEL_END_OF_TASK) {
+			break;
 		}
 	}
 
@@ -204,27 +281,6 @@ string TaskLoaderText::getNextLineFromFile()
 
 	return nextLine;
 }
-
-void TaskLoaderText::load (list<Task>& taskList, const string& fileName)
-{
-	this->openFile(fileName);
-	this->loadTaskList(taskList);
-	this->closeFile();
-	return;
-}
-
-void TaskLoaderText::openFile(const std::string& fileName,  std::ios_base::openmode)
-{
-	this->_fileReader.open(fileName);
-	return;
-}
-
-void TaskLoaderText::closeFile()
-{
-	this->_fileReader.close();
-	return;
-}
-
 
 // From String converters
 
