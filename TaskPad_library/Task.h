@@ -41,7 +41,8 @@ class Task
 {
 public:
     // Default Constructor
-    Task()								{ defaultTaskInit(); }
+    Task()								{ defaultTaskInit(false); }
+	Task(std::string nameTo)			{ defaultTaskInit(); _taskName = nameTo; }
     // Constructor that takes in the index for the task
     // Note: Throws Exception on invalid index
     Task(unsigned long long indexToPut)	{ defaultTaskInit(indexToPut); }
@@ -96,12 +97,14 @@ public:
 	bool getFlagState()			const { return flagState;			}
 	bool getFlagPriority()		const { return flagPriority;		}
 	bool getFlagDueDate()		const { return flagFromDate && flagToDate && _taskFromDate == _taskToDate;	}
+	bool getFlagIndex()			const { return _taskIndex!=DEFAULT_INDEX;       }
 
 protected:
 	// Task Class Constants
 	static const std::string							INDEX_INVALID_ERROR;
 	
 	// Default Attributes Values
+	static const unsigned long long						DEFAULT_INDEX;
 	static const std::string							DEFAULT_NAME;
 	static const std::string							DEFAULT_LOCATION;
 	static const std::string							DEFAULT_NOTE;
@@ -119,7 +122,7 @@ protected:
     static std::set<unsigned long long> listOfAllIndices;
 
     // Default Task Initialization
-    void defaultTaskInit();
+	void defaultTaskInit(bool createIndex = true);
     void defaultTaskInit(unsigned long long indexToPut);
     void initFlags();
     void initTaskAttributes();
