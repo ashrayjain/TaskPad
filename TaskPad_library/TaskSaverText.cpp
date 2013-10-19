@@ -130,8 +130,10 @@ void TaskSaverText::saveIndex(const Task& tempTask)
 
 void TaskSaverText::saveName(const Task& tempTask)
 {
+	_logger->log("TaskSaverText","entering function to saving name");
 	if(tempTask.getFlagName())
 	{
+		_logger->log("TaskSaverText","saving name attribute",NOTICELOG);
 		saveAttributeLevelLabel(LABEL_NAME);
 		writeLineToFile(tempTask.getName());
 	}
