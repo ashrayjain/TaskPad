@@ -22,6 +22,7 @@ MainWindow::MainWindow(QWidget *parent)
 	trayIcon = new QSystemTrayIcon(this);
 	trayIcon->setIcon(QIcon(":/MainWindow/Resources/logo.png"));
 	trayIcon->show();
+	trayIcon->setToolTip("TaskPad");
 	ui.setupUi(this);
 	customisedUi();
 	QxtGlobalShortcut * sc = new QxtGlobalShortcut(QKeySequence("Alt+`"), this);
@@ -105,7 +106,7 @@ void MainWindow::handleQuickAddRequest(QString requestStr){
 			{
 				getToday();
 				closeQuickAddWindow();
-				showTrayMsg("Success!");
+				showTrayMsg("Added");
 			}
 			else if(msg.getStatus() == TP::DISPLAY)
 			{
@@ -137,6 +138,7 @@ void MainWindow::keyPressEvent(QKeyEvent* event){
 	if(event->key() == Qt::Key_Escape)
 	{
 		reset();
+		getToday();
 	}
 	QMainWindow::keyPressEvent(event);
 }
@@ -144,10 +146,10 @@ void MainWindow::keyPressEvent(QKeyEvent* event){
 void MainWindow::reset(){
 	scheduler->resetStatus();
 	ui.cmdBar->clear();
-	getToday();
 }
 
 void MainWindow::getToday(){
+	reset();
 	Messenger msg = scheduler->getTodayTasks();
 	handleGetToday(msg);
 }
@@ -161,6 +163,7 @@ void MainWindow::handleGetToday(Messenger msg){
 }
 
 void MainWindow::getInbox(){
+	reset();
 	Messenger msg = scheduler->processCommand("find undone");
 	handleGetInbox(msg);
 }
@@ -220,6 +223,7 @@ bool MainWindow::eventFilter(QObject* watched, QEvent* event)
 			QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
 			if(keyEvent->key() == Qt::Key_Escape){
 				reset();
+				getToday();
 			}
 			else if(keyEvent->key() == Qt::Key_Return || keyEvent->key() == Qt::Key_Enter)
 			{
