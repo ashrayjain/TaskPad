@@ -127,6 +127,8 @@ void Executor::formTaskFromAddCmd(Command_Add* cmd, Task &newTask) {
 		newTask.setFromDate(cmd->getFromDate());
 	if(cmd->getFlagTo())
 		newTask.setToDate(cmd->getToDate());
+	if(cmd->getFlagDue())
+		newTask.setDueDate(cmd->getDueDate());
 	if(cmd->getFlagTags())
 		newTask.setTags(cmd->getTags());
 }
@@ -418,7 +420,7 @@ bool Executor::taskMatch(const Task& lhs, const Task& rhs) const {
 		return false;
 	else if (rhs.getFlagRemindTimes() && (!lhs.getFlagRemindTimes() || rhs.getRemindTimes() != lhs.getRemindTimes()))
 		return false;
-	else if (!validDateChk(lhs, rhs))
+	else if (invalidDateChk(lhs, rhs))
 		return false;
 	else if (rhs.getFlagPriority() && rhs.getPriority() != lhs.getPriority())
 		return false;
@@ -427,24 +429,48 @@ bool Executor::taskMatch(const Task& lhs, const Task& rhs) const {
 	return true;
 } 
 
-bool Executor::validDateChk(const Task &lhs, const Task &rhs) const {
-	bool retVal = false;
+bool Executor::invalidDateChk(const Task &lhs, const Task &rhs) const {
+	bool retVal = true;
 	if (!rhs.getFlagFromDate() && !rhs.getFlagToDate())
-		retVal = true;
-	else if ((rhs.getFlagFromDate() && chkFromDateBound(rhs.getFromDate(), lhs)) ||
-		(rhs.getFlagToDate() && chkToDateBound(rhs.getToDate(), lhs)))
-		retVal = true;
+		retVal = false;
+	else if (rhs.getFlagFromDate() && rhs.getFlagToDate()) {
+		if (chkDateBound(rhs.getFromDate(), rhs.getToDate(), lhs))
+			retVal = false;
+	}
+	else if (rhs.getFlagFromDate()) {
+		if (chkFromDateBound(rhs.getFromDate(), lhs))
+			retVal = false;
+	}
+	else if (chkToDateBound(rhs.getToDate(), lhs))
+		retVal = false;
 	return retVal;
 }
 
+bool Executor::chkDateBound(const time_t &fromTime, const time_t &toTime, const Task &lhs) const {
+	return !((lhs.getFlagToDate() && fromTime > lhs.getToDate()) || 
+		(lhs.getFlagFromDate() && toTime < lhs.getFromDate()));
+}
+
 bool Executor::chkFromDateBound(const time_t &fromTime, const Task &lhs) const {
-	return (lhs.getFlagToDate() && fromTime <= lhs.getToDate()) || 
-		(lhs.getFlagDueDate() && fromTime <= lhs.getDueDate());
+	bool retVal = true;
+	if (lhs.getFlagToDate()) {
+		if (lhs.getToDate() < fromTime)
+			retVal = false;
+	}
+	else if (!lhs.getFlagFromDate())
+		retVal = false;
+	return retVal;
 }
 
 bool Executor::chkToDateBound(const time_t &toTime, const Task &lhs) const {
-	return (lhs.getFlagFromDate() && toTime >= lhs.getFromDate()) || 
-		(lhs.getFlagDueDate() && toTime >= lhs.getDueDate());
+	bool retVal = true;
+	if (lhs.getFlagFromDate()) {
+		if (lhs.getFromDate() < toTime)
+			retVal = false;
+	}
+	else if (!lhs.getFlagToDate())
+		retVal = false;
+	return retVal;
 }
 
 // Undo and Redo functions
