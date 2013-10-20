@@ -42,7 +42,7 @@ class Task
 public:
     // Default Constructor
     Task()								{ defaultTaskInit(false); }
-	Task(std::string nameTo)			{ defaultTaskInit(); _taskName = nameTo; }
+	Task(std::string nameTo)			{ defaultTaskInit(); setName(nameTo); }
     // Constructor that takes in the index for the task
     // Note: Throws Exception on invalid index
     Task(unsigned long long indexToPut)	{ defaultTaskInit(indexToPut); }
