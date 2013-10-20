@@ -112,26 +112,26 @@ void Task::setTags(std::string newTag, TP::LIST_OP op) {
 
 void Task::setFromDate(std::time_t newFromDate) {
     _taskFromDate = newFromDate;
-	flagFromDate = newFromDate!=0;
+	flagFromDate = newFromDate != DEFAULT_FROMDATE;
     handleDatesChange();
 }
 
 void Task::setToDate(std::time_t newToDate) {
     _taskToDate = newToDate;
-    flagToDate = newToDate!=0;
+	flagToDate = newToDate != DEFAULT_TODATE;
     handleDatesChange();
 }
 
 void Task::setDueDate(std::time_t newDueDate) {
 	_taskFromDate = _taskToDate = newDueDate;
-	flagFromDate = flagToDate = newDueDate!=0;
-
+	flagFromDate = flagToDate = newDueDate != DEFAULT_FROMDATE;
+	handleDatesChange();
 }
 
 void Task::handleDatesChange() {
     if (getFlagDueDate() == true)
         setTaskType(TP::DEADLINE);
-    else if (getFlagFromDate())
+	else if (getFlagFromDate() || getFlagToDate())
         setTaskType(TP::TIMED);
     else
         setTaskType(TP::FLOATING);
