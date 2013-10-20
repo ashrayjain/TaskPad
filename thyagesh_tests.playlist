@@ -1,1 +1,1 @@
-<Playlist Version="1.0"><Add Test="UnitTest::test_Messenger::Getter_Messenger" /><Add Test="UnitTest::test_Messenger::Setter_Messenger" /><Add Test="UnitTest::test_Storage::saveList" /></Playlist>
+<Playlist Version="1.0"><Add Test="UnitTest::test_Messenger::Getter_Messenger" /><Add Test="UnitTest::test_Messenger::Setter_Messenger" /><Add Test="UnitTest::test_Storage::saveList" /><Add Test="UnitTest::test_Logger::log" /><Add Test="UnitTest::test_Logger::getLogger" /></Playlist>
