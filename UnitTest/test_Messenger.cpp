@@ -16,28 +16,24 @@ namespace UnitTest
 		
 		TEST_METHOD(Getter_Messenger)
 		{
-			Task t1 = Task();
-			Task t2 = Task();
-			Task t3 = Task();
-			Task t4 = Task();
-
 			string nameT1 = "t1";
 			string nameT2 = "t2";
 			string nameT3 = "t3";
 			string nameT4 = "t4";
+			string nameT5 = "t5";
 
-
-			t1.setName(nameT1);
-			t2.setName(nameT2);
-			t3.setName(nameT3);
-			t4.setName(nameT4);
+			Task t1 = Task(nameT1);
+			Task t2 = Task(nameT2);
+			Task t3 = Task(nameT3);
+			Task t4 = Task(nameT4);
+			Task t5 = Task(nameT5);
 
 			Task myTasks[] = {t1,t2,t3,t4};
 
 			list<Task> taskList= list<Task>(myTasks,myTasks + 4);
 
 			string testErrorStr = "This is a test error Message";
-			Messenger testMessenger(ADD,ERROR_INTERMEDIATE,taskList,Task(),10,testErrorStr);
+			Messenger testMessenger(ADD,ERROR_INTERMEDIATE,taskList,t5,10,testErrorStr);
 
 			Assert::AreEqual(testMessenger.getErrorMsg(),string(testErrorStr));
 			Assert::AreEqual(testMessenger.getIndex(),10);
@@ -52,6 +48,8 @@ namespace UnitTest
 			Assert::AreEqual(((it++)->getName()),nameT2);
 			Assert::AreEqual(((it++)->getName()),nameT3);
 			Assert::AreEqual(((it++)->getName()),nameT4);
+
+			Assert::AreEqual(testMessenger.getTask().getName(),nameT5);
 		}
 		TEST_METHOD(Setter_Messenger)
 		{

@@ -24,6 +24,11 @@ Manager::Manager() {
 	this->_cmd			= NULL;
 }
 
+list<Task> Manager::getCurrentReminders	()
+{
+	this->_executor->getCurrentReminders();
+}
+
 Messenger Manager::processCommand(const string& newCommand) {
 	_logger->log("Manager", "processing Command");
 	switch(this->_response.getStatus()) {
