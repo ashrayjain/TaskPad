@@ -95,7 +95,7 @@ void MainWindow::handleQuickAddRequest(QString requestStr){
 	const int FIRST_ITEM = 1;
 	if(isCommandAdd(requestStr) ||
 		requestStr.toInt() == FIRST_ITEM){
-			reset();
+			getToday();
 			string requestStdStr = requestStr.toLocal8Bit().constData();
 			Messenger msg = scheduler->processCommand(requestStdStr);
 			if(msg.getStatus() == TP::ERROR)
