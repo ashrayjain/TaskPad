@@ -5,8 +5,14 @@
 using namespace std;
 using namespace TP;
 
-// constructor
+const int				Messenger::DEFAULT_INDEX_VALUE = -1;
+const TP::STATUS		Messenger::DEFAULT_STATUS_VALUE = SUCCESS;
+const TP::COMMAND_TYPE	Messenger::DEFAULT_COMMAND_TYPE_VALUE = UNDEFINED;
+const Task				Messenger::DEFAULT_TASK_VALUE = Task();
+const list<Task>		Messenger::DEFAULT_TASK_LIST_VALUE = list<Task>();
+const std::string		Messenger::DEFAULT_ERROR_MESSAGE_VALUE = "";
 
+// constructor
 Messenger::Messenger(COMMAND_TYPE commandType,STATUS status, list<Task> resultList, Task resultTask, int index, string errorMsg)
 {
 	this->_status = status;
@@ -83,10 +89,10 @@ void Messenger::setTask(const Task& task)
 
 void Messenger::resetMessenger()
 {
-	this->setInt(-1);
-	this->setStatus(SUCCESS);
-	this->setErrorMsg("");
-	this->setList(list<Task>());
-	this->setTask(Task());
-	this->setCommandType(UNDEFINED);
+	this->setInt			(DEFAULT_INDEX_VALUE);
+	this->setStatus			(DEFAULT_STATUS_VALUE);
+	this->setErrorMsg		(DEFAULT_ERROR_MESSAGE_VALUE);
+	this->setList			(DEFAULT_TASK_LIST_VALUE);
+	this->setTask			(DEFAULT_TASK_VALUE);
+	this->setCommandType	(DEFAULT_COMMAND_TYPE_VALUE);
 }
