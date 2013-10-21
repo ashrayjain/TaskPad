@@ -17,7 +17,7 @@ namespace UnitTest
 	{
 	public:
 		
-		TEST_METHOD(getLogger)
+		TEST_METHOD(Logger_getLogger)
 		{
 			Logger* log1 = Logger::getLogger();
 			Logger* log2 = Logger::getLogger();
@@ -25,7 +25,7 @@ namespace UnitTest
 			Microsoft::VisualStudio::CppUnitTestFramework::Assert:: IsTrue(log1 == log2);
 		}
 
-		TEST_METHOD(log)
+		TEST_METHOD(Logger_log)
 		{
 			stringstream tempStream;
 			std::string curTime;
