@@ -42,7 +42,8 @@ class Task
 public:
     // Default Constructor
     Task()								{ defaultTaskInit(false); }
-	Task(std::string nameTo)			{ defaultTaskInit(); _taskName = nameTo; }
+	// Constructor that takes in the task name
+	Task(std::string nameTo)			{ defaultTaskInit(); setName(nameTo); }
     // Constructor that takes in the index for the task
     // Note: Throws Exception on invalid index
     Task(unsigned long long indexToPut)	{ defaultTaskInit(indexToPut); }
@@ -63,7 +64,8 @@ public:
     std::time_t				getToDate()			const { return _taskToDate;			}
     std::time_t				getDueDate()		const { return _taskFromDate;		}
 	
-	std::list<std::list<Task*>::iterator>	getHashTagPtrs()	  { return _hashTagPtrs;		}
+	std::list<std::list<Task*>::iterator>	getHashTagPtrs()		{ return _hashTagPtrs;			}
+	std::list<std::list<Task*>::iterator>	getRemindTimesPtrs()	{ return _remindTimesPtrs;		}
 
     // Setter Functions common to all Tasks
 	void setName(std::string newName)								{ _taskName			= newName;			flagName			= _taskName	!= DEFAULT_NAME;				}		
@@ -83,7 +85,8 @@ public:
     void setToDate(std::time_t newToDate);
     void setDueDate(std::time_t newDueDate);
     
-	void setHashTagPtrs(std::list<std::list<Task*>::iterator> newHashTagPtrs)	{ _hashTagPtrs = newHashTagPtrs; }
+	void setHashTagPtrs(std::list<std::list<Task*>::iterator> newHashTagPtrs)			{ _hashTagPtrs = newHashTagPtrs; }
+	void setRemindTimesPtrs(std::list<std::list<Task*>::iterator> newRemindTimesPtrs)	{ _remindTimesPtrs = newRemindTimesPtrs; }
 
     // Flag Getter Functions common to all Tasks
     bool getFlagName()			const { return flagName;			}
@@ -113,6 +116,7 @@ protected:
 	static const std::list<std::string>					DEFAULT_TAGS;
 	static const std::list<std::list<Task*>::iterator>	DEFAULT_HASHTAG_PTRS;
 	static const std::list<std::time_t>					DEFAULT_REMINDTIMES;
+	static const std::list<std::list<Task*>::iterator>	DEFAULT_REMINDTIMES_PTRS;
 	static const std::time_t							DEFAULT_FROMDATE;
 	static const std::time_t							DEFAULT_TODATE;
 	static const TP::TASK_STATE							DEFAULT_STATE;	
@@ -148,6 +152,7 @@ protected:
 	
 	// Ptrs to hash table for hashtags
 	std::list<std::list<Task*>::iterator>	_hashTagPtrs;
+	std::list<std::list<Task*>::iterator>	_remindTimesPtrs;
 
     // Task Attribute Flags
     bool flagName;

@@ -27,14 +27,17 @@ class Executor
 {
 public:
 	Executor (std::list<Task>* data) { _data = data; rebuildHashes(); }
-	void executeCommand	(Command* cmd, Messenger &response);
 	~Executor ()					 { clearRedoStack(); clearUndoStack(); }
+
+	void		executeCommand		(Command* cmd, Messenger &response);
+	list<Task>	getCurrentReminders	();
 
 protected:
 	std::list<Task>*									_data;
 	std::unordered_map<unsigned long long, Task*>		_indexHash;
 	std::unordered_map<std::string, std::list<Task*>>	_hashTagsHash;
-	std::priority_queue<std::pair<time_t, Task*>>		_remindTimesPQueue;
+	std::unordered_map<std::time_t, std::list<Task*>>	_remindTimesHash;
+	//std::priority_queue<std::pair<time_t, Task*>>		_remindTimesPQueue;
 	std::stack<std::pair<Command*, Task>>				_undoStack;
 	std::stack<std::pair<Command*, Task>>				_redoStack;
 	Task												_interimTask;
@@ -50,9 +53,9 @@ protected:
 	void	rebuildHashes();
 	void	rebuildIndexHash();
 	void	rebuildHashTagsHash();
-	void	buildRemindTimesQueue();
-	time_t	getNextDayTime();
-	void	buildRemindTimesQueueBeforeTime(time_t remindTime);
+	void	rebuildRemindTimesHash();
+
+	void getTasksFromTaskPtrList	(list<Task> &taskResults, list<Task*> &results);
 
 	// Functions for ADD COMMAND
 	void executeAdd					(Command_Add* cmd,  Messenger &response);
@@ -60,6 +63,9 @@ protected:
 	void handleHashTagPtrs			(Task &newTask, list<string> &hashTagsList);
 	void handleExistingHashTag		(list<list<Task*>::iterator> &newHashTagPtrs, Task &newTask, list<Task*> &hashTag);
 	void handleNewHashTag			(list<list<Task*>::iterator> &newHashTagPtrs, Task &newTask, list<string>::iterator &hashTag);
+	void handleRemindTimesPtrs		(Task &newTask, list<time_t> &remindTimesList);
+	void handleExistingRemindTime	(list<list<Task*>::iterator> &newRemindTimesPtrs, Task &newTask, list<Task*> &remindTime);
+	void handleNewRemindTime		(list<list<Task*>::iterator> &newRemindTimesPtrs, Task &newTask, list<time_t>::iterator &remindTime);
 
 	// Functions for DELETE COMMAND
 	void executeDel					(Command_Del* cmd,  Messenger &response);
@@ -69,6 +75,7 @@ protected:
 	void deleteByApproxName			(const string &name, Messenger &response);
 	void deleteTask					(list<Task>::iterator &i);
 	void deleteHashTags				(Task &task);
+	void deleteRemindTimes			(Task &task);
 
 	// Functions for MODIFY COMMAND
 	void executeMod					(Command_Mod* cmd,  Messenger &response);
@@ -78,23 +85,27 @@ protected:
 	void modifyByApproxName			(Command_Mod* cmd, Messenger &response);
 	void modifyTaskTo				(Task &oldTask, Command_Mod* cmd);
 	void handleHashTagsModify		(Task &oldTask, list<string> &newTags);
+	void handleRemindTimesModify	(Task &oldTask, list<time_t> &newRemindTimes);
 
 	// Functions for FIND COMMAND
 	void executeFind				(Command_Find* cmd, Messenger &response);
 	void formTaskFromFindCmd		(Command_Find* cmd, Task &newTask);
 	void findByIndex				(const unsigned long long index, Messenger &response);
 	void findGeneral				(Command_Find* cmd, Messenger &response);
+	void runSearch					(const Task &taskToCompare, list<Task> &results, string substringName, set<Task*> &customData, bool customDataSet);
 	void findByTags					(Command_Find* cmd, Messenger &response);
-	void getCustomDataRangeByTags	(list<Task*> &customDataRange, list<string> &tags);
+	void getCustomDataRangeByTags	(set<Task*> &customDataRange, list<string> &tags);
+	void getCustomDataRangeByRT		(set<Task*> &customDataRange, list<time_t> &remindTimes);
 	void filterResponseListByType	(Messenger &response, list<TP::TASK_TYPE> &types);
 	void runSearchWithTask			(const Task &taskToCompare,	list<Task> &results);
 	void runSearchWithTask			(const Task &taskToCompare, list<Task> &results, string substringName);
-	void runSearchWithTaskOnData	(const Task &taskToCompare, list<Task> &results, list<Task*> &customData);
+	void runSearchWithTask			(const Task &taskToCompare,	list<Task> &results, set<Task*> &customData);
+	void runSearchWithTask			(const Task &taskToCompare, list<Task> &results, string substringName, set<Task*> &customData);
 	bool taskMatch					(const Task& lhs, const Task& rhs) const;
-	bool validDateChk				(const Task &lhs, const Task &rhs) const;
+	bool invalidDateChk				(const Task &lhs, const Task &rhs) const;
+	bool chkDateBound				(const time_t &fromTime, const time_t &toTime, const Task &lhs) const;
 	bool chkFromDateBound			(const time_t &fromTime, const Task &lhs) const;
 	bool chkToDateBound				(const time_t &toTime, const Task &lhs) const;
-	
 
 	// Functions for UNDO and REDO COMMAND
 	void		executeCommandWithoutUndoRedo	(Command* cmd, Messenger &response);
