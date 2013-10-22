@@ -232,8 +232,8 @@ Command* Interpreter::interpretCommand(std::string commandStr, Messenger &respon
 
 				index=getIndexMessage(commandStr,flag);
 				Del_pointer->setIndex(index);
-
-
+				response.setCommandType(DEL);
+			
 				returnCommand=(Command*)Del_pointer;
 				break;
 
@@ -1632,7 +1632,7 @@ if(flag!=false){
 if(year==-1)year=timeinfo.tm_year+1900;
 if(month==-1)month=timeinfo.tm_mon+1;
 if(day==-1)day=timeinfo.tm_mday+1;
-if(hour==-1)hour=12;
+if(hour==-1)hour=0;
 if(min==-1)min=0;
 }
 
