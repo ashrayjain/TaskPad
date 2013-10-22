@@ -308,18 +308,13 @@ void CommandBar::produceKeywordModel()
 
 bool CommandBar::containsCommand()
 {
-	bool result = false;
+	const QString CMD_PATTERN = "^(add|mod|del|find|undo|redo|sync) ";
+	const int UNFOUND = -1;
 	QString currentLine = textCursor().block().text();
+	QRegExp regex(CMD_PATTERN);
+	int index = regex.indexIn(currentLine);
 
-	for(int i = 0; i < COMMAND_LIST.length(); i++)
-	{
-		if(currentLine.startsWith(COMMAND_LIST.at(i)))
-		{
-			result = true;
-			break;
-		}
-	}
-	return result;
+	return index != UNFOUND;
 }
 
 void CommandBar::keyPressEvent(QKeyEvent*event)

@@ -512,26 +512,15 @@ void MainWindow::updateDetails(Task t){
 		QString fromTimeStr, toTimeStr;
 		if(task_showDetails.getFlagFromDate()){
 			QDateTime fromTime = QDateTime::fromTime_t(task_showDetails.getFromDate());
-			QTime hour_n_min = fromTime.time();
-			if(hour_n_min.hour() == 0 & hour_n_min.minute() == 0)
-				fromTimeStr = "From " + fromTime.toString("dd/MM/yyyy");
-			else
-				fromTimeStr = "From " + fromTime.toString("dd/MM/yyyy  hh:mm");
+			fromTimeStr = "From " + fromTime.toString("dd/MM/yyyy  hh:mm");
 		}
 		if(task_showDetails.getFlagToDate()){
 			QDateTime toTime = QDateTime::fromTime_t(task_showDetails.getToDate());
-			QTime hour_n_min = toTime.time();
 			if(task_showDetails.getFlagFromDate()){
-				if(hour_n_min.hour() == 0 & hour_n_min.minute() == 0)
-					toTimeStr = " to " + toTime.toString("dd/MM/yyyy");
-				else
-					toTimeStr = " to " + toTime.toString("dd/MM/yyyy  hh:mm");
+				toTimeStr = " to " + toTime.toString("dd/MM/yyyy  hh:mm");
 			}
 			else{
-				if(hour_n_min.hour() == 0 & hour_n_min.minute() == 0)
-					toTimeStr = "To " + toTime.toString("dd/MM/yyyy");
-				else
-					toTimeStr = "To " + toTime.toString("dd/MM/yyyy  hh:mm");
+				toTimeStr = "To " + toTime.toString("dd/MM/yyyy  hh:mm");
 			}
 		}
 		ui.dueOrFromTo->setText(fromTimeStr + toTimeStr);
