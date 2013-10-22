@@ -83,7 +83,7 @@ class Manager {
 		Messenger	getNextPeriodTasks	(PERIOD_TYPE);
 		Messenger	getPrevPeriodTasks	(PERIOD_TYPE);
 		void		resetStatus			();
-
+		list<Task> getCurrentReminders	();
 		~Manager();
 
 		// response messages

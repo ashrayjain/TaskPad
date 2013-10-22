@@ -26,7 +26,7 @@ const std::string	Executor::REDOSTACK_EMPTY_MSG		= "Nothing to Redo!";
 void Executor::rebuildHashes() {
 	rebuildIndexHash();
 	rebuildHashTagsHash();
-	buildRemindTimesQueue();
+	rebuildRemindTimesHash();
 }
 
 void Executor::rebuildIndexHash() {
@@ -40,20 +40,28 @@ void Executor::rebuildHashTagsHash() {
 			handleHashTagPtrs(*i, i->getTags());
 }
 
-void Executor::buildRemindTimesQueue() {
-	time_t remindTimeDeadline = getNextDayTime();
-	buildRemindTimesQueueBeforeTime(remindTimeDeadline);
+void Executor::rebuildRemindTimesHash() {
+	for (std::list<Task>::iterator i = _data->begin(); i != _data->end(); i++)
+		if(i->getFlagRemindTimes())
+			handleRemindTimesPtrs(*i, i->getRemindTimes());
 }
 
-time_t Executor::getNextDayTime() {
+list<Task> Executor::getCurrentReminders() {
 	time_t now = time(NULL);
-	struct tm* now_tm = localtime(&now);
-	now_tm->tm_mday++;
-	return mktime(now_tm);
+	struct tm* timeNow = localtime(&now);
+	timeNow->tm_sec = 0;
+	now = mktime(timeNow);
+
+	list<Task> taskResults;
+	unordered_map<time_t, list<Task*>>::iterator result = _remindTimesHash.find(now);
+	if (result != _remindTimesHash.end())
+		getTasksFromTaskPtrList(taskResults, result->second);
+	return taskResults;
 }
 
-void Executor::buildRemindTimesQueueBeforeTime(time_t remindTime) {
-
+void Executor::getTasksFromTaskPtrList(list<Task> &taskResults, list<Task*> &results) {
+	for(list<Task*>::iterator i = results.begin(); i != results.end(); i++)
+		taskResults.push_back(Task(**i));
 }
 
 void Executor::executeCommand(Command* cmd, Messenger &response) {
@@ -109,6 +117,7 @@ void Executor::executeAdd (Command_Add* cmd, Messenger &response) {
 	_data->push_back(newTask);
 	_indexHash[newTask.getIndex()] = &(_data->back());
 	handleHashTagPtrs(_data->back(), _data->back().getTags());
+	handleRemindTimesPtrs(_data->back(), _data->back().getRemindTimes());
 	setOpSuccessTask(newTask, response);
 }
 
@@ -127,6 +136,8 @@ void Executor::formTaskFromAddCmd(Command_Add* cmd, Task &newTask) {
 		newTask.setFromDate(cmd->getFromDate());
 	if(cmd->getFlagTo())
 		newTask.setToDate(cmd->getToDate());
+	if(cmd->getFlagDue())
+		newTask.setDueDate(cmd->getDueDate());
 	if(cmd->getFlagTags())
 		newTask.setTags(cmd->getTags());
 }
@@ -151,6 +162,28 @@ void Executor::handleExistingHashTag(list<list<Task*>::iterator> &newHashTagPtrs
 void Executor::handleNewHashTag(list<list<Task*>::iterator> &newHashTagPtrs, Task &newTask, list<string>::iterator &hashTag) {
 	_hashTagsHash[*hashTag] = list<Task*>(1, &newTask);
 	newHashTagPtrs.push_back(--(_hashTagsHash[*hashTag].end()));
+}
+
+void Executor::handleRemindTimesPtrs(Task &newTask, list<time_t> &remindTimesList) {
+	list<list<Task*>::iterator> newRemindTimesPtrs;
+	for (list<time_t>::iterator i = remindTimesList.begin(); i != remindTimesList.end(); i++) {
+		std::unordered_map<std::time_t, list<Task*>>::iterator foundRemindTime = _remindTimesHash.find(*i);
+		if (foundRemindTime != _remindTimesHash.end())
+			handleExistingRemindTime(newRemindTimesPtrs, newTask, foundRemindTime->second);
+		else
+			handleNewRemindTime(newRemindTimesPtrs, newTask, i);
+	}
+	newTask.setRemindTimesPtrs(newRemindTimesPtrs);
+}
+
+void Executor::handleExistingRemindTime(list<list<Task*>::iterator> &newRemindTimesPtrs, Task &newTask, list<Task*> &remindTime) {
+	remindTime.push_back(&newTask);
+	newRemindTimesPtrs.push_back(--remindTime.end());
+}
+
+void Executor::handleNewRemindTime(list<list<Task*>::iterator> &newRemindTimesPtrs, Task &newTask, list<time_t>::iterator &remindTime) {
+	_remindTimesHash[*remindTime] = list<Task*>(1, &newTask);
+	newRemindTimesPtrs.push_back(--(_remindTimesHash[*remindTime].end()));
 }
 
 // Delete Functions
@@ -214,6 +247,7 @@ void Executor::deleteByApproxName(const string &name, Messenger &response) {
 void Executor::deleteTask(list<Task>::iterator &i) {
 	_indexHash.erase(i->getIndex());
 	deleteHashTags(*i);
+	deleteRemindTimes(*i);
 	_data->erase(i);
 }
 
@@ -223,6 +257,14 @@ void Executor::deleteHashTags(Task &task) {
 	list<string>::iterator k = tags.begin();
 	for (list<list<Task*>::iterator>::iterator j = tagPtrs.begin(); j != tagPtrs.end(); j++, k++)
 		_hashTagsHash[*k].erase(*j);
+}
+
+void Executor::deleteRemindTimes(Task &task) {
+	list<time_t> remindTimes = task.getRemindTimes();
+	list<list<Task*>::iterator> remindTimePtrs = task.getRemindTimesPtrs();
+	list<time_t>::iterator k = remindTimes.begin();
+	for (list<list<Task*>::iterator>::iterator j = remindTimePtrs.begin(); j != remindTimePtrs.end(); j++, k++)
+		_remindTimesHash[*k].erase(*j);
 }
 
 // Modify Functions
@@ -289,12 +331,12 @@ void Executor::modifyTaskTo(Task &oldTask, Command_Mod* cmd) {
 		oldTask.setLocation(cmd->getLocation());
 	if(cmd->getFlagNote())
 		oldTask.setNote(cmd->getNote());
-	if(cmd->getFlagRemindTimes())
-		oldTask.setRemindTimes(cmd->getRemindTimes());
 	if(cmd->getFlagParticipants())
 		oldTask.setParticipants(cmd->getParticipants());
 	if(cmd->getFlagTags())
 		handleHashTagsModify(oldTask, cmd->getTags());
+	if(cmd->getFlagRemindTimes())
+		handleRemindTimesModify(oldTask, cmd->getRemindTimes());
 	if(cmd->getFlagPriority())
 		oldTask.setPriority(cmd->getPriority());
 	if(cmd->getFlagFrom())
@@ -313,13 +355,17 @@ void Executor::handleHashTagsModify(Task &oldTask, list<string> &newTags) {
 	handleHashTagPtrs(oldTask, newTags);
 }
 
+void Executor::handleRemindTimesModify(Task &oldTask, list<time_t> &newRemindTimes) {
+	deleteRemindTimes(oldTask);
+	oldTask.setRemindTimes(newRemindTimes);
+	handleRemindTimesPtrs(oldTask, newRemindTimes);
+}
+
 // Find functions
 
 void Executor::executeFind (Command_Find* cmd, Messenger &response) {
 	if(cmd->getFlagIndex())
 		findByIndex(cmd->getIndex(), response);
-	else if(cmd->getFlagTags())
-		findByTags(cmd, response);
 	else
 		findGeneral(cmd, response);
 	if(cmd->getFlagTaskType())
@@ -357,15 +403,39 @@ void Executor::findByIndex(const unsigned long long index, Messenger &response) 
 
 void Executor::findGeneral(Command_Find* cmd, Messenger &response) {
 	Task taskToCompare;
-	formTaskFromFindCmd(cmd, taskToCompare);
 	list<Task> results;
-	if (cmd->getOptName() != string())
-		runSearchWithTask(taskToCompare, results, cmd->getOptName());
-	else
-		runSearchWithTask(taskToCompare, results);
+	set<Task*> customDataRange;
+	formTaskFromFindCmd(cmd, taskToCompare);
+	if (cmd->getFlagTags())
+		getCustomDataRangeByTags(customDataRange, cmd->getTags());
+	if (cmd->getFlagRemindTimes())
+		getCustomDataRangeByRT(customDataRange, cmd->getRemindTimes());
+
+	runSearch(taskToCompare,
+		results, 
+		cmd->getOptName(), 
+		customDataRange, 
+		cmd->getFlagTags() || cmd->getFlagRemindTimes());		
+
 	setOpSuccessTaskList(results, response);
 }
 
+void Executor::runSearch(const Task &taskToCompare, list<Task> &results, string substringName, set<Task*> &customData, bool customDataSet) {
+	if (customDataSet) {
+		if (substringName != string())
+			runSearchWithTask(taskToCompare, results, substringName, customData);
+		else
+			runSearchWithTask(taskToCompare, results, customData);
+	}
+	else {
+		if (substringName != string())
+			runSearchWithTask(taskToCompare, results, substringName);
+		else
+			runSearchWithTask(taskToCompare, results);
+	}
+}
+
+/*
 void Executor::findByTags(Command_Find* cmd, Messenger &response) {
 	Task taskToCompare;
 	list<Task*> customDataRange;
@@ -376,9 +446,24 @@ void Executor::findByTags(Command_Find* cmd, Messenger &response) {
 	setOpSuccessTaskList(results, response);
 }
 
-void Executor::getCustomDataRangeByTags(list<Task*> &customDataRange, list<string> &tags) {
+void Executor::findByRemindTimes(Command_Find* cmd, Messenger &response) {
+	Task taskToCompare;
+	list<Task*> customDataRange;
+	list<Task> results;
+	formTaskFromFindCmd(cmd, taskToCompare);
+	getCustomDataRangeByTags(customDataRange, cmd->getTags());
+	runSearchWithTaskOnData(taskToCompare, results, customDataRange);
+	setOpSuccessTaskList(results, response);
+}
+*/
+void Executor::getCustomDataRangeByTags(set<Task*> &customDataRange, list<string> &tags) {
 	for(list<string>::iterator i = tags.begin(); i != tags.end(); ++i)
-		customDataRange.insert(customDataRange.end(), _hashTagsHash[*i].begin(), _hashTagsHash[*i].end());
+		customDataRange.insert(_hashTagsHash[*i].begin(), _hashTagsHash[*i].end());
+}
+
+void Executor::getCustomDataRangeByRT(set<Task*> &customDataRange, list<time_t> &remindTimes) {
+	for(list<time_t>::iterator i = remindTimes.begin(); i != remindTimes.end(); ++i)
+		customDataRange.insert(_remindTimesHash[*i].begin(), _remindTimesHash[*i].end());
 }
 
 void Executor::filterResponseListByType(Messenger &response, list<TP::TASK_TYPE> &types) {
@@ -401,9 +486,15 @@ void Executor::runSearchWithTask(const Task &taskToCompare, list<Task> &results,
 			results.push_back(Task(*i));
 }
 
-void Executor::runSearchWithTaskOnData(const Task &taskToCompare, list<Task> &results, list<Task*> &customData) {
-	for(list<Task*>::iterator i = customData.begin(); i != customData.end(); ++i)
+void Executor::runSearchWithTask(const Task &taskToCompare, list<Task> &results, set<Task*> &customData) {
+	for(set<Task*>::iterator i = customData.begin(); i != customData.end(); ++i)
 		if (taskMatch(**i, taskToCompare))
+			results.push_back(Task(**i));
+}
+
+void Executor::runSearchWithTask(const Task &taskToCompare, list<Task> &results, string substringName, set<Task*> &customData) {
+	for(set<Task*>::iterator i = customData.begin(); i != customData.end(); ++i)
+		if ((*i)->getFlagName() && (*i)->getName().find(substringName) != string::npos && taskMatch(**i, taskToCompare))
 			results.push_back(Task(**i));
 }
 
@@ -416,9 +507,7 @@ bool Executor::taskMatch(const Task& lhs, const Task& rhs) const {
 		return false;
 	else if (rhs.getFlagNote() && (!lhs.getFlagNote() || rhs.getNote() != lhs.getNote()))
 		return false;
-	else if (rhs.getFlagRemindTimes() && (!lhs.getFlagRemindTimes() || rhs.getRemindTimes() != lhs.getRemindTimes()))
-		return false;
-	else if (!validDateChk(lhs, rhs))
+	else if (invalidDateChk(lhs, rhs))
 		return false;
 	else if (rhs.getFlagPriority() && rhs.getPriority() != lhs.getPriority())
 		return false;
@@ -427,24 +516,49 @@ bool Executor::taskMatch(const Task& lhs, const Task& rhs) const {
 	return true;
 } 
 
-bool Executor::validDateChk(const Task &lhs, const Task &rhs) const {
-	bool retVal = false;
+bool Executor::invalidDateChk(const Task &lhs, const Task &rhs) const {
+	bool retVal = true;
 	if (!rhs.getFlagFromDate() && !rhs.getFlagToDate())
-		retVal = true;
-	else if ((rhs.getFlagFromDate() && chkFromDateBound(rhs.getFromDate(), lhs)) ||
-		(rhs.getFlagToDate() && chkToDateBound(rhs.getToDate(), lhs)))
-		retVal = true;
+		retVal = false;
+	else if (rhs.getFlagFromDate() && rhs.getFlagToDate()) {
+		if (chkDateBound(rhs.getFromDate(), rhs.getToDate(), lhs))
+			retVal = false;
+	}
+	else if (rhs.getFlagFromDate()) {
+		if (chkFromDateBound(rhs.getFromDate(), lhs))
+			retVal = false;
+	}
+	else if (chkToDateBound(rhs.getToDate(), lhs))
+		retVal = false;
 	return retVal;
 }
 
+bool Executor::chkDateBound(const time_t &fromTime, const time_t &toTime, const Task &lhs) const {
+	return !((!lhs.getFlagToDate() && !lhs.getFlagFromDate()) || 
+		(lhs.getFlagToDate() && fromTime > lhs.getToDate()) || 
+		(lhs.getFlagFromDate() && toTime < lhs.getFromDate()));
+}
+
 bool Executor::chkFromDateBound(const time_t &fromTime, const Task &lhs) const {
-	return (lhs.getFlagToDate() && fromTime <= lhs.getToDate()) || 
-		(lhs.getFlagDueDate() && fromTime <= lhs.getDueDate());
+	bool retVal = true;
+	if (lhs.getFlagToDate()) {
+		if (lhs.getToDate() < fromTime)
+			retVal = false;
+	}
+	else if (!lhs.getFlagFromDate())
+		retVal = false;
+	return retVal;
 }
 
 bool Executor::chkToDateBound(const time_t &toTime, const Task &lhs) const {
-	return (lhs.getFlagFromDate() && toTime >= lhs.getFromDate()) || 
-		(lhs.getFlagDueDate() && toTime >= lhs.getDueDate());
+	bool retVal = true;
+	if (lhs.getFlagFromDate()) {
+		if (lhs.getFromDate() < toTime)
+			retVal = false;
+	}
+	else if (!lhs.getFlagToDate())
+		retVal = false;
+	return retVal;
 }
 
 // Undo and Redo functions

@@ -65,23 +65,23 @@ void CommandBar::initCompleter()
 void CommandBar::initConnections()
 {
 	connect(this, SIGNAL(textChanged()), this, SLOT(performCompletion()));
-	(void) new QShortcut(QKeySequence(tr("Ctrl+N", "New Task")), 
+	newDeadlineTask =  new QShortcut(QKeySequence(tr("Ctrl+N", "New Deadline Task")), 
 		this, SLOT(createTemplateAdd()));
-	(void) new QShortcut(QKeySequence(tr("Ctrl+Shift+N", "New Task")), 
+	newTimedTask = new QShortcut(QKeySequence(tr("Ctrl+Shift+N", "New Timed Task")), 
 		this, SLOT(createTemplateAddTimed()));
-	(void) new QShortcut(QKeySequence(tr("Ctrl+Shift+M", "Modify Task by Name")), 
+	modifyByName = new QShortcut(QKeySequence(tr("Ctrl+Shift+M", "Modify Task by Name")), 
 		this, SLOT(createTemplateModByName()));
-	(void) new QShortcut(QKeySequence(tr("Ctrl+M", "Modify Task by Index")), 
+	modifyByIndex = new QShortcut(QKeySequence(tr("Ctrl+M", "Modify Task by Index")), 
 		this, SLOT(createTemplateModByIndex()));
-	(void) new QShortcut(QKeySequence(tr("Ctrl+Shift+D", "Delete Task by Name")), 
+	delByName = new QShortcut(QKeySequence(tr("Ctrl+Shift+D", "Delete Task by Name")), 
 		this, SLOT(createTemplateDelByName()));
-	(void) new QShortcut(QKeySequence(tr("Ctrl+D", "Delete Task by Index")), 
+	delByIndex = new QShortcut(QKeySequence(tr("Ctrl+D", "Delete Task by Index")), 
 		this, SLOT(createTemplateDelByIndex()));
-	(void) new QShortcut(QKeySequence(tr("Ctrl+F", "Find Task")), 
+	find = new QShortcut(QKeySequence(tr("Ctrl+F", "Find Task")), 
 		this, SLOT(createTemplateFind()));
-	(void) new QShortcut(QKeySequence(tr("Ctrl+U", "Undo")), 
+	undo = new QShortcut(QKeySequence(tr("Ctrl+U", "Undo")), 
 		this, SLOT(createTemplateUndo()));
-	(void) new QShortcut(QKeySequence(tr("Ctrl+R", "Redo")), 
+	redo = new QShortcut(QKeySequence(tr("Ctrl+R", "Redo")), 
 		this, SLOT(createTemplateRedo()));
 	(void) new QShortcut(QKeySequence(tr("Shift+Tab", "HotKey Template: Go Backwards")), this, SLOT(hkTemplateGoBackwards()));
 }
@@ -559,4 +559,14 @@ void CommandBar::createTemplateUndo(){
 }
 void CommandBar::createTemplateRedo(){
 	createTemplate(HOTKEY_TEMPLATE_REDO);
+}
+
+void CommandBar::setQuickAddMode(){
+	modifyByName->setEnabled(false);
+	modifyByIndex->setEnabled(false);
+	delByName->setEnabled(false);
+	delByIndex->setEnabled(false);
+	find->setEnabled(false);
+	undo->setEnabled(false);
+	redo->setEnabled(false);
 }

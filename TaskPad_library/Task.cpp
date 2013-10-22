@@ -18,19 +18,20 @@ std::set<unsigned long long>				Task::listOfAllIndices;
 
 const std::string							Task::INDEX_INVALID_ERROR	= "is not a valid index!";
 
-const unsigned long long					Task::DEFAULT_INDEX			= 0;
-const std::string							Task::DEFAULT_NAME			= "";
-const std::string							Task::DEFAULT_LOCATION		= "";
-const std::string							Task::DEFAULT_NOTE			= "";
-const TP::PRIORITY							Task::DEFAULT_PRIORITY		= TP::MEDIUM;
-const std::list<std::string>				Task::DEFAULT_PARTICIPANTS	= std::list<std::string>();
-const std::list<std::string>				Task::DEFAULT_TAGS			= std::list<std::string>();
-const std::list<std::list<Task*>::iterator>	Task::DEFAULT_HASHTAG_PTRS	= std::list<std::list<Task*>::iterator>();
-const std::list<std::time_t>				Task::DEFAULT_REMINDTIMES	= std::list<std::time_t>();
-const std::time_t							Task::DEFAULT_FROMDATE		= 0;
-const std::time_t							Task::DEFAULT_TODATE		= 0;
-const TP::TASK_STATE						Task::DEFAULT_STATE			= TP::UNDONE;	
-const TP::TASK_TYPE							Task::DEFAULT_TYPE			= TP::FLOATING;
+const unsigned long long					Task::DEFAULT_INDEX				= 0;
+const std::string							Task::DEFAULT_NAME				= "";
+const std::string							Task::DEFAULT_LOCATION			= "";
+const std::string							Task::DEFAULT_NOTE				= "";
+const TP::PRIORITY							Task::DEFAULT_PRIORITY			= TP::MEDIUM;
+const std::list<std::string>				Task::DEFAULT_PARTICIPANTS		= std::list<std::string>();
+const std::list<std::string>				Task::DEFAULT_TAGS				= std::list<std::string>();
+const std::list<std::list<Task*>::iterator>	Task::DEFAULT_HASHTAG_PTRS		= std::list<std::list<Task*>::iterator>();
+const std::list<std::time_t>				Task::DEFAULT_REMINDTIMES		= std::list<std::time_t>();
+const std::list<std::list<Task*>::iterator>	Task::DEFAULT_REMINDTIMES_PTRS	= std::list<std::list<Task*>::iterator>();
+const std::time_t							Task::DEFAULT_FROMDATE			= 0;
+const std::time_t							Task::DEFAULT_TODATE			= 0;
+const TP::TASK_STATE						Task::DEFAULT_STATE				= TP::UNDONE;	
+const TP::TASK_TYPE							Task::DEFAULT_TYPE				= TP::FLOATING;
 
 void Task::defaultTaskInit(bool createIndex)
 {
@@ -79,7 +80,8 @@ void Task::initTaskAttributes()
     _taskTags			= DEFAULT_TAGS;
 	_hashTagPtrs		= DEFAULT_HASHTAG_PTRS;
     _taskRemindTimes	= DEFAULT_REMINDTIMES;
-    _taskFromDate		= DEFAULT_FROMDATE;
+    _remindTimesPtrs	= DEFAULT_REMINDTIMES_PTRS;
+	_taskFromDate		= DEFAULT_FROMDATE;
     _taskToDate			= DEFAULT_TODATE;
     _taskState			= DEFAULT_STATE;
     _taskType			= DEFAULT_TYPE;
@@ -112,26 +114,26 @@ void Task::setTags(std::string newTag, TP::LIST_OP op) {
 
 void Task::setFromDate(std::time_t newFromDate) {
     _taskFromDate = newFromDate;
-	flagFromDate = newFromDate!=0;
+	flagFromDate = newFromDate != DEFAULT_FROMDATE;
     handleDatesChange();
 }
 
 void Task::setToDate(std::time_t newToDate) {
     _taskToDate = newToDate;
-    flagToDate = newToDate!=0;
+	flagToDate = newToDate != DEFAULT_TODATE;
     handleDatesChange();
 }
 
 void Task::setDueDate(std::time_t newDueDate) {
 	_taskFromDate = _taskToDate = newDueDate;
-	flagFromDate = flagToDate = newDueDate!=0;
-
+	flagFromDate = flagToDate = newDueDate != DEFAULT_FROMDATE;
+	handleDatesChange();
 }
 
 void Task::handleDatesChange() {
     if (getFlagDueDate() == true)
         setTaskType(TP::DEADLINE);
-    else if (getFlagFromDate())
+	else if (getFlagFromDate() || getFlagToDate())
         setTaskType(TP::TIMED);
     else
         setTaskType(TP::FLOATING);

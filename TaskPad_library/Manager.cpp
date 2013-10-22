@@ -16,18 +16,24 @@ const string Manager::MESSAGE_INDEX_OUT_OF_RANGE = "Given index is out of range!
 const string Manager::MESSAGE_ERROR_UNEXPECTED_COMMAND_TYPE_WITH_INDEX = "Unexpected Command with index!!";
 
 Manager::Manager() {
-	this->_logger = Logger::getLogger();
-	this->_storage = new Storage(_tasks);
-	this->_executor = new Executor(&_tasks);
-	this->_interpreter = new Interpreter;
-	this->_response = Messenger();
-	this->_cmd = NULL;
+	this->_logger		= Logger::getLogger();
+	this->_storage		= new Storage(_tasks);
+	this->_executor		= new Executor(&_tasks);
+	this->_interpreter	= new Interpreter;
+	this->_response		= Messenger();
+	this->_cmd			= NULL;
+}
+
+list<Task> Manager::getCurrentReminders	()
+{
+	return this->_executor->getCurrentReminders();
 }
 
 Messenger Manager::processCommand(const string& newCommand) {
 	_logger->log("Manager", "processing Command");
 	switch(this->_response.getStatus()) {
 		case INTERMEDIATE:
+			/* empty and falls through*/
 		case ERROR_INTERMEDIATE:
 			handleIntermediateScenarioCommands(newCommand);
 			break;
@@ -48,7 +54,9 @@ void Manager::saveChanges()
 		switch(this->_cmd->getCommandType())
 		{
 			case MOD:
+				/* empty and falls through*/
 			case DEL:
+				/* empty and falls through*/
 			case ADD:
 				_logger->log("Manager","saving changes");
 				this->_storage->save(this->_response.getTask(),this->_response.getCommandType());

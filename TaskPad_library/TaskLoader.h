@@ -17,7 +17,6 @@ class TaskLoader: public FileHandler
 		virtual void closeFile() =0;
 
 		std::ifstream _fileReader;
-		bool _isFileMishandled;
 };
 
 #endif

@@ -36,6 +36,13 @@ class Messenger
 		void setCommandType	(const COMMAND_TYPE&	commandType);
 		void setTask		(const Task&			task);
 
+		const static int DEFAULT_INDEX_VALUE;
+		const static TP::STATUS DEFAULT_STATUS_VALUE;
+		const static TP::COMMAND_TYPE DEFAULT_COMMAND_TYPE_VALUE;
+		const static Task DEFAULT_TASK_VALUE;
+		const static list<Task> DEFAULT_TASK_LIST_VALUE;
+		const static std::string DEFAULT_ERROR_MESSAGE_VALUE;
+
 	private:
 		string			_errorMsg;
 		STATUS			_status;

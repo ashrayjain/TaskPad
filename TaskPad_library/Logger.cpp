@@ -125,7 +125,6 @@ std::string Logger::getCurTime()
 	time(&rawTime);
 
 	return ctime(&rawTime);
-
 }
 
 Logger::Logger()
@@ -156,7 +155,6 @@ void Logger::log (std::string callingClass, std::string message, TP::LOG_TYPE lo
 				throw "Fatal log occurred!";
 				break;
 		}
-		_logWriter.flush();
 	}
 
 	return;
@@ -183,7 +181,7 @@ void Logger::logError (std::string message) {
 	_logWriter << message << endl;
 }
 void Logger::logFatal (std::string message) {
-	_logWriter << TP::LOG_TYPE_STRING[TP::FATALLOG] << message << endl;
+	_logWriter << TP::LOG_TYPE_STRING[TP::FATALLOG] << ": " << message << endl;
 }
 
 Logger::~Logger()
