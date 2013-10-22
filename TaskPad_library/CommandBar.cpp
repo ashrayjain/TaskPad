@@ -227,14 +227,11 @@ QString CommandBar::getWordUnderCursor()
 
 bool CommandBar::hasKeywordNearby(QString keyword, QTextCursor::MoveOperation direction)
 {
-	bool result;
-
 	QTextCursor cursor = textCursor();
 	cursor.movePosition(direction, QTextCursor::KeepAnchor);
 	QString str = cursor.selectedText();
 
-	result = str == keyword;
-	return result;
+	return str == keyword;
 }
 
 bool CommandBar::hasSingleQuotationMark_RHS()
@@ -260,6 +257,15 @@ bool CommandBar::hasQuoteLeft_LHS()
 bool CommandBar::hasSpace_RHS()
 {
 	return hasKeywordNearby(SPACE, QTextCursor::Right);
+}
+
+bool CommandBar::hasSharp_LHS(){
+	QTextCursor cursor = textCursor();
+	cursor.movePosition(QTextCursor::StartOfWord);
+	cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
+	QString str = cursor.selectedText();
+
+	return str == "#";
 }
 
 bool CommandBar::hasSpace_LHS()
@@ -290,7 +296,7 @@ void CommandBar::clearCharLHS()
 
 void CommandBar::produceModel()
 {
-	if(isWithinPairOfQuoteLeft()){
+	if(isWithinPairOfQuoteLeft() || hasSharp_LHS()){
 		model->setStringList(QStringList());
 	}
 	else if(containsCommand())
