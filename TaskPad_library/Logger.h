@@ -33,11 +33,11 @@ class Logger
 		static Logger* logger;
 		
 		//log functions
-		void logInfo(std::string message);
-		void logNotice(std::string message);
-		void logWarning(std::string message);
-		void logError(std::string message);
-		void logFatal(std::string message);
+		void logInfo	(std::string message);
+		void logNotice	(std::string message);
+		void logWarning	(std::string message);
+		void logError	(std::string message);
+		void logFatal	(std::string message);
 
 		//helper functions
 		void configureLogger			();
@@ -47,14 +47,14 @@ class Logger
 		std::string getNewData			(std::string newLine);
 		std::string getNewLabel			(std::string newLine);
 
-		bool isToBeLogged(std::string callingClass, TP::LOG_TYPE logType);
+		bool isToBeLogged				(std::string callingClass, TP::LOG_TYPE logType);
 
 		std::string getCurTime			();
 
 
 		//constructor
-		Logger();
-		Logger(Logger const&);
+		Logger	();
+		Logger	(Logger const&);
 
 		//equals operator overload
 		void operator=(Logger const&);

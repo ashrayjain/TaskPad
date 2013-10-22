@@ -11,18 +11,24 @@ class QuickAddWindow: public QDialog
 public:
 	QuickAddWindow(QWidget *parent = 0);
 
+signals:
+	void requestSubmitted(QString requestStr);
+	void windowClosed();
+
 private:
 	void customisedUi();
 	bool eventFilter(QObject* watched, QEvent* event);
+	bool isCommandAdd(QString requestStr);
 	void mousePressEvent(QMouseEvent *event);
 	void mouseMoveEvent(QMouseEvent *event);
+	void emitRequest(QString requestStr);
+	void emitWindowClosed();
 
 	Ui::QuickAddWindowClass ui;
 	QPoint windowPosition;
 	QPoint mousePressPosition;
 	QPoint mouseMovePosition;
 	QString inputStr;
-	MainWindow* parentWindow;
 };
 
 #endif // QUICKADD_WINDOW_H

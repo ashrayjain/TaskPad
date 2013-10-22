@@ -1,35 +1,37 @@
 #include "quickadd_window.h"
 
 QuickAddWindow::QuickAddWindow(QWidget *parent)
+:QDialog(parent)
 {
-	parentWindow = (MainWindow*) parent;
 	ui.setupUi(this);
 	customisedUi();
 	ui.cmdBar->installEventFilter(this);
+	ui.cmdBar->setQuickAddMode();
 }
 
-bool QuickAddWindow::eventFilter(QObject* watched, QEvent* event)
-{
+bool QuickAddWindow::eventFilter(QObject* watched, QEvent* event){
+	const bool FILTERED = true;
+
 	if(watched == ui.cmdBar)
 	{
 		if(event->type() == QEvent::KeyPress)
 		{
 			QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
 			if(keyEvent->key() == Qt::Key_Escape){
-				parentWindow->isQuickAddOpen = false;
-				close();
+				emitWindowClosed();
+				//wait for mainwindow to close it
+				return FILTERED;
 			}
 			else if(keyEvent->key() == Qt::Key_Return || keyEvent->key() == Qt::Key_Enter)
 			{
 				QString currentInput = ui.cmdBar->getCurrentLine();
+				ui.cmdBar->pushCurrentLine();
 				if(!currentInput.isEmpty()){
-					ui.cmdBar->pushCurrentLine();
 					inputStr = currentInput;
-					parentWindow->reset();
-					parentWindow->handleInput(inputStr, true);//true --> FROM_QUICK_ADD
+					emitRequest(currentInput);
 					//wait for mainwindow to decide whether close it or not
 				}
-				return true;
+				return FILTERED;
 			}
 		}
 	}
@@ -39,7 +41,6 @@ bool QuickAddWindow::eventFilter(QObject* watched, QEvent* event)
 void QuickAddWindow::customisedUi(){
 	setWindowFlags(Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint | Qt::Dialog | Qt::Popup);
 	setAttribute(Qt::WA_TranslucentBackground);
-	setAttribute(Qt::WA_DeleteOnClose);
 	setWindowState(Qt::WindowActive);
 }
 
@@ -52,4 +53,12 @@ void QuickAddWindow::mouseMoveEvent(QMouseEvent *event){
 	this->mouseMovePosition = event->globalPos();
 	QPoint distanceToMove = this->mouseMovePosition - this->mousePressPosition + this->windowPosition;
 	this->move(distanceToMove);   
+}
+
+void QuickAddWindow::emitRequest(QString requestStr){
+	emit requestSubmitted(requestStr);
+}
+
+void QuickAddWindow::emitWindowClosed(){
+	emit windowClosed();
 }

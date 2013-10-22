@@ -22,6 +22,7 @@ MainWindow::MainWindow(QWidget *parent)
 	trayIcon = new QSystemTrayIcon(this);
 	trayIcon->setIcon(QIcon(":/MainWindow/Resources/logo.png"));
 	trayIcon->show();
+	trayIcon->setToolTip("TaskPad");
 	ui.setupUi(this);
 	customisedUi();
 	QxtGlobalShortcut * sc = new QxtGlobalShortcut(QKeySequence("Alt+`"), this);
@@ -73,9 +74,57 @@ void MainWindow::showQuickAddWindow(){
 		//no need to delete quickAddWindow
 		//since it's set (Qt::WA_DeleteOnClose)
 		//refer to: http://qt-project.org/doc/qt-5.0/qtcore/qt.html#WidgetAttribute-enum
-		quickAddWindow = new QuickAddWindow(this);
+		quickAddWindow = new QuickAddWindow();
+		quickAddWindow->setAttribute(Qt::WA_DeleteOnClose);
+		QuickAddWindow *qa = (QuickAddWindow*) quickAddWindow;
+		connect(qa, SIGNAL(windowClosed()), this, SLOT(closeQuickAddWindow()));
+		connect(qa, SIGNAL(requestSubmitted(QString)), this, SLOT(handleQuickAddRequest(QString)));
 		quickAddWindow->show();
 	}
+}
+
+void MainWindow::closeQuickAddWindow(){
+	QuickAddWindow *qa = (QuickAddWindow*) quickAddWindow;
+	disconnect(qa, SIGNAL(windowClosed()), this, SLOT(closeQuickAddWindow()));
+	disconnect(qa, SIGNAL(requestSubmitted(QString)), this, SLOT(handleQuickAddRequest(QString)));
+	quickAddWindow->close();
+	isQuickAddOpen = false;
+}
+
+void MainWindow::handleQuickAddRequest(QString requestStr){
+	const int FIRST_ITEM = 1;
+	if(isCommandAdd(requestStr) ||
+		requestStr.toInt() == FIRST_ITEM){
+			getToday();
+			string requestStdStr = requestStr.toLocal8Bit().constData();
+			Messenger msg = scheduler->processCommand(requestStdStr);
+			if(msg.getStatus() == TP::ERROR)
+			{
+				showTrayMsg(msg.getErrorMsg().c_str());
+			}
+			else if(msg.getStatus() == TP::SUCCESS)
+			{
+				getToday();
+				closeQuickAddWindow();
+				showTrayMsg("Added");
+			}
+			else if(msg.getStatus() == TP::DISPLAY)
+			{
+				closeQuickAddWindow();
+				handleDisplay(msg);
+				showWindow();
+			}
+	}
+	else{
+		showTrayMsg("Only Add Command and Display 1 are supported");
+	}
+}
+
+bool MainWindow::isCommandAdd(QString requestStr){
+	const int CANT_FIND = -1;
+	const QString COMMAND_ADD = "^add.*";
+	const QRegExp REGEX_CMD_ADD(COMMAND_ADD);
+	return REGEX_CMD_ADD.indexIn(requestStr) != CANT_FIND;
 }
 
 void MainWindow::help(){
@@ -89,6 +138,7 @@ void MainWindow::keyPressEvent(QKeyEvent* event){
 	if(event->key() == Qt::Key_Escape)
 	{
 		reset();
+		getToday();
 	}
 	QMainWindow::keyPressEvent(event);
 }
@@ -96,18 +146,12 @@ void MainWindow::keyPressEvent(QKeyEvent* event){
 void MainWindow::reset(){
 	scheduler->resetStatus();
 	ui.cmdBar->clear();
-	getToday();
 }
 
 void MainWindow::getToday(){
+	reset();
 	Messenger msg = scheduler->getTodayTasks();
 	handleGetToday(msg);
-}
-
-void MainWindow::handleInput(QString input, bool isFromQuickAdd){
-	string inputStdString = input.toLocal8Bit().constData();
-	Messenger msg = scheduler->processCommand(inputStdString);
-	handleMessenger(msg, isFromQuickAdd);
 }
 
 void MainWindow::handleGetToday(Messenger msg){
@@ -119,6 +163,7 @@ void MainWindow::handleGetToday(Messenger msg){
 }
 
 void MainWindow::getInbox(){
+	reset();
 	Messenger msg = scheduler->processCommand("find undone");
 	handleGetInbox(msg);
 }
@@ -178,13 +223,16 @@ bool MainWindow::eventFilter(QObject* watched, QEvent* event)
 			QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
 			if(keyEvent->key() == Qt::Key_Escape){
 				reset();
+				getToday();
 			}
 			else if(keyEvent->key() == Qt::Key_Return || keyEvent->key() == Qt::Key_Enter)
 			{
 				QString currentInput = ui.cmdBar->getCurrentLine();//TODO: can shrink into one API
+				ui.cmdBar->pushCurrentLine();
 				if(!currentInput.isEmpty()){
-					ui.cmdBar->pushCurrentLine();
-					handleInput(currentInput);
+					string inputStdString = currentInput.toLocal8Bit().constData();
+					Messenger msg = scheduler->processCommand(inputStdString);
+					handleMessenger(msg);
 				}
 				return true;//stop Key return or Key enter
 			}
@@ -193,14 +241,11 @@ bool MainWindow::eventFilter(QObject* watched, QEvent* event)
 	return QObject::eventFilter(watched, event);//normal processing
 }
 
-void MainWindow::handleMessenger(Messenger msg, bool fromQuickAdd){
+void MainWindow::handleMessenger(Messenger msg){
 	//not SLAP now
 	if(msg.getStatus() == TP::ERROR)
 	{
 		updateStatusBar(msg.getErrorMsg().c_str());
-		if(fromQuickAdd){
-			showTrayMsg(msg.getErrorMsg().c_str());
-		}
 	}
 	else if(msg.getStatus() == TP::ERROR_INTERMEDIATE)
 	{
@@ -252,39 +297,16 @@ void MainWindow::handleMessenger(Messenger msg, bool fromQuickAdd){
 			updateDetails(msg.getTask());
 			break;
 		}
-		if(fromQuickAdd){
-			quickAddWindow->close();
-			isQuickAddOpen = false;
-			showTrayMsg("Success!");
-		}
 	}
 	else if(msg.getStatus() == TP::INTERMEDIATE)
 	{
 		updateNavLabel("Select a task by typing its index");
 		updateStatusBar("Intermediate stage...");
 		updateList(msg.getList());
-		if(fromQuickAdd){
-			quickAddWindow->close();
-			isQuickAddOpen = false;
-			showWindow();
-		}
 	}
 	else if(msg.getStatus() == TP::DISPLAY)
 	{
-		int index = msg.getIndex();
-		assert(index > 0);
-		list<Task> tmp_list = msg.getList();
-		list<Task>::iterator iter = tmp_list.begin();
-		advance(iter, index - 1);
-		
-		updateStatusBar("Task displayed successfully");
-		updateDetailsLabel("Task's Details");
-		updateDetails(*iter);
-		if(fromQuickAdd){
-			quickAddWindow->close();
-			isQuickAddOpen = false;
-			showWindow();
-		}
+		handleDisplay(msg);
 	}
 	else if(msg.getStatus() == TP::SUCCESS_INDEXED_COMMAND)
 	{
@@ -304,12 +326,19 @@ void MainWindow::handleMessenger(Messenger msg, bool fromQuickAdd){
 		else
 			updateList(msg.getList());
 		updateDetails(msg.getTask());
-		if(fromQuickAdd){//TODO: can refactor this
-			quickAddWindow->close();
-			isQuickAddOpen = false;
-			showWindow();
-		}
 	}
+}
+
+void MainWindow::handleDisplay(Messenger msg){
+	int index = msg.getIndex();
+	assert(index > 0);
+	list<Task> tmp_list = msg.getList();
+	list<Task>::iterator iter = tmp_list.begin();
+	advance(iter, index - 1);
+
+	updateStatusBar("Task displayed successfully");
+	updateDetailsLabel("Task's Details");
+	updateDetails(*iter);
 }
 
 void MainWindow::about()
@@ -357,7 +386,9 @@ QTreeWidgetItem* MainWindow::extractTask(int index, Task task){
 		strList = QStringList() << QString::number(index) << task.getName().c_str() << \
 			"Due " + time.toString("dd/MM/yyyy");
 	}
-	else if(task.getTaskType() == TP::TIMED){
+	else if(task.getTaskType() == TP::TIMED ||
+		task.getFlagFromDate() ||
+		task.getFlagToDate()){
 		QString fromTimeStr, toTimeStr;
 		if(task.getFlagFromDate()){
 			QDateTime fromTime = QDateTime::fromTime_t(task.getFromDate());
@@ -397,7 +428,9 @@ QTreeWidgetItem* MainWindow::extractTaskForToday(int index, Task task){
 		strList = QStringList() << QString::number(index) << task.getName().c_str() << \
 			dueStr;
 	}
-	else if(task.getTaskType() == TP::TIMED){
+	else if(task.getTaskType() == TP::TIMED ||
+		task.getFlagFromDate() ||
+		task.getFlagToDate()){
 		QString fromTimeStr, toTimeStr;
 		if(task.getFlagFromDate()){
 			QDateTime fromTime = QDateTime::fromTime_t(task.getFromDate());
@@ -472,19 +505,34 @@ void MainWindow::updateDetails(Task t){
 			ui.dueOrFromTo->setText("Due  " + time.toString("dd/MM/yyyy  hh:mm"));
 		}
 	}
-	else if(task_showDetails.getTaskType() == TP::TIMED){
+	else if(task_showDetails.getTaskType() == TP::TIMED ||
+		task_showDetails.getFlagFromDate() ||
+		task_showDetails.getFlagToDate()){
 		//TODO: redundent... make into one function
 		QString fromTimeStr, toTimeStr;
 		if(task_showDetails.getFlagFromDate()){
 			QDateTime fromTime = QDateTime::fromTime_t(task_showDetails.getFromDate());
-			fromTimeStr = "From " + fromTime.toString("dd/MM/yyyy");
+			QTime hour_n_min = fromTime.time();
+			if(hour_n_min.hour() == 0 & hour_n_min.minute() == 0)
+				fromTimeStr = "From " + fromTime.toString("dd/MM/yyyy");
+			else
+				fromTimeStr = "From " + fromTime.toString("dd/MM/yyyy  hh:mm");
 		}
 		if(task_showDetails.getFlagToDate()){
 			QDateTime toTime = QDateTime::fromTime_t(task_showDetails.getToDate());
-			if(task_showDetails.getFlagFromDate())
-				toTimeStr = " to " + toTime.toString("dd/MM/yyyy");
-			else
-				toTimeStr = "To " + toTime.toString("dd/MM/yyyy");
+			QTime hour_n_min = toTime.time();
+			if(task_showDetails.getFlagFromDate()){
+				if(hour_n_min.hour() == 0 & hour_n_min.minute() == 0)
+					toTimeStr = " to " + toTime.toString("dd/MM/yyyy");
+				else
+					toTimeStr = " to " + toTime.toString("dd/MM/yyyy  hh:mm");
+			}
+			else{
+				if(hour_n_min.hour() == 0 & hour_n_min.minute() == 0)
+					toTimeStr = "To " + toTime.toString("dd/MM/yyyy");
+				else
+					toTimeStr = "To " + toTime.toString("dd/MM/yyyy  hh:mm");
+			}
 		}
 		ui.dueOrFromTo->setText(fromTimeStr + toTimeStr);
 	}
