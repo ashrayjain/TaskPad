@@ -39,6 +39,7 @@ private:
 	static const QStringList COMMAND_LIST;
 	static const QStringList KEYWORD_LIST;
 	static const QString SPACE;
+	static const QString INCLUDE_QUOTE_LEFT_PAIR;
 	static const QString SINGLE_QUOTATION_MARK;
 	static const QString QUOTE_LEFT;
 	static const QString EMPTY;
@@ -73,6 +74,7 @@ private:
 	void clearCharRHS();
 	void clearCharLHS();
 	void insertCompletion(const QString &completion);
+	bool CommandBar::containsQuoteLeftPair(QString str);
 	bool isWithinPairOfQuoteLeft();
 	QVector<QPair<int, int> > getQuoteLeftPositions();
 	bool isHotkeyTemplateMode();
