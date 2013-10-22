@@ -70,6 +70,7 @@ private:
 	bool hasQuoteLeft_LHS();
 	bool hasSpace_LHS();
 	bool hasSpace_RHS();
+	bool hasSharp_LHS();
 	void clearCharNearby(QTextCursor::MoveOperation direction);
 	void clearCharRHS();
 	void clearCharLHS();
