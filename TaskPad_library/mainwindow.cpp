@@ -18,6 +18,9 @@ MainWindow::MainWindow(QWidget *parent)
 	: QMainWindow(parent) 
 {
 	//TODO: make it SLAP
+	timer = new QTimer(this);
+	timer->start(60000);
+	connect(timer, SIGNAL(timeout()),this, SLOT(showReminder()));
 	isQuickAddOpen = false;
 	trayIcon = new QSystemTrayIcon(this);
 	trayIcon->setIcon(QIcon(":/MainWindow/Resources/logo.png"));
@@ -35,6 +38,7 @@ MainWindow::MainWindow(QWidget *parent)
 	QObject::connect(ui.MinimizeButton, SIGNAL(clicked()), this, SLOT(showMinimized()));
 	QObject::connect(ui.AboutButton, SIGNAL(clicked()), this, SLOT(about()));
 	QObject::connect(ui.HelpButton, SIGNAL(clicked()), this, SLOT(help()));
+	(void) new QShortcut(QKeySequence(tr("F5", "RemainderTesting")), this, SLOT(showReminder()));
 	(void) new QShortcut(QKeySequence(tr("Ctrl+T", "Today")), this, SLOT(getToday()));
 	(void) new QShortcut(QKeySequence(tr("Ctrl+I", "Inbox")), this, SLOT(getInbox()));
 	//ui.CommandBar->installEventFilter(this);//filter RETURN
@@ -64,6 +68,23 @@ void MainWindow::showWindow(){
 	show();
 	setWindowState(Qt::WindowActive);
 	ui.cmdBar->setFocus();
+}
+
+void MainWindow::showReminder(){
+	QString output;
+	list<Task> remindTasks = scheduler->getCurrentReminders();
+	if(!remindTasks.empty()){
+		list<Task>::iterator iter = remindTasks.begin();
+		output += "1. ";
+		output += iter->getName().c_str();
+		advance(iter, 1);
+		for(int i = 2; iter != remindTasks.end(); advance(iter, 1), i++){
+			output += "\n";
+			output += QString::number(i) + ". ";
+			output += iter->getName().c_str();
+		}
+		showTrayMsg(output);
+	}
 }
 
 void MainWindow::showQuickAddWindow(){
@@ -173,10 +194,6 @@ void MainWindow::handleGetInbox(Messenger msg){
 	updateStatusBar("Ready");
 	clearDetails();
 	updateList(msg.getList());
-}
-
-void MainWindow::showReminder(){
-	trayIcon->showMessage("TaskPad", "msg here");
 }
 
 void MainWindow::showTrayMsg(QString msg){
