@@ -28,6 +28,7 @@ protected slots:
 	void showQuickAddWindow();
 	void closeQuickAddWindow();
 	void handleQuickAddRequest(QString requestStr);
+	void handleShowReminder();
 	bool isCommandAdd(QString requestStr);
 	void iconIsActived(QSystemTrayIcon::ActivationReason);
 
@@ -60,6 +61,8 @@ private:
 	bool eventFilter(QObject* watched, QEvent* event);
 
 	bool isQuickAddOpen;
+	bool isFromReminder;
+	list<Task> reminderList;
 	QDialog* quickAddWindow;
 	Manager* scheduler;
 	QTimer* timer;

@@ -26,6 +26,7 @@ MainWindow::MainWindow(QWidget *parent)
 	trayIcon->setIcon(QIcon(":/MainWindow/Resources/logo.png"));
 	trayIcon->show();
 	trayIcon->setToolTip("TaskPad");
+	connect(trayIcon, SIGNAL(messageClicked()),this, SLOT(handleShowReminder()));
 	ui.setupUi(this);
 	customisedUi();
 	QxtGlobalShortcut * sc = new QxtGlobalShortcut(QKeySequence("Alt+`"), this);
@@ -72,18 +73,19 @@ void MainWindow::showWindow(){
 
 void MainWindow::showReminder(){
 	QString output;
-	list<Task> remindTasks = scheduler->getCurrentReminders();
-	if(!remindTasks.empty()){
-		list<Task>::iterator iter = remindTasks.begin();
+	reminderList = scheduler->getCurrentReminders();
+	if(!reminderList.empty()){
+		list<Task>::iterator iter = reminderList.begin();
 		output += "1. ";
 		output += iter->getName().c_str();
 		advance(iter, 1);
-		for(int i = 2; iter != remindTasks.end(); advance(iter, 1), i++){
+		for(int i = 2; iter != reminderList.end(); advance(iter, 1), i++){
 			output += "\n";
 			output += QString::number(i) + ". ";
 			output += iter->getName().c_str();
 		}
 		showTrayMsg(output, "Reminders");
+		isFromReminder = true;
 	}
 }
 
@@ -138,6 +140,19 @@ void MainWindow::handleQuickAddRequest(QString requestStr){
 	}
 	else{
 		showTrayMsg("Only Add Command and Display 1 are supported");
+	}
+}
+
+void MainWindow::handleShowReminder(){
+	if(isFromReminder){
+		scheduler->syncTaskList(reminderList);
+		updateList(reminderList);
+		updateNavLabel("Reminders");
+		clearDetails();
+		updateDetailsLabel("Task Details");
+		updateStatusBar("Ready");
+		showWindow();
+		isFromReminder = false;
 	}
 }
 
@@ -197,6 +212,7 @@ void MainWindow::handleGetInbox(Messenger msg){
 }
 
 void MainWindow::showTrayMsg(QString msg, QString title){
+	isFromReminder = false;
 	trayIcon->showMessage(title, msg);
 }
 
