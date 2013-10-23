@@ -71,14 +71,14 @@ namespace UnitTest
 			
 			testExecutor.executeCommand(testCmd, testResponse);
 
-			Assert::AreEqual(true, string("Test Task") == data.back().getName());
-			Assert::AreEqual(true, (now + 864000) == data.back().getDueDate());
-			Assert::AreEqual(true, string("Someplace") == data.back().getLocation());
-			Assert::AreEqual(true, string("This is a sample note!") == data.back().getNote());
-			Assert::AreEqual(true, list<string>(1, "#testhashtag") == data.back().getTags());
-			Assert::AreEqual(true, list<string>(5, "Participant X") == data.back().getParticipants());
-			Assert::AreEqual(true, TP::PRIORITY::HIGH == data.back().getPriority());
-			Assert::AreEqual(true, list<time_t>(1, now + 432000) == data.back().getRemindTimes());
+			Assert::IsTrue(string("Test Task") == data.back().getName());
+			Assert::IsTrue((now + 864000) == data.back().getDueDate());
+			Assert::IsTrue(string("Someplace") == data.back().getLocation());
+			Assert::IsTrue(string("This is a sample note!") == data.back().getNote());
+			Assert::IsTrue(list<string>(1, "#testhashtag") == data.back().getTags());
+			Assert::IsTrue(list<string>(5, "Participant X") == data.back().getParticipants());
+			Assert::IsTrue(TP::PRIORITY::HIGH == data.back().getPriority());
+			Assert::IsTrue(list<time_t>(1, now + 432000) == data.back().getRemindTimes());
 			
 			delete testCmd;
 		}
@@ -92,24 +92,24 @@ namespace UnitTest
 
 			testDelCmd->setCreatedTime(data.back().getIndex());
 			testExecutor.executeCommand(testCmd, testResponse);
-			Assert::AreEqual(true, 2 == data.size());
+			Assert::IsTrue(2 == data.size());
 
 			testDelCmd->setCreatedTime(time(NULL));
 			testExecutor.executeCommand(testCmd, testResponse);
-			Assert::AreEqual(true, TP::STATUS::ERROR==testResponse.getStatus());
+			Assert::IsTrue(TP::STATUS::ERROR==testResponse.getStatus());
 
 			Command* testCmd_2 = new Command_Del();
 			Command_Del* testDelCmd_2 = dynamic_cast<Command_Del*>(testCmd_2);
 			testDelCmd_2->setName("Test Task 1");
 			testExecutor.executeCommand(testCmd_2, testResponse);
-			Assert::AreEqual(true, 1 == data.size());
+			Assert::IsTrue(1 == data.size());
 
 			Command* testCmd_3 = new Command_Del();
 			Command_Del* testDelCmd_3 = dynamic_cast<Command_Del*>(testCmd_3);
 			testDelCmd_3->setName("Test Task 2");
 			testDelCmd_3->setFlagExact();
 			testExecutor.executeCommand(testCmd_3, testResponse);
-			Assert::AreEqual(true, 0 == data.size());
+			Assert::IsTrue(0 == data.size());
 
 			delete testCmd;
 			delete testCmd_2;
@@ -127,12 +127,12 @@ namespace UnitTest
 			testModCmd->setOptName("New Task Name");
 			testModCmd->setTaskState(TP::TASK_STATE::DONE);
 			testExecutor.executeCommand(testCmd, testResponse);
-			Assert::AreEqual(true, "New Task Name" == data.back().getName());
-			Assert::AreEqual(true, TP::TASK_STATE::DONE == data.back().getState());
+			Assert::IsTrue("New Task Name" == data.back().getName());
+			Assert::IsTrue(TP::TASK_STATE::DONE == data.back().getState());
 
 			testModCmd->setCreatedTime(time(NULL));
 			testExecutor.executeCommand(testCmd, testResponse);
-			Assert::AreEqual(true, TP::STATUS::ERROR==testResponse.getStatus());
+			Assert::IsTrue(TP::STATUS::ERROR==testResponse.getStatus());
 
 			time_t now = time(NULL);
 			Command* testCmd_2 = new Command_Mod();
@@ -143,9 +143,9 @@ namespace UnitTest
 			testModCmd_2->setRemindTimes(list<time_t>(1, now + 32000));
 			testModCmd_2->setTaskState(TP::TASK_STATE::DONE);
 			testExecutor.executeCommand(testCmd_2, testResponse);
-			Assert::AreEqual(true, list<string>(1, "#hashtag") == (++data.begin())->getTags());
-			Assert::AreEqual(true, list<time_t>(1, now + 32000) == (++data.begin())->getRemindTimes());
-			Assert::AreEqual(true, TP::TASK_STATE::DONE == (++data.begin())->getState());
+			Assert::IsTrue(list<string>(1, "#hashtag") == (++data.begin())->getTags());
+			Assert::IsTrue(list<time_t>(1, now + 32000) == (++data.begin())->getRemindTimes());
+			Assert::IsTrue(TP::TASK_STATE::DONE == (++data.begin())->getState());
 			
 			delete testCmd;
 			delete testCmd_2;
@@ -163,46 +163,46 @@ namespace UnitTest
 			testFindCmd->setFlagExact();
 
 			testExecutor.executeCommand(testCmd, testResponse);
-			Assert::AreEqual(true, 0 == testResponse.getList().size());
+			Assert::IsTrue(0 == testResponse.getList().size());
 			
 			testFindCmd->setOptName("Test Task 1");
 			testExecutor.executeCommand(testCmd, testResponse);
-			Assert::AreEqual(true, 1 == testResponse.getList().size());
+			Assert::IsTrue(1 == testResponse.getList().size());
 			
 			Command* testCmd_2 = new Command_Find();
 			Command_Find* testFindCmd_2 = dynamic_cast<Command_Find*>(testCmd_2);
 
 			testFindCmd_2->setOptName("Test");
 			testExecutor.executeCommand(testCmd_2, testResponse);
-			Assert::AreEqual(true, 3 == testResponse.getList().size());
+			Assert::IsTrue(3 == testResponse.getList().size());
 			
 			testFindCmd_2->setToDate(time(NULL) + 2000000);
 			testExecutor.executeCommand(testCmd_2, testResponse);
-			Assert::AreEqual(true, 0 == testResponse.getList().size());
+			Assert::IsTrue(0 == testResponse.getList().size());
 			
 			testFindCmd_2->setTaskType(TP::TASK_TYPE::DEADLINE);
 			testFindCmd_2->setFromDate(time(NULL) - 100000);
 			testExecutor.executeCommand(testCmd_2, testResponse);
-			Assert::AreEqual(true, 2 == testResponse.getList().size());
+			Assert::IsTrue(2 == testResponse.getList().size());
 			
 			Command* testCmd_3 = new Command_Find();
 			Command_Find* testFindCmd_3 = dynamic_cast<Command_Find*>(testCmd_3);
 
 			testFindCmd_3->setIndex(2);
 			testExecutor.executeCommand(testCmd_3, testResponse);
-			Assert::AreEqual(true, 2 == testResponse.getTask().getIndex());
+			Assert::IsTrue(2 == testResponse.getTask().getIndex());
 
 			Command* testCmd_4 = new Command_Find();
 			Command_Find* testFindCmd_4 = dynamic_cast<Command_Find*>(testCmd_4);
 
 			testFindCmd_4->setTaskType(TP::TASK_TYPE::FLOATING);
 			testExecutor.executeCommand(testCmd_4, testResponse);
-			Assert::AreEqual(true, 1 == testResponse.getList().size());
+			Assert::IsTrue(1 == testResponse.getList().size());
 
 			testFindCmd_4->setTaskType(TP::TASK_TYPE::DEADLINE);
 			testFindCmd_4->setFromDate(time(NULL) - 1000000);
 			testExecutor.executeCommand(testCmd_4, testResponse);
-			Assert::AreEqual(true, 2 == testResponse.getList().size());
+			Assert::IsTrue(2 == testResponse.getList().size());
 			delete testCmd;
 			delete testCmd_2;
 			delete testCmd_3;
