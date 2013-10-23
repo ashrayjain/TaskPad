@@ -83,7 +83,7 @@ void MainWindow::showReminder(){
 			output += QString::number(i) + ". ";
 			output += iter->getName().c_str();
 		}
-		showTrayMsg(output);
+		showTrayMsg(output, "Reminders");
 	}
 }
 
@@ -196,8 +196,8 @@ void MainWindow::handleGetInbox(Messenger msg){
 	updateList(msg.getList());
 }
 
-void MainWindow::showTrayMsg(QString msg){
-	trayIcon->showMessage("TaskPad", msg);
+void MainWindow::showTrayMsg(QString msg, QString title){
+	trayIcon->showMessage(title, msg);
 }
 
 void MainWindow::changeEvent(QEvent* event){

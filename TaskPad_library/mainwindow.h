@@ -32,7 +32,7 @@ protected slots:
 	void iconIsActived(QSystemTrayIcon::ActivationReason);
 
 private:
-	void showTrayMsg(QString msg);
+	void showTrayMsg(QString msg, QString title = "TaskPad");
 	void keyPressEvent(QKeyEvent*event);
 	void reset();
 	void updateNavLabel(QString str);
