@@ -1,3 +1,22 @@
+/*
+ * =====================================================================================
+ *
+ *		Filename:  Manager.h
+ *
+ *      Version:  1.0
+ *
+ *      Author:  Thyaegsh Manikandan (A0100124J)
+ *		Organization:  NUS, SoC
+ *
+ * =====================================================================================
+
+ ** Gist of File Contents:
+  *
+  * This file defines all the functions and attributes of the Manager Class
+  * This class serves as a facade for the rest of the components that collectively
+  * interpret, execute and save the changes, thus processing the command the user gives
+ */
+
 #ifndef _MANAGER_H_
 #define _MANAGER_H_
 
