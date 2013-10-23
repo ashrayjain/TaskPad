@@ -47,6 +47,32 @@ list<Task> Manager::getCurrentReminders	()
 	return this->_executor->getCurrentReminders();
 }
 
+void Manager::syncTaskList (const list<Task>& taskList)
+{
+	this->_response.setList(taskList);
+}
+
+void Manager::syncTask (const Task& task)
+{
+	this->_response.setTask(task);
+}
+
+void Manager::resetStatus() {
+	delete this->_cmd;
+	this->_cmd = NULL;
+	this->_response.resetMessenger();
+	this->setCurrTm(getTodayTm());
+}
+
+Manager::~Manager() {
+	this->_storage->save(this->_tasks);
+	delete this->_interpreter;
+	delete this->_executor;
+	delete this->_storage;
+	this->removePreviousCommand();
+	this->_response.resetMessenger();
+}
+
 Messenger Manager::processCommand(const string& newCommand) {
 	_logger->log("Manager", "processing Command");
 	switch(this->_response.getStatus()) {
@@ -65,6 +91,11 @@ Messenger Manager::processCommand(const string& newCommand) {
 	_logger -> log("Mananger", "leaving processCommand() \n");
 	return this->_response;
 }
+
+/*
+ * Saves the changed Task by calling the API of the storage class
+ * Only saves if the command was of type MOD, DEL or ADD
+ */
 
 void Manager::saveChanges()
 {
@@ -120,6 +151,29 @@ void Manager::handleNormalScenarioCommands(string newCommand) {
 	// a generic command and has already been interpreted by isCommandWithIndexGiven() above
 		_logger->log("Manager","generic command given by user",NOTICELOG);
 		this->handleGenericCommand();
+	}
+	return;
+}
+
+/**
+ * This handles the scenario where an ambiguous mod/del was done and 
+ * the user was given a list of similar tasks to choose the actual one he was talking about
+ * Accepts:
+ * - Only index
+ */
+void Manager::handleIntermediateScenarioCommands(string newCommand) {
+	if(isIndexGiven(newCommand)) {
+		if(isIndexWithinRange()) {
+			this->insertCreatedTimeIntoCommand();
+			this->_executor->executeCommand(this->_cmd,this->_response);
+		}
+		else {
+			this->_response.setErrorMsg(MESSAGE_INDEX_OUT_OF_RANGE);
+			this->_response.setStatus(ERROR_INTERMEDIATE);
+		}
+	}
+	else {
+		this->_response.setStatus(ERROR_INTERMEDIATE);
 	}
 	return;
 }
@@ -184,29 +238,6 @@ bool Manager::isDeleteCommand()
 bool Manager::isModifyCommand()
 {
 	return (this->_cmd->getCommandType() == MOD);
-}
-
-/**
- * This handles the scenario where an ambiguous mod/del was done and 
- * the user was given a list of similar tasks to choose the actual one he was talking about
- * Accepts:
- * - Only index
- */
-void Manager::handleIntermediateScenarioCommands(string newCommand) {
-	if(isIndexGiven(newCommand)) {
-		if(isIndexWithinRange()) {
-			this->insertCreatedTimeIntoCommand();
-			this->_executor->executeCommand(this->_cmd,this->_response);
-		}
-		else {
-			this->_response.setErrorMsg(MESSAGE_INDEX_OUT_OF_RANGE);
-			this->_response.setStatus(ERROR_INTERMEDIATE);
-		}
-	}
-	else {
-		this->_response.setStatus(ERROR_INTERMEDIATE);
-	}
-	return;
 }
 
 bool Manager::isIndexGiven(string newCommand) {
@@ -327,41 +358,6 @@ void Manager::storeIndexFromCommandToClassAttribute() {
 	return;
 }
 
-bool Manager::hasInterpretationError() {
-	return !this->hasNoInterpretationError();
-}
-
-bool Manager::hasNoInterpretationError() {
-	if(this->hasNoError())
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
-
-bool Manager::hasNoError()
-{
-	if(this->_response.getStatus() == ERROR || this->_response.getStatus() == ERROR_INTERMEDIATE) {
-		return false;
-	}
-	else
-	{
-		return true;
-	}
-}
-
-bool Manager::isSuccessfulCommand()
-{
-	if(this->_response.getStatus() == SUCCESS || this->_response.getStatus() == SUCCESS_INDEXED_COMMAND)
-	{
-		return true;
-	}
-	return false;
-}
-
 std::string Manager::createFindCommand(std::tm startTm, std::tm endTm)
 {
 	std::string startTmStr = getStrFromTm(startTm);
@@ -411,6 +407,45 @@ Messenger Manager::getTodayTasks() {
 	return this->processCommand("find from "+ today + " to "+ end_of_today + " undone");
 	//return this->processCommand("find undone");
 }
+
+bool Manager::hasInterpretationError() {
+	return !this->hasNoInterpretationError();
+}
+
+bool Manager::hasNoInterpretationError() {
+	if(this->hasNoError())
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool Manager::hasNoError()
+{
+	if(this->_response.getStatus() == ERROR || this->_response.getStatus() == ERROR_INTERMEDIATE) {
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+
+bool Manager::isSuccessfulCommand()
+{
+	if(this->_response.getStatus() == SUCCESS || this->_response.getStatus() == SUCCESS_INDEXED_COMMAND)
+	{
+		return true;
+	}
+	return false;
+}
+
+/*********************************************************/
+/************* NAVIGATION RELATED METHODS ****************/
+/*********************************************************/
 
 Messenger Manager::getNextPeriodTasks(PERIOD_TYPE pType)
 {
@@ -516,30 +551,4 @@ std::tm Manager::getPrevMonthTm(std::tm currTm)
 void Manager::setCurrTm(std::tm newTm)
 {
 	this->_currTm = newTm;
-}
-
-void Manager::syncTaskList (const list<Task>& taskList)
-{
-	this->_response.setList(taskList);
-}
-
-void Manager::syncTask (const Task& task)
-{
-	this->_response.setTask(task);
-}
-
-void Manager::resetStatus() {
-	delete this->_cmd;
-	this->_cmd = NULL;
-	this->_response.resetMessenger();
-	this->setCurrTm(getTodayTm());
-}
-
-Manager::~Manager() {
-	this->_storage->save(this->_tasks);
-	delete this->_interpreter;
-	delete this->_executor;
-	delete this->_storage;
-	this->removePreviousCommand();
-	this->_response.resetMessenger();
 }
