@@ -27,7 +27,7 @@ const list<string>		Command::DEFAULT_LIST_OF_STRING			= list<string>();
 const time_t			Command::DEFAULT_TIME					= -1;
 const list<time_t>		Command::DEFAULT_REMIND_TIME			= list<time_t>();
 const int				Command::DEFAULT_INDEX					= -1;
-const unsigned			Command::DEFAULT_CREATED_TIME			= 0;
+const unsigned long long Command::DEFAULT_CREATED_TIME			= 0;
 
 void Command::init()
 {

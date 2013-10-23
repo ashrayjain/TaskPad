@@ -1,1154 +1,34 @@
 #include "Interpreter.h"
 
-using namespace std;
 
-Interpreter::Interpreter(void)
-{
-	_isSuccess=true;
-}
+void Interpreter::interpretCommand(unsigned ActualIndex, Command *prevCommand){
 
+	TP::COMMAND_TYPE taskType;
+	taskType=prevCommand->getCommandType();
+	Command_Mod* Mod_pointer;
+	Command_Del* Del_pointer;
 
-Interpreter::~Interpreter(void)
-{
-}
-/*
-**********************************************************
-Component Functions
-**********************************************************
-*/
-
-void Interpreter::processCommand()
-{
-	if(_command=="add")
-	{
-		_response.setCommandType(ADD);
-		functionAdd();
-	}
-	else if(_command=="mod")
-	{
-		_response.setCommandType(MOD);
-		functionMod();
-	}
-	else if(_command=="del")
-	{
-		_response.setCommandType(DEL);
-		functionDel();
-	}
-	else if(_command=="find")
-	{
-		_response.setCommandType(FIND);
-		functionFind();
-	}
-	else
-	{
-		_response.setStatus(ERROR);
-		_response.setErrorMsg("Invalid command");
-	}
-	return;
-}
-
-void Interpreter::processKeyWords()
-{
-	if(listOfKeyWords.size()!=0){
-		eliminateFalseKeyWords();
+	if(taskType==MOD){
+		Mod_pointer=(Command_Mod*)prevCommand;
+		Mod_pointer->setIndex(ActualIndex);
+		prevCommand=Mod_pointer;
 	}
 
-	if(listOfKeyWords.size()>1){
-		checkForDuplicateKeyWords();//messenger
+	else if(taskType==DEL){
+
+		Del_pointer=(Command_Del*)prevCommand;
+		Del_pointer->setIndex(ActualIndex);
+		prevCommand=Del_pointer;
+
 	}
-	
+
 
 	return;
 }
 
-/*
-************************************************************
-Auxillary Functions for Component Functions
-************************************************************
-*/
 
-void Interpreter::eliminateFalseKeyWords()
-{
-	int numberOfKeyWords=listOfKeyWords.size();
-	int preWordIndex;
-	for(int i=0; i<numberOfKeyWords && numberOfKeyWords!=0;i++)
-	{
-		preWordIndex=listOfKeyWords.at(i).index-1;
+int Interpreter::interpretIndex(std::string indexStr, Messenger &response){
 
-		if(!isKeyWordValid(preWordIndex))
-		{
-			listOfKeyWords.erase(listOfKeyWords.begin()+i);
-			i--;
-			numberOfKeyWords--;
-		}
-	}
-
-	return;
-}
-
-bool Interpreter::isKeyWordValid(int prevSysWordIndex)
-{
-	bool wordFlag=false;
-	string expectedChar="'";
-	char prevWordLastChar=listOfWords.at(prevSysWordIndex).back();
-	if(prevWordLastChar==expectedChar.at(0))
-	{
-		wordFlag=true;
-	}
-	//index case
-	else if((_command=="mod"||_command=="del"||_command=="find")&& 
-		prevSysWordIndex==1 && isByIndex())
-	{
-		wordFlag=true;
-	}
-	//exact case
-	else if((_command=="mod"||_command=="del"||_command=="find")&&
-			prevSysWordIndex==0 &&
-			listOfWords.at(prevSysWordIndex+1)=="exact")
-	{
-		wordFlag=true;
-	}
-	else if(listOfWords.at(prevSysWordIndex)=="done"||
-		    listOfWords.at(prevSysWordIndex)=="undone"||
-			listOfWords.at(prevSysWordIndex)=="timed"||
-			listOfWords.at(prevSysWordIndex)=="deadline"||
-			listOfWords.at(prevSysWordIndex)=="floating")
-	{
-		wordFlag=true;
-	}
-	else if(_command=="find"&&
-		    prevSysWordIndex==0)
-	{
-		wordFlag=true;
-	}
-
-	return wordFlag;
-}
-
-void Interpreter::checkForDuplicateKeyWords()//ERROR_DUPLICATE
-{
-	bool duplicate=false;
-	string duplicatedKeyWord;
-	int numberOfKeyWords=listOfKeyWords.size();
-	for(int i=0; i<numberOfKeyWords;i++)
-		for(int j=i+1;j<numberOfKeyWords;j++)
-		{
-			if((listOfKeyWords.at(i).keyWord==
-				listOfKeyWords.at(j).keyWord)&&
-				listOfKeyWords.at(j).keyWord!="#")
-			{
-				duplicate=true;
-				duplicatedKeyWord=listOfKeyWords.at(i).keyWord;
-				_response.setStatus(ERROR);
-				_response.setErrorMsg(ERROR_DUPLICATE);
-			}
-		}
-	
-	return;
-}
-
-time_t Interpreter::setTime(string keyWord,string inputInfo)
-{
-    int year=-1,month=-1,day=-1,hour=-1,min=-1;
-	time_t rawtime;
-
-	struct tm  timeinfo={0,0,0,0,0,0};
-
-	time (&rawtime);
-
-	localtime_s (&timeinfo,&rawtime);
-
-
-	if(keyWord=="due"||
-		keyWord=="from"||
-		keyWord=="to"||
-		keyWord=="rt")
-	{
-
-		//	string timeTemplete="dd/mo/yy hh:mm";
-
-
-
-		if(inputInfo.length()>1){
-
-			_isSuccess=integerConverter(inputInfo.substr(0,2),day);
-
-			if(_isSuccess!=false && inputInfo.length()>4 ){
-
-				if(inputInfo.at(2)=='/'){
-					_isSuccess=integerConverter(inputInfo.substr(3,2),month);		
-
-				}
-				else _isSuccess=false;
-			}	
-
-			if(_isSuccess!=false && inputInfo.length()>7){
-				if(inputInfo.at(5)=='/'){
-					_isSuccess=integerConverter(inputInfo.substr(6,2),year);
-					year=year+2000;
-				}
-				else _isSuccess=false;
-			}
-
-			if(_isSuccess!=false && inputInfo.length()>10){
-
-				if(inputInfo.at(8)==' '){
-					_isSuccess=integerConverter(inputInfo.substr(9,2),hour);
-				}
-				else _isSuccess=false;
-
-			}
-
-			if(_isSuccess!=false && inputInfo.length()>13){
-
-				if(inputInfo.at(11)==':'){
-					_isSuccess=integerConverter(inputInfo.substr(12),min);
-				}
-				else _isSuccess=false;
-			}
-
-			if(_isSuccess!=false){
-
-				if(year==-1)year=timeinfo.tm_year+1900;
-				if(month==-1)month=timeinfo.tm_mon+1;
-				if(day==-1)day=timeinfo.tm_mday+1;
-				if(hour==-1)hour=timeinfo.tm_hour;
-				if(min==-1)min=timeinfo.tm_min;
-			}
-		}
-		else {
-
-			_isSuccess=false;
-		}
-
-		
-		if(!_isSuccess){
-			_response.setStatus(ERROR);
-			_response.setErrorMsg("Invalid time");
-		}
-
-		if(_isSuccess!=false){
-			struct tm  timeMessage={0,0,0,0,0,0};
-
-			timeMessage.tm_year=year-1900;
-			timeMessage.tm_mon=month-1;
-			timeMessage.tm_mday=day;
-			timeMessage.tm_hour=hour;
-			timeMessage.tm_min=min;
-
-			return mktime(&timeMessage);
-		}
-	}
-
-	return mktime(&timeinfo);
-}
-
-bool Interpreter::integerConverter(string& requiredString, int& number)
-{
-
-        bool flag=true;
-
-        if(requiredString.empty()==true){
-                flag=false;
-        }
-        else{
-                for(unsigned i=0;i<requiredString.length();i++){
-                        if(isdigit(requiredString[i])==false){
-                                flag=false;
-                        }
-                }
-        }
-        number=atoi(requiredString.c_str());
-       
-        return flag;
-
-}
-
-PRIORITY Interpreter::convertStrToPriority(string keyWord, string inputInfo)
-{
-	PRIORITY priority;
-	if(keyWord=="impt")
-	{
-		if(inputInfo=="H" ||inputInfo=="HIGH")
-		{
-			priority=HIGH;
-		}
-		else if(inputInfo=="M" ||inputInfo=="MEDIUM")
-		{
-			priority=MEDIUM;
-		}
-		else if(inputInfo=="L" ||inputInfo=="LOW")
-		{
-			priority=LOW;
-		}
-		else{
-			_response.setStatus(ERROR);
-			_response.setErrorMsg("Invalid priority");
-		}
-	}
-
-	return priority;
-
-}
-
-bool Interpreter::isByIndex()
-{
-	bool flag=false;
-	int counter=0;
-	string index=listOfWords.at(1);
-
-	for(int i=0; i<index.size(); i++)
-	{
-		if(index.at(i)<='9'&& index.at(i)>='0')
-		{
-			counter++;
-		}
-	}
-
-	if(counter==index.size())
-	{
-		flag = true;
-	}
-
-	return flag;
-}
-
-string Interpreter::reconstructInputInfo(int incrementIdx, int numberOfKeyWords)
-{
-	string inputInfo;
-	string expectedChar="'";
-	int firstDataWord=0;
-	int lastDataWord=0;
-
-	if(incrementIdx==numberOfKeyWords-1)
-	{
-		firstDataWord=listOfKeyWords.at(numberOfKeyWords-1).index+1;
-		lastDataWord=listOfWords.size()-1;
-	}
-	else
-	{
-		firstDataWord=listOfKeyWords.at(incrementIdx).index+1;
-		lastDataWord=listOfKeyWords.at(incrementIdx+1).index-1;
-	}
-		
-	for(int j=firstDataWord; j<=lastDataWord&&_isSuccess!=false; j++)
-	{
-		if(j==firstDataWord)
-		{
-			inputInfo+=listOfWords.at(j);
-			if(inputInfo.at(0)!=expectedChar.at(0)){
-				_isSuccess=false;
-				_response.setStatus(ERROR);
-				_response.setErrorMsg(ERROR_DATA);
-			}
-		}
-		else
-		{
-			inputInfo=inputInfo+" "+listOfWords.at(j);
-		}
-	}
-
-	if(inputInfo.back()!=expectedChar.at(0)){
-		_isSuccess=false;
-		_response.setStatus(ERROR);
-		_response.setErrorMsg(ERROR_DATA);
-	}
-
-	//eliminate ''		
-	inputInfo.erase(inputInfo.begin());
-	inputInfo.erase(inputInfo.end()-1);
-
-	return inputInfo;
-}
-
-string Interpreter::reconstructName(int startIndex, int endIndex)//ERROR_NAME
-{
-	string name="";
-	string expectedChar="'";
-		
-	for(int j=startIndex; j<=endIndex; j++)
-	{
-		if(j==startIndex)
-		{
-			name+=listOfWords.at(j);
-			//check first '
-			if(name.at(0)!=expectedChar.at(0)){
-				_response.setStatus(ERROR);
-				_response.setErrorMsg(ERROR_NAME);
-			}
-		}
-		else
-		{
-			name=name+" "+listOfWords.at(j);
-		}
-	}
-
-	//check last '		
-	if(name.back()!=expectedChar.at(0)){
-		_response.setStatus(ERROR);
-		_response.setErrorMsg(ERROR_NAME);
-			}
-
-	//eliminate ''		
-	name.erase(name.begin());
-	name.erase(name.end()-1);
-
-	return name;
-
-
-}
-
-void Interpreter::allocatePpl(string keyWord, list<string>&ppl, string inputInfo)
-{
-	if(keyWord=="ppl"){
-		string pplComponent=inputInfo;
-		stringstream timeExtracter(pplComponent);
-
-		while(getline(timeExtracter,pplComponent,',')){
-			ppl.push_back(pplComponent);
-		}
-	}
-
-	return;
-}
-
-void Interpreter::allocateRt(string keyWord, list<time_t>&remindTime, string inputInfo)
-{
-	if(keyWord=="rt"){
-
-	
-	time_t rtTime;
-	string timeComponent=inputInfo;
-	stringstream timeExtracter(timeComponent);
-
-	while(getline(timeExtracter,timeComponent,',')){
-
-		rtTime=setTime(keyWord,timeComponent);
-		remindTime.push_back(rtTime);
-		}
-	}
-
-	return;
-
-}
-
-void Interpreter::allocateTags(string keyWord, list<string>&tags, string inputInfo)
-{
-	if(keyWord=="#"){
-	string pplComponent=inputInfo;
-	stringstream timeExtracter(pplComponent);
-
-	while(getline(timeExtracter,pplComponent,',')){
-		tags.push_back(pplComponent);
-		}
-	}
-	
-	return;
-}
-
-void Interpreter::setCmdObj_Add(Command_Add* cmd, string keyWord, string inputInfo, unsigned int time, PRIORITY priority, list<string>ppl, list<string>tags, list<time_t>remindTime)
-{
-	if(keyWord=="due")
-	{
-		cmd->setDueDate(time);
-	}
-	else if(keyWord=="from")
-	{
-		cmd->setFromDate(time);
-	}
-	else if(keyWord=="to")
-	{
-		cmd->setToDate(time);
-	}
-	else if(keyWord=="at")
-	{
-		cmd->setLocation(inputInfo);
-	}
-	else if(keyWord=="ppl")
-	{
-		cmd->setParticipants(ppl);
-	}
-	else if(keyWord=="note")
-	{
-		cmd->setNote(inputInfo);
-	}
-	else if(keyWord=="impt")
-	{
-		cmd->setPriority(priority);
-	}
-	else if(keyWord=="#")
-	{
-		cmd->setTags(tags);
-	}
-	else if(keyWord=="rt")
-	{
-		cmd->setRemindTimes(remindTime);
-	}
-
-	return;
-}
-
-void Interpreter::setCmdObj_Mod(Command_Mod* cmd, string keyWord, string inputInfo, unsigned int time, PRIORITY priority, list<string>ppl, list<string>tags, list<time_t>remindTime)
-{
-	if(keyWord=="name")
-	{
-		cmd->setOptName(inputInfo);
-	}
-	else if(keyWord=="due")
-	{
-		cmd->setDueDate(time);
-	}
-	else if(keyWord=="from")
-	{
-		cmd->setFromDate(time);
-	}
-	else if(keyWord=="to")
-	{
-		cmd->setToDate(time);
-	}
-	else if(keyWord=="at")
-	{
-		cmd->setLocation(inputInfo);
-	}
-	else if(keyWord=="ppl")
-	{
-		cmd->setParticipants(ppl);
-	}
-	else if(keyWord=="note")
-	{
-		cmd->setNote(inputInfo);
-	}
-	else if(keyWord=="impt")
-	{
-		cmd->setPriority(priority);
-	}
-	else if(keyWord=="#")
-	{
-		cmd->setTags(tags);
-	}
-	else if(keyWord=="rt")
-	{
-		cmd->setRemindTimes(remindTime);
-	}
-	else if(keyWord=="done")
-	{
-		cmd->setTaskState(DONE);
-	}
-	else if(keyWord=="undone")
-	{
-		cmd->setTaskState(UNDONE);
-	}
-	else if(keyWord=="-at")
-	{
-		inputInfo="";
-		cmd->setLocation(inputInfo);
-	}
-	else if(keyWord=="-ppl")
-	{
-		inputInfo="";
-		cmd->setParticipants(ppl);
-	}
-	else if(keyWord=="-note")
-	{
-		inputInfo="";
-		cmd->setNote(inputInfo);
-	}
-	else if(keyWord=="-#")
-	{
-		inputInfo="";
-		cmd->setTags(tags);
-	}
-	else if(keyWord=="-rt")
-	{
-		time=-1;
-		cmd->setRemindTimes(remindTime);
-	}
-
-	return;
-}
-
-/*void Interpreter::setCmdObj_Del(Command_Del* cmd)
-{
-
-		
-	return;
-}*/
-
-void Interpreter::setCmdObj_Find(Command_Find* cmd, string keyWord, string inputInfo, unsigned int time, PRIORITY priority, list<string>ppl, list<string>tags, list<time_t>remindTime)
-{
-	if(keyWord=="name")
-	{
-		cmd->setOptName(inputInfo);
-	}
-	else if(keyWord=="from")
-	{
-		cmd->setFromDate(time);
-	}
-	else if(keyWord=="to")
-	{
-		cmd->setToDate(time);
-	}
-	else if(keyWord=="at")
-	{
-		cmd->setLocation(inputInfo);
-	}
-	else if(keyWord=="ppl")
-	{
-		cmd->setParticipants(ppl);
-	}
-	else if(keyWord=="note")
-	{
-		cmd->setNote(inputInfo);
-	}
-	else if(keyWord=="impt")
-	{
-		cmd->setPriority(priority);
-	}
-	else if(keyWord=="#")
-	{
-		cmd->setTags(tags);
-	}
-	else if(keyWord=="rt")
-	{
-		cmd->setRemindTimes(remindTime);
-	}
-	else if(keyWord=="done")
-	{
-		cmd->setTaskState(DONE);
-	}
-	else if(keyWord=="undone")
-	{
-		cmd->setTaskState(UNDONE);
-	}
-	else if(keyWord=="timed")
-	{
-		cmd->setTaskType(TIMED);
-	}
-	else if(keyWord=="deadline")
-	{
-		cmd->setTaskType(DEADLINE);
-	}
-	else if(keyWord=="floating")
-	{
-		cmd->setTaskType(FLOATING);
-	}
-
-	/*else if(keyWord=="-at")
-	{
-		inputInfo="";
-		cmd->setLocation(inputInfo);
-	}
-	else if(keyWord=="-ppl")
-	{
-		inputInfo="";
-		cmd->setParticipants(inputInfo);
-	}
-	else if(keyWord=="-note")
-	{
-		inputInfo="";
-		cmd->setNote(inputInfo);
-	}
-	else if(keyWord=="-#")
-	{
-		inputInfo="";
-		cmd->setTags(inputInfo);
-	}
-	else if(keyWord=="-rt")
-	{
-		time=-1;
-		cmd->setRemindTime(time);
-	}*/
-
-	return;
-}
-
-/*
-************************************************************
-Principal Functions
-************************************************************
-*/
-
-void Interpreter::extractIndividualWords(string userInput)
-{
-	//extract individual word
-	string individualWord;
-	istringstream ss(userInput);
-	
-	while(ss>>individualWord)
-	{
-		listOfWords.push_back(individualWord);
-	}
-	//empty or contains only command word
-	if(listOfWords.size()<2){
-		_isSuccess=false;
-		_response.setStatus(ERROR);
-		_response.setErrorMsg("Command with no parameters / Invalid command");
-	}
-
-	return;
-}
-
-void Interpreter::extractCommand()
-{
-	_command=listOfWords.at(0);
-
-	if(_command!="add"&&_command!="mod"&&_command!="del"&&_command!="find"){
-		_isSuccess=false;
-		_response.setStatus(ERROR);
-		_response.setErrorMsg("Invalid command");
-	}
-
-	return;
-}
-
-void Interpreter::extractKeyWords()
-{
-	//check for keyword
-	KEY_WORDS individualWord;
-	int numberOfWords=listOfWords.size();
-	for(int i=0; i<numberOfWords;i++)
-	{
-		individualWord.keyWord=listOfWords.at(i);
-		individualWord.index=i;
-		
-		if(individualWord.keyWord=="name"||
-		   individualWord.keyWord=="exact"||
-		   individualWord.keyWord=="ppl"||
-		   individualWord.keyWord=="due"||
-		   individualWord.keyWord=="from"||
-		   individualWord.keyWord=="to"||
-		   individualWord.keyWord=="at"||
-		   individualWord.keyWord=="ppl"||
-		   individualWord.keyWord=="note"||
-		   individualWord.keyWord=="impt"||
-		   individualWord.keyWord=="#"||
-		   individualWord.keyWord=="rt"||
-		   individualWord.keyWord=="done"||
-		   individualWord.keyWord=="undone"||
-		   individualWord.keyWord=="-at"||
-		   individualWord.keyWord=="-ppl"||
-		   individualWord.keyWord=="-note"||
-		   individualWord.keyWord=="-#"||
-		   individualWord.keyWord=="-rt"||
-		   individualWord.keyWord=="timed"||
-		   individualWord.keyWord=="deadline"||
-		   individualWord.keyWord=="floating")
-		{
-			listOfKeyWords.push_back(individualWord);
-		}
-
-		//if(listOfKeyWords.empty())
-		
-	}
-	return;
-}
-
-void Interpreter::functionAdd()
-{
-	Command_Add *cmd = new Command_Add;
-	int numberOfKeyWords=listOfKeyWords.size();
-	string name="";
-	string inputInfo="";
-	
-
-	list<string>tags;
-	list<string>ppl;
-	list<time_t>remindTime;
-
-	//set name
-	if(listOfKeyWords.size()!=0){
-		name=reconstructName(1,listOfKeyWords.at(0).index-1);
-	}
-	else{
-		name=reconstructName(1,listOfWords.size()-1);
-	}
-	cmd->setName(name);
-	
-	for(int i=0; i<numberOfKeyWords && listOfKeyWords.size()!=0; i++)
-	{
-		string keyWord=listOfKeyWords.at(i).keyWord;
-		
-		if(	keyWord!="timed"&&
-			keyWord!="deadline"&&
-			keyWord!="floating")
-		{
-			//reconstruct
-			inputInfo=reconstructInputInfo(i,numberOfKeyWords);
-		}
-
-		//unit test
-		strUT.push_back(inputInfo);
-
-		//convert str to time_t
-
-		time_t time=setTime( keyWord, inputInfo);
-		
-		//convert str to PRIORITY
-		PRIORITY priority=convertStrToPriority(keyWord,inputInfo);
-
-		//set list ppl, list tags, list remindTime
-		allocatePpl(keyWord,ppl,inputInfo);
-		allocateRt(keyWord,remindTime,inputInfo);
-		allocateTags(keyWord,tags,inputInfo);
-		
-		//unit test
-		pplUT=ppl;
-		tagsUT=tags;
-
-		//allocate	
-		setCmdObj_Add(cmd, keyWord,inputInfo,time,priority,ppl,tags,remindTime);
-
-		//reset inputInfo after each iteration
-		inputInfo.clear();
-	}
-
-	
-	if(!_isSuccess){
-	delete cmd;
-	}
-	else _result = cmd;
-	cmd=NULL;
-
-	return;
-}
-
-void Interpreter::functionMod()
-{
-	Command_Mod *cmd= new Command_Mod;
-	int numberOfKeyWords=listOfKeyWords.size();
-	string inputInfo="";
-
-	list<string>tags;
-	list<string>ppl;
-	list<time_t>remindTime;
-
-
-	if(isByIndex())
-	{
-		if(listOfKeyWords.size()==0 ||listOfKeyWords.at(0).index==2){
-			int index=stoi(listOfWords.at(1),nullptr,10);
-			cmd->setIndex(index);
-		}
-		else{
-			_isSuccess=false;
-			_response.setStatus(ERROR);
-			_response.setErrorMsg(ERROR_INDEX);
-		}
-	}
-	else if(listOfWords.at(1)=="exact")
-	{
-		string name=reconstructName(2,listOfKeyWords.at(1).index-1);
-		cmd->setName(name);
-		cmd->setFlagExact();
-	}
-	else
-	{
-		string name;
-		if(listOfKeyWords.size()!=0){
-			name=reconstructName(1,listOfKeyWords.at(0).index-1);
-		}
-		else{
-			name=reconstructName(1,listOfWords.size()-1);
-		}
-		cmd->setName(name);
-	}
-
-	for(int i=0; i<numberOfKeyWords&&listOfKeyWords.size()!=0; i++)
-	{
-		
-		string keyWord=listOfKeyWords.at(i).keyWord;
-
-		if(keyWord!="done"&&
-			keyWord!="undone"&&
-			keyWord!="timed"&&
-			keyWord!="deadline"&&
-			keyWord!="floating")
-		{
-			//reconstruct
-			inputInfo=reconstructInputInfo(i,numberOfKeyWords);
-		}
-		
-		
-		//unit test
-		strUT.push_back(inputInfo);
-		
-		//convert str to time_t
-		time_t time=setTime( keyWord, inputInfo);
-
-		//convert str to PRIORITY
-		PRIORITY priority=convertStrToPriority(keyWord,inputInfo);
-
-		//set list ppl, list tags, list remindTime
-		allocatePpl(keyWord,ppl,inputInfo);
-		allocateRt(keyWord,remindTime,inputInfo);
-		allocateTags(keyWord,tags,inputInfo);
-
-		//unit test
-		pplUT=ppl;
-		tagsUT=tags;
-
-		//allocate function-specific
-		setCmdObj_Mod(cmd, keyWord,inputInfo,time,priority,ppl,tags,remindTime);
-
-		//reset inputInfo after each iteration
-		inputInfo.clear();
-	}
-
-
-	if(!_isSuccess){
-	delete cmd;
-	}
-	else _result = cmd;
-	cmd=NULL;
-
-	
-	return;
-}
-
-void Interpreter:: functionDel()
-{
-	Command_Del *cmd= new Command_Del;
-	
-	if(isByIndex())
-	{
-		if(listOfWords.size()==2){
-			int index=stoi(listOfWords.at(1),nullptr,10);
-			cmd->setIndex(index);
-		}
-		else{
-			_isSuccess=false;
-			_response.setStatus(ERROR);
-			_response.setErrorMsg(ERROR_INDEX);
-		}
-	}
-	else if(listOfWords.at(1)=="exact")
-	{
-		string name=reconstructName(2,listOfWords.size()-1);
-		cmd->setName(name);
-		cmd->setFlagExact();
-	}
-	else
-	{
-		string name;
-		if(listOfKeyWords.size()!=0){
-			name=reconstructName(1,listOfKeyWords.at(0).index-1);
-		}
-		else{
-			name=reconstructName(1,listOfWords.size()-1);
-		}
-		cmd->setName(name);
-	}
-	
-	if(!_isSuccess){
-	delete cmd;
-	}
-	else _result = cmd;
-	cmd=NULL;
-	return;
-}
-
-void Interpreter:: functionFind()
-{
-	Command_Find *cmd= new Command_Find;
-	int numberOfKeyWords=listOfKeyWords.size();
-	string inputInfo="";
-	
-	
-	list<string>tags;
-	list<string>ppl;
-	list<time_t>remindTime;
-
-	if(isByIndex())
-	{
-		if(listOfKeyWords.size()==0){
-			int index=stoi(listOfWords.at(1),nullptr,10);
-			cmd->setIndex(index);
-		}
-		else{
-			_isSuccess=false;
-			_response.setStatus(ERROR);
-			_response.setErrorMsg(ERROR_INDEX);
-		}
-
-		//return;// for find only
-	}
-	else if(listOfWords.at(1)=="exact")
-	{
-		string name =reconstructName(2,listOfWords.size()-1);
-		cmd->setOptName(name);
-		cmd->setFlagExact();
-
-		//return; //find only
-	}
-	else if(listOfKeyWords.empty())
-	{
-		string name=reconstructName(1,listOfWords.size()-1);
-		cmd->setOptName(name);
-	}
-	else if(!listOfKeyWords.empty() && listOfKeyWords.at(0).index!=1)
-	{
-		string name=reconstructName(1,listOfKeyWords.at(0).index-1);
-		cmd->setOptName(name);
-	}
-	else
-	{
-		//do nothing
-	}
-
-
-	for(int i=0; i<numberOfKeyWords && !listOfKeyWords.empty(); i++)
-	{
-		string keyWord=listOfKeyWords.at(i).keyWord;
-		
-		if(keyWord!="done"&&
-		   keyWord!="undone"&&
-		   keyWord!="timed"&&
-		   keyWord!="deadline"&&
-		   keyWord!="floating")
-		{
-			//reconstruct
-			inputInfo=reconstructInputInfo(i,numberOfKeyWords);
-		}
-		
-
-		//unit test
-		strUT.push_back(inputInfo);
-
-		//convert str to time_t
-		time_t time=setTime( keyWord, inputInfo);
-
-		//convert str to PRIORITY
-		PRIORITY priority=convertStrToPriority(keyWord,inputInfo);
-
-		//set list ppl, list tags, list remindTime
-		allocatePpl(keyWord,ppl,inputInfo);
-		allocateRt(keyWord,remindTime,inputInfo);
-		allocateTags(keyWord,tags,inputInfo);
-
-		//unit test
-		pplUT=ppl;
-		tagsUT=tags;
-
-		//allocate function-specific
-		setCmdObj_Find(cmd, keyWord,inputInfo,time,priority,ppl,tags,remindTime);
-
-		//reset inputInfo after each iteration
-		inputInfo.clear();
-	}
-
-	if(!_isSuccess){
-		delete cmd;
-	}
-	else _result = cmd;
-	cmd=NULL;
-
-	
-	return;
-}
-
-/*
-************************************************************
-Auxillary Functions for UnitTest
-************************************************************
-*/
-string Interpreter::getIndividualWord(int userIndex)
-{
-	
-	int systemIndex=userIndex-1;
-	string requestedWord=listOfWords.at(systemIndex);
-
-	return requestedWord;
-}
-
-string Interpreter::getstrUT(int userIndex)
-{
-	int systemIndex=userIndex-1;
-	string requestedWord=strUT.at(systemIndex);
-
-	return requestedWord;
-}
-
-string Interpreter:: getKeyWord(int userIndex)
-{
-	int systemIndex=userIndex-1;
-	string keyWord=listOfKeyWords.at(systemIndex).keyWord;
-
-	return keyWord;
-}
-
-int Interpreter:: getListOfKeyWordsSize()
-{
-	int size=listOfKeyWords.size();
-
-	return size;
-}
-
-Command* Interpreter::get_cmdObject(string command)
-{
-	return _result;
-}
-
-string Interpreter::getPplUT(int userIndex)
-{
-	auto item=pplUT.begin();
-	std::advance(item,userIndex-1);
-
-	return *item;
-}
-
-string Interpreter::getTagsUT(int userIndex)
-{
-	auto item=tagsUT.begin();
-	std::advance(item,userIndex-1);
-
-	return *item;
-}
-
-/*
-************************************************************
-APIs
-************************************************************
-*/
-Command * Interpreter::interpretCommand(string userInput, Messenger & response)
-{
-	bool success;
-	_response = response;
-	_response.setStatus(SUCCESS);
-
-	extractIndividualWords(userInput);
-	
-	if(_isSuccess){
-		extractCommand();
-	}
-
-	if(_isSuccess){
-		extractKeyWords();
-	}
-
-	if(_isSuccess){
-		processKeyWords();
-	}
-	
-	if(_isSuccess){
-		processCommand();
-	}
-
-	response = _response;
-	success=_isSuccess;
-	//reset
-	listOfKeyWords = vector<KEY_WORDS>();
-	listOfWords = vector<string>();
-	_isSuccess=true;
-
-	if(!success){
-		return NULL;
-	}
-	else return _result;
-
-}
-
-int Interpreter::interpretIndex(string indexStr, Messenger & response)
-{
 	int num;
 	if(integerConverter(indexStr,num))
 	{
@@ -1158,14 +38,1639 @@ int Interpreter::interpretIndex(string indexStr, Messenger & response)
 	else{ 
 
 		response.setStatus(ERROR);
-		//response.setErrorMsg("The index is invalid");
+		response.setErrorMsg("The index is invalid");
 	}
 
 	return num;
 }
 
-void Interpreter::interpretCommand(unsigned int index, Command* prevCommand)
-{
-	
-	return;
+bool Interpreter::checkCommand(string command, int& commandType){
+
+	bool flag=false;
+	bool testlist[12]={false};
+	int num=-1;
+
+
+	string generalAddCase="((( due| from| to| impt| at| ppl| note| rt) `[^`]*`)|( #[^( |`)]*))*(\\s*)";
+	string generalModCase="((( due| from| name| to| impt| at| ppl| note| rt) `[^`]*`)|( done| undone)|( (#)[^( |`)]*))*(\\s*)";
+	string generalFindCase="((( due| from| name| to| impt| at| ppl| note| rt) `[^`]*`)|( #[^( |`)]*)|( done| undone)|(( timed| deadline| floating)( |$)))*(\\s*)";
+
+
+
+	regex test_add_command("^add `([^`]+)`"+generalAddCase); 
+	regex test_mod_command("^mod `([^`]+)`"+generalModCase); 
+	regex test_mod_exact_command("^mod exact `([^`]+)`"+generalModCase);
+	regex test_mod_index_command("^mod ([0-9]+)"+generalModCase);
+
+	regex test_find_command("^find"+generalFindCase);
+	regex test_find_exact_command("^find exact"+generalFindCase);
+
+	regex test_del_command("^del `([^`]+)`");
+	regex test_del_exact_command("^del exact `([^`]+)`");
+	regex test_del_index_command("^del ([0-9]+)");
+	regex test_undo_command("^undo");
+	regex test_redo_command("^redo");
+	regex test_syn_command("^sync `([^`]+)`");
+
+
+	testlist[0]=regex_match(command,test_add_command);
+	testlist[1]=regex_match(command,test_mod_command);
+	testlist[2]=regex_match(command,test_mod_exact_command);
+	testlist[3]=regex_match(command,test_mod_index_command);
+	testlist[4]=regex_match(command,test_find_command);
+	testlist[5]=regex_match(command,test_find_exact_command);
+	testlist[6]=regex_match(command,test_del_command);
+	testlist[7]=regex_match(command,test_del_exact_command);
+	testlist[8]=regex_match(command,test_del_index_command);
+	testlist[9]=regex_match(command,test_undo_command);
+	testlist[10]=regex_match(command,test_redo_command);
+	testlist[11]=regex_match(command,test_syn_command);
+
+	for(int i=0;i<12 && flag!=true;i++){
+		if(testlist[i]==true){
+			num=i;
+			flag=true;
+		}
+	}
+
+	commandType=num;
+	return flag;
 }
+
+Command* Interpreter::interpretCommand(std::string commandStr, Messenger &response)
+{
+	bool flag=true;
+	int commandType;
+
+	string word;
+	Command* returnCommand;
+
+	flag=checkCommand(commandStr,commandType);
+
+
+
+	if(flag!=false){
+		switch (commandType){
+		case 0:
+			{
+				Command_Add* Add_pointer=new Command_Add();
+
+
+				stringstream extractName(commandStr);
+				string taskName;
+				getline(extractName,taskName,'`');
+				taskName.clear();
+				getline(extractName,taskName,'`');
+				Add_pointer->setName(taskName);
+
+				returnCommand=interpretAdd(Add_pointer, commandStr, response,flag);
+
+				break;
+			}
+
+		case 1:
+			{
+				Command_Mod* Mod_pointer=new Command_Mod();
+
+				stringstream extractName(commandStr);
+				string taskName;
+				getline(extractName,taskName,'`');
+				taskName.clear();
+				getline(extractName,taskName,'`');
+				Mod_pointer->setName(taskName);
+
+				returnCommand=interpretModify(Mod_pointer, commandStr, response,flag);
+				break;
+			}
+
+		case 2:
+			{
+				Command_Mod* Mod_pointer=new Command_Mod();
+
+				Mod_pointer->setFlagExact();
+
+				stringstream extractName(commandStr);
+				string taskName;
+				getline(extractName,taskName,'`');
+				taskName.clear();
+				getline(extractName,taskName,'`');
+				Mod_pointer->setName(taskName);
+
+
+
+				returnCommand=interpretModify(Mod_pointer, commandStr, response,flag);
+
+				break;
+			}
+
+		case 3:
+			{
+				Command_Mod* Mod_pointer=new Command_Mod();
+				string getIndex=commandStr;
+				stringstream extractIndex(getIndex);
+				string content;
+				extractIndex>>getIndex;
+				getIndex.clear();
+				extractIndex>>getIndex;
+				int index;
+
+				index=getIndexMessage(getIndex,flag);
+				Mod_pointer->setIndex(index);
+
+				returnCommand=interpretModify(Mod_pointer, commandStr, response,flag);
+				break;
+			}
+
+
+		case 4:
+			{
+
+				Command_Find* Find_pointer=new Command_Find();
+
+
+
+				returnCommand=interpretFind(Find_pointer,commandStr, response,flag);
+				break;
+			}
+
+		case 5:
+			{
+
+				Command_Find* Find_pointer=new Command_Find();
+
+				Find_pointer->setFlagExact();
+				returnCommand=interpretFind(Find_pointer,commandStr, response,flag);
+				break;
+			}
+
+		case 6:
+			{
+
+				Command_Del* Del_pointer=new Command_Del();
+				returnCommand=interpretDelete(Del_pointer,commandStr, response,flag);
+				break;
+
+			}
+		case 7:
+			{
+				Command_Del* Del_pointer=new Command_Del();
+
+				Del_pointer->setFlagExact();
+
+				returnCommand=interpretDelete(Del_pointer,commandStr, response,flag);
+				break;
+			}
+		case 8:
+			{
+				Command_Del* Del_pointer=new Command_Del();
+				stringstream extractIndex(commandStr);
+				string content;
+				extractIndex>>commandStr;
+				commandStr.clear();
+				extractIndex>>commandStr;
+				int index;
+
+				index=getIndexMessage(commandStr,flag);
+				Del_pointer->setIndex(index);
+				response.setCommandType(DEL);
+			
+				returnCommand=(Command*)Del_pointer;
+				break;
+
+
+			}
+		case 9:
+			{
+				Command_Undo* Undo_pointer=new Command_Undo();
+
+				returnCommand=interpretUndo(Undo_pointer,commandStr, response,flag);
+				break;
+			}
+		case 10:
+			{
+				Command_Redo* Redo_pointer=new Command_Redo();
+
+				returnCommand=interpretRedo(Redo_pointer,commandStr, response,flag);
+				break;
+
+
+			}
+		case 11:
+			{
+				Command_Sync *Sync_pointer=new Command_Sync();
+
+				returnCommand=interpretSync(Sync_pointer,commandStr, response,flag);
+
+				break;
+			}
+
+		default: flag=false;
+			break;
+		}
+
+	}
+	if(flag==false){
+
+		response.setStatus(ERROR);
+		response.setErrorMsg("invalid command");
+		return NULL;
+	}
+
+	else{
+
+		response.setStatus(SUCCESS);
+
+		return returnCommand;
+	}
+
+}
+
+Command* Interpreter:: interpretAdd(Command_Add* commandType, string commandStr,Messenger &response, bool& flag)
+{
+
+
+	if(flag && commandType->getFlagDue()==false){		
+
+		time_t content;
+		if(getDueDateMessage(commandStr,flag,content)){		
+			commandType->setDueDate(content);		
+		}		
+	}
+	else {
+
+		flag=false;
+	}
+
+	if(flag && commandType->getFlagFrom() ==false){
+
+		time_t content;
+		if(getFromDateMessage(commandStr,flag,content)){
+			commandType->setFromDate(content);
+		}
+	}
+	else {
+		flag=false;
+
+	}
+
+	if(flag && commandType->getFlagTo() ==false){
+		time_t content;
+
+		if(getToDateMessage(commandStr,flag,content)){
+			commandType->setToDate(content);
+		}
+	}
+	else{
+
+		flag=false;
+	}
+
+	if(flag && commandType->getFlagParticipants()==false){
+
+		list<string>content;
+		if(getParticipantsMessage(commandStr,flag,content)){
+			commandType->setParticipants(content);
+		}
+
+	}
+	else{
+
+		flag=false;
+	}
+
+	if(flag && commandType->getFlagNote()==false){
+
+		string content;
+		if(getNoteMessage(commandStr,flag,content)){
+			commandType->setNote(content);
+		}
+	}
+	else{
+
+		flag=false;
+
+	}
+
+	if(flag && commandType->getFlagLocation()==false){
+		string content;
+		if(getLocationMessage(commandStr,flag,content)){
+			commandType->setLocation(content);
+		}
+	}
+	else{
+
+		flag=false;
+	}
+
+	if(flag && commandType->getFlagRemindTimes()==false){
+		list<time_t>content;
+		if(getRemindTimesMessage(commandStr,flag,content)){
+			commandType->setRemindTimes(content);
+		}
+	}
+	else{
+
+		flag=false;
+
+	}
+
+	if(flag && commandType->getFlagPriority()==false){
+		PRIORITY content;
+		if(getPriorityMessage(commandStr,flag,content)){
+			commandType->setPriority(content);
+		}
+	}
+	else {
+		flag=false;
+
+	}
+
+	if(flag && commandType->getFlagTags()==false){
+		list<string>content;
+
+		if(getTagsMessage(commandStr,flag,content)){
+			commandType->setTags(content);
+		}
+	}
+	else {
+
+		flag=false;
+	}
+
+	if(flag==true){
+
+		response.setStatus(SUCCESS);
+		response.setCommandType(ADD);
+		return (Command*)commandType;
+	}
+
+	else return NULL;
+}
+
+
+
+Command* Interpreter::interpretModify(Command_Mod* commandType, std::string commandStr, Messenger &response, bool& flag){
+
+	if(flag && commandType->getFlagDue()==false){		
+
+		time_t content;
+		if(getDueDateMessage(commandStr,flag,content)){		
+			commandType->setDueDate(content);		
+		}		
+	}
+	else {
+
+		flag=false;
+	}
+
+
+	if(flag && commandType->getFlagParticipants()==false){
+
+		list<string>content;
+		if(getParticipantsMessage(commandStr,flag,content)){
+			commandType->setParticipants(content);
+		}
+
+	}
+	else{
+
+		flag=false;
+	}
+
+	if(flag && commandType->getFlagNote()==false){
+
+		string content;
+		if(getNoteMessage(commandStr,flag,content)){
+			commandType->setNote(content);
+		}
+	}
+	else{
+
+		flag=false;
+
+	}
+
+	if(flag && commandType->getFlagLocation()==false){
+		string content;
+		if(getLocationMessage(commandStr,flag,content)){
+			commandType->setLocation(content);
+		}
+	}
+	else{
+
+		flag=false;
+	}
+
+	if(flag && commandType->getFlagRemindTimes()==false){
+		list<time_t>content;
+		if(getRemindTimesMessage(commandStr,flag,content)){
+			commandType->setRemindTimes(content);
+		}
+	}
+	else{
+
+		flag=false;
+
+	}
+
+	if(flag && commandType->getFlagPriority()==false){
+		PRIORITY content;
+		if(getPriorityMessage(commandStr,flag,content)){
+			commandType->setPriority(content);
+		}
+	}
+	else {
+		flag=false;
+
+	}
+
+	if(flag && commandType->getFlagTags()==false){
+		list<string>content;
+
+		if(getTagsMessage(commandStr,flag,content)){
+			commandType->setTags(content);
+		}
+	}
+	else {
+
+		flag=false;
+	}
+
+	if(flag && commandType->getFlagOptName()==false){
+
+		string content;
+		if(getNameMessage(commandStr,flag,content)){
+			commandType->setOptName(content);
+		}
+	}
+	else {
+		flag=false;
+	}
+
+	if(flag && commandType->getFlagTaskState()==false){
+
+		TASK_STATE content;
+		if(getTaskStateMessage(commandStr,flag,content)){
+			commandType->setTaskState(content);
+		}
+	}
+	else {
+
+		flag=false;
+	}
+
+	if(flag==true){
+		response.setStatus(SUCCESS);
+		response.setCommandType(MOD);
+		return (Command*)commandType;
+	}
+	else return NULL;
+}
+
+
+
+Command* Interpreter::interpretFind(Command_Find* commandType, std::string commandStr, Messenger &response, bool& flag){
+
+
+	if(flag && commandType->getFlagFrom() ==false){
+
+		time_t content;
+		if(getFromDateMessage(commandStr,flag,content)){
+			commandType->setFromDate(content);
+		}
+	}
+	else {
+		flag=false;
+
+	}
+
+	if(flag && commandType->getFlagTo() ==false){
+		time_t content;
+
+		if(getToDateMessage(commandStr,flag,content)){
+			commandType->setToDate(content);
+		}
+	}
+	else{
+
+		flag=false;
+	}
+
+
+	if(flag && commandType->getFlagParticipants()==false){
+
+		list<string>content;
+		if(getParticipantsMessage(commandStr,flag,content)){
+			commandType->setParticipants(content);
+		}
+
+	}
+	else{
+
+		flag=false;
+	}
+
+	if(flag && commandType->getFlagNote()==false){
+
+		string content;
+		if(getNoteMessage(commandStr,flag,content)){
+			commandType->setNote(content);
+		}
+	}
+	else{
+
+		flag=false;
+
+	}
+
+	if(flag && commandType->getFlagLocation()==false){
+		string content;
+		if(getLocationMessage(commandStr,flag,content)){
+			commandType->setLocation(content);
+		}
+	}
+	else{
+
+		flag=false;
+	}
+
+	if(flag && commandType->getFlagPriority()==false){
+		PRIORITY content;
+		if(getPriorityMessage(commandStr,flag,content)){
+			commandType->setPriority(content);
+		}
+	}
+	else {
+		flag=false;
+
+	}
+
+	if(flag && commandType->getFlagTags()==false){
+		list<string>content;
+
+		if(getTagsMessage(commandStr,flag,content)){
+			commandType->setTags(content);
+		}
+	}
+	else {
+
+		flag=false;
+	}
+
+	if(flag && commandType->getFlagOptName()==false){
+
+		string content;
+		if(getNameMessage(commandStr,flag,content)){
+			commandType->setOptName(content);
+		}
+	}
+	else {
+		flag=false;
+	}
+
+
+	if(flag && commandType->getFlagTaskState()==false){
+
+		TASK_STATE content;
+		if(getTaskStateMessage(commandStr,flag,content)){
+			commandType->setTaskState(content);
+		}
+	}
+	else {
+
+		flag=false;
+	}
+
+	if(flag && commandType->getFlagTaskType()==false){
+		TASK_TYPE content;
+		if(getTaskTypeMessage(commandStr,flag,content)){
+			commandType->setTaskType(content);
+		}
+	}
+	else{
+
+		flag=false;
+
+	}
+
+	if(flag==true){
+		response.setStatus(SUCCESS);
+		response.setCommandType(FIND);
+		return (Command*)commandType;
+	}
+	else return NULL;
+}
+
+
+Command* Interpreter:: interpretDelete(Command_Del*commandType,std::string commandStr, Messenger &response, bool &flag){
+
+	stringstream extractContent(commandStr);
+	string content;
+	getline(extractContent,content,'`');
+	content.clear();
+	getline(extractContent,content,'`');
+	commandType->setName(content);
+
+
+	response.setCommandType(DEL);
+	response.setStatus(SUCCESS);
+	return (Command*)commandType;
+}
+Command* Interpreter:: interpretRedo(Command_Redo*commandType,std::string commandStr, Messenger &response, bool &flag){
+
+	response.setCommandType(REDO);
+	response.setStatus(SUCCESS);
+	return (Command*)commandType;
+}
+
+Command* Interpreter:: interpretUndo(Command_Undo*commandType,std::string commandStr, Messenger &response, bool &flag){
+
+	response.setCommandType(UNDO);
+	response.setStatus(SUCCESS);
+	return (Command*)commandType;
+}
+
+Command* Interpreter:: interpretSync(Command_Sync*commandType,std::string commandStr, Messenger &response, bool &flag){
+
+	string content;
+	if(getSyncProviderNameMessage(commandStr,flag,content)){
+		commandType->setSyncProviderName(content);
+	}
+	response.setCommandType(SYNC);
+	response.setStatus(SUCCESS);
+	return (Command*)commandType;
+}
+
+
+
+int Interpreter:: getIndexMessage(string command,bool& flag){
+
+	int num;
+	flag=integerConverter(command, num);
+	return num;
+}	
+
+
+bool Interpreter::checkKeyWord(string command, int position){
+
+	vector<int> positionForNotion; 
+	positionForNotion.push_back(-1); // dummy value;
+	bool isKeyWord=true;
+
+
+	for(int i=0;i<command.length();i++)
+	{
+		if(command.at(i)=='`'){
+
+			positionForNotion.push_back(i);
+		}
+
+	}
+	int count=1;
+
+	while(isKeyWord &&count<(int)positionForNotion.size()){
+
+		if(position>positionForNotion[count] && position<positionForNotion[count+1]){
+
+			isKeyWord=false;
+
+		}
+		count=count+2;
+	}
+
+	return isKeyWord;
+} 
+
+bool Interpreter::checkDuplicate(string command, string cmdTemplate,int startPosition){
+
+	string subString=command.substr(startPosition+1);
+	smatch match;
+	regex extractTemplete(cmdTemplate);
+	string commandStr;
+	bool isDuplicate=false;
+
+	if (regex_search(subString, match, extractTemplete)){
+
+		commandStr=match[0];
+
+	}
+	if(commandStr.length()>0){
+
+		isDuplicate=true;
+	}
+
+	return isDuplicate;
+}
+
+bool Interpreter:: getNameMessage(string command, bool&flag, string& content){ 
+
+	regex extractTemplete(" name `[^`]*`");
+	smatch match;
+	string commandStr;
+	string preContent;
+	bool isNotEmpty=true;
+
+
+	if (regex_search(command, match, extractTemplete)){
+
+		commandStr=match[0];
+
+	}
+	if(!commandStr.empty()){
+
+		stringstream extract(commandStr);
+		getline(extract,preContent,'`');
+		preContent.clear();
+		getline(extract,preContent,'`');
+
+		content=preContent;
+
+		if(checkDuplicate(command," name `[^`]*`",match.position())==true){
+
+			flag=false;
+		}
+
+	}
+	else{
+
+		isNotEmpty=false;
+
+	}
+
+
+	return isNotEmpty;
+
+}
+bool Interpreter::getOptNameMessage(string command, bool&flag,string& content){ 
+
+	regex extractTemplete(" name `[^`]*`");
+	smatch match;
+	string commandStr;
+	string preContent;
+	bool isNotEmpty=true;
+
+	if (regex_search(command, match, extractTemplete)){
+
+		commandStr=match[0];
+
+	}
+	if(!commandStr.empty()){
+
+		stringstream extract(commandStr);
+		getline(extract,preContent,'`');
+		preContent.clear();
+		getline(extract,preContent,'`');
+
+		content=preContent;
+
+		if(checkDuplicate(command," name `[^`]*`",match.position())==true){
+
+			flag=false;
+		}
+
+	}
+	else{
+
+		isNotEmpty=false;
+
+	}
+
+
+	return isNotEmpty;
+}
+
+bool Interpreter::getDueDateMessage(string command, bool&flag, time_t& content){
+
+	regex extractTemplete(" due `[^`]*`");
+	smatch match;
+	string commandStr;
+	string preContent;
+	bool isNotEmpty=true;
+
+	if (regex_search(command, match, extractTemplete)){
+
+		commandStr=match[0];
+
+	}
+	if(!commandStr.empty()){
+
+		stringstream extract(commandStr);
+		getline(extract,preContent,'`');
+		preContent.clear();
+		getline(extract,preContent,'`');
+
+		content=setTime(preContent,flag);
+
+		//convertToTime(preContent,content,flag);
+
+		if(checkDuplicate(command," due `[^`]*`",match.position())==true){
+
+			flag=false;
+		}
+		// check from
+		commandStr.clear();
+		regex checkFrom("from `[^`]*`");
+		if (regex_search(command, match,checkFrom)){
+
+			commandStr=match[0];
+
+		}
+		if(!commandStr.empty()) flag=false;
+
+		// check to
+
+		commandStr.clear();
+		regex checkTo("to `[^`]*`");
+		if (regex_search(command, match,checkFrom)){
+
+			commandStr=match[0];
+
+		}
+		if(!commandStr.empty()) flag=false;
+
+
+	}
+	else{
+
+		isNotEmpty=false;
+
+	}
+
+	return isNotEmpty;
+}
+
+bool	Interpreter::getFromDateMessage(string command, bool&flag, time_t& content){
+
+	regex extractTemplete(" from `[^`]*`");
+	smatch match;
+	string commandStr;
+	string preContent;
+	bool isNotEmpty=true;
+
+	if (regex_search(command, match, extractTemplete)){
+
+		commandStr=match[0];
+
+	}
+	if(!commandStr.empty()){
+
+		stringstream extract(commandStr);
+		getline(extract,preContent,'`');
+		preContent.clear();
+		getline(extract,preContent,'`');
+
+		content=setTime(preContent,flag);
+
+		if(checkDuplicate(command," from `[^`]*`",match.position())==true){
+
+			flag=false;
+		}		
+
+
+		regex checkDue(" due `[^`]*`");
+		commandStr.clear();
+		if (regex_search(command, match, checkDue)){
+
+			commandStr=match[0];
+
+		}
+		if(!commandStr.empty())flag=false;
+
+
+
+	}
+	else{
+
+		isNotEmpty=false;
+
+	}
+
+
+	return isNotEmpty;
+
+}
+
+bool Interpreter::getToDateMessage(string command, bool&flag, time_t& content){
+
+	regex extractTemplete(" to `[^`]*`");
+	smatch match;
+	string commandStr;
+	string preContent;
+	bool isNotEmpty=true;
+
+	if (regex_search(command, match, extractTemplete)){
+
+		commandStr=match[0];
+
+	}
+	if(!commandStr.empty()){
+
+		stringstream extract(commandStr);
+		getline(extract,preContent,'`');
+		preContent.clear();
+		getline(extract,preContent,'`');
+
+		content=setTime(preContent,flag);
+
+		if(checkDuplicate(command," to `[^`]*`",match.position())==true){
+
+			flag=false;
+		}
+
+
+		regex checkDue(" due `[^`]*`");
+		commandStr.clear();
+		if (regex_search(command, match, checkDue)){
+
+			commandStr=match[0];
+
+		}
+		if(!commandStr.empty())flag=false;
+
+
+	}
+	else{
+
+		isNotEmpty=false;
+
+	}
+
+
+	return isNotEmpty;
+}
+
+
+bool Interpreter::getLocationMessage(string command, bool&flag, string& content){
+
+	regex extractTemplete(" at `[^`]*`");
+	smatch match;
+	string commandStr;
+	string preContent;
+	bool isNotEmpty=true;
+
+	if (regex_search(command, match, extractTemplete)){
+
+		commandStr=match[0];
+
+	}
+	if(!commandStr.empty()){
+
+		stringstream extract(commandStr);
+		getline(extract,preContent,'`');
+		preContent.clear();
+		getline(extract,preContent,'`');
+
+		content=preContent;
+
+		if(checkDuplicate(command," at `[^`]*`",match.position())==true){
+
+			flag=false;
+		}		
+
+	}
+	else{
+
+		isNotEmpty=false;
+
+	}
+
+
+	return isNotEmpty;
+
+}
+
+bool Interpreter::getParticipantsMessage(string command, bool&flag, list<std::string>& content){
+	list<string>pplList;
+	regex extractTemplete(" ppl `[^`]*`");
+	smatch match;
+	string commandStr;
+	string preContent;
+	bool isNotEmpty=true;
+
+	if (regex_search(command, match, extractTemplete)){
+
+		commandStr=match[0];
+
+	}
+	if(!commandStr.empty()){
+
+		stringstream extract(commandStr);
+		getline(extract,preContent,'`');
+		content.clear();
+		getline(extract,preContent,'`');
+
+		stringstream extractIndividual(preContent);
+		string name="";
+		getline(extractIndividual,name,',');
+		while(!name.empty()){
+
+			pplList.push_back(name);
+			name.clear();
+			getline(extractIndividual,name,',');
+		}
+
+		content=pplList;
+
+
+		if(checkDuplicate(command," ppl `[^`]*`",match.position())==true){
+
+			flag=false;
+		}	
+
+	}
+	else{
+
+		isNotEmpty=false;
+	}
+
+
+	return isNotEmpty;
+
+}	
+
+bool	Interpreter::getNoteMessage(string command, bool&flag,string& content){
+
+	regex extractTemplete(" note `[^`]*`");
+	smatch match;
+	string commandStr;
+	string preContent;
+	bool isNotEmpty=true;
+
+	if (regex_search(command, match, extractTemplete)){
+
+		commandStr=match[0];
+
+	}
+	if(!commandStr.empty()){
+
+		stringstream extract(commandStr);
+		getline(extract,preContent,'`');
+		preContent.clear();
+		getline(extract,preContent,'`');
+
+		content=preContent;
+
+		if(checkDuplicate(command," note `[^`]*`",match.position())==true){
+
+			flag=false;
+		}	
+
+	}
+	else{
+
+		isNotEmpty=false;
+
+	}
+
+
+	return isNotEmpty;
+
+
+}
+bool Interpreter::getPriorityMessage(string command, bool&flag,TP::PRIORITY& content){ // need to force type
+	regex extractTemplete(" impt `[^`]*`");
+	smatch match;
+	string commandStr;
+	string preContent;
+	PRIORITY priority=MEDIUM;
+	bool isNotEmpty=true;
+
+	if (regex_search(command, match, extractTemplete)){
+
+		commandStr=match[0];
+
+	}
+	if(!commandStr.empty()){
+
+		stringstream extract(commandStr);
+		getline(extract,preContent,'`');
+		preContent.clear();
+		getline(extract,preContent,'`');
+
+		if(preContent=="H" ||preContent=="HIGH"){
+			priority=HIGH;
+
+		}
+		else if(preContent=="M" || preContent=="MEDIUM"){
+			priority=MEDIUM;
+
+		}
+		else if(preContent=="L"||preContent=="LOW"){
+
+			priority=LOW;
+
+		}
+		else if(preContent.empty()){
+
+			priority=MEDIUM;
+		}
+		else {
+			flag=false;
+		}
+		content=priority;
+
+		if(checkDuplicate(command," impt `[^`]*`",match.position())==true){
+
+			flag=false;
+		}
+
+	}
+	else {
+
+		isNotEmpty=false;
+	}
+	return isNotEmpty;
+}
+
+bool Interpreter::getTagsMessage(string command, bool&flag,list<std::string>& content){
+
+	list<string>tagList;
+	regex extractTemplete("\\s(#[^( |`)]*)(\\s|$)");
+
+	smatch match;
+	string commandStr;
+	string preContent;
+	bool isNotEmpty=true;
+	string subStirng=command;
+
+	int count=0;
+
+	if (regex_search(subStirng, match, extractTemplete)){
+
+		commandStr=match[0];
+
+	}
+
+	while(!commandStr.empty()){
+
+		if(checkKeyWord(subStirng,match.position())==true){
+
+			stringstream extract(commandStr);
+			string tagContent;
+			getline(extract,tagContent,'#');
+			tagContent.clear();
+			getline(extract,tagContent,' ');
+			tagList.push_back(tagContent);
+			count++;
+		}	
+
+
+		subStirng=subStirng.substr(match.position()+1);
+		commandStr.clear();
+
+		if (regex_search(subStirng, match, extractTemplete)){
+
+			commandStr=match[0];
+
+		}
+
+	}
+
+	if(count==0){
+		isNotEmpty=false;
+	}
+
+	content=tagList;
+	return isNotEmpty;
+
+}	
+
+bool Interpreter::	getRemindTimesMessage(string command, bool&flag,list<std::time_t>&content){
+
+	list<time_t>rtList;
+	regex extractTemplete(" rt `[^`]*`");
+	smatch match;
+	string commandStr;
+	string preContent;
+	bool isNotEmpty=true;
+
+	if (regex_search(command, match, extractTemplete)){
+
+		commandStr=match[0];
+
+	}
+	if(!commandStr.empty()){
+
+		stringstream extract(commandStr);
+		getline(extract,preContent,'`');
+		preContent.clear();
+		getline(extract,preContent,'`');
+
+		stringstream extractIndividual(preContent);
+		string time="";
+		getline(extractIndividual,time,',');
+
+		while(!time.empty()){
+			time_t rtTime=setTime(time,flag);
+			rtList.push_back(rtTime);
+			time.clear();
+			getline(extractIndividual,time,',');
+		}
+		content=rtList;
+
+		if(checkDuplicate(command," rt `[^`]*`",match.position())==true){
+
+			flag=false;
+		}
+	}
+	else{
+
+		isNotEmpty=false;
+	}
+
+
+
+	return isNotEmpty;
+}
+
+bool Interpreter::getTaskStateMessage(string command, bool&flag, TP::TASK_STATE& content){ 
+
+	TASK_STATE task_state;
+	string commandStr;
+	smatch match;
+	bool isNotEmpty=true;
+	regex extractTemplete("\\s(done|undone)(\\s|$)");
+	string subStirng=command;
+
+	int startIndex=0;
+	string::const_iterator startPos = command.begin();
+	string::const_iterator endPos = command.end();
+
+	vector<string>result;
+	int count=0;
+	string test;
+	if (regex_search(subStirng, match, extractTemplete)){
+
+		commandStr=match[0];
+
+	}
+
+	while(!commandStr.empty()){
+
+		if(checkKeyWord(command,startIndex+match.position())==true){
+
+			result.push_back(commandStr);
+			count++;
+		}	
+
+		startIndex=startIndex+match.position()+1;
+		startPos=startPos+match.position()+1;
+
+		commandStr.clear();
+		if(startPos!=endPos){
+			if (regex_search(startPos,endPos, match, extractTemplete)){
+
+				commandStr=match[0];
+
+			}
+		}
+	}
+
+	if(count==0){
+		isNotEmpty=false;
+	}
+	else if(count==1){
+		if(result.at(0).find("undone")!=string::npos){
+
+			content=UNDONE;
+		}
+
+		else {
+			content=DONE;	
+
+		}
+	}
+
+	else{
+
+		flag=false;
+	}
+
+	return isNotEmpty;
+}
+
+bool Interpreter::getTaskTypeMessage(string command, bool&flag, TP::TASK_TYPE& content){
+
+	TASK_TYPE task_type;
+	string commandStr;
+	smatch match;
+	regex extractTemplete("\\s(timed|deadline|floating)(\\s|$)");
+	string subStirng=command;
+
+	string::const_iterator startPos = command.begin();
+	string::const_iterator endPos = command.end();
+
+	int startIndex=0;
+	vector<string>result;
+	int count=0;
+	bool isNotEmpty=true;
+
+
+	if (regex_search(startPos,endPos, match, extractTemplete)){
+
+		commandStr=match[0];
+
+	}
+
+	while(!commandStr.empty()){
+
+		if(checkKeyWord(command,startIndex+match.position())==true){
+
+			result.push_back(commandStr);
+			count++;
+		}	
+
+		startIndex=startIndex+match.position()+1;
+		startPos=startPos+match.position()+1;
+
+		commandStr.clear();
+		if(startPos!=endPos){
+			if (regex_search(startPos,endPos, match, extractTemplete)){
+
+				commandStr=match[0];
+
+			}
+		}
+	}
+
+	if(count==0){
+		isNotEmpty=false;
+	}
+	else if(count==1){
+		if(result.at(0).find("timed")!=string::npos){
+
+			content=TIMED;
+		}
+		else if(result.at(0).find("deadline")!=string::npos){
+
+			content=DEADLINE;
+
+		}
+		else {
+			content=FLOATING;
+
+
+		}
+	}
+	else{
+
+		flag=false;
+	}
+
+	return isNotEmpty;
+}
+
+bool Interpreter::getSyncProviderNameMessage(string command, bool&flag, string&content){
+
+	regex extractTemplete("sync `[^`]+`");
+	smatch match;
+	string commandStr;
+	string preContent;
+	bool isNotEmpty=true;
+
+	if (regex_search(command, match, extractTemplete)){
+
+		commandStr=match[0];
+
+	}
+
+	if(!commandStr.empty()){
+
+		stringstream extract(commandStr);
+		getline(extract,preContent,'`');
+		content.clear();
+		getline(extract,preContent,'`');
+
+		content=preContent;
+
+	}
+	else {
+
+		isNotEmpty=false;
+	}
+	return isNotEmpty;
+}
+/*
+time_t Interpreter::setTime(string commandStr,bool& _isSuccess)
+{
+int year=-1,month=-1,day=-1,hour=-1,min=-1;
+time_t rawtime;
+string inputInfo=commandStr;
+struct tm  timeinfo={0,0,0,0,0,0};
+
+time (&rawtime);
+
+localtime_s (&timeinfo,&rawtime);
+
+
+//	string timeTemplete="dd/mo/yy hh:mm";
+
+if(inputInfo.length()>1){
+
+_isSuccess=integerConverter(inputInfo.substr(0,2),day);
+
+if(_isSuccess!=false && inputInfo.length()>4 ){
+
+if(inputInfo.at(2)=='/'){
+_isSuccess=integerConverter(inputInfo.substr(3,2),month);		
+
+}
+else _isSuccess=false;
+}	
+
+if(_isSuccess!=false && inputInfo.length()>7){
+if(inputInfo.at(5)=='/'){
+_isSuccess=integerConverter(inputInfo.substr(6,2),year);
+year=year+2000;
+}
+else _isSuccess=false;
+}
+
+if(_isSuccess!=false && inputInfo.length()>10){
+
+if(inputInfo.at(8)==' '){
+_isSuccess=integerConverter(inputInfo.substr(9,2),hour);
+}
+else _isSuccess=false;
+
+}
+
+if(_isSuccess!=false && inputInfo.length()>13){
+
+if(inputInfo.at(11)==':'){
+_isSuccess=integerConverter(inputInfo.substr(12),min);
+}
+else _isSuccess=false;
+}
+
+if(_isSuccess!=false){
+
+if(year==-1)year=timeinfo.tm_year+1900;
+if(month==-1)month=timeinfo.tm_mon+1;
+if(day==-1)day=timeinfo.tm_mday+1;
+if(hour==-1)hour=timeinfo.tm_hour;
+if(min==-1)min=timeinfo.tm_min;
+}
+
+if(_isSuccess!=false){
+struct tm  timeMessage={0,0,0,0,0,0};
+
+timeMessage.tm_year=year-1900;
+timeMessage.tm_mon=month-1;
+timeMessage.tm_mday=day;
+timeMessage.tm_hour=hour;
+timeMessage.tm_min=min;
+
+return mktime(&timeMessage);
+}
+
+
+}
+
+return mktime(&timeinfo);
+}
+
+*/
+time_t Interpreter::setTime(string commandStr,bool& flag){
+	int year=-1,month=-1,day=-1,hour=-1,min=-1;
+	time_t rawtime;
+	string inputInfo=commandStr;
+	struct tm  timeinfo={0,0,0,0,0,0};
+
+	time (&rawtime);
+
+	localtime_s (&timeinfo,&rawtime);
+
+	int countSlash=0;
+	for(int i=0;i<commandStr.length();i++){
+
+		if(commandStr.at(i)=='/'){
+
+			countSlash++;
+		}
+
+	}
+	string content;
+	switch(countSlash){
+
+	case 0: 
+	{	
+		stringstream extract(commandStr);
+		getline(extract,content,' ');
+		flag=integerConverter(content,day);
+		content.clear();
+		getline(extract,content,':');
+		if(!content.empty()){
+
+			flag=integerConverter(content,hour);
+		}
+		content.clear();
+		getline(extract,content);
+		if(!content.empty()){
+
+			flag=integerConverter(content,min);
+		}
+		break;
+	}
+	case 1:
+	{	
+		stringstream extract(commandStr);
+		content.clear();
+		getline(extract,content,'/');  
+		flag=integerConverter(content,day);
+		content.clear();
+		getline(extract,content,' '); 
+		flag=integerConverter(content,month);
+		
+		content.clear();
+		getline(extract,content,':');
+		if(!content.empty()){
+
+			flag=integerConverter(content,hour);
+		}
+		content.clear();
+		getline(extract,content);
+		if(!content.empty()){
+
+			flag=integerConverter(content,min);
+		}
+
+		break;
+	}
+	case 2:
+	{	
+		stringstream extract(commandStr);
+		content.clear();
+		getline(extract,content,'/');  
+		flag=integerConverter(content,day);
+		content.clear();
+		getline(extract,content,'/'); 
+		flag=integerConverter(content,month);
+		content.clear();
+		getline(extract,content,' '); 
+		flag=integerConverter(content,year);
+		if(year<100)year=year+2000;
+		content.clear();
+		getline(extract,content,':');
+		if(!content.empty()){
+
+			flag=integerConverter(content,hour);
+		}
+		content.clear();
+		getline(extract,content);
+		if(!content.empty()){
+
+			flag=integerConverter(content,min);
+		}
+		 break;
+	}
+	default:
+		break;
+	}
+if(flag!=false){
+
+if(year==-1)year=timeinfo.tm_year+1900;
+if(month==-1)month=timeinfo.tm_mon+1;
+if(day==-1)day=timeinfo.tm_mday+1;
+if(hour==-1)hour=0;
+if(min==-1)min=0;
+}
+
+struct tm  timeMessage={0,0,0,0,0,0};
+
+timeMessage.tm_year=year-1900;
+timeMessage.tm_mon=month-1;
+timeMessage.tm_mday=day;
+timeMessage.tm_hour=hour;
+timeMessage.tm_min=min;
+
+return mktime(&timeMessage);
+
+
+}
+
+
+
+
+bool Interpreter::integerConverter(string& requiredString, int& number)
+{
+
+	bool flag=true;
+
+	if(requiredString.empty()==true){
+		flag=false;
+	}
+	else{
+		for(unsigned i=0;i<requiredString.length();i++){
+			if(isdigit(requiredString[i])==false){
+				flag=false;
+			}
+		}
+	}
+	number=atoi(requiredString.c_str());
+
+	return flag;
+
+}
+
+

@@ -13,12 +13,13 @@
 //
 #include <QtWidgets/QApplication>
 #include "../TaskPad_library/mainwindow.h"
+//#include <vld.h>
 
 int main(int argc, char *argv[])
 {
 	QApplication app(argc, argv);
 
-	Q_INIT_RESOURCE(mainwindow);
+	Q_INIT_RESOURCE(images);
 	MainWindow window;
 	window.show();
 

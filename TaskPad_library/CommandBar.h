@@ -18,12 +18,20 @@ class CommandBar: public QTextEdit
 
 public:
 	CommandBar(QWidget *parent);
-	
 	QString getCurrentLine();
 	void pushCurrentLine();
-	void createNewTaskTemplate();
+	void setQuickAddMode();
 
 protected slots:
+	void createTemplateAdd();
+	void createTemplateAddTimed();
+	void createTemplateModByName();
+	void createTemplateModByIndex();
+	void createTemplateDelByName();
+	void createTemplateDelByIndex();
+	void createTemplateFind();
+	void createTemplateUndo();
+	void createTemplateRedo();
 	void performCompletion();
 	void hkTemplateGoBackwards();
 
@@ -31,10 +39,20 @@ private:
 	static const QStringList COMMAND_LIST;
 	static const QStringList KEYWORD_LIST;
 	static const QString SPACE;
+	static const QString INCLUDE_QUOTE_LEFT_PAIR;
 	static const QString SINGLE_QUOTATION_MARK;
+	static const QString QUOTE_LEFT;
 	static const QString EMPTY;
 	//HOTKEY TEMPLATE RELATED
-	static const QString HOTKEY_TEMPLATE_NEW;
+	static const QString HOTKEY_TEMPLATE_ADD;
+	static const QString HOTKEY_TEMPLATE_ADD_TIMED;
+	static const QString HOTKEY_TEMPLATE_MOD_BY_NAME;
+	static const QString HOTKEY_TEMPLATE_MOD_BY_INDEX;
+	static const QString HOTKEY_TEMPLATE_DEL_BY_NAME;
+	static const QString HOTKEY_TEMPLATE_DEL_BY_INDEX;
+	static const QString HOTKEY_TEMPLATE_FIND;
+	static const QString HOTKEY_TEMPLATE_UNDO;
+	static const QString HOTKEY_TEMPLATE_REDO;
 	//INIT RELATED
 	void initWidgets();
 	void initCompleter();
@@ -45,13 +63,23 @@ private:
 	void performCompletion(const QString&);
 	QString getWordUnderCursor();
 	bool isLastCharLetter(QString str);
-	bool hasSingleQuotationMark(QTextCursor::MoveOperation);
+	bool hasKeywordNearby(QString keyword, QTextCursor::MoveOperation direction);
 	bool hasSingleQuotationMark_LHS();
 	bool hasSingleQuotationMark_RHS();
-	void clearSingleQuotationMark_RHS();
-	void insertSingleQuotationMark_RHS();
-	void insertSpace();
+	bool hasQuoteLeft_RHS();
+	bool hasQuoteLeft_LHS();
+	bool hasSpace_LHS();
+	bool hasSpace_RHS();
+	bool hasSharp_LHS();
+	void clearCharNearby(QTextCursor::MoveOperation direction);
+	void clearCharRHS();
+	void clearCharLHS();
 	void insertCompletion(const QString &completion);
+	bool CommandBar::containsQuoteLeftPair(QString str);
+	bool isWithinPairOfQuoteLeft();
+	QVector<QPair<int, int> > getQuoteLeftPositions();
+	bool isHotkeyTemplateMode();
+	void createTemplate(QString templateStr);
 	//MODEL RELATED
 	void produceModel();
 	void produceCommandModel();
@@ -60,10 +88,12 @@ private:
 	//KEY PRESS RELATED
 	void keyPressEvent(QKeyEvent*event);
 	bool handleKeyPress(QKeyEvent*event);
+	void handleKeyQuoteLeft(bool *isHandled);
 	void handleKeyEscape(bool *isHandled);
 	void handleKeyTab(bool *isHandled);
 	void handleKeySpace(bool *isHandled);
-	void handleKeyDeleteAndBackspace();
+	void handleKeyDelete(bool *isHandled);
+	void handleKeyBackspace(bool *isHandled);
 	void handleKeyUp();
 	void handleKeyDown();
 	void handleKeyDefault();
@@ -73,8 +103,19 @@ private:
 	QTextCursor lastTimeCursor;
 	QStringListModel* model;
 	QCompleter* completer;
-	QRegExp hotkeyTemplate;
+	QRegExp hotkeyTemplate;//TODO: rename it
+	QRegExp REGEXP_quoteLeft;
 	QStack<QString> inputHistory_undo;
 	QStack<QString> inputHistory_redo;
+	//Short cut
+	QShortcut* newDeadlineTask;
+	QShortcut* newTimedTask;
+	QShortcut* modifyByName;
+	QShortcut* modifyByIndex;
+	QShortcut* delByName;
+	QShortcut* delByIndex;
+	QShortcut* find;
+	QShortcut* undo;
+	QShortcut* redo;
 };
 #endif
