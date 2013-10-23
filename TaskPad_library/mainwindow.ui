@@ -15,7 +15,11 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>TaskPad</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="images.qrc">
+    <normaloff>:/MainWindow/Resources/logo.png</normaloff>:/MainWindow/Resources/logo.png</iconset>
   </property>
   <property name="styleSheet">
    <string notr="true">QMainWindow#MainWindowClass {
@@ -347,9 +351,9 @@ QTextEdit#cmdBar:hover {
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>14</y>
+       <y>11</y>
        <width>371</width>
-       <height>20</height>
+       <height>24</height>
       </rect>
      </property>
      <property name="text">
@@ -635,7 +639,7 @@ QToolButton#HelpButton:hover
   <customwidget>
    <class>CommandBar</class>
    <extends>QTextEdit</extends>
-   <header>CommandBar.h</header>
+   <header>commandbar.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>
@@ -654,7 +658,7 @@ QToolButton#HelpButton:hover
   <tabstop>CloseButton</tabstop>
  </tabstops>
  <resources>
-  <include location="mainwindow.qrc"/>
+  <include location="images.qrc"/>
  </resources>
  <connections/>
 </ui>

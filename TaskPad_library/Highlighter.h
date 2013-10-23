@@ -6,7 +6,7 @@ class Highlighter: public QSyntaxHighlighter
 	Q_OBJECT
 
 public:
-	enum HIGHLIGHT_TYPE { COMMAND, KEYWORD, BLANK };
+	enum HIGHLIGHT_TYPE { COMMAND = 0, KEYWORD = 1, PAIR_QUOTE_LEFT = 2, BLANK = 3 };
 
 	Highlighter(QTextDocument *parent)
 	:QSyntaxHighlighter(parent)
@@ -15,11 +15,15 @@ public:
 		CommandFormat.setForeground(QBrush("#232323"));
 		KeywordFormat.setFontWeight(QFont::Bold);
 		KeywordFormat.setForeground(QBrush("#397CD4"));
+		PairOfQuoteLeft.setFontWeight(QFont::Bold);
+		PairOfQuoteLeft.setForeground(QBrush("#787878"));
 		BlankFormat.setFontWeight(QFont::Bold);
 		BlankFormat.setForeground(QBrush("#742894"));
+
 		addRegex(COMMAND, "^(add|mod|del|find|undo|redo|sync)");
 		addRegex(KEYWORD, " exact| name| due| from| to| at| ppl| note| impt"\
 						"| rt| done| undone| deadline| timed| floating| #");
+		addRegex(PAIR_QUOTE_LEFT, "`(.*)`");
 		addRegex(BLANK, "__[A-Z]+__");
 	}
 
@@ -34,24 +38,23 @@ private:
 		QRegExp regex(pattern);
 		regex.setPatternSyntax(QRegExp::RegExp2);
 		regex.setMinimal(minimal);
-		regexForType.insert(type, regex);
+		regexForType.push_back(regex);
 	}
 
 	void highlightPatterns(const QString &text)
 	{
-		QHashIterator<HIGHLIGHT_TYPE, QRegExp> i(regexForType);
-		while (i.hasNext()) {
-			i.next();
-			HIGHLIGHT_TYPE type = i.key();
-			const QRegExp &regex = i.value();
+		for(int i = 0; i < regexForType.size(); i++){//foreach regex
+			const QRegExp &regex = regexForType[i];
 			int index = regex.indexIn(text);
-			while (index > -1) {
+			while (index > -1) {//foreach regex's occurrence
 				int length = regex.matchedLength();
-				if (type == COMMAND)
+				if (i == COMMAND)
 					setFormat(index, length, CommandFormat);
-				else if (type == KEYWORD)
+				else if (i == KEYWORD)
 					setFormat(index, length, KeywordFormat);
-				else if (type == BLANK)
+				else if (i == PAIR_QUOTE_LEFT)
+					setFormat(index, length, PairOfQuoteLeft);
+				else if (i == BLANK)
 					setFormat(index, length, BlankFormat);
 				index = regex.indexIn(text, index + length);
 			}
@@ -60,6 +63,7 @@ private:
 
 	QTextCharFormat CommandFormat;
 	QTextCharFormat KeywordFormat;
+	QTextCharFormat PairOfQuoteLeft;
 	QTextCharFormat BlankFormat;
-	QMultiHash< HIGHLIGHT_TYPE, QRegExp > regexForType;
+	QVector<QRegExp> regexForType;
 };
