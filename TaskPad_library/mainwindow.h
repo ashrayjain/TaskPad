@@ -24,7 +24,6 @@ protected slots:
 	void getToday();
 	void getInbox();
 	void showWindow();
-	void showReminder();
 	void showQuickAddWindow();
 	void closeQuickAddWindow();
 	void handleQuickAddRequest(QString requestStr);
@@ -32,6 +31,7 @@ protected slots:
 	void iconIsActived(QSystemTrayIcon::ActivationReason);
 
 private:
+	void showReminder();
 	void showTrayMsg(QString msg);
 	void keyPressEvent(QKeyEvent*event);
 	void reset();
@@ -62,7 +62,6 @@ private:
 	bool isQuickAddOpen;
 	QDialog* quickAddWindow;
 	Manager* scheduler;
-	QTimer* timer;
 
 	friend class QuickAddWindow;
 };

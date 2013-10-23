@@ -3,16 +3,15 @@
 #include "Highlighter.h"
 
 const QStringList CommandBar::COMMAND_LIST = QStringList() \
-	<< "add ``" << "mod" << "del" << "find" << "undo" <<     \
+	<< "add" << "mod" << "del" << "find" << "undo" <<     \
 	"redo" << "sync";
 
 const QStringList CommandBar::KEYWORD_LIST = QStringList() \
-	<< "name ``" << "due ``" << "from ``" << "to ``" << "at ``" << "ppl ``" \
-	<< "note ``" << "impt ``" << "rt ``" << "done" << "undone" <<  \
+	<< "name" << "due" << "from" << "to" << "at" << "ppl" \
+	<< "note" << "impt" << "rt" << "done" << "undone" <<  \
 	"deadline" << "timed" << "floating" << "exact";
 
 const QString CommandBar::SPACE = " ";
-const QString CommandBar::INCLUDE_QUOTE_LEFT_PAIR = "(\\w+ ``)|( ``)|(``)";
 const QString CommandBar::SINGLE_QUOTATION_MARK = "'";
 const QString CommandBar::QUOTE_LEFT = "`";
 const QString CommandBar::EMPTY = "";
@@ -158,15 +157,9 @@ void CommandBar::insertCompletion(const QString &completion)
 		TEXT_EDIT_END
 
 		cursor.setPosition(insertionPosition);//back to prev. cursor position
-		cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, numberOfCharsToComplete);
+		cursor.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
 		setTextCursor(cursor);
 	}
-}
-
-bool CommandBar::containsQuoteLeftPair(QString str){
-	QRegExp regex(INCLUDE_QUOTE_LEFT_PAIR);
-	int index = regex.indexIn(str);
-	return index != -1;//todo: magic number
 }
 
 bool CommandBar::isWithinPairOfQuoteLeft(){
@@ -227,11 +220,14 @@ QString CommandBar::getWordUnderCursor()
 
 bool CommandBar::hasKeywordNearby(QString keyword, QTextCursor::MoveOperation direction)
 {
+	bool result;
+
 	QTextCursor cursor = textCursor();
 	cursor.movePosition(direction, QTextCursor::KeepAnchor);
 	QString str = cursor.selectedText();
 
-	return str == keyword;
+	result = str == keyword;
+	return result;
 }
 
 bool CommandBar::hasSingleQuotationMark_RHS()
@@ -257,15 +253,6 @@ bool CommandBar::hasQuoteLeft_LHS()
 bool CommandBar::hasSpace_RHS()
 {
 	return hasKeywordNearby(SPACE, QTextCursor::Right);
-}
-
-bool CommandBar::hasSharp_LHS(){
-	QTextCursor cursor = textCursor();
-	cursor.movePosition(QTextCursor::StartOfWord);
-	cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
-	QString str = cursor.selectedText();
-
-	return str == "#";
 }
 
 bool CommandBar::hasSpace_LHS()
@@ -296,7 +283,7 @@ void CommandBar::clearCharLHS()
 
 void CommandBar::produceModel()
 {
-	if(isWithinPairOfQuoteLeft() || hasSharp_LHS()){
+	if(isWithinPairOfQuoteLeft()){
 		model->setStringList(QStringList());
 	}
 	else if(containsCommand())
@@ -321,13 +308,18 @@ void CommandBar::produceKeywordModel()
 
 bool CommandBar::containsCommand()
 {
-	const QString CMD_PATTERN = "^(add|mod|del|find|undo|redo|sync) ";
-	const int UNFOUND = -1;
+	bool result = false;
 	QString currentLine = textCursor().block().text();
-	QRegExp regex(CMD_PATTERN);
-	int index = regex.indexIn(currentLine);
 
-	return index != UNFOUND;
+	for(int i = 0; i < COMMAND_LIST.length(); i++)
+	{
+		if(currentLine.startsWith(COMMAND_LIST.at(i)))
+		{
+			result = true;
+			break;
+		}
+	}
+	return result;
 }
 
 void CommandBar::keyPressEvent(QKeyEvent*event)
@@ -385,12 +377,6 @@ void CommandBar::handleKeyQuoteLeft(bool *isHandled)
 	else if(hasQuoteLeft_RHS()){
 		cursor.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor);
 		cursor.insertText(SPACE);
-	}
-	else if(containsQuoteLeftPair(cursor.selectedText())){
-		TEXT_EDIT_BEGIN
-		cursor.clearSelection();
-		cursor.movePosition(QTextCursor::Left);
-		TEXT_EDIT_END
 	}
 	else{
 		cursor.clearSelection();
@@ -458,24 +444,10 @@ void CommandBar::handleKeyTab(bool *isHandled)
 	}
 	else
 	{
-		if(containsQuoteLeftPair(cursor.selectedText())){
-			TEXT_EDIT_BEGIN
-			cursor.clearSelection();
-			cursor.movePosition(QTextCursor::Left);
-			TEXT_EDIT_END
-		}
-		else if(hasQuoteLeft_RHS()){
-			TEXT_EDIT_BEGIN
-			cursor.movePosition(QTextCursor::Right);
-			cursor.insertText(SPACE);
-			TEXT_EDIT_END
-		}
-		else{
-			TEXT_EDIT_BEGIN
-			cursor.clearSelection();
-			cursor.insertText(SPACE);
-			TEXT_EDIT_END
-		}
+		TEXT_EDIT_BEGIN
+		cursor.clearSelection();
+		cursor.insertText(SPACE);
+		TEXT_EDIT_END
 		*isHandled = true;
 		setTextCursor(cursor);
 	}
@@ -487,18 +459,10 @@ void CommandBar::handleKeySpace(bool *isHandled)
 	QTextCursor cursor = textCursor();
 	if(cursor.hasSelection())
 	{
-		if(containsQuoteLeftPair(cursor.selectedText())){
-			TEXT_EDIT_BEGIN
-			cursor.clearSelection();
-			cursor.movePosition(QTextCursor::Left);
-			TEXT_EDIT_END
-		}
-		else{
-			TEXT_EDIT_BEGIN
-			cursor.clearSelection();
-			cursor.insertText(SPACE);
-			TEXT_EDIT_END
-		}
+		TEXT_EDIT_BEGIN
+		cursor.clearSelection();
+		cursor.insertText(SPACE);
+		TEXT_EDIT_END
 		*isHandled = true;
 		setTextCursor(cursor);
 	}
