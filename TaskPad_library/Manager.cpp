@@ -518,6 +518,16 @@ void Manager::setCurrTm(std::tm newTm)
 	this->_currTm = newTm;
 }
 
+void Manager::syncTaskList (const list<Task>& taskList)
+{
+	this->_response.setList(taskList);
+}
+
+void Manager::syncTask (const Task& task)
+{
+	this->_response.setTask(task);
+}
+
 void Manager::resetStatus() {
 	delete this->_cmd;
 	this->_cmd = NULL;
