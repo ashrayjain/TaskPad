@@ -102,7 +102,9 @@ class Manager {
 		Messenger	getNextPeriodTasks	(PERIOD_TYPE);
 		Messenger	getPrevPeriodTasks	(PERIOD_TYPE);
 		void		resetStatus			();
-		list<Task> getCurrentReminders	();
+		list<Task>	getCurrentReminders	();
+		void		syncTaskList		(const list<Task>&);
+		void		syncTask			(const Task&);
 		~Manager();
 
 		// response messages
