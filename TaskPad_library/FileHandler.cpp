@@ -1,3 +1,21 @@
+/*
+ * =====================================================================================
+ *
+ *		Filename:  FileHandler.cpp
+ *
+ *      Version:  1.0
+ *
+ *      Author:  Thyaegsh Manikandan (A0100124J)
+ *		Organization:  NUS, SoC
+ *
+ * =====================================================================================
+
+ ** Gist of File Contents:
+  *
+  * This file implements all of constants defined in the FileHandler.h file
+  * 
+ */
+
 #include "FileHandler.h"
 
 const std::string FileHandler::LABEL_START_OF_TASK = "StartOfTask";
