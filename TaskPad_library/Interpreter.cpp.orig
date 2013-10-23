@@ -53,7 +53,7 @@ bool Interpreter::checkCommand(string command, int& commandType){
 
 	string generalAddCase="((( due| from| to| impt| at| ppl| note| rt) `[^`]*`)|( #[^( |`)]*))*";
 	string generalModCase="((( due| from| name| to| impt| at| ppl| note| rt) `[^`]*`)|( done| undone)|( (#)[^( |`)]*))*";
-	string generalFindCase="((( due| from| name| to| impt| at| ppl| note| rt) `[^`]*`)|( #[^( |`)]*)|( done| undone)|(( timed| deadline| floating)( |$)))*";
+	string generalFindCase="((( from| name| to| impt| at| ppl| note| rt) `[^`]*`)|( #[^( |`)]*)|( done| undone)|(( timed| deadline| floating)( |$)))*";
 
 
 
@@ -287,8 +287,7 @@ Command* Interpreter::interpretCommand(std::string commandStr, Messenger &respon
 
 Command* Interpreter:: interpretAdd(Command_Add* commandType, string commandStr,Messenger &response, bool& flag)
 {
-
-
+      
 	if(flag && commandType->getFlagDue()==false){		
 
 		time_t content;
@@ -397,6 +396,11 @@ Command* Interpreter:: interpretAdd(Command_Add* commandType, string commandStr,
 		flag=false;
 	}
 
+	
+	if(commandType->getFlagFrom()==true && commandType->getFlagTo()==true){
+	
+		if(commandType->getFromDate()>commandType->getToDate())flag=false;
+	}
 	if(flag==true){
 
 		response.setStatus(SUCCESS);
@@ -424,6 +428,35 @@ Command* Interpreter::interpretModify(Command_Mod* commandType, std::string comm
 	}
 
 
+	if(flag && commandType->getFlagFrom() ==false){
+
+		time_t content;
+		if(getFromDateMessage(commandStr,flag,content)){
+			commandType->setFromDate(content);
+		}
+	}
+	else {
+		flag=false;
+
+	}
+
+
+	if(flag && commandType->getFlagTo() ==false){
+		time_t content;
+
+		if(getToDateMessage(commandStr,flag,content)){
+			commandType->setToDate(content);
+		}
+	}
+	else{
+
+		flag=false;
+	}
+
+	
+	
+	
+	
 	if(flag && commandType->getFlagParticipants()==false){
 
 		list<string>content;
@@ -784,7 +817,7 @@ bool Interpreter:: getNameMessage(string command, bool&flag, string& content){
 		getline(extract,preContent,'`');
 
 		content=preContent;
-
+		if(content.empty())isNotEmpty=false;
 		if(checkDuplicate(command," name `[^`]*`",match.position())==true){
 
 			flag=false;
@@ -822,7 +855,7 @@ bool Interpreter::getOptNameMessage(string command, bool&flag,string& content){
 		getline(extract,preContent,'`');
 
 		content=preContent;
-
+		if(content.empty())isNotEmpty=false;
 		if(checkDuplicate(command," name `[^`]*`",match.position())==true){
 
 			flag=false;
@@ -858,9 +891,13 @@ bool Interpreter::getDueDateMessage(string command, bool&flag, time_t& content){
 		getline(extract,preContent,'`');
 		preContent.clear();
 		getline(extract,preContent,'`');
-
+		if(preContent.empty()){
+			
+			isNotEmpty=false;
+		}
+		else{
 		content=setTime(preContent,flag);
-
+		}
 		//convertToTime(preContent,content,flag);
 
 		if(checkDuplicate(command," due `[^`]*`",match.position())==true){
@@ -919,8 +956,10 @@ bool	Interpreter::getFromDateMessage(string command, bool&flag, time_t& content)
 		preContent.clear();
 		getline(extract,preContent,'`');
 
+		if(preContent.empty())isNotEmpty=false;
+		else{
 		content=setTime(preContent,flag);
-
+		}
 		if(checkDuplicate(command," from `[^`]*`",match.position())==true){
 
 			flag=false;
@@ -970,7 +1009,12 @@ bool Interpreter::getToDateMessage(string command, bool&flag, time_t& content){
 		preContent.clear();
 		getline(extract,preContent,'`');
 
-		content=setTime(preContent,flag);
+		if(preContent.empty())isNotEmpty=false;
+		else
+		{
+			content=setTime(preContent,flag);
+		}
+		
 
 		if(checkDuplicate(command," to `[^`]*`",match.position())==true){
 
@@ -1021,7 +1065,7 @@ bool Interpreter::getLocationMessage(string command, bool&flag, string& content)
 		getline(extract,preContent,'`');
 
 		content=preContent;
-
+		if (content.empty())isNotEmpty=false;
 		if(checkDuplicate(command," at `[^`]*`",match.position())==true){
 
 			flag=false;
@@ -1033,7 +1077,6 @@ bool Interpreter::getLocationMessage(string command, bool&flag, string& content)
 		isNotEmpty=false;
 
 	}
-
 
 	return isNotEmpty;
 
@@ -1070,7 +1113,7 @@ bool Interpreter::getParticipantsMessage(string command, bool&flag, list<std::st
 		}
 
 		content=pplList;
-
+		if(pplList.empty())isNotEmpty=false;
 
 		if(checkDuplicate(command," ppl `[^`]*`",match.position())==true){
 
@@ -1109,7 +1152,7 @@ bool	Interpreter::getNoteMessage(string command, bool&flag,string& content){
 		getline(extract,preContent,'`');
 
 		content=preContent;
-
+		if(content.empty())isNotEmpty=false;
 		if(checkDuplicate(command," note `[^`]*`",match.position())==true){
 
 			flag=false;
@@ -1147,6 +1190,7 @@ bool Interpreter::getPriorityMessage(string command, bool&flag,TP::PRIORITY& con
 		preContent.clear();
 		getline(extract,preContent,'`');
 
+		if(preContent.empty())isNotEmpty=false;
 		if(preContent=="H" ||preContent=="HIGH"){
 			priority=HIGH;
 
@@ -1210,7 +1254,11 @@ bool Interpreter::getTagsMessage(string command, bool&flag,list<std::string>& co
 			getline(extract,tagContent,'#');
 			tagContent.clear();
 			getline(extract,tagContent,' ');
-			tagList.push_back(tagContent);
+			
+			if(!tagContent.empty()){
+			
+				tagList.push_back(tagContent);
+			}
 			count++;
 		}	
 
@@ -1267,7 +1315,7 @@ bool Interpreter::	getRemindTimesMessage(string command, bool&flag,list<std::tim
 			getline(extractIndividual,time,',');
 		}
 		content=rtList;
-
+		if(content.empty())isNotEmpty=false;
 		if(checkDuplicate(command," rt `[^`]*`",match.position())==true){
 
 			flag=false;
@@ -1638,11 +1686,20 @@ if(min==-1)min=0;
 
 struct tm  timeMessage={0,0,0,0,0,0};
 
-timeMessage.tm_year=year-1900;
-timeMessage.tm_mon=month-1;
-timeMessage.tm_mday=day;
-timeMessage.tm_hour=hour;
-timeMessage.tm_min=min;
+if(year>2100)
+	flag=false;
+else if(month>12)
+	flag=false;
+else if(day>31)
+	flag=false;
+
+if(flag!=false){
+	timeMessage.tm_year=year-1900;
+	timeMessage.tm_mon=month-1;
+	timeMessage.tm_mday=day;
+	timeMessage.tm_hour=hour;
+	timeMessage.tm_min=min;
+}
 
 return mktime(&timeMessage);
 

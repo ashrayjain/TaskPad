@@ -1,3 +1,21 @@
+/*
+ * =====================================================================================
+ *
+ *		Filename:  TaskSaverText.cpp
+ *
+ *      Version:  1.0
+ *
+ *      Author:  Thyaegsh Manikandan (A0100124J)
+ *		Organization:  NUS, SoC
+ *
+ * =====================================================================================
+
+ ** Gist of File Contents:
+  *
+  * This file implements all of the functions defined in TaskSaverText.h file
+  * 
+ */
+
 #ifndef _TASKSAVERTEXT_CPP_
 #define _TASKSAVERTEXT_CPP_
 
