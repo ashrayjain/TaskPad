@@ -366,6 +366,7 @@ bool CommandBar::handleKeyPress(QKeyEvent*event)
 	switch(event->key())
 	{
 	case Qt::Key_QuoteLeft:
+		if(event->modifiers() != Qt::ShiftModifier)
 			handleKeyQuoteLeft(&isHandled);
 		break;
 	case Qt::Key_Escape:
