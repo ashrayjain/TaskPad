@@ -594,11 +594,13 @@ void MainWindow::updateDetails(Task t){
 		QString tags;
 		list<string> listOfTags = task_showDetails.getTags();
 		list<string>::iterator iter = listOfTags.begin();
+		tags += "#";
 		tags += iter->c_str();
 		iter++;
 		for(;iter != listOfTags.end();
 			advance(iter, 1)){
 				tags += ", ";
+				tags += "#";
 				tags += iter->c_str();
 		}
 		ui.tags->setText(tags);
