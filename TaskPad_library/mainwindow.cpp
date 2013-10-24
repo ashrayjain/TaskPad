@@ -204,7 +204,7 @@ void MainWindow::handleGetToday(Messenger msg){
 
 void MainWindow::getInbox(){
 	reset();
-	Messenger msg = scheduler->processCommand("find undone");
+	Messenger msg = scheduler->processCommand("find floating undone");
 	handleGetInbox(msg);
 }
 
