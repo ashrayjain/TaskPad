@@ -25,6 +25,7 @@ public:
 protected slots:
 	void createTemplateAdd();
 	void createTemplateAddTimed();
+	void createTemplateModDone();
 	void createTemplateModByName();
 	void createTemplateModByIndex();
 	void createTemplateDelByName();
@@ -47,6 +48,7 @@ private:
 	//HOTKEY TEMPLATE RELATED
 	static const QString HOTKEY_TEMPLATE_ADD;
 	static const QString HOTKEY_TEMPLATE_ADD_TIMED;
+	static const QString HOTKEY_TEMPLATE_MOD_DONE;
 	static const QString HOTKEY_TEMPLATE_MOD_BY_NAME;
 	static const QString HOTKEY_TEMPLATE_MOD_BY_INDEX;
 	static const QString HOTKEY_TEMPLATE_DEL_BY_NAME;
@@ -113,6 +115,7 @@ private:
 	//Short cut
 	QShortcut* newDeadlineTask;
 	QShortcut* newTimedTask;
+	QShortcut* modifyDone;
 	QShortcut* modifyByName;
 	QShortcut* modifyByIndex;
 	QShortcut* delByName;
