@@ -1,25 +1,3 @@
-/*
- * =====================================================================================
- *
- *		Filename:  TaskSaverText.h
- *
- *      Version:  1.0
- *
- *      Author:  Thyaegsh Manikandan (A0100124J)
- *		Organization:  NUS, SoC
- *
- * =====================================================================================
-
- ** Gist of File Contents:
-  *
-  * This file defines the TaskSaverText Class, its functions and attributes
-  * This class inherits from the TaskSaver Class and implements the save function
-  * defined in the TaskSaver Class. 
-  * 
-  * This class handles saving of tasks to a text file
-  *
- */
-
 #ifndef _TASKSAVERTEXT_H_
 #define _TASKSAVERTEXT_H_
 
