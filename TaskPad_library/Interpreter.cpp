@@ -1274,7 +1274,7 @@ bool Interpreter::getTagsMessage(string command, bool&flag,list<std::string>& co
 
 	}
 
-	if(count==0){
+	if(count==0 || tagList.empty()){
 		isNotEmpty=false;
 	}
 
