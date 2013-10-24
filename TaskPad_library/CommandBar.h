@@ -38,6 +38,7 @@ protected slots:
 private:
 	static const QStringList COMMAND_LIST;
 	static const QStringList KEYWORD_LIST;
+	static const QStringList KEYWORD_LIST_FIND;
 	static const QString SPACE;
 	static const QString INCLUDE_QUOTE_LEFT_PAIR;
 	static const QString SINGLE_QUOTATION_MARK;
@@ -84,6 +85,8 @@ private:
 	void produceModel();
 	void produceCommandModel();
 	void produceKeywordModel();
+	void produceKeywordModel_forFind();
+	bool isCommandFind();
 	bool containsCommand();
 	//KEY PRESS RELATED
 	void keyPressEvent(QKeyEvent*event);
