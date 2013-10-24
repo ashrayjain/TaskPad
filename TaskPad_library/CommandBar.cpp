@@ -23,11 +23,12 @@ const QString CommandBar::QUOTE_LEFT = "`";
 const QString CommandBar::EMPTY = "";
 const QString CommandBar::HOTKEY_TEMPLATE_ADD = "add `__NAME__` due `__DATE__` impt `__PRIORITY__` at `__WHERE__` ppl `__PARTICIPANTS__` #__TAGS__ rt `__REMINDTIME__` note `__NOTE__`";
 const QString CommandBar::HOTKEY_TEMPLATE_ADD_TIMED = "add `__NAME__` from `__DATE__` to `__DATE__` impt `__PRIORITY__` at `__WHERE__` ppl `__PARTICIPANTS__` #__TAGS__ rt `__REMINDTIME__` note `__NOTE__`";
-const QString CommandBar::HOTKEY_TEMPLATE_MOD_BY_NAME = "mod `__NAME__` __DONE__ name `__MODIFIEDNAME__` from `__DATE__` to `__DATE__` impt `__PRIORITY__` at `__WHERE__` ppl `__PARTICIPANTS__` #__TAGS__ rt `__REMINDTIME__` note `__NOTE__`";
-const QString CommandBar::HOTKEY_TEMPLATE_MOD_BY_INDEX = "mod __INDEX__ __DONE__ name `__MODIFIEDNAME__` from `__DATE__` to `__DATE__` impt `__PRIORITY__` at `__WHERE__` ppl `__PARTICIPANTS__` #__TAGS__ rt `__REMINDTIME__` note `__NOTE__`";
+const QString CommandBar::HOTKEY_TEMPLATE_MOD_DONE = "mod __INDEX__ done";
+const QString CommandBar::HOTKEY_TEMPLATE_MOD_BY_NAME = "mod `__NAME__` name `__MODIFIEDNAME__` from `__DATE__` to `__DATE__` impt `__PRIORITY__` at `__WHERE__` ppl `__PARTICIPANTS__` #__TAGS__ rt `__REMINDTIME__` note `__NOTE__` __DONE__";
+const QString CommandBar::HOTKEY_TEMPLATE_MOD_BY_INDEX = "mod __INDEX__ name `__MODIFIEDNAME__` from `__DATE__` to `__DATE__` impt `__PRIORITY__` at `__WHERE__` ppl `__PARTICIPANTS__` #__TAGS__ rt `__REMINDTIME__` note `__NOTE__` __DONE__";
 const QString CommandBar::HOTKEY_TEMPLATE_DEL_BY_NAME = "del `__NAME__`";
 const QString CommandBar::HOTKEY_TEMPLATE_DEL_BY_INDEX = "del __INDEX__";
-const QString CommandBar::HOTKEY_TEMPLATE_FIND = "find name `__NAME__` from `__DATE__` to `__DATE__` impt `__PRIORITY__` at `__WHERE__` ppl `__PARTICIPANTS__` #__TAGS__ note `__NOTE__`";
+const QString CommandBar::HOTKEY_TEMPLATE_FIND = "find name `__NAME__` from `__DATE__` to `__DATE__` impt `__PRIORITY__` at `__WHERE__` ppl `__PARTICIPANTS__` note `__NOTE__`";
 const QString CommandBar::HOTKEY_TEMPLATE_UNDO = "undo";
 const QString CommandBar::HOTKEY_TEMPLATE_REDO = "redo";
 
@@ -75,9 +76,11 @@ void CommandBar::initConnections()
 		this, SLOT(createTemplateAdd()));
 	newTimedTask = new QShortcut(QKeySequence(tr("Ctrl+Shift+N", "New Timed Task")), 
 		this, SLOT(createTemplateAddTimed()));
-	modifyByName = new QShortcut(QKeySequence(tr("Ctrl+Shift+M", "Modify Task by Name")), 
+	modifyDone = new QShortcut(QKeySequence(tr("Ctrl+M", "Modify Task done")), 
+		this, SLOT(createTemplateModDone()));
+	modifyByName = new QShortcut(QKeySequence(tr("Ctrl+Alt+Shift+M", "Modify Task by Name")), 
 		this, SLOT(createTemplateModByName()));
-	modifyByIndex = new QShortcut(QKeySequence(tr("Ctrl+M", "Modify Task by Index")), 
+	modifyByIndex = new QShortcut(QKeySequence(tr("Ctrl+Shift+M", "Modify Task by Index")), 
 		this, SLOT(createTemplateModByIndex()));
 	delByName = new QShortcut(QKeySequence(tr("Ctrl+Shift+D", "Delete Task by Name")), 
 		this, SLOT(createTemplateDelByName()));
@@ -593,6 +596,9 @@ void CommandBar::createTemplateAdd(){
 void CommandBar::createTemplateAddTimed(){
 	createTemplate(HOTKEY_TEMPLATE_ADD_TIMED);
 }
+void CommandBar::createTemplateModDone(){
+	createTemplate(HOTKEY_TEMPLATE_MOD_DONE);
+}
 void CommandBar::createTemplateModByName(){
 	createTemplate(HOTKEY_TEMPLATE_MOD_BY_NAME);
 }
@@ -616,6 +622,7 @@ void CommandBar::createTemplateRedo(){
 }
 
 void CommandBar::setQuickAddMode(){
+	modifyDone->setEnabled(false);
 	modifyByName->setEnabled(false);
 	modifyByIndex->setEnabled(false);
 	delByName->setEnabled(false);
