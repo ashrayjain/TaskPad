@@ -40,6 +40,7 @@ MainWindow::MainWindow(QWidget *parent)
 	QObject::connect(ui.AboutButton, SIGNAL(clicked()), this, SLOT(about()));
 	QObject::connect(ui.HelpButton, SIGNAL(clicked()), this, SLOT(help()));
 	(void) new QShortcut(QKeySequence(tr("F5", "RemainderTesting")), this, SLOT(showReminder()));
+	(void) new QShortcut(QKeySequence(tr("Ctrl+H", "Minimize")), this, SLOT(showMinimized()));
 	(void) new QShortcut(QKeySequence(tr("Ctrl+T", "Today")), this, SLOT(getToday()));
 	(void) new QShortcut(QKeySequence(tr("Ctrl+I", "Inbox")), this, SLOT(getInbox()));
 	//ui.CommandBar->installEventFilter(this);//filter RETURN
