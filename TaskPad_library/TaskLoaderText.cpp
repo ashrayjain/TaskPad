@@ -1,21 +1,3 @@
-/*
- * =====================================================================================
- *
- *		Filename:  TaskLoaderText.cpp
- *
- *      Version:  1.0
- *
- *      Author:  Thyaegsh Manikandan (A0100124J)
- *		Organization:  NUS, SoC
- *
- * =====================================================================================
-
- ** Gist of File Contents:
-  *
-  * This file implements all of the functions defined in TaskLoaderText.h file
-  * 
- */
-
 #ifndef _TASKLOADERTEXT_CPP_
 #define _TASKLOADERTEXT_CPP_
 
@@ -39,6 +21,18 @@ void TaskLoaderText::load (list<Task>& taskList, const string& fileName)
 	this->openFile(fileName);
 	this->loadTaskList(taskList);
 	this->closeFile();
+	return;
+}
+
+void TaskLoaderText::openFile(const std::string& fileName,  std::ios_base::openmode)
+{
+	this->_fileReader.open(fileName);
+	return;
+}
+
+void TaskLoaderText::closeFile()
+{
+	this->_fileReader.close();
 	return;
 }
 

@@ -1,21 +1,3 @@
-/*
- * =====================================================================================
- *
- *		Filename:  Storage.cpp
- *
- *      Version:  1.0
- *
- *      Author:  Thyaegsh Manikandan (A0100124J)
- *		Organization:  NUS, SoC
- *
- * =====================================================================================
-
- ** Gist of File Contents:
-  *
-  * This file implements all of the functions defined in Storage.h file
-  * 
- */
-
 #include <list>
 #include <string>
 #include "Storage.h"
@@ -34,7 +16,6 @@ Storage::Storage(list<Task>& taskList)
 	_logger->log("Storage","called constructor!");
 
 	_loader = NULL;
-	_saver = NULL;
 	this->load(taskList);
 }
 

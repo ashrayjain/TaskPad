@@ -1,23 +1,3 @@
-/*
- * =====================================================================================
- *
- *		Filename:  TaskSaver.h
- *
- *      Version:  1.0
- *
- *      Author:  Thyaegsh Manikandan (A0100124J)
- *		Organization:  NUS, SoC
- *
- * =====================================================================================
-
- ** Gist of File Contents:
-  *
-  * This file defines an abstract TaskSaver Class that inherits from the FileHandler Class
-  * This class defines what it means to be a saver of tasks by specifying the necessary
-  * functions that such a saver must implement.
-  *
- */
-
 #ifndef _TASKSAVER_H_
 #define _TASKSAVER_H_
 
