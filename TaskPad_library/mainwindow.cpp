@@ -148,12 +148,12 @@ void MainWindow::handleShowReminder(){
 		updateList(reminderList);
 		updateNavLabel("Reminders");
 		clearDetails();
-		updateDetailsLabel("Task Details");
 		updateStatusBar("Ready");
 		scheduler->syncTaskList(reminderList);
 		if(reminderList.size() == 1){
 			scheduler->syncTask(reminderList.front());
 			updateDetails(reminderList.front());
+			updateDetailsLabel("Task's Details");
 		}
 		showWindow();
 		isFromReminder = false;
