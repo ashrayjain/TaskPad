@@ -90,20 +90,23 @@ namespace UnitTest
 		{
 			Messenger testMessenger;
 
-			testMessenger.setStatus(SUCCESS);
+			/* Test the two boundaries of the only partition */
+			testMessenger.setStatus(DISPLAY);
 			Assert::AreEqual(static_cast<int>(testMessenger.getStatus()),static_cast<int>(SUCCESS));
 
 			testMessenger.setStatus(ERROR);
 			Assert::AreEqual(static_cast<int>(testMessenger.getStatus()),static_cast<int>(ERROR));
 
-			testMessenger.setStatus(INTERMEDIATE);
-			Assert::AreEqual(static_cast<int>(testMessenger.getStatus()),static_cast<int>(INTERMEDIATE));
+			/* Test important use case */
+			testMessenger.setStatus(SUCCESS);
+			Assert::IsTrue(testMessenger.getStatus() == SUCCESS);
 
 		}
 		TEST_METHOD(Messenger_Set_List)
 		{
 			Messenger testMessenger;
 
+			/* Check middle of partition (filled list) */
 			Task myTasks[] = {Task(1),Task(2),Task(3),Task(4)};
 			testMessenger.setList(list<Task>(myTasks,myTasks+4));
 
@@ -114,6 +117,7 @@ namespace UnitTest
 			Assert::AreEqual(((it++)->getIndex()),(unsigned long long) 3);
 			Assert::AreEqual(((it++)->getIndex()),(unsigned long long) 4);
 
+			/* Test the boundary of partition (empty list) */
 			testMessenger.setList(list<Task>());
 
 			Assert::IsTrue((testMessenger.getList().size() == 0));
@@ -121,27 +125,35 @@ namespace UnitTest
 		TEST_METHOD(Messenger_Set_CommandType)
 		{
 			Messenger testMessenger;
-
-			testMessenger.setCommandType(DEL);
-			Assert::AreEqual(static_cast<int>(DEL),static_cast<int>(testMessenger.getCommandType()));
-
+			/* Testing the two boundaries of the single partition */
 			testMessenger.setCommandType(ADD);
-			Assert::AreEqual(static_cast<int>(ADD),static_cast<int>(testMessenger.getCommandType()));
+			Assert::IsTrue(ADD == testMessenger.getCommandType());
 
-			testMessenger.setCommandType(SYNC);
-			Assert::AreEqual(static_cast<int>(SYNC),static_cast<int>(testMessenger.getCommandType()));
+			testMessenger.setCommandType(UNDEFINED);
+			Assert::IsTrue(UNDEFINED == testMessenger.getCommandType());
 
-			testMessenger.setCommandType(UNDO);
-			Assert::AreEqual(static_cast<int>(UNDO),static_cast<int>(testMessenger.getCommandType()));
+			/* Testing important use cases */
+			testMessenger.setCommandType(INDEX);
+			Assert::IsTrue(INDEX == testMessenger.getCommandType());
+
+			testMessenger.setCommandType(FIND);
+			Assert::IsTrue(FIND == testMessenger.getCommandType());
 
 		}
 		TEST_METHOD(Messenger_Set_Task)
 		{
 			Messenger testMessenger;
 
+			/* test the boundary case (filled task) */
 			Task tempTask("tempName");
 			testMessenger.setTask(tempTask);
 			Assert::AreEqual(testMessenger.getTask().getName(),tempTask.getName());
+
+			/* test the boundary case (empty task) */
+			Task tempTask1;
+			testMessenger.setTask(tempTask1);
+			Assert::AreEqual(testMessenger.getTask().getIndex(),tempTask1.getIndex());
+
 		}
 		TEST_METHOD(Messenger_Reset)
 		{
