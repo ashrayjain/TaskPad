@@ -1,22 +1,3 @@
-/*
- * =====================================================================================
- *
- *		Filename:  FileHandler.h
- *
- *      Version:  1.0
- *
- *      Author:  Thyaegsh Manikandan (A0100124J)
- *		Organization:  NUS, SoC
- *
- * =====================================================================================
-
- ** Gist of File Contents:
-  *
-  * This header file defines an abstract class called FileHandler and all file handling classes
-  * in this program will inherit from this class
-  * 
- */
-
 #ifndef _FILEHANDLER_H_
 #define _FILEHANDLER_H_
 

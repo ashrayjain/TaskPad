@@ -1,24 +1,3 @@
-/*
- * =====================================================================================
- *
- *		Filename:  Messenger.h
- *
- *      Version:  1.0
- *
- *      Author:  Thyaegsh Manikandan (A0100124J)
- *		Organization:  NUS, SoC
- *
- * =====================================================================================
-
- ** Gist of File Contents:
-  *
-  * This file defines the Messenger Class, its functions and attributes
-  * A messenger object is used as a way to return and exchange different values from
-  * functions. This way a more sophisticated value can be returned allowing for 
-  * greater information transfer from the function to its caller.
-  *
- */
-
 #ifndef _MESSENGER_H_
 #define _MESSENGER_H_
 

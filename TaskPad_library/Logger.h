@@ -1,25 +1,3 @@
-/*
- * =====================================================================================
- *
- *		Filename:  Logger.h
- *
- *      Version:  1.0
- *
- *      Author:  Thyaegsh Manikandan (A0100124J)
- *		Organization:  NUS, SoC
- *
- * =====================================================================================
-
- ** Gist of File Contents:
-  *
-  * This file defines all the functions and attributes of the Logger Class
-  * This class serves as a common logger for all other components to use
-  * 
-  * Gives five levels of importance to logged messages and allows for configuration through
-  * an external file to specify (i) the minimum level to log, (ii) The specific class (if any) to monitor
-  * and (iii) The file name to do the logging, default is set to TaskLogger.txt
- */
-
 #ifndef _LOGGER_H_
 #define _LOGGER_H_
 
