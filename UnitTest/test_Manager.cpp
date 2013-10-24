@@ -19,6 +19,10 @@ namespace UnitTest
 		TEST_METHOD(System_Testing_Basic_CRUD)
 		{
 			//*************************************** simple test
+			//use case:
+			//1. user add a task
+			//2. user delete the added task
+			//
 			//TC0: WORK FLOW ADD
 			Manager scheduler;
 			Messenger msg = scheduler.processCommand("add `Project Kai Testing`");
@@ -33,6 +37,14 @@ namespace UnitTest
 			Assert::AreEqual(msg.getTask().getName(), (string)"Project Kai Testing");
 
 			//***************************************
+			//use case:
+			//1. user add a task
+			//2. user modify the added task's note
+			//3. user undo the modification
+			//4. user redo the modification
+			//5. user comes to find a tag
+			//6. user deleted the task
+			//
 			//TC2: WORK FLOW ADD 2
 			msg = scheduler.processCommand("add `Project22 Kai Testing` note `TEST NOTE` #KaiTesting");
 			Assert::AreEqual((int)msg.getStatus(), (int)SUCCESS);
