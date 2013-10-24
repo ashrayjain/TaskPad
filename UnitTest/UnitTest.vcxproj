@@ -97,6 +97,7 @@
     <ClCompile Include="test_Command.cpp" />
     <ClCompile Include="test_Interpreter.cpp" />
     <ClCompile Include="test_Logger.cpp" />
+    <ClCompile Include="test_Manager.cpp" />
     <ClCompile Include="test_Messenger.cpp" />
     <ClCompile Include="test_Storage.cpp" />
   </ItemGroup>

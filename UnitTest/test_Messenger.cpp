@@ -133,8 +133,8 @@ namespace UnitTest
 			Assert::IsTrue(UNDEFINED == testMessenger.getCommandType());
 
 			/* Testing important use cases */
-			testMessenger.setCommandType(INDEX);
-			Assert::IsTrue(INDEX == testMessenger.getCommandType());
+			testMessenger.setCommandType(MOD);
+			Assert::IsTrue(MOD == testMessenger.getCommandType());
 
 			testMessenger.setCommandType(FIND);
 			Assert::IsTrue(FIND == testMessenger.getCommandType());
