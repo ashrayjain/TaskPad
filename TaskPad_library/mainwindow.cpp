@@ -145,12 +145,16 @@ void MainWindow::handleQuickAddRequest(QString requestStr){
 
 void MainWindow::handleShowReminder(){
 	if(isFromReminder){
-		scheduler->syncTaskList(reminderList);
 		updateList(reminderList);
 		updateNavLabel("Reminders");
 		clearDetails();
 		updateDetailsLabel("Task Details");
 		updateStatusBar("Ready");
+		scheduler->syncTaskList(reminderList);
+		if(reminderList.size() == 1){
+			scheduler->syncTask(reminderList.front());
+			updateDetails(reminderList.front());
+		}
 		showWindow();
 		isFromReminder = false;
 	}
