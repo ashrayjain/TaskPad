@@ -18,11 +18,15 @@ MainWindow::MainWindow(QWidget *parent)
 	: QMainWindow(parent) 
 {
 	//TODO: make it SLAP
+	timer = new QTimer(this);
+	timer->start(60000);
+	connect(timer, SIGNAL(timeout()),this, SLOT(showReminder()));
 	isQuickAddOpen = false;
 	trayIcon = new QSystemTrayIcon(this);
 	trayIcon->setIcon(QIcon(":/MainWindow/Resources/logo.png"));
 	trayIcon->show();
 	trayIcon->setToolTip("TaskPad");
+	connect(trayIcon, SIGNAL(messageClicked()),this, SLOT(handleShowReminder()));
 	ui.setupUi(this);
 	customisedUi();
 	QxtGlobalShortcut * sc = new QxtGlobalShortcut(QKeySequence("Alt+`"), this);
@@ -35,6 +39,7 @@ MainWindow::MainWindow(QWidget *parent)
 	QObject::connect(ui.MinimizeButton, SIGNAL(clicked()), this, SLOT(showMinimized()));
 	QObject::connect(ui.AboutButton, SIGNAL(clicked()), this, SLOT(about()));
 	QObject::connect(ui.HelpButton, SIGNAL(clicked()), this, SLOT(help()));
+	(void) new QShortcut(QKeySequence(tr("F5", "RemainderTesting")), this, SLOT(showReminder()));
 	(void) new QShortcut(QKeySequence(tr("Ctrl+T", "Today")), this, SLOT(getToday()));
 	(void) new QShortcut(QKeySequence(tr("Ctrl+I", "Inbox")), this, SLOT(getInbox()));
 	//ui.CommandBar->installEventFilter(this);//filter RETURN
@@ -64,6 +69,24 @@ void MainWindow::showWindow(){
 	show();
 	setWindowState(Qt::WindowActive);
 	ui.cmdBar->setFocus();
+}
+
+void MainWindow::showReminder(){
+	QString output;
+	reminderList = scheduler->getCurrentReminders();
+	if(!reminderList.empty()){
+		list<Task>::iterator iter = reminderList.begin();
+		output += "1. ";
+		output += iter->getName().c_str();
+		advance(iter, 1);
+		for(int i = 2; iter != reminderList.end(); advance(iter, 1), i++){
+			output += "\n";
+			output += QString::number(i) + ". ";
+			output += iter->getName().c_str();
+		}
+		showTrayMsg(output, "Reminders");
+		isFromReminder = true;
+	}
 }
 
 void MainWindow::showQuickAddWindow(){
@@ -117,6 +140,23 @@ void MainWindow::handleQuickAddRequest(QString requestStr){
 	}
 	else{
 		showTrayMsg("Only Add Command and Display 1 are supported");
+	}
+}
+
+void MainWindow::handleShowReminder(){
+	if(isFromReminder){
+		updateList(reminderList);
+		updateNavLabel("Reminders");
+		clearDetails();
+		updateDetailsLabel("Task Details");
+		updateStatusBar("Ready");
+		scheduler->syncTaskList(reminderList);
+		if(reminderList.size() == 1){
+			scheduler->syncTask(reminderList.front());
+			updateDetails(reminderList.front());
+		}
+		showWindow();
+		isFromReminder = false;
 	}
 }
 
@@ -175,12 +215,9 @@ void MainWindow::handleGetInbox(Messenger msg){
 	updateList(msg.getList());
 }
 
-void MainWindow::showReminder(){
-	trayIcon->showMessage("TaskPad", "msg here");
-}
-
-void MainWindow::showTrayMsg(QString msg){
-	trayIcon->showMessage("TaskPad", msg);
+void MainWindow::showTrayMsg(QString msg, QString title){
+	isFromReminder = false;
+	trayIcon->showMessage(title, msg);
 }
 
 void MainWindow::changeEvent(QEvent* event){
@@ -512,26 +549,15 @@ void MainWindow::updateDetails(Task t){
 		QString fromTimeStr, toTimeStr;
 		if(task_showDetails.getFlagFromDate()){
 			QDateTime fromTime = QDateTime::fromTime_t(task_showDetails.getFromDate());
-			QTime hour_n_min = fromTime.time();
-			if(hour_n_min.hour() == 0 & hour_n_min.minute() == 0)
-				fromTimeStr = "From " + fromTime.toString("dd/MM/yyyy");
-			else
-				fromTimeStr = "From " + fromTime.toString("dd/MM/yyyy  hh:mm");
+			fromTimeStr = "From " + fromTime.toString("dd/MM/yyyy  hh:mm");
 		}
 		if(task_showDetails.getFlagToDate()){
 			QDateTime toTime = QDateTime::fromTime_t(task_showDetails.getToDate());
-			QTime hour_n_min = toTime.time();
 			if(task_showDetails.getFlagFromDate()){
-				if(hour_n_min.hour() == 0 & hour_n_min.minute() == 0)
-					toTimeStr = " to " + toTime.toString("dd/MM/yyyy");
-				else
-					toTimeStr = " to " + toTime.toString("dd/MM/yyyy  hh:mm");
+				toTimeStr = " to " + toTime.toString("dd/MM/yyyy  hh:mm");
 			}
 			else{
-				if(hour_n_min.hour() == 0 & hour_n_min.minute() == 0)
-					toTimeStr = "To " + toTime.toString("dd/MM/yyyy");
-				else
-					toTimeStr = "To " + toTime.toString("dd/MM/yyyy  hh:mm");
+				toTimeStr = "To " + toTime.toString("dd/MM/yyyy  hh:mm");
 			}
 		}
 		ui.dueOrFromTo->setText(fromTimeStr + toTimeStr);

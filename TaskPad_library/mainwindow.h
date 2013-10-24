@@ -24,15 +24,16 @@ protected slots:
 	void getToday();
 	void getInbox();
 	void showWindow();
+	void showReminder();
 	void showQuickAddWindow();
 	void closeQuickAddWindow();
 	void handleQuickAddRequest(QString requestStr);
+	void handleShowReminder();
 	bool isCommandAdd(QString requestStr);
 	void iconIsActived(QSystemTrayIcon::ActivationReason);
 
 private:
-	void showReminder();
-	void showTrayMsg(QString msg);
+	void showTrayMsg(QString msg, QString title = "TaskPad");
 	void keyPressEvent(QKeyEvent*event);
 	void reset();
 	void updateNavLabel(QString str);
@@ -60,8 +61,11 @@ private:
 	bool eventFilter(QObject* watched, QEvent* event);
 
 	bool isQuickAddOpen;
+	bool isFromReminder;
+	list<Task> reminderList;
 	QDialog* quickAddWindow;
 	Manager* scheduler;
+	QTimer* timer;
 
 	friend class QuickAddWindow;
 };
