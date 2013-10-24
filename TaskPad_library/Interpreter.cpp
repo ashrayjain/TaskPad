@@ -65,12 +65,12 @@ bool Interpreter::checkCommand(string command, int& commandType){
 	regex test_find_command("^find"+generalFindCase);
 	regex test_find_exact_command("^find exact"+generalFindCase);
 
-	regex test_del_command("^del `([^`]+)`");
-	regex test_del_exact_command("^del exact `([^`]+)`");
-	regex test_del_index_command("^del ([0-9]+)");
-	regex test_undo_command("^undo");
-	regex test_redo_command("^redo");
-	regex test_syn_command("^sync `([^`]+)`");
+	regex test_del_command("^del `([^`]+)`(\\s*)");
+	regex test_del_exact_command("^del exact `([^`]+)`(\\s*)");
+	regex test_del_index_command("^del ([0-9]+)(\\s*)");
+	regex test_undo_command("^undo(\\s*)");
+	regex test_redo_command("^redo(\\s*)");
+	regex test_syn_command("^sync `([^`]+)`(\\s*)");
 
 
 	testlist[0]=regex_match(command,test_add_command);
