@@ -9,7 +9,12 @@ const QStringList CommandBar::COMMAND_LIST = QStringList() \
 const QStringList CommandBar::KEYWORD_LIST = QStringList() \
 	<< "name ``" << "due ``" << "from ``" << "to ``" << "at ``" << "ppl ``" \
 	<< "note ``" << "impt ``" << "rt ``" << "done" << "undone" <<  \
-	"deadline" << "timed" << "floating" << "exact";
+	"exact ``";
+
+const QStringList CommandBar::KEYWORD_LIST_FIND = QStringList() \
+	<< "name ``" << "from ``" << "to ``" << "at ``" << "ppl ``" \
+	<< "note ``" << "impt ``" << "rt ``" << "done" << "undone" <<  \
+	"deadline" << "timed" << "floating" << "exact name ``";
 
 const QString CommandBar::SPACE = " ";
 const QString CommandBar::INCLUDE_QUOTE_LEFT_PAIR = "(\\w+ ``)|( ``)|(``)";
@@ -301,7 +306,10 @@ void CommandBar::produceModel()
 	}
 	else if(containsCommand())
 	{
-		produceKeywordModel();
+		if(isCommandFind())
+			produceKeywordModel_forFind();
+		else
+			produceKeywordModel();
 	}
 	else
 	{
@@ -314,9 +322,19 @@ void CommandBar::produceCommandModel()
 	model->setStringList(COMMAND_LIST);
 }
 
-void CommandBar::produceKeywordModel()
+void CommandBar::produceKeywordModel()//common
 {
 	model->setStringList(KEYWORD_LIST);
+}
+
+void CommandBar::produceKeywordModel_forFind()
+{
+	model->setStringList(KEYWORD_LIST_FIND);
+}
+
+bool CommandBar::isCommandFind(){
+	QString currentLine = getCurrentLine();
+	return currentLine.startsWith("find ", Qt::CaseInsensitive);
 }
 
 bool CommandBar::containsCommand()
