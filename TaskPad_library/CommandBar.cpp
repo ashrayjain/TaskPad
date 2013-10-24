@@ -1,4 +1,5 @@
 #include <QShortcut>
+#include <QMimeData>
 #include "CommandBar.h"
 #include "Highlighter.h"
 
@@ -168,6 +169,13 @@ void CommandBar::insertCompletion(const QString &completion)
 		cursor.setPosition(insertionPosition);//back to prev. cursor position
 		cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, numberOfCharsToComplete);
 		setTextCursor(cursor);
+	}
+}
+
+void CommandBar::insertFromMimeData(const QMimeData *source){
+	if(source->hasText()){
+		QString strToInsert = source->text();
+		insertPlainText(strToInsert);
 	}
 }
 

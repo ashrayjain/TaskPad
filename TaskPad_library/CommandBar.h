@@ -78,6 +78,7 @@ private:
 	void clearCharRHS();
 	void clearCharLHS();
 	void insertCompletion(const QString &completion);
+	void insertFromMimeData(const QMimeData * source);
 	bool CommandBar::containsQuoteLeftPair(QString str);
 	bool isWithinPairOfQuoteLeft();
 	QVector<QPair<int, int> > getQuoteLeftPositions();
