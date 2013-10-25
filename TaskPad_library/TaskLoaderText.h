@@ -1,3 +1,25 @@
+/*
+ * =====================================================================================
+ *
+ *		Filename:  TaskLoaderText.h
+ *
+ *      Version:  1.0
+ *
+ *      Author:  Thyaegsh Manikandan (A0100124J)
+ *		Organization:  NUS, SoC
+ *
+ * =====================================================================================
+
+ ** Gist of File Contents:
+  *
+  * This file defines the TaskLoaderText Class, its functions and attributes
+  * This class inherits from the TaskLoader Class and implements the load function
+  * defined in the TaskLoader Class. 
+  * 
+  * This class handles loading of tasks from a text file
+  *
+ */
+
 #ifndef _TASKLOADERTEXT_H_
 #define _TASKLOADERTEXT_H_
 
@@ -58,10 +80,6 @@ class TaskLoaderText :public TaskLoader
 		time_t				getTimeFromString		(std::string attribute);
 		TP::PRIORITY		getPriorityFromString	(std::string attribute);
 		TP::TASK_STATE		getTaskStateFromString	(std::string attribute);
-
-		//file opener/closer
-		void openFile	(const std::string& fileName, std::ios_base::openmode = std::ios::in);
-		void closeFile	();
 };
 
 #endif
