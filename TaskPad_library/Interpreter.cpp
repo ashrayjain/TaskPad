@@ -552,6 +552,11 @@ Command* Interpreter::interpretModify(Command_Mod* commandType, std::string comm
 		flag=false;
 	}
 
+	if(commandType->getFlagFrom()==true && commandType->getFlagTo()==true){
+	
+		if(commandType->getFromDate()>commandType->getToDate())flag=false;
+	}
+	
 	if(flag==true){
 		response.setStatus(SUCCESS);
 		response.setCommandType(MOD);
@@ -685,7 +690,12 @@ Command* Interpreter::interpretFind(Command_Find* commandType, std::string comma
 		flag=false;
 
 	}
-
+	if(commandType->getFlagFrom()==true && commandType->getFlagTo()==true){
+	
+		if(commandType->getFromDate()>commandType->getToDate())flag=false;
+	}
+	
+	
 	if(flag==true){
 		response.setStatus(SUCCESS);
 		response.setCommandType(FIND);
