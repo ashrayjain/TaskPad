@@ -22,6 +22,9 @@ const std::string	Executor::NAME_NOT_FOUND_ERROR		= "No results for name: ";
 const std::string	Executor::INVALID_INDEX_ERROR		= " is not a valid index!";
 const std::string	Executor::UNDOSTACK_EMPTY_MSG		= "Nothing to Undo!";
 const std::string	Executor::REDOSTACK_EMPTY_MSG		= "Nothing to Redo!";
+const std::string   Executor::MODIFY_SAME_NAME_ERROR	= "New name is the same as the Existing name!";
+const std::string   Executor::INVALID_FROMDATE_ERROR	= "Invalid 'From' Attribute!";
+const std::string   Executor::INVALID_TODATE_ERROR		= "Invalid 'To' Attribute!";
 
 void Executor::rebuildHashes() {
 	rebuildIndexHash();
@@ -279,9 +282,11 @@ void Executor::executeMod (Command_Mod* cmd, Messenger &response) {
 void Executor::modifyByIndex(Command_Mod* cmd, Messenger &response) {
 	unordered_map<unsigned long long, Task*>::iterator result = _indexHash.find(cmd->getCreatedTime());
 	if (result != _indexHash.end()) {
-		_interimTask = *(result->second);
-		modifyTaskTo(*(result->second), cmd);
-		setOpSuccessTask(*(result->second), response);
+		if (isModCmdValid(cmd, *(result->second), response)) {
+			_interimTask = *(result->second);
+			modifyTaskTo(*(result->second), cmd);
+			setOpSuccessTask(*(result->second), response);
+		}
 	}
 	else
 		setIndexNotFound(cmd->getCreatedTime(), response);
@@ -298,9 +303,11 @@ void Executor::modifyByExactName(Command_Mod* cmd, Messenger &response) {
 	bool nameFound = false;
 	for(list<Task>::iterator i = _data->begin(); i != _data->end() && !nameFound; ++i)
 		if (i->getName() == cmd->getName()) {
-			_interimTask = *i;
-			modifyTaskTo(*i, cmd);
-			setOpSuccessTask(Task(*i), response);
+			if (isModCmdValid(cmd, *i, response)) {
+				_interimTask = *i;
+				modifyTaskTo(*i, cmd);
+				setOpSuccessTask(Task(*i), response);
+			}
 			nameFound = true;
 		}
 
@@ -347,6 +354,24 @@ void Executor::modifyTaskTo(Task &oldTask, Command_Mod* cmd) {
 		oldTask.setDueDate(cmd->getDueDate());
 	if(cmd->getFlagTaskState())
 		oldTask.setState(cmd->getTaskState());
+}
+
+bool Executor::isModCmdValid(Command_Mod* cmd, const Task& task, Messenger &response) {
+	if (cmd->getFlagOptName() && cmd->getOptName() == task.getName()) {
+		setErrorWithErrMsg(response, MODIFY_SAME_NAME_ERROR);
+		return false;
+	}
+	if (!(cmd->getFlagFrom() && cmd->getFlagTo())) {
+		if (cmd->getFlagFrom() && task.getFlagToDate() && cmd->getFromDate() > task.getToDate()) {
+			setErrorWithErrMsg(response, INVALID_FROMDATE_ERROR);
+			return false;
+		}
+		if (cmd->getFlagTo() && task.getFlagFromDate() && cmd->getToDate() < task.getFromDate()) {
+			setErrorWithErrMsg(response, INVALID_TODATE_ERROR);
+			return false;
+		}
+	}
+	return true;
 }
 
 void Executor::handleHashTagsModify(Task &oldTask, list<string> &newTags) {
@@ -565,7 +590,7 @@ bool Executor::chkToDateBound(const time_t &toTime, const Task &lhs) const {
 
 void Executor::executeUndo(Command_Undo* cmd, Messenger &response) {
 	if (_undoStack.empty())
-		setUndoStackEmptyError(response);
+		setErrorWithErrMsg(response, UNDOSTACK_EMPTY_MSG);
 	else {
 		Command* undoCmd = getTransposeCommand(_undoStack.top().first, _undoStack.top().second);
 		executeCommandWithoutUndoRedo(undoCmd, response);
@@ -580,7 +605,7 @@ void Executor::executeUndo(Command_Undo* cmd, Messenger &response) {
 void Executor::executeRedo(Command_Redo* cmd, Messenger &response) {
 	Command* redoCmd;
 	if (_redoStack.empty())
-		setRedoStackEmptyError(response);
+		setErrorWithErrMsg(response, REDOSTACK_EMPTY_MSG);
 	else {
 		executeCommandWithoutUndoRedo(_redoStack.top().first, response);		
 		_undoStack.push(_redoStack.top());
@@ -742,14 +767,9 @@ void Executor::setNameNotFound(const string &name, Messenger &response) {
 	response.setErrorMsg(NAME_NOT_FOUND_ERROR + name);
 }
 
-void Executor::setUndoStackEmptyError(Messenger &response) {
+void Executor::setErrorWithErrMsg(Messenger &response, const string errMsg) {
 	response.setStatus(TP::STATUS::ERROR);
-	response.setErrorMsg(UNDOSTACK_EMPTY_MSG);
-}
-
-void Executor::setRedoStackEmptyError(Messenger &response) {
-	response.setStatus(TP::STATUS::ERROR);
-	response.setErrorMsg(REDOSTACK_EMPTY_MSG);
+	response.setErrorMsg(errMsg);
 }
 
 
