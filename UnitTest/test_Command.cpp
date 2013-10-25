@@ -13,25 +13,14 @@ namespace UnitTest
 		
 		TEST_METHOD(cmd_Add)
 		{
-			//TC0: emu Interpreter
+			//TC0: Command_Add --> Command
 			Command_Add* cmd_add_interpreter = new Command_Add();
 			cmd_add_interpreter->setName("FML 2014");//compulsory field
 			cmd_add_interpreter->setDueDate(time(NULL));
 			Command* cmd = cmd_add_interpreter;//to return
 			Assert::AreEqual(static_cast<int>(TP::ADD), static_cast<int>(cmd->getCommandType()));
 
-			//TC0.1: tags
-			/*cmd_add_interpreter->setTags("tag1, tag2, tag3");
-			Assert::AreEqual((string) "tag1, tag2, tag3", cmd_add_interpreter->getTags());*/
-
-			/*time_t tmp = cmd_add_interpreter->getDueDate();
-			Assert::AreEqual((string) "" , string(std::asctime(std::localtime(&tmp))));*/
-
-			//TC0.2: paticipants
-			/*cmd_add_interpreter->setParticipants("ppl1, ppl2, ppl3");
-			Assert::AreEqual((string) "ppl1, ppl2, ppl3", cmd_add_interpreter->getParticipants());*/
-
-			//TC1: emu Executor
+			//TC1: Command --> Command_Add
 			Command_Add* cmd_add_executor;
 			bool isDueDateSet = false;
 			if( cmd->getCommandType() == TP::ADD )
@@ -49,6 +38,10 @@ namespace UnitTest
 			//TC0
 			Command* cmd = new Command_Mod();
 			Assert::AreEqual(static_cast<int>(TP::MOD), static_cast<int>(cmd->getCommandType()));
+			
+			Command_Mod* cmd_mod = dynamic_cast<Command_Mod*>(cmd);
+			cmd_mod->setPriority(TP::HIGH);
+			Assert::AreEqual(cmd_mod->getFlagPriority(), true);
 
 			delete cmd;
 		}

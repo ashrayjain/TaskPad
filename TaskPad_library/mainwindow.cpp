@@ -40,6 +40,7 @@ MainWindow::MainWindow(QWidget *parent)
 	QObject::connect(ui.AboutButton, SIGNAL(clicked()), this, SLOT(about()));
 	QObject::connect(ui.HelpButton, SIGNAL(clicked()), this, SLOT(help()));
 	(void) new QShortcut(QKeySequence(tr("F5", "RemainderTesting")), this, SLOT(showReminder()));
+	(void) new QShortcut(QKeySequence(tr("Ctrl+H", "Minimize")), this, SLOT(showMinimized()));
 	(void) new QShortcut(QKeySequence(tr("Ctrl+T", "Today")), this, SLOT(getToday()));
 	(void) new QShortcut(QKeySequence(tr("Ctrl+I", "Inbox")), this, SLOT(getInbox()));
 	//ui.CommandBar->installEventFilter(this);//filter RETURN
@@ -148,12 +149,12 @@ void MainWindow::handleShowReminder(){
 		updateList(reminderList);
 		updateNavLabel("Reminders");
 		clearDetails();
-		updateDetailsLabel("Task Details");
 		updateStatusBar("Ready");
 		scheduler->syncTaskList(reminderList);
 		if(reminderList.size() == 1){
 			scheduler->syncTask(reminderList.front());
 			updateDetails(reminderList.front());
+			updateDetailsLabel("Task's Details");
 		}
 		showWindow();
 		isFromReminder = false;
@@ -204,7 +205,7 @@ void MainWindow::handleGetToday(Messenger msg){
 
 void MainWindow::getInbox(){
 	reset();
-	Messenger msg = scheduler->processCommand("find undone");
+	Messenger msg = scheduler->processCommand("find floating undone");
 	handleGetInbox(msg);
 }
 
@@ -594,11 +595,13 @@ void MainWindow::updateDetails(Task t){
 		QString tags;
 		list<string> listOfTags = task_showDetails.getTags();
 		list<string>::iterator iter = listOfTags.begin();
+		tags += "#";
 		tags += iter->c_str();
 		iter++;
 		for(;iter != listOfTags.end();
 			advance(iter, 1)){
 				tags += ", ";
+				tags += "#";
 				tags += iter->c_str();
 		}
 		ui.tags->setText(tags);
