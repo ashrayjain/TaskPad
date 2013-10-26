@@ -43,6 +43,7 @@ class Manager {
 		Messenger	_response;
 		int			_index;
 		std::tm		_currTm;
+		pair<tm,tm> _currentPeriod;
 
 		//the list of tasks
 		list<Task>	_tasks;
@@ -102,6 +103,7 @@ class Manager {
 		Messenger	getTodayTasks		();
 		Messenger	getNextPeriodTasks	(PERIOD_TYPE);
 		Messenger	getPrevPeriodTasks	(PERIOD_TYPE);
+		pair<tm,tm> getCurrentPeriod	();
 		void		resetStatus			();
 		Messenger	refreshList			();
 		list<Task>	getCurrentReminders	();
