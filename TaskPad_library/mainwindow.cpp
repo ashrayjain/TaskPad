@@ -703,7 +703,7 @@ void MainWindow::customisedUi(){
 	//magic number
 	ui.TaskList->header()->resizeSection(0, 70);
 	ui.TaskList->header()->resizeSection(1, 220);
-	ui.TaskList->setItemDelegate(new LastColumnDelegate(2, ui.TaskList));
+	ui.TaskList->setItemDelegateForColumn(2, new LastColumnDelegate(ui.TaskList));
 }
 
 void MainWindow::mousePressEvent(QMouseEvent *event){
