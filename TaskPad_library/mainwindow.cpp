@@ -240,11 +240,10 @@ void MainWindow::getToday(){
 }
 
 void MainWindow::handleGetToday(Messenger msg){
-	bool isToday = true;
 	updateNavLabel("Today");
 	updateStatusBar("Ready");
 	clearDetails();
-	updateList(msg.getList(), isToday);
+	updateList(msg.getList());
 }
 
 void MainWindow::getInbox(){
@@ -409,10 +408,7 @@ void MainWindow::handleMessenger(Messenger msg){
 		}
 		updateDetails(msg.getTask());
 		refreshedMsg = scheduler->refreshList();
-		if(ui.Navigation_taskList->text() == "Today")
-			updateList(refreshedMsg.getList(), true);
-		else
-			updateList(refreshedMsg.getList());
+		updateList(refreshedMsg.getList());
 	}
 }
 
@@ -445,7 +441,7 @@ void MainWindow::updateDetailsLabel(QString str){
 	ui.Navigation_detailsView->setText(str);
 }
 
-void MainWindow::updateList(std::list<Task> result, bool isToday){
+void MainWindow::updateList(std::list<Task> result){
 	QTreeWidgetItem* item = NULL;
 
 	ui.TaskList->clear();
@@ -455,12 +451,7 @@ void MainWindow::updateList(std::list<Task> result, bool isToday){
 		iter != result.end();
 		std::advance(iter, 1))
 	{
-		if(isToday){
-			item = extractTaskForToday(count, *iter);
-		}
-		else{//not today
-			item = extractTask(count, *iter);
-		}
+		item = extractTask(count, *iter);
 		ui.TaskList->addTopLevelItem(item);
 		count++;
 	}
@@ -472,52 +463,6 @@ QTreeWidgetItem* MainWindow::extractTask(int index, Task task){
 		QDateTime time = QDateTime::fromTime_t(task.getDueDate());
 		strList = QStringList() << QString::number(index) << task.getName().c_str() << \
 			"Due " + time.toString("dd/MM/yyyy");
-	}
-	else if(task.getTaskType() == TP::TIMED ||
-		task.getFlagFromDate() ||
-		task.getFlagToDate()){
-		QString fromTimeStr, toTimeStr;
-		if(task.getFlagFromDate()){
-			QDateTime fromTime = QDateTime::fromTime_t(task.getFromDate());
-			fromTimeStr = "From " + fromTime.toString("dd/MM/yyyy");
-		}
-		if(task.getFlagToDate()){
-			QDateTime toTime = QDateTime::fromTime_t(task.getToDate());
-			if(task.getFlagFromDate())
-				toTimeStr = " to " + toTime.toString("dd/MM/yyyy");
-			else
-				toTimeStr = "To " + toTime.toString("dd/MM/yyyy");
-		}
-		
-		strList = QStringList() << QString::number(index) << task.getName().c_str() << \
-			fromTimeStr + toTimeStr;
-	}
-	else{//TaskType == TP::FLOATING
-		strList = QStringList() << QString::number(index) << task.getName().c_str() << "";
-	}
-	if(task.getPriority() == HIGH)
-		ui.TaskList->setItemDelegateForRow(index - 1, new HighPriorityDelegate(ui.TaskList));
-	else
-		ui.TaskList->setItemDelegateForRow(index - 1, NULL);
-	return new QTreeWidgetItem(strList);
-}
-
-//TODO: can combine into one
-QTreeWidgetItem* MainWindow::extractTaskForToday(int index, Task task){
-	QStringList strList;
-	if(task.getTaskType() == TP::DEADLINE){
-		QDateTime time = QDateTime::fromTime_t(task.getDueDate());
-		QTime due_hour_n_min = time.time();
-		QString dueStr;
-		if(due_hour_n_min.hour() == 0 && due_hour_n_min.minute() == 0){
-			dueStr = "Due today";
-		}
-		else{
-			dueStr = "Due " + time.toString("hh:mm");
-		}
-
-		strList = QStringList() << QString::number(index) << task.getName().c_str() << \
-			dueStr;
 	}
 	else if(task.getTaskType() == TP::TIMED ||
 		task.getFlagFromDate() ||

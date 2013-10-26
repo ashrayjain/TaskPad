@@ -44,9 +44,8 @@ private:
 	void reset();
 	void updateNavLabel(QString str);
 	void updateDetailsLabel(QString str);
-	void updateList(std::list<Task> result, bool isToday = false);
+	void updateList(std::list<Task> result);
 	QTreeWidgetItem* extractTask(int index, Task task);
-	QTreeWidgetItem* extractTaskForToday(int index, Task task);
 	void clearDetails();
 	void updateDetails(Task t);
 	void updateStatusBar(QString str);
