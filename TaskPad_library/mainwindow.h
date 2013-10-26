@@ -31,6 +31,12 @@ protected slots:
 	void handleShowReminder();
 	bool isCommandAdd(QString requestStr);
 	void iconIsActived(QSystemTrayIcon::ActivationReason);
+	void showNextDay();
+	void showNextWeek();
+	void showNextMonth();
+	void showPrevDay();
+	void showPrevWeek();
+	void showPrevMonth();
 
 private:
 	void showTrayMsg(QString msg, QString title = "TaskPad");
@@ -44,10 +50,11 @@ private:
 	void clearDetails();
 	void updateDetails(Task t);
 	void updateStatusBar(QString str);
-	void handleGetToday(Messenger msg);
+	void handleGetToday(Messenger msg);//TODO: many handlers r redundant
 	void handleGetInbox(Messenger msg);
 	void handleMessenger(Messenger msg);
 	void handleDisplay(Messenger msg);
+	void handleDateNavigation(Messenger msg, string listTitle);
 	void customisedUi();
 	void mousePressEvent(QMouseEvent *event);
 	void mouseMoveEvent(QMouseEvent *event);
