@@ -26,6 +26,15 @@
     <ClInclude Include="Command.h" />
     <ClInclude Include="FileHandler.h" />
     <ClInclude Include="GeneratedFiles\ui_quickadd_window.h" />
+    <ClInclude Include="Interpreter.h" />
+    <ClInclude Include="Interpreter_Add.h" />
+    <ClInclude Include="Interpreter_base.h" />
+    <ClInclude Include="Interpreter_Delete.h" />
+    <ClInclude Include="Interpreter_Find.h" />
+    <ClInclude Include="Interpreter_Mod.h" />
+    <ClInclude Include="Interpreter_Redo.h" />
+    <ClInclude Include="Interpreter_Sync.h" />
+    <ClInclude Include="Interpreter_Undo.h" />
     <ClInclude Include="libqxt\qxtglobal.h" />
     <CustomBuild Include="libqxt\qxtglobalshortcut.h">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
@@ -85,7 +94,6 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DWIN64 -DQT_DLL -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DTASKPAD_LIBRARY_LIB "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets"</Command>
     </CustomBuild>
-    <ClInclude Include="Interpreter.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="Manager.h" />
     <ClInclude Include="Messenger.h" />
@@ -149,6 +157,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Interpreter.cpp" />
+    <ClCompile Include="Interpreter_base.cpp" />
     <ClCompile Include="libqxt\qxtglobalshortcut.cpp" />
     <ClCompile Include="libqxt\qxtglobalshortcut_win.cpp" />
     <ClCompile Include="Logger.cpp" />
