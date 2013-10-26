@@ -12,6 +12,7 @@
 #include "quickadd_window.h"
 #include "Manager.h"
 #include "lastColumnDelegate.h"
+#include "HighPriorityDelegate.h"
 #include "CommandBar.h"
 
 MainWindow::MainWindow(QWidget *parent)
@@ -494,6 +495,10 @@ QTreeWidgetItem* MainWindow::extractTask(int index, Task task){
 	else{//TaskType == TP::FLOATING
 		strList = QStringList() << QString::number(index) << task.getName().c_str() << "";
 	}
+	if(task.getPriority() == HIGH)
+		ui.TaskList->setItemDelegateForRow(index - 1, new HighPriorityDelegate(ui.TaskList));
+	else
+		ui.TaskList->setItemDelegateForRow(index - 1, NULL);
 	return new QTreeWidgetItem(strList);
 }
 
@@ -536,6 +541,10 @@ QTreeWidgetItem* MainWindow::extractTaskForToday(int index, Task task){
 	else{//TaskType == TP::FLOATING
 		strList = QStringList() << QString::number(index) << task.getName().c_str() << "";
 	}
+	if(task.getPriority() == HIGH)
+		ui.TaskList->setItemDelegateForRow(index - 1, new HighPriorityDelegate(ui.TaskList));
+	else
+		ui.TaskList->setItemDelegateForRow(index - 1, NULL);
 	return new QTreeWidgetItem(strList);
 }
 
