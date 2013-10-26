@@ -378,7 +378,7 @@ std::string Manager::createFindCommand(std::tm startTm, std::tm endTm)
 	std::string startTmStr = getStrFromTm(startTm);
 	std::string endTmStr = getStrFromTm(endTm);
 
-	return "find from " + startTmStr + " to " + endTmStr;
+	return "find from " + startTmStr + " to " + endTmStr + " undone";
 }
 
 std::string Manager::getStrFromTm(std::tm timeInfo)
