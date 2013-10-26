@@ -40,6 +40,7 @@ Manager::Manager() {
 	this->_interpreter	= new Interpreter;
 	this->_response		= Messenger();
 	this->_cmd			= NULL;
+	this->_lastSuccessfulFindCmd = NULL;
 }
 
 Messenger Manager::refreshList()
@@ -64,8 +65,10 @@ void Manager::syncTask (const Task& task)
 }
 
 void Manager::resetStatus() {
-	delete this->_cmd;
+	if(this->_cmd != NULL && this->_cmd->getCommandType() != FIND)
+		delete this->_cmd;
 	this->_cmd = NULL;
+	this->_currentPeriod = pair<tm,tm>();
 	this->_response.resetMessenger();
 	this->setCurrTm(getTodayTm());
 }
@@ -75,6 +78,7 @@ Manager::~Manager() {
 	delete this->_interpreter;
 	delete this->_executor;
 	delete this->_storage;
+	delete this->_lastSuccessfulFindCmd;
 	this->removePreviousCommand();
 	this->_response.resetMessenger();
 }
@@ -117,6 +121,8 @@ void Manager::saveChanges()
 				this->_storage->save(this->_response.getTask(),this->_response.getCommandType());
 				break;
 			case FIND:
+				if(this->_lastSuccessfulFindCmd != NULL)
+					delete this->_lastSuccessfulFindCmd;//delete last time cmd_Find
 				this->_lastSuccessfulFindCmd = this->_cmd;
 				break;
 			default:
@@ -130,7 +136,7 @@ void Manager::saveChanges()
  * returns the memory to the system
  */
 void Manager::removePreviousCommand() {
-	if(this->_cmd != NULL) {
+	if(this->_cmd != NULL && this->_cmd->getCommandType() != FIND) {
 		delete this->_cmd;
 		this->_cmd = NULL;
 	}
@@ -372,7 +378,7 @@ std::string Manager::createFindCommand(std::tm startTm, std::tm endTm)
 	std::string startTmStr = getStrFromTm(startTm);
 	std::string endTmStr = getStrFromTm(endTm);
 
-	return "find from `" + startTmStr + "` to `" + endTmStr + "`";
+	return "find from " + startTmStr + " to " + endTmStr;
 }
 
 std::string Manager::getStrFromTm(std::tm timeInfo)
@@ -473,10 +479,11 @@ Messenger Manager::getNextPeriodTasks(PERIOD_TYPE pType)
 			break;
 	}
 
+	_currentPeriod.first = _currTm;
+	_currentPeriod.second = nextTm;
+	std::string command = this->createFindCommand(_currTm,nextTm);
 	this->setCurrTm(nextTm);
 
-	std::string command = this->createFindCommand(_currTm,nextTm);
-	
 	return this->processCommand(command);
 }
 Messenger Manager::getPrevPeriodTasks(PERIOD_TYPE pType)
@@ -497,10 +504,16 @@ Messenger Manager::getPrevPeriodTasks(PERIOD_TYPE pType)
 			break;
 	}
 
+	_currentPeriod.first = prevTm;
+	_currentPeriod.second = _currTm;
+	std::string command = createFindCommand(prevTm, _currTm);
 	this->setCurrTm(prevTm);
-	std::string command = createFindCommand(prevTm, currTm);
 
 	return this->processCommand(command);
+}
+
+pair<tm,tm> Manager::getCurrentPeriod(){
+	return _currentPeriod;
 }
 
 std::tm Manager::getNextDayTm(std::tm currTm)
