@@ -42,7 +42,16 @@ MainWindow::MainWindow(QWidget *parent)
 	(void) new QShortcut(QKeySequence(tr("F5", "RemainderTesting")), this, SLOT(showReminder()));
 	(void) new QShortcut(QKeySequence(tr("Ctrl+H", "Minimize")), this, SLOT(showMinimized()));
 	(void) new QShortcut(QKeySequence(tr("Ctrl+T", "Today")), this, SLOT(getToday()));
+	(void) new QShortcut(QKeySequence(tr("Alt+1", "Today")), this, SLOT(getToday()));
 	(void) new QShortcut(QKeySequence(tr("Ctrl+I", "Inbox")), this, SLOT(getInbox()));
+	(void) new QShortcut(QKeySequence(tr("Alt+2", "Inbox")), this, SLOT(getInbox()));
+	//*******************************************************************************
+	(void) new QShortcut(QKeySequence(tr("Alt+D", "Show Next Day")), this, SLOT(showNextDay()));
+	(void) new QShortcut(QKeySequence(tr("Alt+Shift+D", "Show Previous Day")), this, SLOT(showPrevDay()));
+	(void) new QShortcut(QKeySequence(tr("Alt+W", "Show Next Week")), this, SLOT(showNextWeek()));
+	(void) new QShortcut(QKeySequence(tr("Alt+Shift+W", "Show Previous Week")), this, SLOT(showPrevWeek()));
+	(void) new QShortcut(QKeySequence(tr("Alt+M", "Show Next Month")), this, SLOT(showNextMonth()));
+	(void) new QShortcut(QKeySequence(tr("Alt+Shift+M", "Show Previous Month")), this, SLOT(showPrevMonth()));
 	//ui.CommandBar->installEventFilter(this);//filter RETURN
 	ui.CloseButton->installEventFilter(this);//filter MOUSE MOVE
 	ui.MinimizeButton->installEventFilter(this);//filter MOUSE MOVE
@@ -64,6 +73,40 @@ MainWindow::~MainWindow()
 
 void MainWindow::iconIsActived(QSystemTrayIcon::ActivationReason){
 	showWindow();
+}
+
+void MainWindow::showNextDay(){
+	Messenger msg = scheduler->getNextPeriodTasks(DAY);
+	handleDateNavigation(msg, "Next Day");
+}
+void MainWindow::showNextWeek(){
+	Messenger msg = scheduler->getNextPeriodTasks(WEEK);
+	handleDateNavigation(msg, "Next Week");
+}
+void MainWindow::showNextMonth(){
+	Messenger msg = scheduler->getNextPeriodTasks(MONTH);
+	handleDateNavigation(msg, "Next Month");
+}
+void MainWindow::showPrevDay(){
+	Messenger msg = scheduler->getPrevPeriodTasks(DAY);
+	handleDateNavigation(msg, "Previous Day");
+}
+void MainWindow::showPrevWeek(){
+	Messenger msg = scheduler->getPrevPeriodTasks(WEEK);
+	handleDateNavigation(msg, "Previous Week");
+}
+void MainWindow::showPrevMonth(){
+	Messenger msg = scheduler->getPrevPeriodTasks(MONTH);
+	handleDateNavigation(msg, "Previous Month");
+}
+void MainWindow::handleDateNavigation(Messenger msg, string listTitle){
+	if(msg.getStatus() == SUCCESS){
+		clearDetails();
+		updateStatusBar("Ready");
+		updateNavLabel(listTitle.c_str());
+		updateList(msg.getList());
+		scheduler->syncTaskList(msg.getList());
+	}
 }
 
 void MainWindow::showWindow(){
@@ -128,7 +171,6 @@ void MainWindow::handleQuickAddRequest(QString requestStr){
 			}
 			else if(msg.getStatus() == TP::SUCCESS)
 			{
-				getToday();
 				closeQuickAddWindow();
 				showTrayMsg("Added");
 			}
@@ -178,7 +220,6 @@ void MainWindow::keyPressEvent(QKeyEvent* event){
 	ui.cmdBar->setFocus();
 	if(event->key() == Qt::Key_Escape)
 	{
-		reset();
 		getToday();
 	}
 	QMainWindow::keyPressEvent(event);
@@ -260,7 +301,6 @@ bool MainWindow::eventFilter(QObject* watched, QEvent* event)
 		{
 			QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
 			if(keyEvent->key() == Qt::Key_Escape){
-				reset();
 				getToday();
 			}
 			else if(keyEvent->key() == Qt::Key_Return || keyEvent->key() == Qt::Key_Enter)
