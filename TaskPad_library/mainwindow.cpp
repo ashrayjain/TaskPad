@@ -280,6 +280,7 @@ bool MainWindow::eventFilter(QObject* watched, QEvent* event)
 }
 
 void MainWindow::handleMessenger(Messenger msg){
+	Messenger refreshedMsg;
 	//not SLAP now
 	if(msg.getStatus() == TP::ERROR)
 	{
@@ -296,22 +297,25 @@ void MainWindow::handleMessenger(Messenger msg){
 		Messenger td_msg;
 		switch(msg.getCommandType()){
 		case TP::ADD:
-			getToday();
 			updateStatusBar("Task added successfully");
 			updateDetailsLabel("Added Task's Details");
 			updateDetails(msg.getTask());
+			refreshedMsg = scheduler->refreshList();
+			updateList(refreshedMsg.getList());
 			break;
 		case TP::DEL:
-			getToday();
 			updateStatusBar("Task deleted successfully");
 			updateDetailsLabel("Deleted Task's Details");
 			updateDetails(msg.getTask());
+			refreshedMsg = scheduler->refreshList();
+			updateList(refreshedMsg.getList());
 			break;
 		case TP::MOD:
-			getToday();
 			updateStatusBar("Task modified successfully");
 			updateDetailsLabel("Modified Task's Details");
 			updateDetails(msg.getTask());
+			refreshedMsg = scheduler->refreshList();
+			updateList(refreshedMsg.getList());
 			break;
 		case TP::FIND:
 			updateNavLabel("Search Results");
@@ -323,16 +327,18 @@ void MainWindow::handleMessenger(Messenger msg){
 			}
 			break;
 		case TP::UNDO:
-			getToday();
 			updateStatusBar("Undo successfully");
 			updateDetailsLabel("Undo Task's Details");
 			updateDetails(msg.getTask());
+			refreshedMsg = scheduler->refreshList();
+			updateList(refreshedMsg.getList());
 			break;
 		case TP::REDO:
-			getToday();
 			updateStatusBar("Redo successfully");
 			updateDetailsLabel("Redo Task's Details");
 			updateDetails(msg.getTask());
+			refreshedMsg = scheduler->refreshList();
+			updateList(refreshedMsg.getList());
 			break;
 		}
 	}
@@ -358,12 +364,12 @@ void MainWindow::handleMessenger(Messenger msg){
 			updateDetailsLabel("Deleted Task's Details");
 			break;
 		}
-
-		if(ui.Navigation_taskList->text() == "Today")
-			updateList(msg.getList(), true);
-		else
-			updateList(msg.getList());
 		updateDetails(msg.getTask());
+		refreshedMsg = scheduler->refreshList();
+		if(ui.Navigation_taskList->text() == "Today")
+			updateList(refreshedMsg.getList(), true);
+		else
+			updateList(refreshedMsg.getList());
 	}
 }
 
