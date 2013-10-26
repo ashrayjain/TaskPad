@@ -42,6 +42,12 @@ Manager::Manager() {
 	this->_cmd			= NULL;
 }
 
+Messenger Manager::refreshList()
+{
+	this->_executor->executeCommand(this->_lastSuccessfulFindCmd,this->_response);
+	return this->_response;
+}
+
 list<Task> Manager::getCurrentReminders	()
 {
 	return this->_executor->getCurrentReminders();
@@ -109,6 +115,9 @@ void Manager::saveChanges()
 			case ADD:
 				_logger->log("Manager","saving changes");
 				this->_storage->save(this->_response.getTask(),this->_response.getCommandType());
+				break;
+			case FIND:
+				this->_lastSuccessfulFindCmd = this->_cmd;
 				break;
 			default:
 				break;

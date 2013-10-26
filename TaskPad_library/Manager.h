@@ -39,6 +39,7 @@ class Manager {
 
 		//state determinants
 		Command*	_cmd;
+		Command*	_lastSuccessfulFindCmd;
 		Messenger	_response;
 		int			_index;
 		std::tm		_currTm;
@@ -102,6 +103,7 @@ class Manager {
 		Messenger	getNextPeriodTasks	(PERIOD_TYPE);
 		Messenger	getPrevPeriodTasks	(PERIOD_TYPE);
 		void		resetStatus			();
+		Messenger	refreshList			();
 		list<Task>	getCurrentReminders	();
 		void		syncTaskList		(const list<Task>&);
 		void		syncTask			(const Task&);
