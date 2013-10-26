@@ -54,7 +54,8 @@ private:
 	void handleGetInbox(Messenger msg);
 	void handleMessenger(Messenger msg);
 	void handleDisplay(Messenger msg);
-	void handleDateNavigation(Messenger msg, string listTitle);
+	void handleDateNavigation(TP::PERIOD_TYPE period, QString listTitle, bool isPrevious = false);
+	QString getTimePeriod(pair<tm, tm> period);
 	void customisedUi();
 	void mousePressEvent(QMouseEvent *event);
 	void mouseMoveEvent(QMouseEvent *event);

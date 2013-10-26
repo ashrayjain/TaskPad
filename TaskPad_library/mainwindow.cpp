@@ -76,34 +76,36 @@ void MainWindow::iconIsActived(QSystemTrayIcon::ActivationReason){
 }
 
 void MainWindow::showNextDay(){
-	Messenger msg = scheduler->getNextPeriodTasks(DAY);
-	handleDateNavigation(msg, "Next Day");
+	handleDateNavigation(DAY, "Next Day: ");
 }
 void MainWindow::showNextWeek(){
-	Messenger msg = scheduler->getNextPeriodTasks(WEEK);
-	handleDateNavigation(msg, "Next Week");
+	handleDateNavigation(WEEK, "Next Week: ");
 }
 void MainWindow::showNextMonth(){
-	Messenger msg = scheduler->getNextPeriodTasks(MONTH);
-	handleDateNavigation(msg, "Next Month");
+	handleDateNavigation(MONTH, "Next Month: ");
 }
 void MainWindow::showPrevDay(){
-	Messenger msg = scheduler->getPrevPeriodTasks(DAY);
-	handleDateNavigation(msg, "Previous Day");
+	handleDateNavigation(DAY, "Previous Day: ", true);
 }
 void MainWindow::showPrevWeek(){
-	Messenger msg = scheduler->getPrevPeriodTasks(WEEK);
-	handleDateNavigation(msg, "Previous Week");
+	handleDateNavigation(WEEK, "Previous Week: ", true);
 }
 void MainWindow::showPrevMonth(){
-	Messenger msg = scheduler->getPrevPeriodTasks(MONTH);
-	handleDateNavigation(msg, "Previous Month");
+	handleDateNavigation(MONTH, "Previous Month: ", true);
 }
-void MainWindow::handleDateNavigation(Messenger msg, string listTitle){
+void MainWindow::handleDateNavigation(TP::PERIOD_TYPE periodType, QString listTitle, bool isPrevious){
+	Messenger msg;
+	if(isPrevious)
+		msg = scheduler->getPrevPeriodTasks(periodType);
+	else
+		msg = scheduler->getNextPeriodTasks(periodType);
+	pair<tm, tm> period = scheduler->getCurrentPeriod();
+	QString periodStr = getTimePeriod(period);
+	listTitle += periodStr;
 	if(msg.getStatus() == SUCCESS){
 		clearDetails();
 		updateStatusBar("Ready");
-		updateNavLabel(listTitle.c_str());
+		updateNavLabel(listTitle);
 		updateList(msg.getList());
 		scheduler->syncTaskList(msg.getList());
 	}
@@ -684,6 +686,14 @@ void MainWindow::updateDetails(Task t){
 
 void MainWindow::updateStatusBar(QString str){
 	ui.StatusBar->setText(str);
+}
+
+QString MainWindow::getTimePeriod(pair<tm, tm> period){
+	QDateTime fromDate = QDateTime::fromTime_t(mktime(&period.first));
+	QDateTime toDate = QDateTime::fromTime_t(mktime(&period.second));
+	QString fromStr = fromDate.toString("dd/MM/yyyy");
+	QString toStr = toDate.toString("dd/MM/yyyy");
+	return fromStr + " - " + toStr;
 }
 
 void MainWindow::customisedUi(){
