@@ -158,6 +158,17 @@ Command* Interpreter_Find::interpretFind(Command_Find* commandType, std::string 
 		flag=false;
 
 	}
+	if(flag && commandType->getFlagRemindTimes()==false){
+		list<time_t> content;
+		if(getRemindTimesMessage(commandStr,flag,content)){
+			commandType->setRemindTimes(content);
+		}
+	}
+	else{
+
+		flag=false;
+
+	}
 	if(commandType->getFlagFrom()==true && commandType->getFlagTo()==true){
 	
 		if(commandType->getFromDate()>commandType->getToDate())flag=false;
