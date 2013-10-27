@@ -2,7 +2,6 @@
 #include <QMessageBox>
 #include <QTextBlock>
 #include <QShortcut>
-#include <QDateTime>
 #include <QGraphicsOpacityEffect>
 #include <QTimer>
 #include <cassert>
@@ -120,8 +119,9 @@ void MainWindow::showWindow(){
 
 void MainWindow::showReminder(){
 	QString output;
-	reminderList = scheduler->getCurrentReminders();
+	list<Task> reminderList = scheduler->getCurrentReminders();
 	if(!reminderList.empty()){
+		currRemindTime = QDateTime::currentDateTime();
 		list<Task>::iterator iter = reminderList.begin();
 		output += "1. ";
 		output += iter->getName().c_str();
@@ -191,14 +191,17 @@ void MainWindow::handleQuickAddRequest(QString requestStr){
 
 void MainWindow::handleShowReminder(){
 	if(isFromReminder){
-		updateList(reminderList);
+		reset();
+		string currRemindTimeStr = currRemindTime.toString("dd/MM/yy hh:mm").toStdString();
+		string findCurrRtTasks = "find rt `" + currRemindTimeStr + "` undone";
+		Messenger msg = scheduler->processCommand(findCurrRtTasks);
+		updateList(msg.getList());
 		updateNavLabel("Reminders");
 		clearDetails();
 		updateStatusBar("Ready");
-		scheduler->syncTaskList(reminderList);
-		if(reminderList.size() == 1){
-			scheduler->syncTask(reminderList.front());
-			updateDetails(reminderList.front());
+		if(msg.getList().size() == 1){
+			scheduler->syncTask(msg.getList().front());
+			updateDetails(msg.getList().front());
 			updateDetailsLabel("Task's Details");
 		}
 		showWindow();
