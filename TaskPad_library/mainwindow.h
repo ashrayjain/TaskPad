@@ -74,6 +74,7 @@ private:
 	void setHighPriorityDelegate( int index );
 	//--Details Related
 	void updateDetailsView( Messenger &msg, QString detailsLabel = "Task's Details");
+	void updateDetailsView_GetTask( Messenger msg, QString detailsLabel = "Task's Details");
 	void handleOneItemList( Messenger &msg, QString detailsLabel = "Task's Details" );
 	void updateDetailsLabel(QString str = "Task's Details");
 	void clearDetails();
@@ -125,7 +126,6 @@ private:
 	bool eventFilter(QObject* watched, QEvent* event);
 	void mousePressEvent(QMouseEvent *event);
 	void mouseMoveEvent(QMouseEvent *event);
-
 	//Main Widgets
 	Ui::MainWindowClass ui;
 	QSystemTrayIcon* trayIcon;
@@ -141,9 +141,6 @@ private:
 	bool isFromReminder;
 	//Logic's entrance
 	Manager* scheduler;
-	
-
-	friend class QuickAddWindow;
 };
 
 #endif // MAINWINDOW_H
