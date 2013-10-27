@@ -86,13 +86,13 @@ void MainWindow::showNextMonth(){
 	handleDateNavigation(MONTH, "Next Month: ");
 }
 void MainWindow::showPrevDay(){
-	handleDateNavigation(DAY, "Previous Day: ", true);
+	handleDateNavigation(DAY, "Prev. Day: ", true);
 }
 void MainWindow::showPrevWeek(){
-	handleDateNavigation(WEEK, "Previous Week: ", true);
+	handleDateNavigation(WEEK, "Prev. Week: ", true);
 }
 void MainWindow::showPrevMonth(){
-	handleDateNavigation(MONTH, "Previous Month: ", true);
+	handleDateNavigation(MONTH, "Prev. Month: ", true);
 }
 void MainWindow::handleDateNavigation(TP::PERIOD_TYPE periodType, QString listTitle, bool isPrevious){
 	Messenger msg;
@@ -215,6 +215,7 @@ bool MainWindow::isCommandAdd(QString requestStr){
 
 void MainWindow::help(){
 	QMessageBox msgBox;
+	msgBox.setWindowTitle("TaskPad");
 	msgBox.setText("Geek doesn't need help from us :p");
 	msgBox.exec();
 }
