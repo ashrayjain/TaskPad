@@ -175,6 +175,7 @@ void CommandBar::insertCompletion(const QString &completion)
 void CommandBar::insertFromMimeData(const QMimeData *source){
 	if(source->hasText()){
 		QString strToInsert = source->text();
+		strToInsert.replace(QRegExp("\n"), EMPTY);
 		insertPlainText(strToInsert);
 	}
 }

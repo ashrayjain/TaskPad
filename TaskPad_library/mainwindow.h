@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QSystemTrayIcon>
+#include <QDateTime>
 #include <list>
 #include "Task.h"
 #include "Messenger.h"
@@ -31,6 +32,12 @@ protected slots:
 	void handleShowReminder();
 	bool isCommandAdd(QString requestStr);
 	void iconIsActived(QSystemTrayIcon::ActivationReason);
+	void showNextDay();
+	void showNextWeek();
+	void showNextMonth();
+	void showPrevDay();
+	void showPrevWeek();
+	void showPrevMonth();
 
 private:
 	void showTrayMsg(QString msg, QString title = "TaskPad");
@@ -38,16 +45,17 @@ private:
 	void reset();
 	void updateNavLabel(QString str);
 	void updateDetailsLabel(QString str);
-	void updateList(std::list<Task> result, bool isToday = false);
+	void updateList(std::list<Task> result);
 	QTreeWidgetItem* extractTask(int index, Task task);
-	QTreeWidgetItem* extractTaskForToday(int index, Task task);
 	void clearDetails();
 	void updateDetails(Task t);
 	void updateStatusBar(QString str);
-	void handleGetToday(Messenger msg);
+	void handleGetToday(Messenger msg);//TODO: many handlers r redundant
 	void handleGetInbox(Messenger msg);
 	void handleMessenger(Messenger msg);
 	void handleDisplay(Messenger msg);
+	void handleDateNavigation(TP::PERIOD_TYPE period, QString listTitle, bool isPrevious = false);
+	QString getTimePeriod(pair<tm, tm> period);
 	void customisedUi();
 	void mousePressEvent(QMouseEvent *event);
 	void mouseMoveEvent(QMouseEvent *event);
@@ -62,7 +70,7 @@ private:
 
 	bool isQuickAddOpen;
 	bool isFromReminder;
-	list<Task> reminderList;
+	QDateTime currRemindTime;
 	QDialog* quickAddWindow;
 	Manager* scheduler;
 	QTimer* timer;
