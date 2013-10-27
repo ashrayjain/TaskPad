@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QSystemTrayIcon>
+#include <QDateTime>
 #include <list>
 #include "Task.h"
 #include "Messenger.h"
@@ -69,7 +70,7 @@ private:
 
 	bool isQuickAddOpen;
 	bool isFromReminder;
-	list<Task> reminderList;
+	QDateTime currRemindTime;
 	QDialog* quickAddWindow;
 	Manager* scheduler;
 	QTimer* timer;
