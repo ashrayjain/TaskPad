@@ -2,7 +2,6 @@
 #include <QMessageBox>
 #include <QTextBlock>
 #include <QShortcut>
-#include <QDateTime>
 #include <QGraphicsOpacityEffect>
 #include <QTimer>
 #include <cassert>
@@ -12,6 +11,7 @@
 #include "quickadd_window.h"
 #include "Manager.h"
 #include "lastColumnDelegate.h"
+#include "HighPriorityDelegate.h"
 #include "CommandBar.h"
 
 MainWindow::MainWindow(QWidget *parent)
@@ -42,7 +42,16 @@ MainWindow::MainWindow(QWidget *parent)
 	(void) new QShortcut(QKeySequence(tr("F5", "RemainderTesting")), this, SLOT(showReminder()));
 	(void) new QShortcut(QKeySequence(tr("Ctrl+H", "Minimize")), this, SLOT(showMinimized()));
 	(void) new QShortcut(QKeySequence(tr("Ctrl+T", "Today")), this, SLOT(getToday()));
+	(void) new QShortcut(QKeySequence(tr("Alt+1", "Today")), this, SLOT(getToday()));
 	(void) new QShortcut(QKeySequence(tr("Ctrl+I", "Inbox")), this, SLOT(getInbox()));
+	(void) new QShortcut(QKeySequence(tr("Alt+2", "Inbox")), this, SLOT(getInbox()));
+	//*******************************************************************************
+	(void) new QShortcut(QKeySequence(tr("Alt+D", "Show Next Day")), this, SLOT(showNextDay()));
+	(void) new QShortcut(QKeySequence(tr("Alt+Shift+D", "Show Previous Day")), this, SLOT(showPrevDay()));
+	(void) new QShortcut(QKeySequence(tr("Alt+W", "Show Next Week")), this, SLOT(showNextWeek()));
+	(void) new QShortcut(QKeySequence(tr("Alt+Shift+W", "Show Previous Week")), this, SLOT(showPrevWeek()));
+	(void) new QShortcut(QKeySequence(tr("Alt+M", "Show Next Month")), this, SLOT(showNextMonth()));
+	(void) new QShortcut(QKeySequence(tr("Alt+Shift+M", "Show Previous Month")), this, SLOT(showPrevMonth()));
 	//ui.CommandBar->installEventFilter(this);//filter RETURN
 	ui.CloseButton->installEventFilter(this);//filter MOUSE MOVE
 	ui.MinimizeButton->installEventFilter(this);//filter MOUSE MOVE
@@ -66,6 +75,42 @@ void MainWindow::iconIsActived(QSystemTrayIcon::ActivationReason){
 	showWindow();
 }
 
+void MainWindow::showNextDay(){
+	handleDateNavigation(DAY, "Next Day: ");
+}
+void MainWindow::showNextWeek(){
+	handleDateNavigation(WEEK, "Next Week: ");
+}
+void MainWindow::showNextMonth(){
+	handleDateNavigation(MONTH, "Next Month: ");
+}
+void MainWindow::showPrevDay(){
+	handleDateNavigation(DAY, "Prev. Day: ", true);
+}
+void MainWindow::showPrevWeek(){
+	handleDateNavigation(WEEK, "Prev. Week: ", true);
+}
+void MainWindow::showPrevMonth(){
+	handleDateNavigation(MONTH, "Prev. Month: ", true);
+}
+void MainWindow::handleDateNavigation(TP::PERIOD_TYPE periodType, QString listTitle, bool isPrevious){
+	Messenger msg;
+	if(isPrevious)
+		msg = scheduler->getPrevPeriodTasks(periodType);
+	else
+		msg = scheduler->getNextPeriodTasks(periodType);
+	pair<tm, tm> period = scheduler->getCurrentPeriod();
+	QString periodStr = getTimePeriod(period);
+	listTitle += periodStr;
+	if(msg.getStatus() == SUCCESS){
+		clearDetails();
+		updateStatusBar("Ready");
+		updateNavLabel(listTitle);
+		updateList(msg.getList());
+		scheduler->syncTaskList(msg.getList());
+	}
+}
+
 void MainWindow::showWindow(){
 	show();
 	setWindowState(Qt::WindowActive);
@@ -74,8 +119,9 @@ void MainWindow::showWindow(){
 
 void MainWindow::showReminder(){
 	QString output;
-	reminderList = scheduler->getCurrentReminders();
+	list<Task> reminderList = scheduler->getCurrentReminders();
 	if(!reminderList.empty()){
+		currRemindTime = QDateTime::currentDateTime();
 		list<Task>::iterator iter = reminderList.begin();
 		output += "1. ";
 		output += iter->getName().c_str();
@@ -128,7 +174,6 @@ void MainWindow::handleQuickAddRequest(QString requestStr){
 			}
 			else if(msg.getStatus() == TP::SUCCESS)
 			{
-				getToday();
 				closeQuickAddWindow();
 				showTrayMsg("Added");
 			}
@@ -146,14 +191,17 @@ void MainWindow::handleQuickAddRequest(QString requestStr){
 
 void MainWindow::handleShowReminder(){
 	if(isFromReminder){
-		updateList(reminderList);
+		reset();
+		string currRemindTimeStr = currRemindTime.toString("dd/MM/yy hh:mm").toStdString();
+		string findCurrRtTasks = "find rt `" + currRemindTimeStr + "` undone";
+		Messenger msg = scheduler->processCommand(findCurrRtTasks);
+		updateList(msg.getList());
 		updateNavLabel("Reminders");
 		clearDetails();
 		updateStatusBar("Ready");
-		scheduler->syncTaskList(reminderList);
-		if(reminderList.size() == 1){
-			scheduler->syncTask(reminderList.front());
-			updateDetails(reminderList.front());
+		if(msg.getList().size() == 1){
+			scheduler->syncTask(msg.getList().front());
+			updateDetails(msg.getList().front());
 			updateDetailsLabel("Task's Details");
 		}
 		showWindow();
@@ -170,6 +218,7 @@ bool MainWindow::isCommandAdd(QString requestStr){
 
 void MainWindow::help(){
 	QMessageBox msgBox;
+	msgBox.setWindowTitle("TaskPad");
 	msgBox.setText("Geek doesn't need help from us :p");
 	msgBox.exec();
 }
@@ -178,7 +227,6 @@ void MainWindow::keyPressEvent(QKeyEvent* event){
 	ui.cmdBar->setFocus();
 	if(event->key() == Qt::Key_Escape)
 	{
-		reset();
 		getToday();
 	}
 	QMainWindow::keyPressEvent(event);
@@ -196,11 +244,10 @@ void MainWindow::getToday(){
 }
 
 void MainWindow::handleGetToday(Messenger msg){
-	bool isToday = true;
 	updateNavLabel("Today");
 	updateStatusBar("Ready");
 	clearDetails();
-	updateList(msg.getList(), isToday);
+	updateList(msg.getList());
 }
 
 void MainWindow::getInbox(){
@@ -260,7 +307,6 @@ bool MainWindow::eventFilter(QObject* watched, QEvent* event)
 		{
 			QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
 			if(keyEvent->key() == Qt::Key_Escape){
-				reset();
 				getToday();
 			}
 			else if(keyEvent->key() == Qt::Key_Return || keyEvent->key() == Qt::Key_Enter)
@@ -280,6 +326,7 @@ bool MainWindow::eventFilter(QObject* watched, QEvent* event)
 }
 
 void MainWindow::handleMessenger(Messenger msg){
+	Messenger refreshedMsg;
 	//not SLAP now
 	if(msg.getStatus() == TP::ERROR)
 	{
@@ -296,22 +343,25 @@ void MainWindow::handleMessenger(Messenger msg){
 		Messenger td_msg;
 		switch(msg.getCommandType()){
 		case TP::ADD:
-			getToday();
 			updateStatusBar("Task added successfully");
 			updateDetailsLabel("Added Task's Details");
 			updateDetails(msg.getTask());
+			refreshedMsg = scheduler->refreshList();
+			updateList(refreshedMsg.getList());
 			break;
 		case TP::DEL:
-			getToday();
 			updateStatusBar("Task deleted successfully");
 			updateDetailsLabel("Deleted Task's Details");
 			updateDetails(msg.getTask());
+			refreshedMsg = scheduler->refreshList();
+			updateList(refreshedMsg.getList());
 			break;
 		case TP::MOD:
-			getToday();
 			updateStatusBar("Task modified successfully");
 			updateDetailsLabel("Modified Task's Details");
 			updateDetails(msg.getTask());
+			refreshedMsg = scheduler->refreshList();
+			updateList(refreshedMsg.getList());
 			break;
 		case TP::FIND:
 			updateNavLabel("Search Results");
@@ -323,16 +373,18 @@ void MainWindow::handleMessenger(Messenger msg){
 			}
 			break;
 		case TP::UNDO:
-			getToday();
 			updateStatusBar("Undo successfully");
 			updateDetailsLabel("Undo Task's Details");
 			updateDetails(msg.getTask());
+			refreshedMsg = scheduler->refreshList();
+			updateList(refreshedMsg.getList());
 			break;
 		case TP::REDO:
-			getToday();
 			updateStatusBar("Redo successfully");
 			updateDetailsLabel("Redo Task's Details");
 			updateDetails(msg.getTask());
+			refreshedMsg = scheduler->refreshList();
+			updateList(refreshedMsg.getList());
 			break;
 		}
 	}
@@ -358,12 +410,9 @@ void MainWindow::handleMessenger(Messenger msg){
 			updateDetailsLabel("Deleted Task's Details");
 			break;
 		}
-
-		if(ui.Navigation_taskList->text() == "Today")
-			updateList(msg.getList(), true);
-		else
-			updateList(msg.getList());
 		updateDetails(msg.getTask());
+		refreshedMsg = scheduler->refreshList();
+		updateList(refreshedMsg.getList());
 	}
 }
 
@@ -396,7 +445,7 @@ void MainWindow::updateDetailsLabel(QString str){
 	ui.Navigation_detailsView->setText(str);
 }
 
-void MainWindow::updateList(std::list<Task> result, bool isToday){
+void MainWindow::updateList(std::list<Task> result){
 	QTreeWidgetItem* item = NULL;
 
 	ui.TaskList->clear();
@@ -406,12 +455,7 @@ void MainWindow::updateList(std::list<Task> result, bool isToday){
 		iter != result.end();
 		std::advance(iter, 1))
 	{
-		if(isToday){
-			item = extractTaskForToday(count, *iter);
-		}
-		else{//not today
-			item = extractTask(count, *iter);
-		}
+		item = extractTask(count, *iter);
 		ui.TaskList->addTopLevelItem(item);
 		count++;
 	}
@@ -446,48 +490,10 @@ QTreeWidgetItem* MainWindow::extractTask(int index, Task task){
 	else{//TaskType == TP::FLOATING
 		strList = QStringList() << QString::number(index) << task.getName().c_str() << "";
 	}
-	return new QTreeWidgetItem(strList);
-}
-
-//TODO: can combine into one
-QTreeWidgetItem* MainWindow::extractTaskForToday(int index, Task task){
-	QStringList strList;
-	if(task.getTaskType() == TP::DEADLINE){
-		QDateTime time = QDateTime::fromTime_t(task.getDueDate());
-		QTime due_hour_n_min = time.time();
-		QString dueStr;
-		if(due_hour_n_min.hour() == 0 && due_hour_n_min.minute() == 0){
-			dueStr = "Due today";
-		}
-		else{
-			dueStr = "Due " + time.toString("hh:mm");
-		}
-
-		strList = QStringList() << QString::number(index) << task.getName().c_str() << \
-			dueStr;
-	}
-	else if(task.getTaskType() == TP::TIMED ||
-		task.getFlagFromDate() ||
-		task.getFlagToDate()){
-		QString fromTimeStr, toTimeStr;
-		if(task.getFlagFromDate()){
-			QDateTime fromTime = QDateTime::fromTime_t(task.getFromDate());
-			fromTimeStr = "From " + fromTime.toString("dd/MM/yyyy");
-		}
-		if(task.getFlagToDate()){
-			QDateTime toTime = QDateTime::fromTime_t(task.getToDate());
-			if(task.getFlagFromDate())
-				toTimeStr = " to " + toTime.toString("dd/MM/yyyy");
-			else
-				toTimeStr = "To " + toTime.toString("dd/MM/yyyy");
-		}
-		
-		strList = QStringList() << QString::number(index) << task.getName().c_str() << \
-			fromTimeStr + toTimeStr;
-	}
-	else{//TaskType == TP::FLOATING
-		strList = QStringList() << QString::number(index) << task.getName().c_str() << "";
-	}
+	if(task.getPriority() == HIGH)
+		ui.TaskList->setItemDelegateForRow(index - 1, new HighPriorityDelegate(ui.TaskList));
+	else
+		ui.TaskList->setItemDelegateForRow(index - 1, NULL);
 	return new QTreeWidgetItem(strList);
 }
 
@@ -640,6 +646,14 @@ void MainWindow::updateStatusBar(QString str){
 	ui.StatusBar->setText(str);
 }
 
+QString MainWindow::getTimePeriod(pair<tm, tm> period){
+	QDateTime fromDate = QDateTime::fromTime_t(mktime(&period.first));
+	QDateTime toDate = QDateTime::fromTime_t(mktime(&period.second));
+	QString fromStr = fromDate.toString("dd/MM/yyyy");
+	QString toStr = toDate.toString("dd/MM/yyyy");
+	return fromStr + " - " + toStr;
+}
+
 void MainWindow::customisedUi(){
 	this->setWindowFlags(Qt::FramelessWindowHint);
 	this->setAttribute(Qt::WA_TranslucentBackground, true);
@@ -647,7 +661,7 @@ void MainWindow::customisedUi(){
 	//magic number
 	ui.TaskList->header()->resizeSection(0, 70);
 	ui.TaskList->header()->resizeSection(1, 220);
-	ui.TaskList->setItemDelegate(new LastColumnDelegate(2, ui.TaskList));
+	ui.TaskList->setItemDelegateForColumn(2, new LastColumnDelegate(ui.TaskList));
 }
 
 void MainWindow::mousePressEvent(QMouseEvent *event){
