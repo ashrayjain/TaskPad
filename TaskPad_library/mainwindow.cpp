@@ -515,12 +515,15 @@ void MainWindow::updateDetails(Task t){
 	ui.DetailsView->setGraphicsEffect(NULL);
 	Task task_showDetails = t;
 	//set label name
+	ui.name->setText(task_showDetails.getName().c_str());
+	QFont nameFont = ui.name->font();
 	if(task_showDetails.getState() == TP::UNDONE){
-		ui.name->setText(task_showDetails.getName().c_str());
+		nameFont.setStrikeOut(false);
 	}
 	else{//DONE already
-		ui.name->setText(("(Finished) " + task_showDetails.getName()).c_str());
+		nameFont.setStrikeOut(true);
 	}
+	ui.name->setFont(nameFont);
 	//set priority
 	if(task_showDetails.getPriority() == TP::HIGH){
 		ui.DetailsView->setStyleSheet(QLatin1String("QWidget#DetailsView{\n"
