@@ -74,6 +74,7 @@ class Manager {
 		void insertCreatedTimeIntoModifyCommand		();
 		void insertCreatedTimeIntoDeleteCommand		();
 		void removePreviousCommand					();
+		void removeLastSuccessfulFindCommand		();
 		void storeIndexFromCommandToClassAttribute	();
 
 		void editTaskListInResponse					();
