@@ -34,13 +34,13 @@ const string Manager::MESSAGE_INDEX_OUT_OF_RANGE = "Given index is out of range!
 const string Manager::MESSAGE_ERROR_UNEXPECTED_COMMAND_TYPE_WITH_INDEX = "Unexpected Command with index!!";
 
 Manager::Manager() {
-	this->_logger		= Logger::getLogger();
-	this->_storage		= new Storage(_tasks);
-	this->_executor		= new Executor(&_tasks);
-	this->_interpreter	= new Interpreter;
-	this->_response		= Messenger();
-	this->_cmd			= NULL;
-	this->_lastSuccessfulFindCmd = NULL;
+	this->_logger					= Logger::getLogger();
+	this->_storage					= new Storage(_tasks);
+	this->_executor					= new Executor(&_tasks);
+	this->_interpreter				= new Interpreter;
+	this->_response					= Messenger();
+	this->_cmd						= NULL;
+	this->_lastSuccessfulFindCmd	= NULL;
 }
 
 Messenger Manager::refreshList()
@@ -65,9 +65,8 @@ void Manager::syncTask (const Task& task)
 }
 
 void Manager::resetStatus() {
-	if(this->_cmd != NULL && this->_cmd->getCommandType() != FIND)
-		delete this->_cmd;
-	this->_cmd = NULL;
+	this->removePreviousCommand();
+	this->removeLastSuccessfulFindCommand();
 	this->_currentPeriod = pair<tm,tm>();
 	this->_response.resetMessenger();
 	std::tm todayTm = getTodayTm();
@@ -76,12 +75,22 @@ void Manager::resetStatus() {
 
 Manager::~Manager() {
 	this->_storage->save(this->_tasks);
-	delete this->_interpreter;
-	delete this->_executor;
-	delete this->_storage;
-	delete this->_lastSuccessfulFindCmd;
-	this->removePreviousCommand();
-	this->_response.resetMessenger();
+
+	if(this->_interpreter != NULL) {
+		delete this->_interpreter;
+	}
+
+	if(this->_executor != NULL) {
+		delete this->_executor;
+	}
+
+	if(this->_storage != NULL) {
+		delete this->_storage;
+	}
+
+	this->removePreviousCommand				();
+	this->removeLastSuccessfulFindCommand	();
+	this->_response.resetMessenger			();
 }
 
 Messenger Manager::processCommand(const string& newCommand) {
@@ -122,9 +131,9 @@ void Manager::saveChanges()
 				this->_storage->save(this->_response.getTask(),this->_response.getCommandType());
 				break;
 			case FIND:
-				if(this->_lastSuccessfulFindCmd != NULL)
-					delete this->_lastSuccessfulFindCmd;//delete last time cmd_Find
-				this->_lastSuccessfulFindCmd = this->_cmd;
+				removeLastSuccessfulFindCommand();
+				 this->_lastSuccessfulFindCmd = new Command_Find;
+				*this->_lastSuccessfulFindCmd = *this->_cmd;
 				break;
 			default:
 				break;
@@ -137,9 +146,17 @@ void Manager::saveChanges()
  * returns the memory to the system
  */
 void Manager::removePreviousCommand() {
-	if(this->_cmd != NULL && this->_cmd->getCommandType() != FIND) {
+	if(this->_cmd != NULL) {
 		delete this->_cmd;
 		this->_cmd = NULL;
+	}
+	return;
+}
+
+void Manager::removeLastSuccessfulFindCommand() {
+	if(this->_lastSuccessfulFindCmd != NULL) {
+		delete this->_lastSuccessfulFindCmd;
+		this->_lastSuccessfulFindCmd = NULL;
 	}
 	return;
 }
