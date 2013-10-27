@@ -63,7 +63,7 @@ void MainWindow::handleDateNavigation(TP::PERIOD_TYPE periodType, QString listTi
 	pair<tm, tm> period = scheduler->getCurrentPeriod();
 	listTitle += getTimePeriodStr(period);
 	updateMainView(msg, listTitle);
-	scheduler->syncTaskList(msg.getList());
+	handleOneItemList(msg);
 }
 
 void MainWindow::showWindow(){
@@ -499,17 +499,13 @@ std::string MainWindow::getFindRtCmd(){
 }
 
 void MainWindow::updateDetailsView( Messenger &msg, QString label /*= "Task's Details"*/ ){
-	updateDetails(msg.getList().front());
-	updateDetailsLabel(label);
-}
-
-void MainWindow::updateDetailsView_GetTask( Messenger msg, QString detailsLabel /*= "Task's Details"*/ ){
 	updateDetails(msg.getTask());
-	updateDetailsLabel(detailsLabel);
+	updateDetailsLabel(label);
 }
 
 void MainWindow::handleOneItemList( Messenger &msg, QString detailsLabel /*= "Task's Details" */ ){
 	if(msg.getList().size() == 1){
+		msg.setTask(msg.getList().front());
 		scheduler->syncTask(msg.getList().front());
 		updateDetailsView(msg, detailsLabel);
 	}
@@ -537,7 +533,7 @@ void MainWindow::refresh(){
 
 void MainWindow::updateForCmdExec( QString statusBarTxt, QString DetailsLabel, Messenger msg ){
 	updateStatusBar(statusBarTxt);
-	updateDetailsView_GetTask(msg, DetailsLabel);
+	updateDetailsView(msg, DetailsLabel);
 	refresh();
 }
 

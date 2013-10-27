@@ -74,7 +74,6 @@ private:
 	void setHighPriorityDelegate( int index );
 	//--Details Related
 	void updateDetailsView( Messenger &msg, QString detailsLabel = "Task's Details");
-	void updateDetailsView_GetTask( Messenger msg, QString detailsLabel = "Task's Details");
 	void handleOneItemList( Messenger &msg, QString detailsLabel = "Task's Details" );
 	void updateDetailsLabel(QString str = "Task's Details");
 	void clearDetails();
