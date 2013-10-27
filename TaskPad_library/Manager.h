@@ -42,7 +42,6 @@ class Manager {
 		Command*	_lastSuccessfulFindCmd;
 		Messenger	_response;
 		int			_index;
-		std::tm		_currTm;
 		pair<tm,tm> _currentPeriod;
 
 		//the list of tasks
@@ -80,7 +79,7 @@ class Manager {
 		void editTaskListInResponse					();
 
 		//state determinant functions
-		void setCurrTm	(std::tm);
+		void setCurrPeriod	(std::tm, std::tm);
 
 		// helpers for getting list of tasks in a specified period
 		Task				getPointerToChosenTask		()							const;

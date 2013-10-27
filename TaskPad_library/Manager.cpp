@@ -70,7 +70,8 @@ void Manager::resetStatus() {
 	this->_cmd = NULL;
 	this->_currentPeriod = pair<tm,tm>();
 	this->_response.resetMessenger();
-	this->setCurrTm(getTodayTm());
+	std::tm todayTm = getTodayTm();
+	this->setCurrPeriod(todayTm,todayTm);
 }
 
 Manager::~Manager() {
@@ -417,7 +418,7 @@ Messenger Manager::getTodayTasks() {
 	std::string today = this->getStrFromTm(todayTm);
 	std::string end_of_today = endOfTodayCharArray;
 
-	this->setCurrTm(todayTm);
+	this->setCurrPeriod(todayTm,todayTm);
 
 	return this->processCommand("find from "+ today + " to "+ end_of_today + " undone");
 	//return this->processCommand("find undone");
@@ -464,31 +465,30 @@ bool Manager::isSuccessfulCommand()
 
 Messenger Manager::getNextPeriodTasks(PERIOD_TYPE pType)
 {
+	std::tm& currTm = _currentPeriod.second;
 	std::tm nextTm;
 
 	switch(pType)
 	{
 		case DAY:
-			nextTm = this->getNextDayTm(_currTm);
+			nextTm = this->getNextDayTm(currTm);
 			break;
 		case WEEK:
-			nextTm = this->getNextWeekTm(_currTm);
+			nextTm = this->getNextWeekTm(currTm);
 			break;
 		case MONTH:
-			nextTm = this->getNextMonthTm(_currTm);
+			nextTm = this->getNextMonthTm(currTm);
 			break;
 	}
 
-	_currentPeriod.first = _currTm;
-	_currentPeriod.second = nextTm;
-	std::string command = this->createFindCommand(_currTm,nextTm);
-	this->setCurrTm(nextTm);
+	this->setCurrPeriod(currTm,nextTm);
+	std::string command = this->createFindCommand(currTm,nextTm);
 
 	return this->processCommand(command);
 }
 Messenger Manager::getPrevPeriodTasks(PERIOD_TYPE pType)
 {
-	std::tm currTm = this->_currTm;
+	std::tm& currTm = this->_currentPeriod.first;
 	std::tm prevTm;
 
 	switch(pType)
@@ -504,10 +504,9 @@ Messenger Manager::getPrevPeriodTasks(PERIOD_TYPE pType)
 			break;
 	}
 
-	_currentPeriod.first = prevTm;
-	_currentPeriod.second = _currTm;
-	std::string command = createFindCommand(prevTm, _currTm);
-	this->setCurrTm(prevTm);
+	this->setCurrPeriod(prevTm, currTm);
+
+	std::string command = createFindCommand(prevTm, currTm);
 
 	return this->processCommand(command);
 }
@@ -570,7 +569,7 @@ std::tm Manager::getPrevMonthTm(std::tm currTm)
 	return *localtime(&intermediateResult);
 }
 
-void Manager::setCurrTm(std::tm newTm)
+void Manager::setCurrPeriod(std::tm startTm, std::tm endTm)
 {
-	this->_currTm = newTm;
+	this->_currentPeriod = pair<tm,tm>(startTm,endTm);
 }
