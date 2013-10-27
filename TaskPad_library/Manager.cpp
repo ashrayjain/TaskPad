@@ -465,7 +465,7 @@ bool Manager::isSuccessfulCommand()
 
 Messenger Manager::getNextPeriodTasks(PERIOD_TYPE pType)
 {
-	std::tm& currTm = _currentPeriod.second;
+	std::tm currTm = _currentPeriod.second;
 	std::tm nextTm;
 
 	switch(pType)
@@ -488,7 +488,7 @@ Messenger Manager::getNextPeriodTasks(PERIOD_TYPE pType)
 }
 Messenger Manager::getPrevPeriodTasks(PERIOD_TYPE pType)
 {
-	std::tm& currTm = this->_currentPeriod.first;
+	std::tm currTm = this->_currentPeriod.first;
 	std::tm prevTm;
 
 	switch(pType)
