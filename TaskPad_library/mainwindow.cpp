@@ -298,10 +298,14 @@ QTreeWidgetItem* MainWindow::extractTask(int index, Task task){
 	else{//TaskType == TP::FLOATING
 		strList = extractFloating(index, task);
 	}
-	if(task.getPriority() == HIGH)
+	if(task.getPriority() == HIGH && task.getState() == UNDONE)
 		setHighPriorityDelegate(index);
-	else
+	else if(task.getPriority() == HIGH && task.getState() == DONE)
+		setHighPriorityDoneDelegate(index);
+	else if(task.getState() == UNDONE)
 		setNormalDelegate(index);
+	else
+		setNormalDoneDelegate(index);
 	return new QTreeWidgetItem(strList);
 }
 
@@ -340,7 +344,6 @@ void MainWindow::customisedUi(){
 	this->setAttribute(Qt::WA_TranslucentBackground, true);
 	ui.TaskList->header()->resizeSection(0, 70);
 	ui.TaskList->header()->resizeSection(1, 220);
-	ui.TaskList->setItemDelegateForColumn(2, new LastColumnDelegate(ui.TaskList));
 }
 
 void MainWindow::mousePressEvent(QMouseEvent *event){
@@ -613,11 +616,19 @@ QStringList MainWindow::extractDueDate( Task &task, QStringList strList, int ind
 }
 
 void MainWindow::setHighPriorityDelegate( int index ){
-	ui.TaskList->setItemDelegateForRow(index - 1, new HighPriorityDelegate(ui.TaskList));
+	ui.TaskList->setItemDelegateForRow(index - 1, new HighPriorityDelegate(false, ui.TaskList));
+}
+
+void MainWindow::setHighPriorityDoneDelegate( int index ){
+	ui.TaskList->setItemDelegateForRow(index - 1, new HighPriorityDelegate(true, ui.TaskList));
 }
 
 void MainWindow::setNormalDelegate( int index ){
-	ui.TaskList->setItemDelegateForRow(index - 1, NULL);
+	ui.TaskList->setItemDelegateForRow(index - 1, new LastColumnDelegate(false, ui.TaskList));
+}
+
+void MainWindow::setNormalDoneDelegate( int index ){
+	ui.TaskList->setItemDelegateForRow(index - 1, new LastColumnDelegate(true, ui.TaskList));
 }
 
 void MainWindow::setDetailsViewOpacity40(){
@@ -794,3 +805,4 @@ void MainWindow::setNoteLabel( Task &task ){
 		ui.note->setPlainText("");
 	}
 }
+
