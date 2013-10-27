@@ -482,6 +482,7 @@ void MainWindow::handleQA_ERROR( QString requestStr, Messenger &msg ){
 
 void MainWindow::handleQA_SUCCESS(){
 	closeQuickAddWindow();
+	refresh();
 	showTrayMsg("Added");
 }
 
