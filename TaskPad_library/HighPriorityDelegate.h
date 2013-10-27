@@ -9,9 +9,9 @@ class HighPriorityDelegate: public QStyledItemDelegate
 	Q_OBJECT
 
 public:
-	HighPriorityDelegate(QObject *parent = 0)
-	: QStyledItemDelegate(parent)
+	HighPriorityDelegate(bool isDone, QObject *parent = 0) : QStyledItemDelegate(parent)
 	{
+		_isDone = isDone;
 	}
 
 	void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
@@ -30,6 +30,13 @@ public:
 			//painter->drawRect(15,0,3,46);
 			painter->drawRect(rect);
 		}
+		else if(index.column() == 1 && _isDone){
+			painter->setPen("#ffffff");
+			painter->setBrush(QBrush("#ffffff"));
+			QRect rect = opt.rect;
+			rect.adjust(5,24,-5,-24);
+			painter->drawRect(rect);
+		}
 		else if(index.column() == 2){
 			QString displayText = index.data().toString();
 			QTextOption alignment(Qt::AlignRight | Qt::AlignVCenter);
@@ -46,5 +53,8 @@ public:
 
 		painter->restore();
 	}
+
+private:
+	bool _isDone;
 };
 #endif

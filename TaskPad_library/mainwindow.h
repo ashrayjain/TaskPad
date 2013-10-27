@@ -71,7 +71,9 @@ private:
 	QStringList extractTimedDate( Task &task, QStringList strList, int index );
 	QStringList extractDueDate( Task &task, QStringList strList, int index );
 	void setNormalDelegate( int index );
+	void setNormalDoneDelegate( int index );
 	void setHighPriorityDelegate( int index );
+	void setHighPriorityDoneDelegate( int index );
 	//--Details Related
 	void updateDetailsView( Messenger &msg, QString detailsLabel = "Task's Details");
 	void handleOneItemList( Messenger &msg, QString detailsLabel = "Task's Details" );
