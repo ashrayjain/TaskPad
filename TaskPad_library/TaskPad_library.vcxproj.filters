@@ -243,5 +243,8 @@
     <ClCompile Include="GeneratedFiles\Release\moc_ListItemDelegate.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="ListItemDelegate.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

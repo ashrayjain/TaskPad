@@ -162,6 +162,7 @@
     <ClCompile Include="Interpreter_base.cpp" />
     <ClCompile Include="libqxt\qxtglobalshortcut.cpp" />
     <ClCompile Include="libqxt\qxtglobalshortcut_win.cpp" />
+    <ClCompile Include="ListItemDelegate.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="mainwindow.cpp" />
     <ClCompile Include="Manager.cpp" />
