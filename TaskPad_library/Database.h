@@ -59,11 +59,6 @@ protected:
 	void	setIndexNotFound			(const unsigned long long &index, Messenger &response);
 	void	setNameNotFound				(const string &name, Messenger &response);
 	void	setErrorWithErrMsg			(Messenger &response, const string errMsg);
-
-	
-
-
-
 };
 
 #endif
