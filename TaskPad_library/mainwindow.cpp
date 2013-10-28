@@ -10,8 +10,7 @@
 #include "mainwindow.h"
 #include "quickadd_window.h"
 #include "Manager.h"
-#include "lastColumnDelegate.h"
-#include "HighPriorityDelegate.h"
+#include "ListItemDelegate.h"
 #include "CommandBar.h"
 
 
@@ -616,19 +615,19 @@ QStringList MainWindow::extractDueDate( Task &task, QStringList strList, int ind
 }
 
 void MainWindow::setHighPriorityDelegate( int index ){
-	ui.TaskList->setItemDelegateForRow(index - 1, new HighPriorityDelegate(false, ui.TaskList));
+	ui.TaskList->setItemDelegateForRow(index - 1, new ListItemDelegate(HIGH, UNDONE, ui.TaskList));
 }
 
 void MainWindow::setHighPriorityDoneDelegate( int index ){
-	ui.TaskList->setItemDelegateForRow(index - 1, new HighPriorityDelegate(true, ui.TaskList));
+	ui.TaskList->setItemDelegateForRow(index - 1, new ListItemDelegate(HIGH, DONE, ui.TaskList));
 }
 
 void MainWindow::setNormalDelegate( int index ){
-	ui.TaskList->setItemDelegateForRow(index - 1, new LastColumnDelegate(false, ui.TaskList));
+	ui.TaskList->setItemDelegateForRow(index - 1, new ListItemDelegate(NON_HIGH, UNDONE, ui.TaskList));
 }
 
 void MainWindow::setNormalDoneDelegate( int index ){
-	ui.TaskList->setItemDelegateForRow(index - 1, new LastColumnDelegate(true, ui.TaskList));
+	ui.TaskList->setItemDelegateForRow(index - 1, new ListItemDelegate(NON_HIGH, DONE, ui.TaskList));
 }
 
 void MainWindow::setDetailsViewOpacity40(){

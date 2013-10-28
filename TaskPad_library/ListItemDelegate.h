@@ -1,17 +1,19 @@
 #include <QStyledItemDelegate>
 #include <QPainter>
+#include "Enum.h"
 
-#ifndef LAST_COLUMN_DELEGATE_H
-#define LAST_COLUMN_DELEGATE_H
+#ifndef HIGH_PRIORITY_DELEGATE_H
+#define HIGH_PRIORITY_DELEGATE_H
 
-class LastColumnDelegate: public QStyledItemDelegate
+class ListItemDelegate: public QStyledItemDelegate
 {
 	Q_OBJECT
 
 public:
-	LastColumnDelegate(bool isDone, QObject *parent = 0) : QStyledItemDelegate(parent)
+	ListItemDelegate(TP::PRIORITY priority, TP::TASK_STATE state, QObject *parent = 0) : QStyledItemDelegate(parent)
 	{
-		_isDone = isDone;
+		_taskState = state;
+		_taskPriority = priority;
 	}
 
 	void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
@@ -22,7 +24,15 @@ public:
 		QStyledItemDelegate::paint(painter, option, index);
 		painter->save();
 
-		if(index.column() == 1 && _isDone){
+		if(index.column() == 0 && _taskPriority == TP::HIGH){
+			painter->setPen("#FFB4B9");
+			painter->setBrush(QBrush("#FFB4B9"));
+			QRect rect = opt.rect;
+			rect.adjust(-5,0,-52,-2);
+			//painter->drawRect(15,0,3,46);
+			painter->drawRect(rect);
+		}
+		else if(index.column() == 1 && _taskState == TP::DONE){
 			painter->setPen("#ffffff");
 			painter->setBrush(QBrush("#ffffff"));
 			QRect rect = opt.rect;
@@ -47,6 +57,7 @@ public:
 	}
 
 private:
-	bool _isDone;
+	TP::TASK_STATE _taskState;
+	TP::PRIORITY _taskPriority;
 };
 #endif
