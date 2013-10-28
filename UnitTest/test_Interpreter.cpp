@@ -2,7 +2,8 @@
 #include "CppUnitTest.h"
 
 #include "../TaskPad_library/Interpreter.h"
-
+#include "../TaskPad_library/Messenger.h"
+#include "../TaskPad_library/Command.h"
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace UnitTest
@@ -17,20 +18,61 @@ namespace UnitTest
 			// TODO: Your test code here
 		
 		Interpreter test;
-		Command* tt;
-		string pp="add `ww` at `nus` note `study`";
+		Command* testCommand;  
 		
 		Messenger response;
+	
+
+
+        // For test case, normally, I use equivalence pattitioning to find bugs.
+		// The first partition: Normal case.
+		string case1="add `ww` at `nus` note `study`";
+		testCommand=test.interpretCommand(case1,response);
+		Assert::AreEqual(2,(int)response.getStatus());
 		
-		tt=test.interpretCommand(pp,response);
+		string case2="add `ww` #qq #pp";
+		testCommand=test.interpretCommand(case2,response);
+		Assert::AreEqual(2,(int)response.getStatus());
 		
-		Command_Add* ttt=(Command_Add*)tt;
+		string case3="add `ww` from `12/09/14` to `12/10/14`";
+		testCommand=test.interpretCommand(case3,response);
+		Assert::AreEqual(2,(int)response.getStatus());
 		
-		string testone = ttt->getLocation();
 		
-		TP::STATUS get=response.getStatus();
-		Assert:: AreEqual((string)"nus", (string)testone);
+		string case4="add `ww` ppl `a,b,c` note `study`";
+		testCommand=test.interpretCommand(case4,response);
+		Assert::AreEqual(2,(int)response.getStatus());
 		
+		// The second partition: empty content. 
+		string case5="add `ww`"; 
+		testCommand=test.interpretCommand(case5,response);
+		Assert::AreEqual(2,(int)response.getStatus());
+		
+		
+		string case6="add `ww` at ``";
+		testCommand=test.interpretCommand(case6,response);
+		Assert::AreEqual(2,(int)response.getStatus());
+		
+		string case7="add `ww` note ``";
+		testCommand=test.interpretCommand(case7,response);
+		Assert::AreEqual(2,(int)response.getStatus());
+
+		// The third partition: error message. 
+		string case8="add `ww` due `12/12/13` from `11/09/2012`";
+		testCommand=test.interpretCommand(case8,response);
+		Assert::AreEqual(0,(int)response.getStatus());
+		
+		
+		
+		string case9="add `ww` at `nus` note `study";
+		testCommand=test.interpretCommand(case9,response);
+		Assert::AreEqual(0,(int)response.getStatus());
+		
+		
+		
+		string case10="add `ww``nus` note `study`";
+		testCommand=test.interpretCommand(case10,response);
+		Assert::AreEqual(0,(int)response.getStatus());
 		}
 		
 		TEST_METHOD(Mod)
@@ -38,19 +80,68 @@ namespace UnitTest
 			// TODO: Your test code here
 		
 		Interpreter test;
-		Command* tt;
-		string pp="mod `aaa` at `nus`";
-		
+		Command* testCommand;  
 		Messenger response;
+	   
+		// The first partition: Normal case.
+		string case1="mod `ww` at `nus` note `study`";
+		testCommand=test.interpretCommand(case1,response);
+		Assert::AreEqual(2,(int)response.getStatus());
 		
-		tt=test.interpretCommand(pp,response);
+		string case2="mod `ww` #qq #pp";
+		testCommand=test.interpretCommand(case2,response);
+		Assert::AreEqual(2,(int)response.getStatus());
+				
+		string case3="mod `ww` from `12/09/14` to `12/10/14`";
+		testCommand=test.interpretCommand(case3,response);
+		Assert::AreEqual(2,(int)response.getStatus());
 		
-		Command_Mod* ttt=(Command_Mod*)tt;
+		string case4="mod `ww` ppl `a,b,c` note `study`";
+		testCommand=test.interpretCommand(case4,response);
+		Assert::AreEqual(2,(int)response.getStatus());
 		
-		string testone = ttt->getNote();
+		// The second partition: empty content. 
+		string case5="mod `ww`"; 
+		testCommand=test.interpretCommand(case5,response);
+		Assert::AreEqual(2,(int)response.getStatus());
 		
-		TP::STATUS get=response.getStatus();
-		Assert:: AreEqual((string)"", (string)testone);
+		string case6="mod `ww` at ``";
+		testCommand=test.interpretCommand(case6,response);
+		Assert::AreEqual(2,(int)response.getStatus());
+		
+		string case7="mod `ww` note ``";
+		testCommand=test.interpretCommand(case7,response);
+		Assert::AreEqual(2,(int)response.getStatus());
+
+		// The third partition: error message. 
+		string case8="mod `ww` due `12/12/13` from `11/09/2012`";
+		testCommand=test.interpretCommand(case8,response);
+		Assert::AreEqual(0,(int)response.getStatus());
+		
+		string case9="mod `ww` at `nus` note `study";
+		testCommand=test.interpretCommand(case9,response);
+		Assert::AreEqual(0,(int)response.getStatus());
+		
+		string case10="mod `ww``nus` note `study`";
+	    testCommand=test.interpretCommand(case10,response);
+		Assert::AreEqual(0,(int)response.getStatus());
+	
+		
+		// For modify, also could check the boundary condition
+
+		 string case11 = "mod -1 name `pp`";
+	     testCommand=test.interpretCommand(case11,response);
+		 Assert::AreEqual(0,(int)response.getStatus());
+		 
+		 string case12 = "mod 10 name `qq` from `12/10` to `12/9`";
+		 testCommand=test.interpretCommand(case12,response);
+		 Assert::AreEqual(0,(int)response.getStatus());
+		 
+		 string case13 = "mod 10 due `121212121`";
+		 testCommand=test.interpretCommand(case13,response);
+		 Assert::AreEqual(0,(int)response.getStatus());
+		
+		
 		
 		}
 

@@ -49,6 +49,9 @@ protected:
 	static const std::string	INVALID_INDEX_ERROR;
 	static const std::string	UNDOSTACK_EMPTY_MSG;
 	static const std::string	REDOSTACK_EMPTY_MSG;
+	static const std::string	MODIFY_SAME_NAME_ERROR;
+	static const std::string	INVALID_FROMDATE_ERROR;
+	static const std::string	INVALID_TODATE_ERROR;
 
 	void	rebuildHashes();
 	void	rebuildIndexHash();
@@ -84,6 +87,7 @@ protected:
 	void modifyByExactName			(Command_Mod* cmd, Messenger &response);
 	void modifyByApproxName			(Command_Mod* cmd, Messenger &response);
 	void modifyTaskTo				(Task &oldTask, Command_Mod* cmd);
+	bool isModCmdValid				(Command_Mod* cmd, const Task& task, Messenger &response);
 	void handleHashTagsModify		(Task &oldTask, list<string> &newTags);
 	void handleRemindTimesModify	(Task &oldTask, list<time_t> &newRemindTimes);
 
@@ -129,6 +133,5 @@ protected:
 	void setOpIntermediateTaskList	(const list<Task> &results, Messenger &response);
 	void setIndexNotFound			(const unsigned long long &index, Messenger &response);
 	void setNameNotFound			(const string &name, Messenger &response);
-	void setUndoStackEmptyError		(Messenger &response);
-	void setRedoStackEmptyError		(Messenger &response);
+	void setErrorWithErrMsg			(Messenger &response, const string errMsg);
 };

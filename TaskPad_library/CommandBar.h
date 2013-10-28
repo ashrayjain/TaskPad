@@ -25,6 +25,7 @@ public:
 protected slots:
 	void createTemplateAdd();
 	void createTemplateAddTimed();
+	void createTemplateModDone();
 	void createTemplateModByName();
 	void createTemplateModByIndex();
 	void createTemplateDelByName();
@@ -38,6 +39,7 @@ protected slots:
 private:
 	static const QStringList COMMAND_LIST;
 	static const QStringList KEYWORD_LIST;
+	static const QStringList KEYWORD_LIST_FIND;
 	static const QString SPACE;
 	static const QString INCLUDE_QUOTE_LEFT_PAIR;
 	static const QString SINGLE_QUOTATION_MARK;
@@ -46,6 +48,7 @@ private:
 	//HOTKEY TEMPLATE RELATED
 	static const QString HOTKEY_TEMPLATE_ADD;
 	static const QString HOTKEY_TEMPLATE_ADD_TIMED;
+	static const QString HOTKEY_TEMPLATE_MOD_DONE;
 	static const QString HOTKEY_TEMPLATE_MOD_BY_NAME;
 	static const QString HOTKEY_TEMPLATE_MOD_BY_INDEX;
 	static const QString HOTKEY_TEMPLATE_DEL_BY_NAME;
@@ -75,6 +78,7 @@ private:
 	void clearCharRHS();
 	void clearCharLHS();
 	void insertCompletion(const QString &completion);
+	void insertFromMimeData(const QMimeData * source);
 	bool CommandBar::containsQuoteLeftPair(QString str);
 	bool isWithinPairOfQuoteLeft();
 	QVector<QPair<int, int> > getQuoteLeftPositions();
@@ -84,6 +88,8 @@ private:
 	void produceModel();
 	void produceCommandModel();
 	void produceKeywordModel();
+	void produceKeywordModel_forFind();
+	bool isCommandFind();
 	bool containsCommand();
 	//KEY PRESS RELATED
 	void keyPressEvent(QKeyEvent*event);
@@ -110,6 +116,7 @@ private:
 	//Short cut
 	QShortcut* newDeadlineTask;
 	QShortcut* newTimedTask;
+	QShortcut* modifyDone;
 	QShortcut* modifyByName;
 	QShortcut* modifyByIndex;
 	QShortcut* delByName;
