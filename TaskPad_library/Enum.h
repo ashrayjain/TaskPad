@@ -10,8 +10,8 @@ namespace TP{
 	static const int TASK_STATE_COUNT = 2;
 	static const int TASK_TYPE_COUNT = 3;
 	static const int  LOG_TYPE_COUNT = 5;
-    enum COMMAND_TYPE	{ ADD, MOD, DEL, FIND, UNDO, REDO, SYNC, UNDEFINED};
-    enum PRIORITY		{ HIGH, MEDIUM, LOW };
+    enum COMMAND_TYPE	{ ADD, MOD, DEL, FIND, INDEX, UNDO, REDO, SYNC, UNDEFINED};
+    enum PRIORITY		{ HIGH, MEDIUM, LOW, NON_HIGH };
     enum TASK_STATE		{ UNDONE = false, DONE = true };
     enum TASK_TYPE		{ TIMED, DEADLINE, FLOATING };
     enum CMD_PROPERTY	{ UNCHANGED = false, EDITED = true };

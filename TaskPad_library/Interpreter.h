@@ -1,75 +1,49 @@
-#pragma once
-#include "Command.h"
-#include "Messenger.h"
-#include "Enum.h"
-#include <string>
-#include <sstream>
-#include <vector>
-#include<regex>
+//#include "Command.h"
+#include<string>
+// #include<regex>
+//#include "Messenger.h"
+
+/*
+#include "Interpreter_Add.h"
+#include "Interpreter_Mod.h"
+#include "Interpreter_Find.h"
+#include "Interpreter_Delete.h"
+#include "Interpreter_Redo.h"
+#include "Interpreter_Undo.h"
+#include "Interpreter_Sync.h"
+*/
+
+class Messenger;
+class Command;
+
 using namespace std;
 
-#ifndef _INTERPRETER_H_
-#define _INTERPRETER_H_
+/*
+string GENERAL_ADD_REGEX="((( due| from| to| impt| at| ppl| note| rt) `[^`]*`)|( #[^( |`)]*))*(\\s*)";
+string GENERAL_MOD_REGEX="((( due| from| name| to| impt| at| ppl| note| rt) `[^`]*`)|( done| undone)|( (#)[^( |`)]*))*(\\s*)";
+string GENERAL_FIND_REGEX="((( from| name| to| impt| at| ppl| note| rt) `[^`]*`)|( #[^( |`)]*)|( done| undone)|(( timed| deadline| floating)))*(\\s*)";
+*/
 
+enum COMMAND_CATEGORY{ADD_COMMAND,MOD_COMMAND,MOD_EXACT_COMMAND,MOD_INDEX_COMMAND,FIND_COMMAND,FIND_EXACT_COMMAND,DEL_COMMAND, 
+	DEL_EXACT_COMMAND, DEL_INDEX_COMMAND, UNDO_COMMAND,REDO_COMMAND,SYNC_COMMAND};
 
 
 class Interpreter{
 
+
 public:
-	Interpreter(){}
+	Interpreter() {};
 
 	Command* interpretCommand(std::string commandStr, Messenger &response);
-
-
+	
 	void interpretCommand(unsigned ActualIndex, Command *prevCommand);
-
+	
 	int interpretIndex(std::string indexStr, Messenger &response); 
 
 protected:
-
-	Command* interpretAdd(Command_Add* commandType, std::string commandStr, Messenger &response, bool &flag);
-	Command* interpretModify(Command_Mod* commandType, std::string commandStr, Messenger &response, bool &flag);
-	Command* interpretFind(Command_Find* commandType, std::string commandStr, Messenger &response, bool &flag);
-	Command* interpretDelete(Command_Del*commandType,std::string commandStr, Messenger &response, bool &flag);
-	Command* interpretRedo(Command_Redo*commandType,std::string commandStr, Messenger &response, bool &flag);
-	Command* interpretUndo(Command_Undo*commandType,std::string commandStr, Messenger &response, bool &flag);
-	Command* interpretSync(Command_Sync*commandType,std::string commandStr, Messenger &response, bool &flag);
-
-	time_t setTime(string commandStr, bool& _isSuccess); 
-
-
-	bool integerConverter(string& requiredString, int& number);
-
-
 	bool checkCommand(string command, int& commandType);
-
-
-	int	                getIndexMessage(string command,bool&flag);			
-	bool              getNameMessage(string command,bool&flag,string& content);
-	bool              getOptNameMessage(string command, bool&flag, string& content);
-	bool				getDueDateMessage(string command, bool&flag,time_t& content);
-	bool				getFromDateMessage(string command, bool&flag,time_t& content);	
-	bool				getToDateMessage(string command, bool&flag,time_t& content);
-	bool				getLocationMessage(string command, bool&flag,string& content);
-	bool	getParticipantsMessage(string command, bool&flag,list<std::string>& content);
-	bool				getNoteMessage(string command, bool&flag,string& content);
-	bool			getPriorityMessage(string command, bool&flag,PRIORITY& content);
-	bool	getTagsMessage(string command, bool&flag,list<std::string>& content);
-	bool	getRemindTimesMessage(string command, bool&flag,list<std::time_t>& content);
-	bool			getTaskStateMessage(string command, bool&flag,TASK_STATE& content);
-	bool			getTaskTypeMessage(string command, bool&flag,TASK_TYPE& content);
-	bool				getSyncProviderNameMessage(string command, bool&flag,string& content);
-	bool              checkDuplicate(string command, string cmdTemplate,int startPosition);
-	bool             checkKeyWord(string command, int position);       
-	void              convertToTime(string timeStr, time_t &result,bool&flag);
-
-	unsigned long long		getCreatedTimeMessage(string command, bool&flag);
-
-	string Interpreter::trim(string str);
-
-
+    bool integerConvert(string& requiredString, int& number);
 
 
 };
 
-#endif

@@ -31,7 +31,7 @@ class TaskLoader: public FileHandler
 {
 	public:
 		virtual void load (std::list<Task>& taskList, const std::string& fileName) =0;
-		~TaskLoader() {}
+		virtual ~TaskLoader() {}
 	protected:
 		void openFile(const std::string& fileName, std::ios_base::openmode oMode = std::ios::in)
 											{ this->_fileReader.open(fileName,oMode); }

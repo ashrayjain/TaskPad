@@ -122,7 +122,8 @@ QTreeWidget#TaskList:Item:last {
 QTreeWidget#TaskList QScrollBar:vertical {
 	opacity: 0.6;
 	border: none;
-	background-color: transparent;
+	background-image: none;
+	background-color: #f1f1f1;
 	margin-left: 1px;
 	width: 5px;
 }
@@ -336,6 +337,12 @@ QTextEdit#cmdBar:hover {
      </property>
      <property name="styleSheet">
       <string notr="true"/>
+     </property>
+     <property name="verticalScrollBarPolicy">
+      <enum>Qt::ScrollBarAlwaysOff</enum>
+     </property>
+     <property name="horizontalScrollBarPolicy">
+      <enum>Qt::ScrollBarAlwaysOff</enum>
      </property>
      <property name="readOnly">
       <bool>true</bool>

@@ -34,17 +34,63 @@ const string Manager::MESSAGE_INDEX_OUT_OF_RANGE = "Given index is out of range!
 const string Manager::MESSAGE_ERROR_UNEXPECTED_COMMAND_TYPE_WITH_INDEX = "Unexpected Command with index!!";
 
 Manager::Manager() {
-	this->_logger		= Logger::getLogger();
-	this->_storage		= new Storage(_tasks);
-	this->_executor		= new Executor(&_tasks);
-	this->_interpreter	= new Interpreter;
-	this->_response		= Messenger();
-	this->_cmd			= NULL;
+	this->_logger					= Logger::getLogger();
+	this->_storage					= new Storage(_tasks);
+	this->_executor					= new Executor(&_tasks);
+	this->_interpreter				= new Interpreter;
+	this->_response					= Messenger();
+	this->_cmd						= NULL;
+	this->_lastSuccessfulFindCmd	= NULL;
+}
+
+Messenger Manager::refreshList()
+{
+	this->_executor->executeCommand(this->_lastSuccessfulFindCmd,this->_response);
+	return this->_response;
 }
 
 list<Task> Manager::getCurrentReminders	()
 {
 	return this->_executor->getCurrentReminders();
+}
+
+void Manager::syncTaskList (const list<Task>& taskList)
+{
+	this->_response.setList(taskList);
+}
+
+void Manager::syncTask (const Task& task)
+{
+	this->_response.setTask(task);
+}
+
+void Manager::resetStatus() {
+	this->removePreviousCommand();
+	this->removeLastSuccessfulFindCommand();
+	this->_currentPeriod = pair<tm,tm>();
+	this->_response.resetMessenger();
+	std::tm todayTm = getTodayTm();
+	this->setCurrPeriod(todayTm,todayTm);
+}
+
+Manager::~Manager() {
+	this->_storage->save(this->_tasks);
+
+	if(this->_interpreter != NULL) {
+		delete this->_interpreter;
+	}
+
+	if(this->_executor != NULL) {
+		delete this->_executor;
+	}
+
+	if(this->_storage != NULL) {
+		delete this->_storage;
+	}
+
+	this->removePreviousCommand				();
+	this->removeLastSuccessfulFindCommand	();
+	this->_response.resetMessenger			();
 }
 
 Messenger Manager::processCommand(const string& newCommand) {
@@ -66,6 +112,11 @@ Messenger Manager::processCommand(const string& newCommand) {
 	return this->_response;
 }
 
+/*
+ * Saves the changed Task by calling the API of the storage class
+ * Only saves if the command was of type MOD, DEL or ADD
+ */
+
 void Manager::saveChanges()
 {
 	if(this->isSuccessfulCommand()){
@@ -78,6 +129,11 @@ void Manager::saveChanges()
 			case ADD:
 				_logger->log("Manager","saving changes");
 				this->_storage->save(this->_response.getTask(),this->_response.getCommandType());
+				break;
+			case FIND:
+				removeLastSuccessfulFindCommand();
+				 this->_lastSuccessfulFindCmd = new Command_Find;
+				*this->_lastSuccessfulFindCmd = *this->_cmd;
 				break;
 			default:
 				break;
@@ -93,6 +149,14 @@ void Manager::removePreviousCommand() {
 	if(this->_cmd != NULL) {
 		delete this->_cmd;
 		this->_cmd = NULL;
+	}
+	return;
+}
+
+void Manager::removeLastSuccessfulFindCommand() {
+	if(this->_lastSuccessfulFindCmd != NULL) {
+		delete this->_lastSuccessfulFindCmd;
+		this->_lastSuccessfulFindCmd = NULL;
 	}
 	return;
 }
@@ -120,6 +184,29 @@ void Manager::handleNormalScenarioCommands(string newCommand) {
 	// a generic command and has already been interpreted by isCommandWithIndexGiven() above
 		_logger->log("Manager","generic command given by user",NOTICELOG);
 		this->handleGenericCommand();
+	}
+	return;
+}
+
+/**
+ * This handles the scenario where an ambiguous mod/del was done and 
+ * the user was given a list of similar tasks to choose the actual one he was talking about
+ * Accepts:
+ * - Only index
+ */
+void Manager::handleIntermediateScenarioCommands(string newCommand) {
+	if(isIndexGiven(newCommand)) {
+		if(isIndexWithinRange()) {
+			this->insertCreatedTimeIntoCommand();
+			this->_executor->executeCommand(this->_cmd,this->_response);
+		}
+		else {
+			this->_response.setErrorMsg(MESSAGE_INDEX_OUT_OF_RANGE);
+			this->_response.setStatus(ERROR_INTERMEDIATE);
+		}
+	}
+	else {
+		this->_response.setStatus(ERROR_INTERMEDIATE);
 	}
 	return;
 }
@@ -184,29 +271,6 @@ bool Manager::isDeleteCommand()
 bool Manager::isModifyCommand()
 {
 	return (this->_cmd->getCommandType() == MOD);
-}
-
-/**
- * This handles the scenario where an ambiguous mod/del was done and 
- * the user was given a list of similar tasks to choose the actual one he was talking about
- * Accepts:
- * - Only index
- */
-void Manager::handleIntermediateScenarioCommands(string newCommand) {
-	if(isIndexGiven(newCommand)) {
-		if(isIndexWithinRange()) {
-			this->insertCreatedTimeIntoCommand();
-			this->_executor->executeCommand(this->_cmd,this->_response);
-		}
-		else {
-			this->_response.setErrorMsg(MESSAGE_INDEX_OUT_OF_RANGE);
-			this->_response.setStatus(ERROR_INTERMEDIATE);
-		}
-	}
-	else {
-		this->_response.setStatus(ERROR_INTERMEDIATE);
-	}
-	return;
 }
 
 bool Manager::isIndexGiven(string newCommand) {
@@ -327,47 +391,12 @@ void Manager::storeIndexFromCommandToClassAttribute() {
 	return;
 }
 
-bool Manager::hasInterpretationError() {
-	return !this->hasNoInterpretationError();
-}
-
-bool Manager::hasNoInterpretationError() {
-	if(this->hasNoError())
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
-
-bool Manager::hasNoError()
-{
-	if(this->_response.getStatus() == ERROR || this->_response.getStatus() == ERROR_INTERMEDIATE) {
-		return false;
-	}
-	else
-	{
-		return true;
-	}
-}
-
-bool Manager::isSuccessfulCommand()
-{
-	if(this->_response.getStatus() == SUCCESS || this->_response.getStatus() == SUCCESS_INDEXED_COMMAND)
-	{
-		return true;
-	}
-	return false;
-}
-
 std::string Manager::createFindCommand(std::tm startTm, std::tm endTm)
 {
 	std::string startTmStr = getStrFromTm(startTm);
 	std::string endTmStr = getStrFromTm(endTm);
 
-	return "find from `" + startTmStr + "` to `" + endTmStr + "`";
+	return "find from " + startTmStr + " to " + endTmStr + " undone";
 }
 
 std::string Manager::getStrFromTm(std::tm timeInfo)
@@ -406,38 +435,77 @@ Messenger Manager::getTodayTasks() {
 	std::string today = this->getStrFromTm(todayTm);
 	std::string end_of_today = endOfTodayCharArray;
 
-	this->setCurrTm(todayTm);
+	this->setCurrPeriod(todayTm,todayTm);
 
 	return this->processCommand("find from "+ today + " to "+ end_of_today + " undone");
 	//return this->processCommand("find undone");
 }
 
+bool Manager::hasInterpretationError() {
+	return !this->hasNoInterpretationError();
+}
+
+bool Manager::hasNoInterpretationError() {
+	if(this->hasNoError())
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool Manager::hasNoError()
+{
+	if(this->_response.getStatus() == ERROR || this->_response.getStatus() == ERROR_INTERMEDIATE) {
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+
+bool Manager::isSuccessfulCommand()
+{
+	if(this->_response.getStatus() == SUCCESS || this->_response.getStatus() == SUCCESS_INDEXED_COMMAND)
+	{
+		return true;
+	}
+	return false;
+}
+
+/*********************************************************/
+/************* NAVIGATION RELATED METHODS ****************/
+/*********************************************************/
+
 Messenger Manager::getNextPeriodTasks(PERIOD_TYPE pType)
 {
+	std::tm currTm = _currentPeriod.second;
 	std::tm nextTm;
 
 	switch(pType)
 	{
 		case DAY:
-			nextTm = this->getNextDayTm(_currTm);
+			nextTm = this->getNextDayTm(currTm);
 			break;
 		case WEEK:
-			nextTm = this->getNextWeekTm(_currTm);
+			nextTm = this->getNextWeekTm(currTm);
 			break;
 		case MONTH:
-			nextTm = this->getNextMonthTm(_currTm);
+			nextTm = this->getNextMonthTm(currTm);
 			break;
 	}
 
-	this->setCurrTm(nextTm);
+	this->setCurrPeriod(currTm,nextTm);
+	std::string command = this->createFindCommand(currTm,nextTm);
 
-	std::string command = this->createFindCommand(_currTm,nextTm);
-	
 	return this->processCommand(command);
 }
 Messenger Manager::getPrevPeriodTasks(PERIOD_TYPE pType)
 {
-	std::tm currTm = this->_currTm;
+	std::tm currTm = this->_currentPeriod.first;
 	std::tm prevTm;
 
 	switch(pType)
@@ -453,10 +521,15 @@ Messenger Manager::getPrevPeriodTasks(PERIOD_TYPE pType)
 			break;
 	}
 
-	this->setCurrTm(prevTm);
+	this->setCurrPeriod(prevTm, currTm);
+
 	std::string command = createFindCommand(prevTm, currTm);
 
 	return this->processCommand(command);
+}
+
+pair<tm,tm> Manager::getCurrentPeriod(){
+	return _currentPeriod;
 }
 
 std::tm Manager::getNextDayTm(std::tm currTm)
@@ -513,23 +586,7 @@ std::tm Manager::getPrevMonthTm(std::tm currTm)
 	return *localtime(&intermediateResult);
 }
 
-void Manager::setCurrTm(std::tm newTm)
+void Manager::setCurrPeriod(std::tm startTm, std::tm endTm)
 {
-	this->_currTm = newTm;
-}
-
-void Manager::resetStatus() {
-	delete this->_cmd;
-	this->_cmd = NULL;
-	this->_response.resetMessenger();
-	this->setCurrTm(getTodayTm());
-}
-
-Manager::~Manager() {
-	this->_storage->save(this->_tasks);
-	delete this->_interpreter;
-	delete this->_executor;
-	delete this->_storage;
-	this->removePreviousCommand();
-	this->_response.resetMessenger();
+	this->_currentPeriod = pair<tm,tm>(startTm,endTm);
 }
