@@ -28,7 +28,22 @@
 #include "quickadd_window.h"
 #include "Manager.h"
 
-const char* MainWindow::EMPTY = EMPTY;
+const char* MainWindow::EMPTY                           = "";
+const char* MainWindow::DEFAULT_WIN_TITLE               = "TaskPad";
+const char* MainWindow::DEFAULT_STATUS_BAR_TEXT         = "Ready";
+const char* MainWindow::DEFAULT_DETAILS_VIEW_TEXT       = "Task's Details";
+const char* MainWindow::SUCCESS_DETAILS_ADD_TEXT        = "Added Task's Details";
+const char* MainWindow::SUCCESS_DETAILS_MOD_TEXT        = "Modified Task's Details";
+const char* MainWindow::SUCCESS_DETAILS_DEL_TEXT        = "Deleted Task's Details";
+const char* MainWindow::SUCCESS_DETAILS_UNDO_TEXT       = "Undo Task's Details";
+const char* MainWindow::SUCCESS_DETAILS_REDO_TEXT       = "Redo Task's Details";
+const char* MainWindow::SUCCESS_STATUS_BAR_ADD_TEXT     = "Task added successfully";
+const char* MainWindow::SUCCESS_STATUS_BAR_DEL_TEXT     = "Task deleted successfully";
+const char* MainWindow::SUCCESS_STATUS_BAR_MOD_TEXT     = "Task modified successfully";
+const char* MainWindow::SUCCESS_STATUS_BAR_FIND_TEXT    = "Searched successfully";
+const char* MainWindow::SUCCESS_STATUS_BAR_UNDO_TEXT    = "Undo successfully";
+const char* MainWindow::SUCCESS_STATUS_BAR_REDO_TEXT    = "Redo successfully";
+const char* MainWindow::SUCCESS_STATUS_BAR_DISPLAY_TEXT = "Task displayed successfully";
 
 /************************************************************************/
 /*                        INITIALIZATION                                */
@@ -89,7 +104,7 @@ void MainWindow::setupTrayIcon(){
 	trayIcon = new QSystemTrayIcon(this);
 	trayIcon->setIcon(QIcon(":/MainWindow/Resources/logo.png"));
 	trayIcon->show();
-	trayIcon->setToolTip("TaskPad");
+	trayIcon->setToolTip(DEFAULT_WIN_TITLE);
 }
 
 void MainWindow::setupConnection(){
@@ -216,7 +231,7 @@ void MainWindow::showReminder(){
 	}
 }
 
-QString MainWindow::prepareTrayMsg( list<Task> &reminderList, QString output ){
+QString MainWindow::prepareTrayMsg(list<Task> &reminderList, QString output){
 	list<Task>::iterator iter = reminderList.begin();
 	output += "1. ";
 	output += iter->getName().c_str();
@@ -268,15 +283,15 @@ void MainWindow::showTrayMsg(QString msg, QString title){
 }
 
 void MainWindow::about(){
-	popMsgBox("TaskPad", "TaskPad is a product created by Team F12-1C.\n"
+	popMsgBox(DEFAULT_WIN_TITLE, "TaskPad is a product created by Team F12-1C.\n"
 		"Members: ASHRAY, KAI, JIANGZE, THYAGESH, ZIXUAN.");
 }
 
 void MainWindow::help(){
-	popMsgBox("TaskPad", "Geek doesn't need help from us :p");
+	popMsgBox(DEFAULT_WIN_TITLE, "Geek doesn't need help from us :p");
 }
 
-void MainWindow::popMsgBox( QString title, QString description ){
+void MainWindow::popMsgBox(QString title, QString description){
 	QMessageBox msgBox;
 	msgBox.setWindowTitle(title);
 	msgBox.setText(description);
@@ -376,7 +391,7 @@ bool MainWindow::isCommandAdd(QString requestStr){
 	return REGEX_CMD_ADD.indexIn(requestStr) != CANT_FIND;
 }
 
-bool MainWindow::isEqualOne( QString &requestStr ){
+bool MainWindow::isEqualOne(QString &requestStr){
 	return requestStr.toInt() == 1;
 }
 
@@ -427,12 +442,12 @@ void MainWindow::handleDisplay(Messenger msg){
 	list<Task> tmp_list = msg.getList();
 	list<Task>::iterator iter = tmp_list.begin();
 	advance(iter, index - 1);
-	updateStatusBar("Task displayed successfully");
+	updateStatusBar(SUCCESS_STATUS_BAR_DISPLAY_TEXT);
 	updateDetailsLabel();
 	updateDetails(*iter);
 }
 
-void MainWindow::handleQA_ERROR( QString requestStr, Messenger &msg ){
+void MainWindow::handleQA_ERROR(QString requestStr, Messenger &msg){
 	if(!isEqualOne(requestStr)){
 		showTrayMsg(msg.getErrorMsg().c_str());
 	}
@@ -448,13 +463,13 @@ void MainWindow::handleQA_SUCCESS(){
 	showTrayMsg("Added");
 }
 
-void MainWindow::handleQA_DISPLAY( Messenger msg ){
+void MainWindow::handleQA_DISPLAY(Messenger msg){
 	closeQuickAddWindow();
 	handleDisplay(msg);
 	showWindow();
 }
 
-void MainWindow::handleMsg_ERROR( Messenger &msg ){
+void MainWindow::handleMsg_ERROR(Messenger &msg){
 	updateStatusBar(msg.getErrorMsg().c_str());
 }
 
@@ -463,41 +478,41 @@ void MainWindow::handleMsg_ERROR_INTERMEDIATE(){
 	updateStatusBar("Wrong input. Press ECS to cancel");
 }
 
-void MainWindow::handleMsg_SUCCESS( Messenger &msg ){
+void MainWindow::handleMsg_SUCCESS(Messenger &msg){
 	switch(msg.getCommandType()){
 	case TP::ADD:
-		updateForCmdExec("Task added successfully", "Added Task's Details", msg);
+		updateForCmdExec(SUCCESS_STATUS_BAR_ADD_TEXT, SUCCESS_DETAILS_ADD_TEXT, msg);
 		break;
 	case TP::DEL:
-		updateForCmdExec("Task deleted successfully", "Deleted Task's Details", msg);
+		updateForCmdExec(SUCCESS_STATUS_BAR_DEL_TEXT, SUCCESS_DETAILS_DEL_TEXT, msg);
 		break;
 	case TP::MOD:
-		updateForCmdExec("Task modified successfully", "Modified Task's Details", msg);
+		updateForCmdExec(SUCCESS_STATUS_BAR_MOD_TEXT, SUCCESS_DETAILS_MOD_TEXT, msg);
 		break;
 	case TP::FIND:
-		updateMainView(msg, "Search Results", "Searched successfully");
+		updateMainView(msg, "Search Results", SUCCESS_STATUS_BAR_FIND_TEXT);
 		handleOneItemList(msg);
 		break;
 	case TP::UNDO:
-		updateForCmdExec("Undo successfully", "Undo Task's Details", msg);
+		updateForCmdExec(SUCCESS_STATUS_BAR_UNDO_TEXT, SUCCESS_DETAILS_UNDO_TEXT, msg);
 		break;
 	case TP::REDO:
-		updateForCmdExec("Redo successfully", "Redo Task's Details", msg);
+		updateForCmdExec(SUCCESS_STATUS_BAR_REDO_TEXT, SUCCESS_DETAILS_REDO_TEXT, msg);
 		break;
 	}
 }
 
-void MainWindow::handleMsg_INTERMEDIATE( Messenger msg ){
+void MainWindow::handleMsg_INTERMEDIATE(Messenger msg){
 	updateMainView(msg, "Select a task by typing its index", "Intermediate stage...");
 }
 
-void MainWindow::handleMsg_SUCCESS_INDEXED_CMD( Messenger &msg ){
+void MainWindow::handleMsg_SUCCESS_INDEXED_CMD(Messenger &msg){
 	switch (msg.getCommandType()){
 	case TP::MOD:
-		updateForCmdExec("Task modified successfully","Modified Task's Details", msg);
+		updateForCmdExec(SUCCESS_STATUS_BAR_MOD_TEXT, SUCCESS_DETAILS_MOD_TEXT, msg);
 		break;
 	case TP::DEL:
-		updateForCmdExec("Task deleted successfully", "Deleted Task's Details", msg);
+		updateForCmdExec(SUCCESS_STATUS_BAR_DEL_TEXT, SUCCESS_DETAILS_DEL_TEXT, msg);
 		break;
 	}
 }
@@ -512,7 +527,7 @@ void MainWindow::refresh(){
 // Note: if list has only one item,
 // display it directly
 //************************************
-void MainWindow::handleOneItemList( Messenger &msg, QString detailsLabel /*= "Task's Details" */ ){
+void MainWindow::handleOneItemList(Messenger &msg, QString detailsLabel /*= "Task's Details" */){
 	const int ONLY_ONE = 1;
 	if(msg.getList().size() == ONLY_ONE){
 		msg.setTask(msg.getList().front());
@@ -529,7 +544,7 @@ void MainWindow::updateNavLabel(QString str){
 	ui.Navigation_taskList->setText(str);
 }
 
-void MainWindow::updateDetailsLabel( QString str /*= "Task's Details"*/ ){
+void MainWindow::updateDetailsLabel(QString str /*= "Task's Details"*/){
 	ui.Navigation_detailsView->setText(str);
 }
 
@@ -560,7 +575,7 @@ void MainWindow::updateDetails(Task task){
 
 void MainWindow::clearDetails(){
 	setDetailsViewOpacity40();
-	updateDetailsLabel("Task's Details");
+	updateDetailsLabel();
 	setDetailsViewEmpty();
 }
 
@@ -568,19 +583,19 @@ void MainWindow::updateStatusBar(QString str){
 	ui.StatusBar->setText(str);
 }
 
-void MainWindow::updateMainView( Messenger &msg, QString listTitle, QString statusBarLabel /*= "Ready" */ ){
+void MainWindow::updateMainView(Messenger &msg, QString listTitle, QString statusBarLabel /*= "Ready" */){
 	clearDetails();
 	updateStatusBar(statusBarLabel);
 	updateNavLabel(listTitle);
 	updateList(msg.getList());
 }
 
-void MainWindow::updateDetailsView( Messenger &msg, QString label /*= "Task's Details"*/ ){
+void MainWindow::updateDetailsView(Messenger &msg, QString label /*= "Task's Details"*/){
 	updateDetails(msg.getTask());
 	updateDetailsLabel(label);
 }
 
-void MainWindow::updateForCmdExec( QString statusBarTxt, QString DetailsLabel, Messenger msg ){
+void MainWindow::updateForCmdExec(QString statusBarTxt, QString DetailsLabel, Messenger msg){
 	updateStatusBar(statusBarTxt);
 	updateDetailsView(msg, DetailsLabel);
 	refresh();
@@ -607,11 +622,11 @@ QTreeWidgetItem* MainWindow::extractTask(int index, Task task){
 	return new QTreeWidgetItem(strList);
 }
 
-QStringList MainWindow::extractFloating( int index, Task &task ){
+QStringList MainWindow::extractFloating(int index, Task &task){
 	return QStringList() << QString::number(index) << task.getName().c_str() << EMPTY;
 }
 
-QStringList MainWindow::extractTimedDate( Task &task, QStringList strList, int index ){
+QStringList MainWindow::extractTimedDate(Task &task, QStringList strList, int index){
 	QString fromTimeStr, toTimeStr;
 	if(task.getFlagFromDate())
 		fromTimeStr = getFromTimeStr(task, fromTimeStr);
@@ -622,12 +637,12 @@ QStringList MainWindow::extractTimedDate( Task &task, QStringList strList, int i
 	return strList;
 }
 
-QString MainWindow::getFromTimeStr( Task &task, QString fromTimeStr ){
+QString MainWindow::getFromTimeStr(Task &task, QString fromTimeStr){
 	QDateTime fromTime = QDateTime::fromTime_t(task.getFromDate());
 	fromTimeStr = "From " + fromTime.toString("dd/MM/yyyy");	return fromTimeStr;
 }
 
-QString MainWindow::getToDateStr( Task &task, QString toTimeStr ){
+QString MainWindow::getToDateStr(Task &task, QString toTimeStr){
 	QDateTime toTime = QDateTime::fromTime_t(task.getToDate());
 	if(task.getFlagFromDate())
 		toTimeStr = " to " + toTime.toString("dd/MM/yyyy");
@@ -635,7 +650,7 @@ QString MainWindow::getToDateStr( Task &task, QString toTimeStr ){
 		toTimeStr = "To " + toTime.toString("dd/MM/yyyy");	return toTimeStr;
 }
 
-QStringList MainWindow::extractDueDate( Task &task, QStringList strList, int index ){
+QStringList MainWindow::extractDueDate(Task &task, QStringList strList, int index){
 	QDateTime time = QDateTime::fromTime_t(task.getDueDate());
 	strList = QStringList() << QString::number(index) << task.getName().c_str() << \
 		"Due " + time.toString("dd/MM/yyyy");
@@ -650,31 +665,31 @@ void MainWindow::setCurrRemindTime(){
 	currRemindTime = QDateTime::currentDateTime();
 }
 
-void MainWindow::setFromReminder( bool toggle ){
+void MainWindow::setFromReminder(bool toggle){
 	isFromReminder = toggle;
 }
 
-void MainWindow::setIsQuickAddOpen( bool toggle ){
+void MainWindow::setIsQuickAddOpen(bool toggle){
 	isQuickAddOpen = toggle;
 }
 
-void MainWindow::setHighPriorityDelegate( int index ){
+void MainWindow::setHighPriorityDelegate(int index){
 	ui.TaskList->setItemDelegateForRow(index - 1, new ListItemDelegate(HIGH, UNDONE, ui.TaskList));
 }
 
-void MainWindow::setHighPriorityDoneDelegate( int index ){
+void MainWindow::setHighPriorityDoneDelegate(int index){
 	ui.TaskList->setItemDelegateForRow(index - 1, new ListItemDelegate(HIGH, DONE, ui.TaskList));
 }
 
-void MainWindow::setNormalDelegate( int index ){
+void MainWindow::setNormalDelegate(int index){
 	ui.TaskList->setItemDelegateForRow(index - 1, new ListItemDelegate(NON_HIGH, UNDONE, ui.TaskList));
 }
 
-void MainWindow::setNormalDoneDelegate( int index ){
+void MainWindow::setNormalDoneDelegate(int index){
 	ui.TaskList->setItemDelegateForRow(index - 1, new ListItemDelegate(NON_HIGH, DONE, ui.TaskList));
 }
 
-void MainWindow::setListItemDelegate( Task &task, int index ){
+void MainWindow::setListItemDelegate(Task &task, int index){
 	if(task.getPriority() == HIGH && task.getState() == UNDONE)
 		setHighPriorityDelegate(index);
 	else if(task.getPriority() == HIGH && task.getState() == DONE)
@@ -708,7 +723,7 @@ void MainWindow::setDetailsViewOpacity100(){
 	ui.DetailsView->setGraphicsEffect(NULL);
 }
 
-void MainWindow::setNameLabel( Task &task ){
+void MainWindow::setNameLabel(Task &task){
 	ui.name->setText(task.getName().c_str());
 	QFont nameFont = ui.name->font();
 	if(task.getState() == TP::UNDONE){
@@ -720,7 +735,7 @@ void MainWindow::setNameLabel( Task &task ){
 	ui.name->setFont(nameFont);
 }
 
-void MainWindow::setPriorityLabel( Task &task ){
+void MainWindow::setPriorityLabel(Task &task){
 	switch (task.getPriority()){
 	case HIGH:
 		ui.DetailsView->setStyleSheet(QLatin1String("QWidget#DetailsView{\n"
@@ -740,16 +755,16 @@ void MainWindow::setPriorityLabel( Task &task ){
 	}
 }
 
-void MainWindow::setDueDateLabel( Task &task ){
+void MainWindow::setDueDateLabel(Task &task){
 	QDateTime time = QDateTime::fromTime_t(task.getDueDate());
 	QTime hour_n_min = time.time();
 	if(hour_n_min.hour() == 0 & hour_n_min.minute() == 0)
-		ui.dueOrFromTo->setText("Due  " + time.toString("dd/MM/yyyy"));
+		ui.dueOrFromTo->setText("Due  " + time.toString("dd/MM/yyyy"));//TODO
 	else
 		ui.dueOrFromTo->setText("Due  " + time.toString("dd/MM/yyyy  hh:mm"));
 }
 
-void MainWindow::setTimedLabel( Task &task ){
+void MainWindow::setTimedLabel(Task &task){
 	QString fromTimeStr, toTimeStr;
 	if(task.getFlagFromDate()){
 		QDateTime fromTime = QDateTime::fromTime_t(task.getFromDate());
@@ -758,7 +773,7 @@ void MainWindow::setTimedLabel( Task &task ){
 	if(task.getFlagToDate()){
 		QDateTime toTime = QDateTime::fromTime_t(task.getToDate());
 		if(task.getFlagFromDate())
-			toTimeStr = " to " + toTime.toString("dd/MM/yyyy  hh:mm");
+			toTimeStr = " to " + toTime.toString("dd/MM/yyyy  hh:mm");//TODO
 		else
 			toTimeStr = "To " + toTime.toString("dd/MM/yyyy  hh:mm");
 	}
@@ -769,7 +784,7 @@ void MainWindow::setFloatingLabel(){
 	ui.dueOrFromTo->setText(EMPTY);
 }
 
-void MainWindow::setDueOrFromToLabel( Task &task ){
+void MainWindow::setDueOrFromToLabel(Task &task){
 	switch (task.getTaskType()){
 	case DEADLINE:
 		setDueDateLabel(task);
@@ -783,14 +798,14 @@ void MainWindow::setDueOrFromToLabel( Task &task ){
 	}
 }
 
-void MainWindow::setLocationLabel( Task &task ){
+void MainWindow::setLocationLabel(Task &task){
 	if(task.getFlagLocation())
 		ui.location->setText(("@" + task.getLocation()).c_str());
 	else
 		ui.location->setText(EMPTY);
 }
 
-void MainWindow::setParticipantsLabel( Task &task ){
+void MainWindow::setParticipantsLabel(Task &task){
 	if(task.getFlagParticipants()){
 		QString participants;
 		list<string> listOfParticipants =  task.getParticipants();
@@ -808,7 +823,7 @@ void MainWindow::setParticipantsLabel( Task &task ){
 		ui.participants->setText(EMPTY);
 }
 
-void MainWindow::setTagsLabel( Task &task ){
+void MainWindow::setTagsLabel(Task &task){
 	if(task.getFlagTags()){
 		QString tags;
 		list<string> listOfTags = task.getTags();
@@ -828,7 +843,7 @@ void MainWindow::setTagsLabel( Task &task ){
 		ui.tags->setText(EMPTY);
 }
 
-void MainWindow::setRemindTimesLabel( Task &task ){
+void MainWindow::setRemindTimesLabel(Task &task){
 	if(task.getFlagRemindTimes()){
 		QString remindTimes;
 		list<time_t> listOfRemindTimes = task.getRemindTimes();
@@ -846,7 +861,7 @@ void MainWindow::setRemindTimesLabel( Task &task ){
 		ui.remindTime->setText("Remind me : none");
 }
 
-void MainWindow::setNoteLabel( Task &task ){
+void MainWindow::setNoteLabel(Task &task){
 	if(task.getFlagNote()){
 		ui.note->setPlainText(task.getNote().c_str());
 	}
@@ -898,7 +913,7 @@ void MainWindow::changeEvent(QEvent* event){
 	QMainWindow::changeEvent(event);
 }
 
-void MainWindow::runInBackground( QEvent* event ){
+void MainWindow::runInBackground(QEvent* event){
 	if(event->type()==QEvent::WindowStateChange){
 		if(windowState() == Qt::WindowMinimized){
 			QTimer::singleShot(0, this, SLOT(hide()));
