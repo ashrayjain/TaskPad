@@ -460,6 +460,9 @@ void CommandBar::hkTemplateGoBackwards(){
 		}
 		if(!(lastTimeCursor.isNull()))
 		{
+			int length = lastTimeCursor.selectedText().length();
+			lastTimeCursor.clearSelection();
+			lastTimeCursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor, length);
 			setTextCursor(lastTimeCursor);
 		}
 	}
@@ -483,6 +486,10 @@ void CommandBar::handleKeyTab(bool *isHandled)
 		}
 		if(!(lastTimeCursor.isNull()))
 		{
+			setTextCursor(lastTimeCursor);
+			int length = lastTimeCursor.selectedText().length();
+			lastTimeCursor.clearSelection();
+			lastTimeCursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor, length);
 			setTextCursor(lastTimeCursor);
 		}
 		*isHandled = true;
