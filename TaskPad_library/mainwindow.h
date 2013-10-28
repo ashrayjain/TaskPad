@@ -1,3 +1,18 @@
+/*
+ * =====================================================================================
+ *
+ *       Filename:  mainwindow.h
+ *
+ *           Note:  MainWindow class handles all UI logic for main window of TaskPad
+ *        Version:  1.0
+ *        Created:  09/21/13 16:13:09
+ *
+ *         Author:  XIE KAI (A0102016E), gigikie@gmail.com
+ *   Organization:  NUS, SoC
+ *
+ * =====================================================================================
+ */
+
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
@@ -42,6 +57,8 @@ protected slots:
 	void showPrevMonth();
 
 private:
+	//Static val
+	static const char* EMPTY;
 	//Init
 	void setupUI();
 	void setupDependency();
@@ -49,6 +66,9 @@ private:
 	void setupTrayIcon();
 	void setupTimer();
 	void setupHotkeys();
+	void setupWinDisplayHotkeys();
+	void setupDateNavHotkeys();
+	void setupGlobalHotkeys();
 	void setupConnection();
 	void installEventFilter();
 	void customisedUi();
@@ -67,8 +87,11 @@ private:
 	void updateNavLabel(QString str);
 	void updateList(std::list<Task> result);
 	QTreeWidgetItem* extractTask(int index, Task task);
+	void setListItemDelegate( Task &task, int index );
 	QStringList extractFloating( int index, Task &task );
 	QStringList extractTimedDate( Task &task, QStringList strList, int index );
+	QString getToDateStr( Task &task, QString toTimeStr );
+	QString getFromTimeStr( Task &task, QString fromTimeStr );
 	QStringList extractDueDate( Task &task, QStringList strList, int index );
 	void setNormalDelegate( int index );
 	void setNormalDoneDelegate( int index );
@@ -95,7 +118,7 @@ private:
 	void setPriorityLabel( Task &task );
 	void setNameLabel( Task &task );
 	//Msg Handling
-	void handleGetToday(Messenger msg);//TODO: many handlers r redundant
+	void handleGetToday(Messenger msg);
 	void handleGetInbox(Messenger msg);
 	void handleMessenger(Messenger msg);
 	void handleMsg_SUCCESS_INDEXED_CMD( Messenger &msg );
@@ -115,6 +138,7 @@ private:
 	void setCurrRemindTime();
 	string getFindRtCmd();
 	void disposeQuickAddWindow();
+	void disposeQuickAddConnection();
 	void handleQA_DISPLAY( Messenger msg );
 	void handleQA_SUCCESS();
 	void handleQA_ERROR( QString requestStr, Messenger &msg );
@@ -133,7 +157,7 @@ private:
 	//State
 	QTimer* timer;
 	QDateTime currRemindTime;
-	QDialog* quickAddWindowObj;
+	QDialog* quickAddWindowPtr;
 	QPoint windowPosition;
 	QPoint mousePressPosition;
 	QPoint mouseMovePosition;
