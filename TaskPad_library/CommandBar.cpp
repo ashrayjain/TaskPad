@@ -35,7 +35,7 @@ const QString CommandBar::HOTKEY_TEMPLATE_REDO = "redo";
 
 CommandBar::CommandBar(QWidget *parent)
 	:QTextEdit(parent), inputHistory_undo(), inputHistory_redo(),\
-	hotkeyTemplate("__[A-Z]+__", Qt::CaseInsensitive),
+	hotkeyTemplate("__[A-Z]+__"),
 	REGEXP_quoteLeft("`(.*)`")
 {
 	REGEXP_quoteLeft.setPatternSyntax(QRegExp::RegExp2);
@@ -448,7 +448,7 @@ void CommandBar::hkTemplateGoBackwards(){
 	QTextCursor cursor = textCursor();
 	if(isHotkeyTemplateMode())
 	{
-		lastTimeCursor = document()->find(hotkeyTemplate, lastTimeCursor, QTextDocument::FindBackward);
+		lastTimeCursor = document()->find(hotkeyTemplate, textCursor(), QTextDocument::FindBackward);
 		if(lastTimeCursor.isNull())
 		{
 			moveCursor(QTextCursor::End);
@@ -474,11 +474,11 @@ void CommandBar::handleKeyTab(bool *isHandled)
 	QTextCursor cursor = textCursor();
 	if(isHotkeyTemplateMode())//TODO: field hotkeyTemplateMode seems to be non-sense
 	{
-		lastTimeCursor = document()->find(hotkeyTemplate, lastTimeCursor);
+		lastTimeCursor = document()->find(hotkeyTemplate, textCursor());
 		if(lastTimeCursor.isNull())
 		{
-			lastTimeCursor.movePosition(QTextCursor::Start);
-			lastTimeCursor = document()->find(hotkeyTemplate, lastTimeCursor);
+			moveCursor(QTextCursor::Start);
+			lastTimeCursor = document()->find(hotkeyTemplate, textCursor());
 			if(lastTimeCursor.isNull())
 			{
 				hotkeyTemplateMode = false;
