@@ -28,6 +28,7 @@ class Executor;
 class Storage;
 class Command;
 class Logger;
+class Database;
 
 class Manager {
 	private:
@@ -46,6 +47,9 @@ class Manager {
 
 		//the list of tasks
 		list<Task>	_tasks;
+
+		//DB pointer
+		Database* taskDB;
 
 		//saver
 		void saveChanges	();
