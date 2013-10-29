@@ -95,7 +95,7 @@
     <CustomBuild Include="QuickAddWindow.h">
       <Filter>Header Files\UI_Related</Filter>
     </CustomBuild>
-    <CustomBuild Include="MainWindowPPP.h">
+    <CustomBuild Include="MainWindow.h">
       <Filter>Header Files\UI_Related</Filter>
     </CustomBuild>
   </ItemGroup>
@@ -294,13 +294,13 @@
     <ClCompile Include="GeneratedFiles\Release\moc_QuickAddWindow.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="MainWindowPPP.cpp">
+    <ClCompile Include="MainWindow.cpp">
       <Filter>Source Files\UI_Related</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_MainWindowPPP.cpp">
+    <ClCompile Include="GeneratedFiles\Debug\moc_MainWindow.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_MainWindowPPP.cpp">
+    <ClCompile Include="GeneratedFiles\Release\moc_MainWindow.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
   </ItemGroup>
