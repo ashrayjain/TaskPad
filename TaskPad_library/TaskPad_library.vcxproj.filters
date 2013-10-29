@@ -92,10 +92,10 @@
     <CustomBuild Include="ListItemDelegate.h">
       <Filter>Header Files\UI_Related</Filter>
     </CustomBuild>
-    <CustomBuild Include="mainwindow.h">
+    <CustomBuild Include="MainWindow.h">
       <Filter>Header Files\UI_Related</Filter>
     </CustomBuild>
-    <CustomBuild Include="quickadd_window.h">
+    <CustomBuild Include="QuickAddWindow.h">
       <Filter>Header Files\UI_Related</Filter>
     </CustomBuild>
   </ItemGroup>
@@ -207,12 +207,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="GeneratedFiles\Debug\moc_mainwindow.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_mainwindow.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_CommandBar.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
@@ -236,12 +230,6 @@
     </ClCompile>
     <ClCompile Include="libqxt\qxtglobalshortcut_win.cpp">
       <Filter>3rd_Parties\libqxt</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_quickadd_window.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_quickadd_window.cpp">
-      <Filter>Generated Files\Release</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\qrc_images.cpp">
       <Filter>Generated Files</Filter>
@@ -279,17 +267,11 @@
     <ClCompile Include="Logger.cpp">
       <Filter>Source Files\Logic_Related</Filter>
     </ClCompile>
-    <ClCompile Include="mainwindow.cpp">
-      <Filter>Source Files\UI_Related</Filter>
-    </ClCompile>
     <ClCompile Include="Manager.cpp">
       <Filter>Source Files\Logic_Related</Filter>
     </ClCompile>
     <ClCompile Include="Messenger.cpp">
       <Filter>Source Files\Commons</Filter>
-    </ClCompile>
-    <ClCompile Include="quickadd_window.cpp">
-      <Filter>Source Files\UI_Related</Filter>
     </ClCompile>
     <ClCompile Include="Storage.cpp">
       <Filter>Source Files\Logic_Related</Filter>
@@ -302,6 +284,24 @@
     </ClCompile>
     <ClCompile Include="TaskLoaderText.cpp">
       <Filter>Source Files\Logic_Related\FileHandler_Derived</Filter>
+    </ClCompile>
+    <ClCompile Include="MainWindow.cpp">
+      <Filter>Source Files\UI_Related</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_MainWindow.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_MainWindow.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="QuickAddWindow.cpp">
+      <Filter>Source Files\UI_Related</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_QuickAddWindow.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_QuickAddWindow.cpp">
+      <Filter>Generated Files\Release</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

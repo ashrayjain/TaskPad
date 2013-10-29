@@ -1,4 +1,4 @@
-#include "quickadd_window.h"
+#include "QuickAddWindow.h"
 
 QuickAddWindow::QuickAddWindow(QWidget *parent)
 :QDialog(parent)

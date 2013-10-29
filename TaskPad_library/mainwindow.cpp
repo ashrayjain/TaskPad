@@ -13,7 +13,7 @@
  * =====================================================================================
  */
 
-#include "mainwindow.h"
+#include "MainWindow.h"
 #include <QMouseEvent>
 #include <QMessageBox>
 #include <QTextBlock>
@@ -25,7 +25,7 @@
 #include "Enum.h"
 #include "libqxt/qxtglobalshortcut.h"
 #include "ListItemDelegate.h"
-#include "quickadd_window.h"
+#include "QuickAddWindow.h"
 #include "Manager.h"
 
 const char* MainWindow::EMPTY                           = "";

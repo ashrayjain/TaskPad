@@ -12,7 +12,7 @@
 //	instructions. Some additional features include Synchronization and Arrow Keys (Up - Down) Navigation.
 //
 #include <QtWidgets/QApplication>
-#include "../TaskPad_library/mainwindow.h"
+#include "../TaskPad_library/MainWindow.h"
 //#include <vld.h>
 
 int main(int argc, char *argv[])
