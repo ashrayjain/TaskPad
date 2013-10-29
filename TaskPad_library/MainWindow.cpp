@@ -13,7 +13,7 @@
  * =====================================================================================
  */
 
-#include "MainWindowPPP.h"
+#include "MainWindow.h"
 #include <QMouseEvent>
 #include <QMessageBox>
 #include <QTextBlock>
