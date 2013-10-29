@@ -14,6 +14,7 @@
  */
 
 #include "MainWindow.h"
+#include <QPropertyAnimation>
 #include <QMouseEvent>
 #include <QMessageBox>
 #include <QTextBlock>
@@ -70,6 +71,7 @@ void MainWindow::setupUI(){
 // column width
 //************************************
 void MainWindow::customisedUi(){
+	detailsViewOpacity = 0.4;
 	this->setWindowFlags(Qt::FramelessWindowHint);
 	this->setAttribute(Qt::WA_TranslucentBackground, true);
 	ui.TaskList->header()->resizeSection(0, 70);
@@ -742,13 +744,20 @@ void MainWindow::setDetailsViewEmpty(){
 //    SETTERS FOR DETAILS (BELOW)
 //************************************
 void MainWindow::setDetailsViewOpacity40(){
-	QGraphicsOpacityEffect* opacity = new QGraphicsOpacityEffect(this);
-	opacity->setOpacity(qreal(40)/100);
-	ui.DetailsView->setGraphicsEffect(opacity);
+	QGraphicsOpacityEffect* opacityEffect = new QGraphicsOpacityEffect(this);
+	opacityEffect->setOpacity(detailsViewOpacity);
+	ui.DetailsView->setGraphicsEffect(opacityEffect);
+	QPropertyAnimation *animation = new QPropertyAnimation(opacityEffect, "opacity");
+	animation->setDuration(330);
+	animation->setStartValue(detailsViewOpacity);
+	animation->setEndValue(0.4);
+	animation->start(QAbstractAnimation::DeleteWhenStopped);
+	detailsViewOpacity = 0.4;
 }
 
 void MainWindow::setDetailsViewOpacity100(){
 	ui.DetailsView->setGraphicsEffect(NULL);
+	detailsViewOpacity = 1.0;
 }
 
 void MainWindow::setNameLabel(Task &task){

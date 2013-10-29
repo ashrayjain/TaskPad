@@ -179,6 +179,7 @@ private:
 	QPoint              windowPosition;
 	QPoint              mousePressPosition;
 	QPoint              mouseMovePosition;
+	double              detailsViewOpacity;
 	//State Flag********************************
 	bool                isQuickAddOpen;
 	bool                isFromReminder;
