@@ -1,3 +1,6 @@
+#ifndef TASKPAD_COMMAND_FIND_H
+#define TASKPAD_COMMAND_FIND_H
+
 /*
  *=======================
  
@@ -7,9 +10,6 @@
  */
 
 #include "Command.h"
-
-#ifndef TASKPAD_COMMAND_FIND_H
-#define TASKPAD_COMMAND_FIND_H
 
 class Command_Find: public Command
 {

@@ -1,3 +1,6 @@
+#ifndef TASKPAD_COMMAND_SYNC_H
+#define TASKPAD_COMMAND_SYNC_H
+
 /*
  *=======================
  
@@ -7,9 +10,6 @@
  */
 
 #include "Command.h"
-
-#ifndef TASKPAD_COMMAND_SYNC_H
-#define TASKPAD_COMMAND_SYNC_H
 
 class Command_Sync: public Command
 {

@@ -24,6 +24,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Command.h" />
+    <ClInclude Include="Command_Add.h" />
+    <ClInclude Include="Command_Del.h" />
+    <ClInclude Include="Command_Find.h" />
+    <ClInclude Include="Command_Mod.h" />
+    <ClInclude Include="Command_Redo.h" />
+    <ClInclude Include="Command_Sync.h" />
+    <ClInclude Include="Command_Undo.h" />
     <ClInclude Include="Database.h" />
     <ClInclude Include="FileHandler.h" />
     <ClInclude Include="GeneratedFiles\ui_quickadd_window.h" />

@@ -1,3 +1,6 @@
+#ifndef TASKPAD_COMMAND_MOD_H
+#define TASKPAD_COMMAND_MOD_H
+
 /*
  *=======================
  
@@ -7,9 +10,6 @@
  */
 
 #include "Command.h"
-
-#ifndef TASKPAD_COMMAND_MOD_H
-#define TASKPAD_COMMAND_MOD_H
 
 class Command_Mod: public Command
 {
