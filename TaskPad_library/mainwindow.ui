@@ -114,9 +114,25 @@ QTreeWidget#TaskList:Item {
 	padding: 10px 0 10px 10px;
 }
 
+QTreeWidget#TaskList:Item:hover {
+	background-color:#B2D2FD;
+}
+
+QTreeWidget#TaskList:Item:selected {
+	background-color:#70A1E2;
+}
+
 QTreeWidget#TaskList:Item:last {
 	color: #9ac3fa;
 	padding: 10px 18px 10px 10px;
+}
+
+QTreeWidget#TaskList:Item:hover:last {
+	color: #B2D2FD;
+}
+
+QTreeWidget#TaskList:Item:selected:last {
+	color: #70A1E2;
 }
 
 QTreeWidget#TaskList QScrollBar:vertical {
