@@ -46,6 +46,7 @@ protected slots:
 	void          showQuickAddWindow           ();
 	void          closeQuickAddWindow          ();
 	void          handleQuickAddRequest        (QString requestStr);
+	void          handleListSelection          ();
 	//Date Navigation****************************
 	void          getToday                     ();
 	void          getInbox                     ();
@@ -141,7 +142,9 @@ private:
 	void          handleMsg_SUCCESS            (Messenger &msg);
 	void          handleMsg_ERROR_INTERMEDIATE ();
 	void          handleMsg_ERROR              (Messenger &msg);
-	void          handleDisplay                (Messenger msg);
+	void          handleDisplay                (Messenger msg, bool callFromSignal = false);
+	void          selectItemAt                 (int index);
+	void          unselectAllItems             ();
 	void          handleDateNavigation         (TP::PERIOD_TYPE period, QString listTitle, bool isPrevious = false);
 	void          updateForCmdExec             (QString statusBarTxt, QString DetailsLabel, Messenger msg);
 	void          refresh                      ();

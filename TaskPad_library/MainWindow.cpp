@@ -116,6 +116,7 @@ void MainWindow::setupConnection(){
 	connect(ui.MinimizeButton, SIGNAL(clicked()), this, SLOT(showMinimized()));
 	connect(ui.AboutButton, SIGNAL(clicked()), this, SLOT(about()));
 	connect(ui.HelpButton, SIGNAL(clicked()), this, SLOT(help()));
+	connect(ui.TaskList, SIGNAL(itemSelectionChanged()), this, SLOT(handleListSelection()));
 }
 
 void MainWindow::setupHotkeys(){
@@ -436,12 +437,39 @@ void MainWindow::handleMessenger(Messenger msg){
 	}
 }
 
-void MainWindow::handleDisplay(Messenger msg){
+void MainWindow::handleListSelection(){
+	QList<QTreeWidgetItem*> list = ui.TaskList->selectedItems();
+	if(!list.isEmpty()){
+		QTreeWidgetItem* item = ui.TaskList->selectedItems().front();
+		int index = ui.TaskList->indexOfTopLevelItem(item) + 1;
+		QString indexStr = QString::number(index);
+		Messenger msg = scheduler->processCommand(indexStr.toStdString());
+		handleDisplay(msg, true);
+	}
+}
+
+void MainWindow::unselectAllItems(){
+	for(int i = 0; i < ui.TaskList->topLevelItemCount(); i++){
+		QTreeWidgetItem* itemToUnselect = ui.TaskList->topLevelItem(i);
+		ui.TaskList->setItemSelected(itemToUnselect, false);
+	}
+}
+
+void MainWindow::selectItemAt( int index ){
+	QTreeWidgetItem* itemToShow = ui.TaskList->topLevelItem(index - 1);
+	ui.TaskList->setItemSelected(itemToShow, true);
+}
+
+void MainWindow::handleDisplay(Messenger msg, bool callFromSignal){
 	int index = msg.getIndex();
 	assert(index > 0);
 	list<Task> tmp_list = msg.getList();
 	list<Task>::iterator iter = tmp_list.begin();
 	advance(iter, index - 1);
+	if(!callFromSignal){
+		unselectAllItems();
+		selectItemAt(index);
+	}
 	updateStatusBar(SUCCESS_STATUS_BAR_DISPLAY_TEXT);
 	updateDetailsLabel();
 	updateDetails(*iter);
