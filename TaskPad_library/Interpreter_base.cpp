@@ -7,8 +7,7 @@ bool Interpreter_base::checkKeyWord(string command, int position){
 	bool isKeyWord=true;
 
 
-	for(int i=0;i<command.length();i++)
-	{
+	for(int i=0;i<command.length();i++){
 		if(command.at(i)=='`'){
 
 			positionForNotion.push_back(i);
@@ -729,6 +728,465 @@ bool Interpreter_base::getTaskTypeMessage(string command, bool&flag, TP::TASK_TY
 	}
 
 	return isNotEmpty;
+}
+
+bool Interpreter_base::getRemoveDueDateInstruction(string command, bool&flag){
+	
+	string commandStr;
+	smatch match;
+	regex extractTemplete("\\s(-due)(\\s|$)");
+	string subStirng=command;
+
+	string::const_iterator startPos = command.begin();
+	string::const_iterator endPos = command.end();
+
+	int startIndex=0;
+	int count=0;
+	bool isNotEmpty=true;
+
+
+	if (regex_search(startPos,endPos, match, extractTemplete)){
+
+		commandStr=match[0];
+
+	}
+
+	while(!commandStr.empty()){
+
+		if(checkKeyWord(command,startIndex+match.position())==true){
+			count++;
+		}	
+
+		startIndex=startIndex+match.position()+1;
+		startPos=startPos+match.position()+1;
+
+		commandStr.clear();
+		if(startPos!=endPos){
+			if (regex_search(startPos,endPos, match, extractTemplete)){
+
+				commandStr=match[0];
+
+			}
+		}
+	}
+
+	if(count==0){
+		isNotEmpty=false;
+	}
+	else if(count==1){
+		isNotEmpty=true;
+	}
+	else{
+		flag=false;
+	}
+
+	return isNotEmpty;
+}
+
+bool Interpreter_base::getRemoveFromDateInstruction(string command, bool&flag){
+	
+	string commandStr;
+	smatch match;
+	regex extractTemplete("\\s(-from)(\\s|$)");
+	string subStirng=command;
+
+	string::const_iterator startPos = command.begin();
+	string::const_iterator endPos = command.end();
+
+	int startIndex=0;
+	int count=0;
+	bool isNotEmpty=true;
+
+
+	if (regex_search(startPos,endPos, match, extractTemplete)){
+
+		commandStr=match[0];
+
+	}
+
+	while(!commandStr.empty()){
+
+		if(checkKeyWord(command,startIndex+match.position())==true){
+			count++;
+		}	
+
+		startIndex=startIndex+match.position()+1;
+		startPos=startPos+match.position()+1;
+
+		commandStr.clear();
+		if(startPos!=endPos){
+			if (regex_search(startPos,endPos, match, extractTemplete)){
+
+				commandStr=match[0];
+
+			}
+		}
+	}
+
+	if(count==0){
+		isNotEmpty=false;
+	}
+	else if(count==1){
+		isNotEmpty=true;
+	}
+	else{
+		flag=false;
+	}
+
+	return isNotEmpty;
+}
+
+bool Interpreter_base::getRemoveToDateInstruction(string command, bool&flag){
+	
+	string commandStr;
+	smatch match;
+	regex extractTemplete("\\s(-to)(\\s|$)");
+	string subStirng=command;
+
+	string::const_iterator startPos = command.begin();
+	string::const_iterator endPos = command.end();
+
+	int startIndex=0;
+	int count=0;
+	bool isNotEmpty=true;
+
+
+	if (regex_search(startPos,endPos, match, extractTemplete)){
+
+		commandStr=match[0];
+
+	}
+
+	while(!commandStr.empty()){
+
+		if(checkKeyWord(command,startIndex+match.position())==true){
+			count++;
+		}	
+
+		startIndex=startIndex+match.position()+1;
+		startPos=startPos+match.position()+1;
+
+		commandStr.clear();
+		if(startPos!=endPos){
+			if (regex_search(startPos,endPos, match, extractTemplete)){
+
+				commandStr=match[0];
+
+			}
+		}
+	}
+
+	if(count==0){
+		isNotEmpty=false;
+	}
+	else if(count==1){
+		isNotEmpty=true;
+	}
+	else{
+		flag=false;
+	}
+
+	return isNotEmpty;
+}
+
+bool Interpreter_base::getRemoveAllRemindTimesInstruction(string command, bool&flag){
+	
+	string commandStr;
+	smatch match;
+	regex extractTemplete("\\s(-rtall)(\\s|$)");
+	string subStirng=command;
+
+	string::const_iterator startPos = command.begin();
+	string::const_iterator endPos = command.end();
+
+	int startIndex=0;
+	int count=0;
+	bool isNotEmpty=true;
+
+
+	if (regex_search(startPos,endPos, match, extractTemplete)){
+
+		commandStr=match[0];
+
+	}
+
+	while(!commandStr.empty()){
+
+		if(checkKeyWord(command,startIndex+match.position())==true){
+			count++;
+		}	
+
+		startIndex=startIndex+match.position()+1;
+		startPos=startPos+match.position()+1;
+
+		commandStr.clear();
+		if(startPos!=endPos){
+			if (regex_search(startPos,endPos, match, extractTemplete)){
+
+				commandStr=match[0];
+
+			}
+		}
+	}
+
+	if(count==0){
+		isNotEmpty=false;
+	}
+	else if(count==1){
+		isNotEmpty=true;
+	}
+	else{
+		flag=false;
+	}
+
+	return isNotEmpty;
+}
+
+bool Interpreter_base::getRemoveAllParticipantsInstruction(string command, bool&flag){
+	
+	string commandStr;
+	smatch match;
+	regex extractTemplete("\\s(-pplall)(\\s|$)");
+	string subStirng=command;
+
+	string::const_iterator startPos = command.begin();
+	string::const_iterator endPos = command.end();
+
+	int startIndex=0;
+	int count=0;
+	bool isNotEmpty=true;
+
+
+	if (regex_search(startPos,endPos, match, extractTemplete)){
+
+		commandStr=match[0];
+
+	}
+
+	while(!commandStr.empty()){
+
+		if(checkKeyWord(command,startIndex+match.position())==true){
+			count++;
+		}	
+
+		startIndex=startIndex+match.position()+1;
+		startPos=startPos+match.position()+1;
+
+		commandStr.clear();
+		if(startPos!=endPos){
+			if (regex_search(startPos,endPos, match, extractTemplete)){
+
+				commandStr=match[0];
+
+			}
+		}
+	}
+
+	if(count==0){
+		isNotEmpty=false;
+	}
+	else if(count==1){
+		isNotEmpty=true;
+	}
+	else{
+		flag=false;
+	}
+
+	return isNotEmpty;
+}
+
+bool Interpreter_base::getRemoveRemindTimesMessage(string command, bool&flag,list<std::time_t>& content){
+
+	list<time_t>rtList;
+	regex extractTemplete(" -rt `[^`]*`");
+	smatch match;
+	string commandStr;
+	string preContent;
+	bool isNotEmpty=true;
+
+	if (regex_search(command, match, extractTemplete)){
+
+		commandStr=match[0];
+
+	}
+	if(!commandStr.empty()){
+
+		stringstream extract(commandStr);
+		getline(extract,preContent,'`');
+		preContent.clear();
+		getline(extract,preContent,'`');
+
+		stringstream extractIndividual(preContent);
+		string time="";
+		getline(extractIndividual,time,',');
+
+		while(!time.empty()){
+			time_t rtTime=setTime(time,flag);
+			rtList.push_back(rtTime);
+			time.clear();
+			getline(extractIndividual,time,',');
+		}
+		content=rtList;
+		if(content.empty())isNotEmpty=false;
+		if(checkDuplicate(command," -rt `[^`]*`",match.position())==true){
+
+			flag=false;
+		}
+	}
+	else{
+
+		isNotEmpty=false;
+	}
+
+
+
+	return isNotEmpty;
+}
+
+bool Interpreter_base::getRemoveParticipantsMessage(string command, bool&flag, list<std::string>& content){
+	list<string>pplList;
+	regex extractTemplete(" -ppl `[^`]*`");
+	smatch match;
+	string commandStr;
+	string preContent;
+	bool isNotEmpty=true;
+
+	if (regex_search(command, match, extractTemplete)){
+
+		commandStr=match[0];
+
+	}
+	if(!commandStr.empty()){
+
+		stringstream extract(commandStr);
+		getline(extract,preContent,'`');
+		content.clear();
+		getline(extract,preContent,'`');
+
+		stringstream extractIndividual(preContent);
+		string name="";
+		getline(extractIndividual,name,',');
+		while(!name.empty()){
+
+			pplList.push_back(name);
+			name.clear();
+			getline(extractIndividual,name,',');
+		}
+
+		content=pplList;
+		if(pplList.empty())isNotEmpty=false;
+
+		if(checkDuplicate(command," -ppl `[^`]*`",match.position())==true){
+
+			flag=false;
+		}	
+
+	}
+	else{
+
+		isNotEmpty=false;
+	}
+
+
+	return isNotEmpty;
+
+}
+
+bool Interpreter_base::getAddRemindTimesMessage(string command, bool&flag,list<std::time_t>& content){
+
+	list<time_t>rtList;
+	regex extractTemplete(" \+rt `[^`]*`");
+	smatch match;
+	string commandStr;
+	string preContent;
+	bool isNotEmpty=true;
+
+	if (regex_search(command, match, extractTemplete)){
+
+		commandStr=match[0];
+
+	}
+	if(!commandStr.empty()){
+
+		stringstream extract(commandStr);
+		getline(extract,preContent,'`');
+		preContent.clear();
+		getline(extract,preContent,'`');
+
+		stringstream extractIndividual(preContent);
+		string time="";
+		getline(extractIndividual,time,',');
+
+		while(!time.empty()){
+			time_t rtTime=setTime(time,flag);
+			rtList.push_back(rtTime);
+			time.clear();
+			getline(extractIndividual,time,',');
+		}
+		content=rtList;
+		if(content.empty())isNotEmpty=false;
+		if(checkDuplicate(command," \+rt `[^`]*`",match.position())==true){
+
+			flag=false;
+		}
+	}
+	else{
+
+		isNotEmpty=false;
+	}
+
+
+
+	return isNotEmpty;
+}
+
+bool Interpreter_base::getAddParticipantsMessage(string command, bool&flag, list<std::string>& content){
+	list<string>pplList;
+	regex extractTemplete(" \+ppl `[^`]*`");
+	smatch match;
+	string commandStr;
+	string preContent;
+	bool isNotEmpty=true;
+
+	if (regex_search(command, match, extractTemplete)){
+
+		commandStr=match[0];
+
+	}
+	if(!commandStr.empty()){
+
+		stringstream extract(commandStr);
+		getline(extract,preContent,'`');
+		content.clear();
+		getline(extract,preContent,'`');
+
+		stringstream extractIndividual(preContent);
+		string name="";
+		getline(extractIndividual,name,',');
+		while(!name.empty()){
+
+			pplList.push_back(name);
+			name.clear();
+			getline(extractIndividual,name,',');
+		}
+
+		content=pplList;
+		if(pplList.empty())isNotEmpty=false;
+
+		if(checkDuplicate(command," \+ppl `[^`]*`",match.position())==true){
+
+			flag=false;
+		}	
+
+	}
+	else{
+
+		isNotEmpty=false;
+	}
+
+
+	return isNotEmpty;
+
 }
 
 bool Interpreter_base::getSyncProviderNameMessage(string command, bool&flag, string&content){

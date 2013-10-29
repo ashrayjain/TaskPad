@@ -40,6 +40,19 @@ protected:
 	bool			                 getTaskStateMessage(string command, bool&flag,TASK_STATE& content);
 	bool			                 getTaskTypeMessage(string command, bool&flag,TASK_TYPE& content);
 	bool				             getSyncProviderNameMessage(string command, bool&flag,string& content);
+	
+	bool							 getRemoveDueDateInstruction(string command, bool&flag);
+	bool							 getRemoveFromDateInstruction(string command, bool&flag);
+	bool							 getRemoveToDateInstruction(string command, bool&flag);
+	bool							 getRemoveAllRemindTimesInstruction(string command, bool&flag);
+	bool							 getRemoveAllParticipantsInstruction(string command, bool&flag);
+
+	bool							 getRemoveRemindTimesMessage(string command, bool&flag,list<std::time_t>& content);
+	bool							 getRemoveParticipantsMessage(string command, bool&flag,list<std::string>& content);
+	
+	bool							 getAddRemindTimesMessage(string command, bool&flag,list<std::time_t>& content);
+	bool							 getAddParticipantsMessage(string command, bool&flag,list<std::string>& content);
+
 	bool                             checkDuplicate(string command, string cmdTemplate,int startPosition);
 	bool                             checkKeyWord(string command, int position);       
 	void                             convertToTime(string timeStr, time_t &result,bool&flag);
