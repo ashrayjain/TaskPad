@@ -1,3 +1,6 @@
+#ifndef TASKPAD_COMMAND_REDO_H
+#define TASKPAD_COMMAND_REDO_H
+
 /*
  *=======================
  
@@ -7,9 +10,6 @@
  */
 
 #include "Command.h"
-
-#ifndef TASKPAD_COMMAND_REDO_H
-#define TASKPAD_COMMAND_REDO_H
 
 class Command_Redo: public Command
 {

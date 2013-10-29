@@ -1,3 +1,6 @@
+#ifndef TASKPAD_COMMAND_UNDO_H
+#define TASKPAD_COMMAND_UNDO_H
+
 /*
  *=======================
  
@@ -7,9 +10,6 @@
  */
 
 #include "Command.h"
-
-#ifndef TASKPAD_COMMAND_UNDO_H
-#define TASKPAD_COMMAND_UNDO_H
 
 class Command_Undo: public Command
 {
