@@ -164,3 +164,4 @@ TaskPad_exe/*.txt
 TaskPad_exe/*.task
 Overall Architecture.png
 Storage.png
+*.orig
