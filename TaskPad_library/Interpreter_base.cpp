@@ -1095,7 +1095,7 @@ bool Interpreter_base::getRemoveParticipantsMessage(string command, bool&flag, l
 bool Interpreter_base::getAddRemindTimesMessage(string command, bool&flag,list<std::time_t>& content){
 
 	list<time_t>rtList;
-	regex extractTemplete(" \+rt `[^`]*`");
+	regex extractTemplete(" \\+rt `[^`]*`");
 	smatch match;
 	string commandStr;
 	string preContent;
@@ -1125,7 +1125,7 @@ bool Interpreter_base::getAddRemindTimesMessage(string command, bool&flag,list<s
 		}
 		content=rtList;
 		if(content.empty())isNotEmpty=false;
-		if(checkDuplicate(command," \+rt `[^`]*`",match.position())==true){
+		if(checkDuplicate(command," \\+rt `[^`]*`",match.position())==true){
 
 			flag=false;
 		}
@@ -1142,7 +1142,7 @@ bool Interpreter_base::getAddRemindTimesMessage(string command, bool&flag,list<s
 
 bool Interpreter_base::getAddParticipantsMessage(string command, bool&flag, list<std::string>& content){
 	list<string>pplList;
-	regex extractTemplete(" \+ppl `[^`]*`");
+	regex extractTemplete(" \\+ppl `[^`]*`");
 	smatch match;
 	string commandStr;
 	string preContent;
@@ -1173,7 +1173,7 @@ bool Interpreter_base::getAddParticipantsMessage(string command, bool&flag, list
 		content=pplList;
 		if(pplList.empty())isNotEmpty=false;
 
-		if(checkDuplicate(command," \+ppl `[^`]*`",match.position())==true){
+		if(checkDuplicate(command," \\+ppl `[^`]*`",match.position())==true){
 
 			flag=false;
 		}	
