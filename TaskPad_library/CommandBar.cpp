@@ -12,6 +12,13 @@ const QStringList CommandBar::KEYWORD_LIST = QStringList() \
 	<< "note ``" << "impt ``" << "rt ``" << "done" << "undone" <<  \
 	"exact ``";
 
+const QStringList CommandBar::KEYWORD_LIST_REMOVE = QStringList() \
+	<< "due" << "from" << "to" << "ppl ``" << "pplall" << "rt ``" \
+	<< "rtall";
+
+const QStringList CommandBar::KEYWORD_LIST_ADD = QStringList() \
+	<< "ppl ``" << "rt ``";
+
 const QStringList CommandBar::KEYWORD_LIST_FIND = QStringList() \
 	<< "name ``" << "from ``" << "to ``" << "at ``" << "ppl ``" \
 	<< "note ``" << "impt ``" << "rt ``" << "done" << "undone" <<  \
@@ -261,18 +268,15 @@ bool CommandBar::hasSingleQuotationMark_LHS()
 	return hasKeywordNearby(SINGLE_QUOTATION_MARK, QTextCursor::Left);
 }
 
-bool CommandBar::hasQuoteLeft_RHS()
-{
+bool CommandBar::hasQuoteLeft_RHS(){
 	return hasKeywordNearby(QUOTE_LEFT, QTextCursor::Right);
 }
 
-bool CommandBar::hasQuoteLeft_LHS()
-{
+bool CommandBar::hasQuoteLeft_LHS(){
 	return hasKeywordNearby(QUOTE_LEFT, QTextCursor::Left);
 }
 
-bool CommandBar::hasSpace_RHS()
-{
+bool CommandBar::hasSpace_RHS(){
 	return hasKeywordNearby(SPACE, QTextCursor::Right);
 }
 
@@ -285,8 +289,25 @@ bool CommandBar::hasSharp_LHS(){
 	return str == "#";
 }
 
-bool CommandBar::hasSpace_LHS()
-{
+bool CommandBar::hasAdd_LHS(){//TODO: REFACTOR
+	QTextCursor cursor = textCursor();
+	cursor.movePosition(QTextCursor::StartOfWord);
+	cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
+	QString str = cursor.selectedText();
+
+	return str == "+";
+}
+
+bool CommandBar::hasMinus_LHS(){
+	QTextCursor cursor = textCursor();
+	cursor.movePosition(QTextCursor::StartOfWord);
+	cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
+	QString str = cursor.selectedText();
+
+	return str == "-";
+}
+
+bool CommandBar::hasSpace_LHS(){
 	return hasKeywordNearby(SPACE, QTextCursor::Left);
 }
 
@@ -315,6 +336,12 @@ void CommandBar::produceModel()
 {
 	if(isWithinPairOfQuoteLeft() || hasSharp_LHS()){
 		model->setStringList(QStringList());
+	}
+	else if(!isWithinPairOfQuoteLeft() && hasMinus_LHS()){
+		model->setStringList(KEYWORD_LIST_REMOVE);
+	}
+	else if(!isWithinPairOfQuoteLeft() && hasAdd_LHS()){
+		model->setStringList(KEYWORD_LIST_ADD);
 	}
 	else if(containsCommand())
 	{
