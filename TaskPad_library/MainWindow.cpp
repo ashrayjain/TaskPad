@@ -540,6 +540,7 @@ void MainWindow::handleMsg_SUCCESS(Messenger &msg){
 		updateForCmdExec(SUCCESS_STATUS_BAR_REDO_TEXT, SUCCESS_DETAILS_REDO_TEXT, msg);
 		break;
 	}
+	isIntermediateStage = false;
 }
 
 void MainWindow::handleMsg_INTERMEDIATE(Messenger msg){
