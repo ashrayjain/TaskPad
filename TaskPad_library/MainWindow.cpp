@@ -895,7 +895,7 @@ void MainWindow::setRemindTimesLabel(Task &task){
 		ui.remindTime->setText("Remind me : " + remindTimes);
 	}
 	else
-		ui.remindTime->setText("Remind me : none");
+		ui.remindTime->setText(EMPTY);
 }
 
 void MainWindow::setNoteLabel(Task &task){
