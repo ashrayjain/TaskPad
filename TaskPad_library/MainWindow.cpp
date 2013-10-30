@@ -541,7 +541,7 @@ void MainWindow::handleMsg_SUCCESS(Messenger &msg){
 }
 
 void MainWindow::handleMsg_INTERMEDIATE(Messenger msg){
-	updateMainView(msg, "Select a task by typing its index", "Intermediate stage...");
+	updateMainView(msg, "Select a task by typing its index", "Multiple results were found");
 	isIntermediateStage = true;
 	intermediateList = msg.getList();
 }
