@@ -119,6 +119,7 @@ private:
 	void          handleOneItemList            (Messenger &msg, QString detailsLabel = DEFAULT_DETAILS_VIEW_TEXT);
 	void          updateDetailsLabel           (QString str = DEFAULT_DETAILS_VIEW_TEXT);
 	void          clearDetails                 ();
+	void          clearStrikeOut               ();
 	void          setDetailsViewEmpty          ();
 	void          setDetailsViewOpacity40      ();
 	void          setDetailsViewOpacity100     ();
