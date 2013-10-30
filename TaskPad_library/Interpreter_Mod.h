@@ -233,6 +233,18 @@ if(flag && commandType->getFlagDue()==false){
 		flag=false;
 	}
 
+	if(flag && commandType->getFlagRemoveAllTags()==false){
+
+		if(getRemoveAllTagsInstruction(commandStr,flag)){
+			commandType->setFlagRemoveAllTags();
+		}
+
+	}
+	else {
+
+		flag=false;
+	}
+
 	if(flag && commandType->getFlagRemoveRemindTimes()==false){
 
 		list<time_t>content;
@@ -251,6 +263,19 @@ if(flag && commandType->getFlagDue()==false){
 		list<string>content;
 		if(getRemoveParticipantsMessage(commandStr,flag, content)){
 			commandType->setRemoveParticipants(content);
+		}
+
+	}
+	else {
+
+		flag=false;
+	}
+
+	if(flag && commandType->getFlagRemoveTags()==false){
+
+		list<string>content;
+		if(getRemoveTagsMessage(commandStr,flag, content)){
+			commandType->setRemoveTags(content);
 		}
 
 	}
@@ -284,6 +309,19 @@ if(flag && commandType->getFlagDue()==false){
 
 		flag=false;
 	}
+
+	/*if(flag && commandType->getFlagAddTags()==false){
+
+		list<string>content;
+		if(getAddTagsMessage(commandStr,flag, content)){
+			commandType->setAddParticipants(content);
+		}
+
+	}
+	else {
+
+		flag=false;
+	}*/
 
 
 	if(commandType->getFlagFrom()==true && commandType->getFlagTo()==true){

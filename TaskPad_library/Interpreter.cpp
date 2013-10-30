@@ -16,7 +16,7 @@ bool Interpreter::checkCommand(string command, int& commandType){
 	int num=-1;
 
 	string generalAddCase="((( due| from| to| impt| at| ppl| note| rt) `[^`]*`)|( #[^( |`)]*))*(\\s*)";
-	string generalModCase="((( due| from| name| to| impt| at| ppl| note| rt| -rt| -ppl| \\+rt| \\+ppl) `[^`]*`)|( done| undone)|( -due| -from| -to)|( -rtall| -pplall)|( (#)[^( |`)]*))*(\\s*)";
+	string generalModCase="((( due| from| name| to| impt| at| ppl| note| rt| -rt| -ppl| \\+rt| \\+ppl) `[^`]*`)|( done| undone)|( -due| -from| -to)|( -rtall| -pplall| -#)|( (#|-#|\\+#)[^( |`)]*))*(\\s*)";
 	string generalFindCase="((( from| name| to| impt| at| ppl| note| rt) `[^`]*`)|( #[^( |`)]*)|( done| undone)|(( timed| deadline| floating)))*(\\s*)";
 
 	regex test_add_command("^add `([^`]+)`"+generalAddCase); 
