@@ -114,6 +114,8 @@ int Interpreter::interpretIndex(std::string indexStr, Messenger &response){
 	if(integerConvert(indexStr,num))
 	{
 		response.setStatus(SUCCESS);
+		response.setStatus(SUCCESS);
+
 
 	}
 	else{ 
