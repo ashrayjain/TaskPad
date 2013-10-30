@@ -418,8 +418,6 @@ std::string MainWindow::getFindRtCmd(){
 }
 
 void MainWindow::handleMessenger(Messenger msg){
-	if(ui.Navigation_taskList->text() != "Select a task by typing its index")
-		navTitleOfLastTime = ui.Navigation_taskList->text();
 	switch (msg.getStatus()){
 	case ERROR:
 		handleMsg_ERROR(msg);
@@ -583,6 +581,8 @@ void MainWindow::handleOneItemList(Messenger &msg, QString detailsLabel /*= "Tas
 /************************************************************************/
 
 void MainWindow::updateNavLabel(QString str){
+	if(str != "Select a task by typing its index")
+		navTitleOfLastTime = str;
 	ui.Navigation_taskList->setText(str);
 }
 
