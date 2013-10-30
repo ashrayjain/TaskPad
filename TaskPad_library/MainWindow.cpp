@@ -335,10 +335,12 @@ void MainWindow::handleDateNavigation(TP::PERIOD_TYPE periodType, QString listTi
 		msg = scheduler->getPrevPeriodTasks(periodType);
 	else
 		msg = scheduler->getNextPeriodTasks(periodType);
-	pair<tm, tm> period = scheduler->getCurrentPeriod();
-	listTitle += getTimePeriodStr(period);
-	updateMainView(msg, listTitle);
-	handleOneItemList(msg);
+	if(msg.getStatus() == SUCCESS){
+		pair<tm, tm> period = scheduler->getCurrentPeriod();
+		listTitle += getTimePeriodStr(period);
+		updateMainView(msg, listTitle);
+		handleOneItemList(msg);
+	}
 }
 
 //************************************
