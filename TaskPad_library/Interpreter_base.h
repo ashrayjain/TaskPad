@@ -46,12 +46,15 @@ protected:
 	bool							 getRemoveToDateInstruction(string command, bool&flag);
 	bool							 getRemoveAllRemindTimesInstruction(string command, bool&flag);
 	bool							 getRemoveAllParticipantsInstruction(string command, bool&flag);
+	bool							 getRemoveAllTagsInstruction(string command, bool&flag);
 
 	bool							 getRemoveRemindTimesMessage(string command, bool&flag,list<std::time_t>& content);
 	bool							 getRemoveParticipantsMessage(string command, bool&flag,list<std::string>& content);
+	bool							 getRemoveTagsMessage(string command, bool&flag,list<std::string>& content);
 	
 	bool							 getAddRemindTimesMessage(string command, bool&flag,list<std::time_t>& content);
 	bool							 getAddParticipantsMessage(string command, bool&flag,list<std::string>& content);
+	bool							 getAddTagsMessage(string command, bool&flag,list<std::string>& content);
 
 	bool                             checkDuplicate(string command, string cmdTemplate,int startPosition);
 	bool                             checkKeyWord(string command, int position);       
