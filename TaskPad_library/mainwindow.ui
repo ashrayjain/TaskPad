@@ -385,6 +385,9 @@ QTextEdit#cmdBar:hover {
      <property name="readOnly">
       <bool>true</bool>
      </property>
+     <property name="placeholderText">
+      <string>Name</string>
+     </property>
     </widget>
     <widget class="QLineEdit" name="dueOrFromTo">
      <property name="enabled">
@@ -403,6 +406,9 @@ QTextEdit#cmdBar:hover {
      </property>
      <property name="readOnly">
       <bool>true</bool>
+     </property>
+     <property name="placeholderText">
+      <string>Time</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="location">
@@ -423,6 +429,9 @@ QTextEdit#cmdBar:hover {
      <property name="readOnly">
       <bool>true</bool>
      </property>
+     <property name="placeholderText">
+      <string>Location</string>
+     </property>
     </widget>
     <widget class="QLineEdit" name="participants">
      <property name="enabled">
@@ -441,6 +450,9 @@ QTextEdit#cmdBar:hover {
      </property>
      <property name="readOnly">
       <bool>true</bool>
+     </property>
+     <property name="placeholderText">
+      <string>Participants</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="tags">
@@ -461,6 +473,9 @@ QTextEdit#cmdBar:hover {
      <property name="readOnly">
       <bool>true</bool>
      </property>
+     <property name="placeholderText">
+      <string>Tags</string>
+     </property>
     </widget>
     <widget class="QLineEdit" name="remindTime">
      <property name="enabled">
@@ -479,6 +494,9 @@ QTextEdit#cmdBar:hover {
      </property>
      <property name="readOnly">
       <bool>true</bool>
+     </property>
+     <property name="placeholderText">
+      <string>Remind me : none</string>
      </property>
     </widget>
    </widget>
