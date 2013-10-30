@@ -180,9 +180,12 @@ private:
 	QPoint              mousePressPosition;
 	QPoint              mouseMovePosition;
 	double              detailsViewOpacity;
+	list<Task>          intermediateList;
+	QString             navTitleOfLastTime;
 	//State Flag********************************
 	bool                isQuickAddOpen;
 	bool                isFromReminder;
+	bool                isIntermediateStage;
 	//Logic's entrance**************************
 	Manager*            scheduler;
 };
