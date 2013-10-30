@@ -619,8 +619,15 @@ void MainWindow::updateDetails(Task task){
 
 void MainWindow::clearDetails(){
 	setDetailsViewOpacity40();
+	clearStrikeOut();
 	updateDetailsLabel();
 	setDetailsViewEmpty();
+}
+
+void MainWindow::clearStrikeOut(){
+	QFont nameFont = ui.name->font();
+	nameFont.setStrikeOut(false);
+	ui.name->setFont(nameFont);
 }
 
 void MainWindow::updateStatusBar(QString str){
