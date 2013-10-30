@@ -805,14 +805,14 @@ void MainWindow::setTimedLabel(Task &task){
 	QString fromTimeStr, toTimeStr;
 	if(task.getFlagFromDate()){
 		QDateTime fromTime = QDateTime::fromTime_t(task.getFromDate());
-		fromTimeStr = "From " + fromTime.toString("dd/MM/yyyy  hh:mm");
+		fromTimeStr = "From  " + fromTime.toString("dd/MM/yyyy  hh:mm");
 	}
 	if(task.getFlagToDate()){
 		QDateTime toTime = QDateTime::fromTime_t(task.getToDate());
 		if(task.getFlagFromDate())
-			toTimeStr = " to " + toTime.toString("dd/MM/yyyy  hh:mm");//TODO
+			toTimeStr = "  to  " + toTime.toString("dd/MM/yyyy  hh:mm");//TODO
 		else
-			toTimeStr = "To " + toTime.toString("dd/MM/yyyy  hh:mm");
+			toTimeStr = "To  " + toTime.toString("dd/MM/yyyy  hh:mm");
 	}
 	ui.dueOrFromTo->setText(fromTimeStr + toTimeStr);
 }
