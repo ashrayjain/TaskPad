@@ -787,12 +787,19 @@ void MainWindow::setListItemDelegate(Task &task, int index){
 
 void MainWindow::setDetailsViewEmpty(){
 	ui.name->setText(EMPTY);
+	ui.name->setToolTip(EMPTY);
 	ui.dueOrFromTo->setText(EMPTY);
+	ui.dueOrFromTo->setToolTip(EMPTY);
 	ui.location->setText(EMPTY);
+	ui.location->setToolTip(EMPTY);
 	ui.participants->setText(EMPTY);
+	ui.participants->setToolTip(EMPTY);
 	ui.tags->setText(EMPTY);
+	ui.tags->setToolTip(EMPTY);
 	ui.remindTime->setText(EMPTY);
+	ui.remindTime->setToolTip(EMPTY);
 	ui.note->setPlainText(EMPTY);
+	ui.note->setToolTip(EMPTY);
 }
 
 //************************************
@@ -825,6 +832,10 @@ void MainWindow::setNameLabel(Task &task){
 		nameFont.setStrikeOut(true);
 	}
 	ui.name->setFont(nameFont);
+	if(ui.name->text().length() < 77)
+		ui.name->setToolTip(ui.name->text());
+	else
+		ui.name->setToolTip(ui.name->text().left(77) + "...");
 }
 
 void MainWindow::setPriorityLabel(Task &task){
@@ -888,13 +899,21 @@ void MainWindow::setDueOrFromToLabel(Task &task){
 		setFloatingLabel();
 		break;
 	}
+	ui.dueOrFromTo->setToolTip(ui.dueOrFromTo->text());
 }
 
 void MainWindow::setLocationLabel(Task &task){
-	if(task.getFlagLocation())
+	if(task.getFlagLocation()){
 		ui.location->setText(("@" + task.getLocation()).c_str());
-	else
+		if(ui.location->text().length() < 77)
+			ui.location->setToolTip(ui.location->text());
+		else
+			ui.location->setToolTip(ui.location->text().left(77) + "...");
+	}
+	else{
 		ui.location->setText(EMPTY);
+		ui.location->setToolTip(EMPTY);
+	}
 }
 
 void MainWindow::setParticipantsLabel(Task &task){
@@ -910,9 +929,15 @@ void MainWindow::setParticipantsLabel(Task &task){
 				participants += iter->c_str();
 		}
 		ui.participants->setText(participants);
+		if(ui.participants->text().length() < 77)
+			ui.participants->setToolTip(ui.participants->text());
+		else
+			ui.participants->setToolTip(ui.participants->text().left(77) + "...");
 	}
-	else
+	else{
 		ui.participants->setText(EMPTY);
+		ui.participants->setToolTip(EMPTY);
+	}
 }
 
 void MainWindow::setTagsLabel(Task &task){
@@ -930,9 +955,15 @@ void MainWindow::setTagsLabel(Task &task){
 				tags += iter->c_str();
 		}
 		ui.tags->setText(tags);
+		if(ui.tags->text().length() < 77)
+			ui.tags->setToolTip(ui.tags->text());
+		else
+			ui.tags->setToolTip(ui.tags->text().left(77) + "...");
 	}
-	else
+	else{
 		ui.tags->setText(EMPTY);
+		ui.tags->setToolTip(EMPTY);
+	}
 }
 
 void MainWindow::setRemindTimesLabel(Task &task){
@@ -948,17 +979,29 @@ void MainWindow::setRemindTimesLabel(Task &task){
 				remindTimes += QDateTime::fromTime_t(*iter).toString("dd/MM/yyyy hh:mm");
 		}
 		ui.remindTime->setText("Remind me : " + remindTimes);
+		if(ui.remindTime->text().length() < 77)
+			ui.remindTime->setToolTip(ui.remindTime->text());
+		else
+			ui.remindTime->setToolTip(ui.remindTime->text().left(77) + "...");
 	}
-	else
+	else{
 		ui.remindTime->setText(EMPTY);
+		ui.remindTime->setToolTip(EMPTY);
+	}
 }
 
 void MainWindow::setNoteLabel(Task &task){
 	if(task.getFlagNote()){
 		ui.note->setPlainText(task.getNote().c_str());
+		if(ui.note->toPlainText().length() < 77)
+			ui.note->setToolTip(ui.note->toPlainText());
+		else
+			ui.note->setToolTip(ui.note->toPlainText().left(77) + "...");
 	}
-	else
+	else{
 		ui.note->setPlainText(EMPTY);
+		ui.note->setToolTip(EMPTY);
+	}
 }
 
 /************************************************************************/
