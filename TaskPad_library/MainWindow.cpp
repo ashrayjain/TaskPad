@@ -326,6 +326,7 @@ void MainWindow::getInbox(){
 void MainWindow::reset(){
 	scheduler->resetStatus();
 	ui.cmdBar->clear();
+	isIntermediateStage = false;
 }
 
 void MainWindow::handleDateNavigation(TP::PERIOD_TYPE periodType, QString listTitle, bool isPrevious){
@@ -417,6 +418,8 @@ std::string MainWindow::getFindRtCmd(){
 }
 
 void MainWindow::handleMessenger(Messenger msg){
+	if(ui.Navigation_taskList->text() != "Select a task by typing its index")
+		navTitleOfLastTime = ui.Navigation_taskList->text();
 	switch (msg.getStatus()){
 	case ERROR:
 		handleMsg_ERROR(msg);
@@ -444,9 +447,16 @@ void MainWindow::handleListSelection(){
 	if(!list.isEmpty()){
 		QTreeWidgetItem* item = ui.TaskList->selectedItems().front();
 		int index = ui.TaskList->indexOfTopLevelItem(item) + 1;
-		QString indexStr = QString::number(index);
-		Messenger msg = scheduler->processCommand(indexStr.toStdString());
-		handleDisplay(msg, true);
+		if(!isIntermediateStage){
+			QString indexStr = QString::number(index);
+			Messenger msg = scheduler->processCommand(indexStr.toStdString());
+			handleDisplay(msg, true);
+		}
+		else{
+			std::list<Task>::iterator iter = intermediateList.begin();
+			advance(iter, index - 1);
+			updateDetails(*iter);
+		}
 	}
 }
 
@@ -534,6 +544,8 @@ void MainWindow::handleMsg_SUCCESS(Messenger &msg){
 
 void MainWindow::handleMsg_INTERMEDIATE(Messenger msg){
 	updateMainView(msg, "Select a task by typing its index", "Intermediate stage...");
+	isIntermediateStage = true;
+	intermediateList = msg.getList();
 }
 
 void MainWindow::handleMsg_SUCCESS_INDEXED_CMD(Messenger &msg){
@@ -626,6 +638,7 @@ void MainWindow::updateDetailsView(Messenger &msg, QString label /*= "Task's Det
 }
 
 void MainWindow::updateForCmdExec(QString statusBarTxt, QString DetailsLabel, Messenger msg){
+	updateNavLabel(navTitleOfLastTime);
 	updateStatusBar(statusBarTxt);
 	updateDetailsView(msg, DetailsLabel);
 	refresh();
