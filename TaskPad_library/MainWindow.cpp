@@ -513,7 +513,7 @@ void MainWindow::handleMsg_ERROR(Messenger &msg){
 
 void MainWindow::handleMsg_ERROR_INTERMEDIATE(){
 	updateNavLabel("Select a task by typing its index");
-	updateStatusBar("Wrong input. Press ECS to cancel");
+	updateStatusBar("Wrong input. Kindly press ECS to cancel");
 }
 
 void MainWindow::handleMsg_SUCCESS(Messenger &msg){
