@@ -109,6 +109,7 @@ private:
 	QString       getToDateStr                 (Task &task, QString toTimeStr);
 	QString       getFromTimeStr               (Task &task, QString fromTimeStr);
 	QStringList   extractDueDate               (Task &task, QStringList strList, int index);
+	QString       getDueDateStr                (QDateTime &time, QString dueTimeStr);
 	void          setNormalDelegate            (int index);
 	void          setNormalDoneDelegate        (int index);
 	void          setHighPriorityDelegate      (int index);

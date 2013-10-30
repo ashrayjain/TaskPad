@@ -684,21 +684,54 @@ QStringList MainWindow::extractTimedDate(Task &task, QStringList strList, int in
 
 QString MainWindow::getFromTimeStr(Task &task, QString fromTimeStr){
 	QDateTime fromTime = QDateTime::fromTime_t(task.getFromDate());
-	fromTimeStr = "From " + fromTime.toString("dd/MM/yyyy");	return fromTimeStr;
+	fromTimeStr = "From ";
+	if(ui.Navigation_taskList->text() == "Today" && 
+		fromTime.toString("dd/MM/yy") == QDateTime::currentDateTime().toString("dd/MM/yy")){
+		fromTimeStr += fromTime.toString("hh:mm");
+	}
+	else{
+		fromTimeStr += fromTime.toString("dd/MM/yyyy");
+	}
+	return fromTimeStr;
 }
 
 QString MainWindow::getToDateStr(Task &task, QString toTimeStr){
 	QDateTime toTime = QDateTime::fromTime_t(task.getToDate());
-	if(task.getFlagFromDate())
-		toTimeStr = " to " + toTime.toString("dd/MM/yyyy");
-	else
-		toTimeStr = "To " + toTime.toString("dd/MM/yyyy");	return toTimeStr;
+	if(ui.Navigation_taskList->text() == "Today" && 
+		toTime.toString("dd/MM/yy") == QDateTime::currentDateTime().toString("dd/MM/yy")){
+		if(task.getFlagFromDate())
+			toTimeStr = " to " + toTime.toString("hh:mm");
+		else
+			toTimeStr = "To " + toTime.toString("hh:mm");
+	}
+	else{
+		if(task.getFlagFromDate())
+			toTimeStr = " to " + toTime.toString("dd/MM/yyyy");
+		else
+			toTimeStr = "To " + toTime.toString("dd/MM/yyyy");
+	}
+	return toTimeStr;
+}
+
+QString MainWindow::getDueDateStr( QDateTime &time, QString dueTimeStr ){
+	if(ui.Navigation_taskList->text() == "Today"){
+		if(time.toString("hh:mm") != "00:00")
+			dueTimeStr = time.toString("hh:mm");
+		else
+			dueTimeStr = "today";
+	}
+	else{
+		dueTimeStr = time.toString("dd/MM/yyyy");
+	}
+	return dueTimeStr;
 }
 
 QStringList MainWindow::extractDueDate(Task &task, QStringList strList, int index){
+	QString dueTimeStr;
 	QDateTime time = QDateTime::fromTime_t(task.getDueDate());
+	dueTimeStr = getDueDateStr(time, dueTimeStr);
 	strList = QStringList() << QString::number(index) << task.getName().c_str() << \
-		"Due " + time.toString("dd/MM/yyyy");
+		"Due " + dueTimeStr;
 	return strList;
 }
 
