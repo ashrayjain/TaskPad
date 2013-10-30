@@ -109,6 +109,7 @@ private:
 	QString       getToDateStr                 (Task &task, QString toTimeStr);
 	QString       getFromTimeStr               (Task &task, QString fromTimeStr);
 	QStringList   extractDueDate               (Task &task, QStringList strList, int index);
+	QString       getDueDateStr                (QDateTime &time, QString dueTimeStr);
 	void          setNormalDelegate            (int index);
 	void          setNormalDoneDelegate        (int index);
 	void          setHighPriorityDelegate      (int index);
@@ -118,6 +119,7 @@ private:
 	void          handleOneItemList            (Messenger &msg, QString detailsLabel = DEFAULT_DETAILS_VIEW_TEXT);
 	void          updateDetailsLabel           (QString str = DEFAULT_DETAILS_VIEW_TEXT);
 	void          clearDetails                 ();
+	void          clearStrikeOut               ();
 	void          setDetailsViewEmpty          ();
 	void          setDetailsViewOpacity40      ();
 	void          setDetailsViewOpacity100     ();
