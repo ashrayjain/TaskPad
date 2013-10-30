@@ -14,6 +14,7 @@
  */
 
 #include "MainWindow.h"
+#include <QPropertyAnimation>
 #include <QMouseEvent>
 #include <QMessageBox>
 #include <QTextBlock>
@@ -70,6 +71,7 @@ void MainWindow::setupUI(){
 // column width
 //************************************
 void MainWindow::customisedUi(){
+	detailsViewOpacity = 0.4;
 	this->setWindowFlags(Qt::FramelessWindowHint);
 	this->setAttribute(Qt::WA_TranslucentBackground, true);
 	ui.TaskList->header()->resizeSection(0, 70);
@@ -116,6 +118,7 @@ void MainWindow::setupConnection(){
 	connect(ui.MinimizeButton, SIGNAL(clicked()), this, SLOT(showMinimized()));
 	connect(ui.AboutButton, SIGNAL(clicked()), this, SLOT(about()));
 	connect(ui.HelpButton, SIGNAL(clicked()), this, SLOT(help()));
+	connect(ui.TaskList, SIGNAL(itemSelectionChanged()), this, SLOT(handleListSelection()));
 }
 
 void MainWindow::setupHotkeys(){
@@ -323,6 +326,7 @@ void MainWindow::getInbox(){
 void MainWindow::reset(){
 	scheduler->resetStatus();
 	ui.cmdBar->clear();
+	isIntermediateStage = false;
 }
 
 void MainWindow::handleDateNavigation(TP::PERIOD_TYPE periodType, QString listTitle, bool isPrevious){
@@ -331,10 +335,12 @@ void MainWindow::handleDateNavigation(TP::PERIOD_TYPE periodType, QString listTi
 		msg = scheduler->getPrevPeriodTasks(periodType);
 	else
 		msg = scheduler->getNextPeriodTasks(periodType);
-	pair<tm, tm> period = scheduler->getCurrentPeriod();
-	listTitle += getTimePeriodStr(period);
-	updateMainView(msg, listTitle);
-	handleOneItemList(msg);
+	if(msg.getStatus() == SUCCESS){
+		pair<tm, tm> period = scheduler->getCurrentPeriod();
+		listTitle += getTimePeriodStr(period);
+		updateMainView(msg, listTitle);
+		handleOneItemList(msg);
+	}
 }
 
 //************************************
@@ -436,12 +442,46 @@ void MainWindow::handleMessenger(Messenger msg){
 	}
 }
 
-void MainWindow::handleDisplay(Messenger msg){
+void MainWindow::handleListSelection(){
+	QList<QTreeWidgetItem*> list = ui.TaskList->selectedItems();
+	if(!list.isEmpty()){
+		QTreeWidgetItem* item = ui.TaskList->selectedItems().front();
+		int index = ui.TaskList->indexOfTopLevelItem(item) + 1;
+		if(!isIntermediateStage){
+			QString indexStr = QString::number(index);
+			Messenger msg = scheduler->processCommand(indexStr.toStdString());
+			handleDisplay(msg, true);
+		}
+		else{
+			std::list<Task>::iterator iter = intermediateList.begin();
+			advance(iter, index - 1);
+			updateDetails(*iter);
+		}
+	}
+}
+
+void MainWindow::unselectAllItems(){
+	for(int i = 0; i < ui.TaskList->topLevelItemCount(); i++){
+		QTreeWidgetItem* itemToUnselect = ui.TaskList->topLevelItem(i);
+		ui.TaskList->setItemSelected(itemToUnselect, false);
+	}
+}
+
+void MainWindow::selectItemAt( int index ){
+	QTreeWidgetItem* itemToShow = ui.TaskList->topLevelItem(index - 1);
+	ui.TaskList->setItemSelected(itemToShow, true);
+}
+
+void MainWindow::handleDisplay(Messenger msg, bool callFromSignal){
 	int index = msg.getIndex();
 	assert(index > 0);
 	list<Task> tmp_list = msg.getList();
 	list<Task>::iterator iter = tmp_list.begin();
 	advance(iter, index - 1);
+	if(!callFromSignal){
+		unselectAllItems();
+		selectItemAt(index);
+	}
 	updateStatusBar(SUCCESS_STATUS_BAR_DISPLAY_TEXT);
 	updateDetailsLabel();
 	updateDetails(*iter);
@@ -475,7 +515,7 @@ void MainWindow::handleMsg_ERROR(Messenger &msg){
 
 void MainWindow::handleMsg_ERROR_INTERMEDIATE(){
 	updateNavLabel("Select a task by typing its index");
-	updateStatusBar("Wrong input. Press ECS to cancel");
+	updateStatusBar("Wrong input. Kindly press ECS to cancel");
 }
 
 void MainWindow::handleMsg_SUCCESS(Messenger &msg){
@@ -503,7 +543,9 @@ void MainWindow::handleMsg_SUCCESS(Messenger &msg){
 }
 
 void MainWindow::handleMsg_INTERMEDIATE(Messenger msg){
-	updateMainView(msg, "Select a task by typing its index", "Intermediate stage...");
+	updateMainView(msg, "Select a task by typing its index", "Multiple results were found");
+	isIntermediateStage = true;
+	intermediateList = msg.getList();
 }
 
 void MainWindow::handleMsg_SUCCESS_INDEXED_CMD(Messenger &msg){
@@ -541,6 +583,8 @@ void MainWindow::handleOneItemList(Messenger &msg, QString detailsLabel /*= "Tas
 /************************************************************************/
 
 void MainWindow::updateNavLabel(QString str){
+	if(str != "Select a task by typing its index")
+		navTitleOfLastTime = str;
 	ui.Navigation_taskList->setText(str);
 }
 
@@ -596,6 +640,7 @@ void MainWindow::updateDetailsView(Messenger &msg, QString label /*= "Task's Det
 }
 
 void MainWindow::updateForCmdExec(QString statusBarTxt, QString DetailsLabel, Messenger msg){
+	updateNavLabel(navTitleOfLastTime);
 	updateStatusBar(statusBarTxt);
 	updateDetailsView(msg, DetailsLabel);
 	refresh();
@@ -714,13 +759,20 @@ void MainWindow::setDetailsViewEmpty(){
 //    SETTERS FOR DETAILS (BELOW)
 //************************************
 void MainWindow::setDetailsViewOpacity40(){
-	QGraphicsOpacityEffect* opacity = new QGraphicsOpacityEffect(this);
-	opacity->setOpacity(qreal(40)/100);
-	ui.DetailsView->setGraphicsEffect(opacity);
+	QGraphicsOpacityEffect* opacityEffect = new QGraphicsOpacityEffect(this);
+	opacityEffect->setOpacity(detailsViewOpacity);
+	ui.DetailsView->setGraphicsEffect(opacityEffect);
+	QPropertyAnimation *animation = new QPropertyAnimation(opacityEffect, "opacity");
+	animation->setDuration(330);
+	animation->setStartValue(detailsViewOpacity);
+	animation->setEndValue(0.4);
+	animation->start(QAbstractAnimation::DeleteWhenStopped);
+	detailsViewOpacity = 0.4;
 }
 
 void MainWindow::setDetailsViewOpacity100(){
 	ui.DetailsView->setGraphicsEffect(NULL);
+	detailsViewOpacity = 1.0;
 }
 
 void MainWindow::setNameLabel(Task &task){
@@ -768,14 +820,14 @@ void MainWindow::setTimedLabel(Task &task){
 	QString fromTimeStr, toTimeStr;
 	if(task.getFlagFromDate()){
 		QDateTime fromTime = QDateTime::fromTime_t(task.getFromDate());
-		fromTimeStr = "From " + fromTime.toString("dd/MM/yyyy  hh:mm");
+		fromTimeStr = "From  " + fromTime.toString("dd/MM/yyyy  hh:mm");
 	}
 	if(task.getFlagToDate()){
 		QDateTime toTime = QDateTime::fromTime_t(task.getToDate());
 		if(task.getFlagFromDate())
-			toTimeStr = " to " + toTime.toString("dd/MM/yyyy  hh:mm");//TODO
+			toTimeStr = "  to  " + toTime.toString("dd/MM/yyyy  hh:mm");//TODO
 		else
-			toTimeStr = "To " + toTime.toString("dd/MM/yyyy  hh:mm");
+			toTimeStr = "To  " + toTime.toString("dd/MM/yyyy  hh:mm");
 	}
 	ui.dueOrFromTo->setText(fromTimeStr + toTimeStr);
 }
@@ -858,7 +910,7 @@ void MainWindow::setRemindTimesLabel(Task &task){
 		ui.remindTime->setText("Remind me : " + remindTimes);
 	}
 	else
-		ui.remindTime->setText("Remind me : none");
+		ui.remindTime->setText(EMPTY);
 }
 
 void MainWindow::setNoteLabel(Task &task){

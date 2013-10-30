@@ -70,7 +70,8 @@ void Manager::resetStatus() {
 	this->_currentPeriod = pair<tm,tm>();
 	this->_response.resetMessenger();
 	std::tm todayTm = getTodayTm();
-	this->setCurrPeriod(todayTm,todayTm);
+	std::tm nextDayTm = getNextDayTm(todayTm);
+	this->setCurrPeriod(todayTm,nextDayTm);
 }
 
 Manager::~Manager() {
@@ -434,8 +435,6 @@ Messenger Manager::getTodayTasks() {
 
 	std::string today = this->getStrFromTm(todayTm);
 	std::string end_of_today = endOfTodayCharArray;
-
-	this->setCurrPeriod(todayTm,todayTm);
 
 	return this->processCommand("find from "+ today + " to "+ end_of_today + " undone");
 	//return this->processCommand("find undone");

@@ -44,7 +44,9 @@ void ListItemDelegate::paintHighPrioBar( QPainter * painter, QStyleOptionViewIte
 void ListItemDelegate::setupPainting( const QStyleOptionViewItem & option, const QModelIndex & index, QPainter * painter ) const{
 	_opt = option;
 	initStyleOption(&_opt, index);
-	QStyledItemDelegate::paint(painter, option, index);
+	if (_opt.state & QStyle::State_HasFocus)
+		_opt.state = _opt.state ^ QStyle::State_HasFocus;
+	QStyledItemDelegate::paint(painter, _opt, index);
 }
 
 void ListItemDelegate::paint( QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index ) const{
