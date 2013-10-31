@@ -22,27 +22,23 @@
 #include "Task.h"
 #include "Command.h"
 #include "Messenger.h"
+#include "Database_List.h"
 
-/*
- *=======================
- 
-	Database Base class
- 
- *=======================
- */
-
-class Database
-{
+class Database_Restricted {
 public:
-	Database	()	{ rebuildHashes(); }
-	~Database	()	{ clearRedoStack(); clearUndoStack(); }
+	Database_Restricted()					{ _db = new Database_List();	}
+	~Database_Restricted()					{ delete _db; _db = NULL;		}
+	std::list<Task> getAllTasks()			{ return _db->getAllTasks();	}
+	void			addTask(Task newTask);
 
 protected:
+
 	std::unordered_map<unsigned long long, Task*>		_indexHash;
 	std::unordered_map<std::string, std::list<Task*>>	_hashTagsHash;
 	std::unordered_map<std::time_t, std::list<Task*>>	_remindTimesHash;
 	std::stack<std::pair<Command*, Task>>				_undoStack;
 	std::stack<std::pair<Command*, Task>>				_redoStack;
+	Database_Base* _db;
 
 	void	rebuildHashes();
 	void	rebuildIndexHash();
@@ -59,6 +55,28 @@ protected:
 	void	setIndexNotFound			(const unsigned long long &index, Messenger &response);
 	void	setNameNotFound				(const string &name, Messenger &response);
 	void	setErrorWithErrMsg			(Messenger &response, const string errMsg);
+
+};
+
+/*
+ =========================
+ 
+	Database Base class
+ 
+ =========================
+ */
+
+class Database: public Database_Restricted
+{
+public:
+	Database() { _db = new Database_List(); }
+	~Database() { delete _db; _db = NULL; }
+
+	void					deleteTask(Database_Base::iterator i)		{ _db->deleteTask(i);	}
+	Database_Base::iterator	begin()										{ return _db->begin();	}
+	Database_Base::iterator	end()										{ return _db->end();	}
+	Task&					front()										{ return _db->front();	}
+	Task&					back()										{ return _db->back();	}
 };
 
 #endif
