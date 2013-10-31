@@ -25,6 +25,7 @@ const std::string	Executor::REDOSTACK_EMPTY_MSG		= "Nothing to Redo!";
 const std::string   Executor::MODIFY_SAME_NAME_ERROR	= "New name is the same as the Existing name!";
 const std::string   Executor::INVALID_FROMDATE_ERROR	= "Invalid 'From' Attribute!";
 const std::string   Executor::INVALID_TODATE_ERROR		= "Invalid 'To' Attribute!";
+const std::string   Executor::INVALID_FROMDATE_TODATE_ERROR		= "Invalid 'From' and 'To' Attributes!";
 
 void Executor::rebuildHashes() {
 	rebuildIndexHash();
@@ -115,13 +116,23 @@ void Executor::executeCommandWithoutUndoRedo(Command* cmd, Messenger &response) 
 // Add functions
 
 void Executor::executeAdd (Command_Add* cmd, Messenger &response) {
-	Task newTask = Task(cmd->getName());
-	formTaskFromAddCmd(cmd, newTask);
-	_data->push_back(newTask);
-	_indexHash[newTask.getIndex()] = &(_data->back());
-	handleHashTagPtrs(_data->back(), _data->back().getTags());
-	handleRemindTimesPtrs(_data->back(), _data->back().getRemindTimes());
-	setOpSuccessTask(newTask, response);
+	if(validAddCmd(cmd, response)) {
+		Task newTask = Task(cmd->getName());
+		formTaskFromAddCmd(cmd, newTask);
+		_data->push_back(newTask);
+		_indexHash[newTask.getIndex()] = &(_data->back());
+		handleHashTagPtrs(_data->back(), _data->back().getTags());
+		handleRemindTimesPtrs(_data->back(), _data->back().getRemindTimes());
+		setOpSuccessTask(newTask, response);
+	}
+}
+
+bool Executor::validAddCmd(Command_Add* cmd, Messenger &response) {
+	if (cmd->getFlagFrom() && cmd->getFlagTo() && cmd->getFromDate() > cmd->getToDate()) {
+		setErrorWithErrMsg(response, INVALID_FROMDATE_TODATE_ERROR);
+		return false;
+	}
+	return true;
 }
 
 void Executor::formTaskFromAddCmd(Command_Add* cmd, Task &newTask) {
@@ -392,6 +403,10 @@ bool Executor::isModCmdValid(Command_Mod* cmd, const Task& task, Messenger &resp
 			setErrorWithErrMsg(response, INVALID_TODATE_ERROR);
 			return false;
 		}
+	}
+	else if(cmd->getFromDate() > cmd->getToDate()) {
+		setErrorWithErrMsg(response, INVALID_FROMDATE_TODATE_ERROR);
+		return false;
 	}
 	return true;
 }
