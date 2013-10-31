@@ -49,6 +49,22 @@ public:
     Task(unsigned long long indexToPut)	{ defaultTaskInit(indexToPut); }
 	~Task()								{ listOfAllIndices.erase(_taskIndex); }
 
+	// Default Attributes Values
+	static const unsigned long long						DEFAULT_INDEX;
+	static const std::string							DEFAULT_NAME;
+	static const std::string							DEFAULT_LOCATION;
+	static const std::string							DEFAULT_NOTE;
+	static const TP::PRIORITY							DEFAULT_PRIORITY;
+	static const std::list<std::string>					DEFAULT_PARTICIPANTS;
+	static const std::list<std::string>					DEFAULT_TAGS;
+	static const std::list<std::list<Task*>::iterator>	DEFAULT_HASHTAG_PTRS;
+	static const std::list<std::time_t>					DEFAULT_REMINDTIMES;
+	static const std::list<std::list<Task*>::iterator>	DEFAULT_REMINDTIMES_PTRS;
+	static const std::time_t							DEFAULT_FROMDATE;
+	static const std::time_t							DEFAULT_TODATE;
+	static const TP::TASK_STATE							DEFAULT_STATE;	
+	static const TP::TASK_TYPE							DEFAULT_TYPE;
+
     // Getter Functions common to all Tasks
     TP::TASK_TYPE			getTaskType()		const { return _taskType;			}
     std::string				getName()			const { return _taskName;			}		
@@ -106,22 +122,6 @@ protected:
 	// Task Class Constants
 	static const std::string							INDEX_INVALID_ERROR;
 	
-	// Default Attributes Values
-	static const unsigned long long						DEFAULT_INDEX;
-	static const std::string							DEFAULT_NAME;
-	static const std::string							DEFAULT_LOCATION;
-	static const std::string							DEFAULT_NOTE;
-	static const TP::PRIORITY							DEFAULT_PRIORITY;
-	static const std::list<std::string>					DEFAULT_PARTICIPANTS;
-	static const std::list<std::string>					DEFAULT_TAGS;
-	static const std::list<std::list<Task*>::iterator>	DEFAULT_HASHTAG_PTRS;
-	static const std::list<std::time_t>					DEFAULT_REMINDTIMES;
-	static const std::list<std::list<Task*>::iterator>	DEFAULT_REMINDTIMES_PTRS;
-	static const std::time_t							DEFAULT_FROMDATE;
-	static const std::time_t							DEFAULT_TODATE;
-	static const TP::TASK_STATE							DEFAULT_STATE;	
-	static const TP::TASK_TYPE							DEFAULT_TYPE;
-
     // Set of All currently used indices
     static std::set<unsigned long long> listOfAllIndices;
 
