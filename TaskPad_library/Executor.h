@@ -51,6 +51,7 @@ protected:
 	static const std::string	MODIFY_SAME_NAME_ERROR;
 	static const std::string	INVALID_FROMDATE_ERROR;
 	static const std::string	INVALID_TODATE_ERROR;
+	static const std::string	INVALID_FROMDATE_TODATE_ERROR;
 
 	void	rebuildHashes();
 	void	rebuildIndexHash();
@@ -61,6 +62,7 @@ protected:
 
 	// Functions for ADD COMMAND
 	void executeAdd					(Command_Add* cmd,  Messenger &response);
+	bool validAddCmd				(Command_Add* cmd, Messenger &response);
 	void formTaskFromAddCmd			(Command_Add* cmd, Task &newTask);
 	void handleHashTagPtrs			(Task &newTask, const list<string> &hashTagsList);
 	void handleExistingHashTag		(list<list<Task*>::iterator> &newHashTagPtrs, Task &newTask, list<Task*> &hashTag);
