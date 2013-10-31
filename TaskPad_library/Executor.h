@@ -37,7 +37,6 @@ protected:
 	std::unordered_map<unsigned long long, Task*>		_indexHash;
 	std::unordered_map<std::string, std::list<Task*>>	_hashTagsHash;
 	std::unordered_map<std::time_t, std::list<Task*>>	_remindTimesHash;
-	//std::priority_queue<std::pair<time_t, Task*>>		_remindTimesPQueue;
 	std::stack<std::pair<Command*, Task>>				_undoStack;
 	std::stack<std::pair<Command*, Task>>				_redoStack;
 	Task												_interimTask;
@@ -63,12 +62,12 @@ protected:
 	// Functions for ADD COMMAND
 	void executeAdd					(Command_Add* cmd,  Messenger &response);
 	void formTaskFromAddCmd			(Command_Add* cmd, Task &newTask);
-	void handleHashTagPtrs			(Task &newTask, list<string> &hashTagsList);
+	void handleHashTagPtrs			(Task &newTask, const list<string> &hashTagsList);
 	void handleExistingHashTag		(list<list<Task*>::iterator> &newHashTagPtrs, Task &newTask, list<Task*> &hashTag);
-	void handleNewHashTag			(list<list<Task*>::iterator> &newHashTagPtrs, Task &newTask, list<string>::iterator &hashTag);
-	void handleRemindTimesPtrs		(Task &newTask, list<time_t> &remindTimesList);
+	void handleNewHashTag			(list<list<Task*>::iterator> &newHashTagPtrs, Task &newTask, list<string>::const_iterator &hashTag);
+	void handleRemindTimesPtrs		(Task &newTask, const list<time_t> &remindTimesList);
 	void handleExistingRemindTime	(list<list<Task*>::iterator> &newRemindTimesPtrs, Task &newTask, list<Task*> &remindTime);
-	void handleNewRemindTime		(list<list<Task*>::iterator> &newRemindTimesPtrs, Task &newTask, list<time_t>::iterator &remindTime);
+	void handleNewRemindTime		(list<list<Task*>::iterator> &newRemindTimesPtrs, Task &newTask, list<time_t>::const_iterator &remindTime);
 
 	// Functions for DELETE COMMAND
 	void executeDel					(Command_Del* cmd,  Messenger &response);
@@ -81,15 +80,18 @@ protected:
 	void deleteRemindTimes			(Task &task);
 
 	// Functions for MODIFY COMMAND
-	void executeMod					(Command_Mod* cmd,  Messenger &response);
-	void modifyByIndex				(Command_Mod* cmd, Messenger &response);
-	void modifyByName				(Command_Mod* cmd, Messenger &response);
-	void modifyByExactName			(Command_Mod* cmd, Messenger &response);
-	void modifyByApproxName			(Command_Mod* cmd, Messenger &response);
-	void modifyTaskTo				(Task &oldTask, Command_Mod* cmd);
-	bool isModCmdValid				(Command_Mod* cmd, const Task& task, Messenger &response);
-	void handleHashTagsModify		(Task &oldTask, list<string> &newTags);
-	void handleRemindTimesModify	(Task &oldTask, list<time_t> &newRemindTimes);
+	void			executeMod					(Command_Mod* cmd,  Messenger &response);
+	void			modifyByIndex				(Command_Mod* cmd, Messenger &response);
+	void			modifyByName				(Command_Mod* cmd, Messenger &response);
+	void			modifyByExactName			(Command_Mod* cmd, Messenger &response);
+	void			modifyByApproxName			(Command_Mod* cmd, Messenger &response);
+	void			modifyTaskTo				(Task &oldTask, Command_Mod* cmd);
+	bool			isModCmdValid				(Command_Mod* cmd, const Task& task, Messenger &response);
+	void			handleHashTagsModify		(Task &oldTask, const list<string> &newTags);
+	void			handleRemindTimesModify		(Task &oldTask, const list<time_t> &newRemindTimes);
+	void			handleAddRemoveParticipants	(Task &task, list<string> &participants, TP::LIST_OP op);
+	void			handleAddRemoveRemindTimes	(Task &task, list<time_t> &remindTimes, TP::LIST_OP op);
+	list<string>	getTagsListDifference		(const list<string> &taskTags, const list<string> &tagsToRemove) const;
 
 	// Functions for FIND COMMAND
 	void executeFind				(Command_Find* cmd, Messenger &response);

@@ -145,9 +145,9 @@ void Executor::formTaskFromAddCmd(Command_Add* cmd, Task &newTask) {
 		newTask.setTags(cmd->getTags());
 }
 
-void Executor::handleHashTagPtrs(Task &newTask, list<string> &hashTagsList) {
+void Executor::handleHashTagPtrs(Task &newTask, const list<string> &hashTagsList) {
 	list<list<Task*>::iterator> newHashTagPtrs;
-	for (list<string>::iterator i = hashTagsList.begin(); i != hashTagsList.end(); i++) {
+	for (list<string>::const_iterator i = hashTagsList.begin(); i != hashTagsList.end(); i++) {
 		std::unordered_map<std::string, list<Task*>>::iterator foundHashTag = _hashTagsHash.find(*i);
 		if (foundHashTag != _hashTagsHash.end())
 			handleExistingHashTag(newHashTagPtrs, newTask, foundHashTag->second);
@@ -162,14 +162,14 @@ void Executor::handleExistingHashTag(list<list<Task*>::iterator> &newHashTagPtrs
 	newHashTagPtrs.push_back(--hashTag.end());
 }
 
-void Executor::handleNewHashTag(list<list<Task*>::iterator> &newHashTagPtrs, Task &newTask, list<string>::iterator &hashTag) {
+void Executor::handleNewHashTag(list<list<Task*>::iterator> &newHashTagPtrs, Task &newTask, list<string>::const_iterator &hashTag) {
 	_hashTagsHash[*hashTag] = list<Task*>(1, &newTask);
 	newHashTagPtrs.push_back(--(_hashTagsHash[*hashTag].end()));
 }
 
-void Executor::handleRemindTimesPtrs(Task &newTask, list<time_t> &remindTimesList) {
+void Executor::handleRemindTimesPtrs(Task &newTask, const list<time_t> &remindTimesList) {
 	list<list<Task*>::iterator> newRemindTimesPtrs;
-	for (list<time_t>::iterator i = remindTimesList.begin(); i != remindTimesList.end(); i++) {
+	for (list<time_t>::const_iterator i = remindTimesList.begin(); i != remindTimesList.end(); i++) {
 		std::unordered_map<std::time_t, list<Task*>>::iterator foundRemindTime = _remindTimesHash.find(*i);
 		if (foundRemindTime != _remindTimesHash.end())
 			handleExistingRemindTime(newRemindTimesPtrs, newTask, foundRemindTime->second);
@@ -184,7 +184,7 @@ void Executor::handleExistingRemindTime(list<list<Task*>::iterator> &newRemindTi
 	newRemindTimesPtrs.push_back(--remindTime.end());
 }
 
-void Executor::handleNewRemindTime(list<list<Task*>::iterator> &newRemindTimesPtrs, Task &newTask, list<time_t>::iterator &remindTime) {
+void Executor::handleNewRemindTime(list<list<Task*>::iterator> &newRemindTimesPtrs, Task &newTask, list<time_t>::const_iterator &remindTime) {
 	_remindTimesHash[*remindTime] = list<Task*>(1, &newTask);
 	newRemindTimesPtrs.push_back(--(_remindTimesHash[*remindTime].end()));
 }
@@ -340,10 +340,26 @@ void Executor::modifyTaskTo(Task &oldTask, Command_Mod* cmd) {
 		oldTask.setNote(cmd->getNote());
 	if(cmd->getFlagParticipants())
 		oldTask.setParticipants(cmd->getParticipants());
+	if(cmd->getFlagAddParticipants())
+		handleAddRemoveParticipants(oldTask, cmd->getAddParticipants(), TP::LIST_OP::ADD_ELEMENT);
+	if(cmd->getFlagRemoveParticipants())
+		handleAddRemoveParticipants(oldTask, cmd->getRemoveParticipants(), TP::LIST_OP::REMOVE_ELEMENT);
+	if(cmd->getFlagRemoveAllParticipants())
+		oldTask.setParticipants(Task::DEFAULT_PARTICIPANTS);
 	if(cmd->getFlagTags())
 		handleHashTagsModify(oldTask, cmd->getTags());
+	if(cmd->getFlagRemoveTags())
+		handleHashTagsModify(oldTask, getTagsListDifference(oldTask.getTags(), cmd->getRemoveTags()));
+	if(cmd->getFlagRemoveAllTags())
+		handleHashTagsModify(oldTask, Task::DEFAULT_TAGS);
 	if(cmd->getFlagRemindTimes())
 		handleRemindTimesModify(oldTask, cmd->getRemindTimes());
+	if(cmd->getFlagAddRemindTimes())
+		handleAddRemoveRemindTimes(oldTask, cmd->getAddRemindTimes(), TP::LIST_OP::ADD_ELEMENT);
+	if(cmd->getFlagRemoveRemindTimes())
+		handleAddRemoveRemindTimes(oldTask, cmd->getRemoveRemindTimes(), TP::LIST_OP::REMOVE_ELEMENT);
+	if(cmd->getFlagRemoveAllRemindTimes())
+		handleRemindTimesModify(oldTask, Task::DEFAULT_REMINDTIMES);
 	if(cmd->getFlagPriority())
 		oldTask.setPriority(cmd->getPriority());
 	if(cmd->getFlagFrom())
@@ -354,6 +370,12 @@ void Executor::modifyTaskTo(Task &oldTask, Command_Mod* cmd) {
 		oldTask.setDueDate(cmd->getDueDate());
 	if(cmd->getFlagTaskState())
 		oldTask.setState(cmd->getTaskState());
+	if(cmd->getFlagRemoveDue())
+		oldTask.setDueDate(Task::DEFAULT_FROMDATE);
+	if(cmd->getFlagRemoveFrom())
+		oldTask.setFromDate(Task::DEFAULT_FROMDATE);
+	if(cmd->getFlagRemoveTo())
+		oldTask.setToDate(Task::DEFAULT_TODATE);
 }
 
 bool Executor::isModCmdValid(Command_Mod* cmd, const Task& task, Messenger &response) {
@@ -374,16 +396,36 @@ bool Executor::isModCmdValid(Command_Mod* cmd, const Task& task, Messenger &resp
 	return true;
 }
 
-void Executor::handleHashTagsModify(Task &oldTask, list<string> &newTags) {
+void Executor::handleHashTagsModify(Task &oldTask, const list<string> &newTags) {
 	deleteHashTags(oldTask);
 	oldTask.setTags(newTags);
 	handleHashTagPtrs(oldTask, newTags);
 }
 
-void Executor::handleRemindTimesModify(Task &oldTask, list<time_t> &newRemindTimes) {
+void Executor::handleRemindTimesModify(Task &oldTask, const list<time_t> &newRemindTimes) {
 	deleteRemindTimes(oldTask);
 	oldTask.setRemindTimes(newRemindTimes);
 	handleRemindTimesPtrs(oldTask, newRemindTimes);
+}
+
+void Executor::handleAddRemoveParticipants(Task &task, list<string> &participants, TP::LIST_OP op) {
+	for(list<string>::iterator i = participants.begin(); i != participants.end(); i++)
+		task.setParticipants(*i, op);
+}
+
+void Executor::handleAddRemoveRemindTimes(Task &task, list<time_t> &remindTimes, TP::LIST_OP op) {
+	for(list<time_t>::iterator i = remindTimes.begin(); i != remindTimes.end(); i++)
+		task.setRemindTimes(*i, op);
+	list<time_t> newRemindTimes = task.getRemindTimes();
+	handleRemindTimesModify(task, newRemindTimes);
+}
+
+list<string> Executor::getTagsListDifference(const list<string> &taskTags, const list<string> &tagsToRemove) const {
+	list<string> newTagsList;
+	for(list<string>::const_iterator i = taskTags.begin(); i != taskTags.end(); i++)
+		if(find(tagsToRemove.begin(), tagsToRemove.end(), *i) == tagsToRemove.end())
+			newTagsList.push_back(*i);
+	return newTagsList;
 }
 
 // Find functions
@@ -684,19 +726,27 @@ void Executor::getCmdForSubtractingCmdFromTask(Command_Mod* subtractCmd, Command
 		subtractCmd->setLocation(task.getLocation());
 	if(cmd->getFlagNote())
 		subtractCmd->setNote(task.getNote());
-	if(cmd->getFlagRemindTimes())
+	if(cmd->getFlagRemindTimes() || 
+		cmd->getFlagAddRemindTimes() || 
+		cmd->getFlagRemoveRemindTimes() || 
+		cmd->getFlagRemoveAllRemindTimes())
 		subtractCmd->setRemindTimes(task.getRemindTimes());
-	if(cmd->getFlagParticipants())
+	if(cmd->getFlagParticipants() || 
+		cmd->getFlagAddParticipants() || 
+		cmd->getFlagRemoveParticipants() || 
+		cmd->getFlagRemoveAllParticipants())
 		subtractCmd->setParticipants(task.getParticipants());
-	if(cmd->getFlagTags())
+	if(cmd->getFlagTags() || 
+		cmd->getFlagRemoveTags() || 
+		cmd->getFlagRemoveAllTags())
 		subtractCmd->setTags(task.getTags());
 	if(cmd->getFlagPriority())
 		subtractCmd->setPriority(task.getPriority());
-	if(cmd->getFlagDue())
+	if(cmd->getFlagDue() || cmd->getFlagRemoveDue())
 		subtractCmd->setDueDate(task.getDueDate());
-	if(cmd->getFlagFrom())
+	if(cmd->getFlagFrom() || cmd->getFlagRemoveFrom())
 		subtractCmd->setFromDate(task.getFromDate());
-	if(cmd->getFlagTo())
+	if(cmd->getFlagTo() || cmd->getFlagRemoveTo())
 		subtractCmd->setToDate(task.getToDate());
 	if(cmd->getFlagTaskState())
 		subtractCmd->setTaskState(task.getState());
