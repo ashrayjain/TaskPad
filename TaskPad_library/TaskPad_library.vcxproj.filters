@@ -205,6 +205,12 @@
     <ClInclude Include="Interpreter_base.h">
       <Filter>Header Files\Logic_Related</Filter>
     </ClInclude>
+    <ClInclude Include="Database_List.h">
+      <Filter>Header Files\Commons</Filter>
+    </ClInclude>
+    <ClInclude Include="Database_Base.h">
+      <Filter>Header Files\Commons</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GeneratedFiles\Debug\moc_CommandBar.cpp">
@@ -302,6 +308,9 @@
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Release\moc_MainWindow.cpp">
       <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Database_List.cpp">
+      <Filter>Source Files\Commons</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
