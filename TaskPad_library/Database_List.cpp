@@ -23,26 +23,4 @@ list<Task> Database_List::getAllTasks() {
 	return taskList;
 }
 
-void Database_List::addTask(Task newTask) {
-	_db.push_back(newTask);
-}
 
-void Database_List::deleteTask(iterator i) {
-	_db.erase(i.getIterator());
-}
-
-Database_List::iterator Database_List::begin() {
-	return _db.begin();
-}
-
-Database_List::iterator Database_List::end() {
-	return _db.end();
-}
-
-Task& Database_List::front() {
-	return _db.front();
-}
-
-Task& Database_List::back() {
-	return _db.back();
-}

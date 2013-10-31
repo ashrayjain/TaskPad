@@ -42,8 +42,8 @@ public:
 	};
 
 	std::list<Task>				getAllTasks();
-	void						addTask(Task newTask);
-	void						deleteTask(iterator i);
+	void						addTask(Task newTask)	{ _db.push_back(newTask);		}
+	void						deleteTask(iterator i)	{ _db.erase(i.getIterator());	}
 
 	Database_List::iterator		begin()	{ return _db.begin();	}
 	Database_List::iterator		end()	{ return _db.end();		}
