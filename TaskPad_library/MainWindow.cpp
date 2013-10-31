@@ -780,6 +780,10 @@ void MainWindow::setListItemDelegate(Task &task, int index){
 		setHighPriorityDelegate(index);
 	else if(task.getPriority() == HIGH && task.getState() == DONE)
 		setHighPriorityDoneDelegate(index);
+	else if(task.getPriority() == MEDIUM && task.getState() == UNDONE)
+		ui.TaskList->setItemDelegateForRow(index - 1, new ListItemDelegate(MEDIUM, UNDONE, ui.TaskList));
+	else if(task.getPriority() == MEDIUM && task.getState() == DONE)
+		ui.TaskList->setItemDelegateForRow(index - 1, new ListItemDelegate(MEDIUM, DONE, ui.TaskList));
 	else if(task.getState() == UNDONE)
 		setNormalDelegate(index);
 	else

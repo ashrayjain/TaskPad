@@ -55,6 +55,13 @@ void ListItemDelegate::paint( QPainter *painter, const QStyleOptionViewItem &opt
 	if(index.column() == _1ST_COLUMN && _taskPriority == TP::HIGH){
 		paintHighPrioBar(painter, _opt);
 	}
+	else if(index.column() == _1ST_COLUMN && _taskPriority == TP::MEDIUM){
+		QRect rect = _opt.rect;
+		rect.adjust(-5,0,-52,-2);
+		painter->setPen("#FDEBA3");
+		painter->setBrush(QBrush("#FDEBA3"));
+		painter->drawRect(rect);
+	}
 	else if(index.column() == _2ND_COLUMN && _taskState == TP::DONE){
 		paintStrikeOut(painter, _opt);
 	}
