@@ -155,8 +155,9 @@ std::string Logger::getCurTime()
 {
 	char logTime[40];
 	time_t rawTime = time(0);
-	tm *curTimeTm = localtime(&rawTime);
-	strftime(logTime, 10, "%A %d-%m-%Y, %T",curTimeTm);
+	tm curTimeTm;
+	localtime_s(&curTimeTm,&rawTime);
+	strftime(logTime, 10, "%A %d-%m-%Y, %T",&curTimeTm);
 
 	return logTime;
 }
