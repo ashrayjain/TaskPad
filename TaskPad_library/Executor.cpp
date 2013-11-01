@@ -261,7 +261,6 @@ void Executor::deleteByApproxName(const string &name, Messenger &response) {
 			caseInsensitiveResults.push_back(Task(*i));
 	}
 	selectAppropriateDeleteResponse(matchingResults, caseInsensitiveResults, name, response);
-
 }
 
 void Executor::selectAppropriateDeleteResponse(const list<Task> &matchingResults, const list<Task> &caseInsensitiveResults, const string &name, Messenger &response) {
@@ -397,6 +396,11 @@ void Executor::modifyTaskTo(Task &oldTask, Command_Mod* cmd) {
 		oldTask.setParticipants(Task::DEFAULT_PARTICIPANTS);
 	if(cmd->getFlagTags())
 		handleHashTagsModify(oldTask, cmd->getTags());
+	if(cmd->getFlagAddTags()) {
+		list<string> tags = oldTask.getTags();
+		tags.splice(tags.end(), cmd->getAddTags());
+		handleHashTagsModify(oldTask, tags);
+	}
 	if(cmd->getFlagRemoveTags())
 		handleHashTagsModify(oldTask, getTagsListDifference(oldTask.getTags(), cmd->getRemoveTags()));
 	if(cmd->getFlagRemoveAllTags())
@@ -808,6 +812,7 @@ void Executor::getCmdForSubtractingCmdFromTask(Command_Mod* subtractCmd, Command
 		cmd->getFlagRemoveAllParticipants())
 		subtractCmd->setParticipants(task.getParticipants());
 	if(cmd->getFlagTags() || 
+		cmd->getFlagAddTags() ||
 		cmd->getFlagRemoveTags() || 
 		cmd->getFlagRemoveAllTags())
 		subtractCmd->setTags(task.getTags());
