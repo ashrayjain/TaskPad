@@ -18,6 +18,7 @@ public:
 	~Command_Add()	{};
 	
 	//getter for fields
+	int						    getIndex()			{ return Command::getIndex();       }
 	std::string					getName()			{ return Command::getName();		}
 	std::time_t					getDueDate()		{ return Command::getDueDate();		}
 	std::time_t					getFromDate()		{ return Command::getFromDate();	}
@@ -30,6 +31,7 @@ public:
 	std::list<std::time_t>		getRemindTimes()	{ return Command::getRemindTimes();	}
 	
 	//setter for fields
+	void setIndex(int idx)							{ Command::setIndex(idx);			}
 	void setName(std::string name)					{ Command::setName(name);			}
 	void setDueDate(std::time_t dueDate)			{ Command::setDueDate(dueDate);		}
 	void setFromDate(std::time_t fromDate)			{ Command::setFromDate(fromDate);	}
@@ -42,6 +44,7 @@ public:
 	void setRemindTimes(std::list<std::time_t> time){ Command::setRemindTimes(time);	}
 	
 	//getter for flags
+	bool getFlagIndex()								{ return Command::getFlagIndex();       }
 	bool getFlagName()								{ return Command::getFlagName();		}
 	bool getFlagDue()								{ return Command::getFlagDue();			}
 	bool getFlagFrom()								{ return Command::getFlagFrom();		}
