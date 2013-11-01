@@ -51,6 +51,7 @@ void Command::init()
 	FLAG_priority		                            = DEFAULT_FLAG;
 	FLAG_tags			                            = DEFAULT_FLAG;
 	FLAG_removeTags									= DEFAULT_FLAG;
+	FLAG_addTags									= DEFAULT_FLAG;
 	FLAG_removeAllTags								= DEFAULT_FLAG;
 	FLAG_remindTime		                            = DEFAULT_FLAG;
 	FLAG_removeRemindTime							= DEFAULT_FLAG;
@@ -77,6 +78,7 @@ void Command::init()
 	_priority			                            = DEFAULT_PRIORITY;
 	_tags				                            = DEFAULT_LIST_OF_STRING;
 	_removeTags										= DEFAULT_LIST_OF_STRING;
+	_addTags										= DEFAULT_LIST_OF_STRING;
 	_remindTime			                            = DEFAULT_REMIND_TIME;
 	_removeRemindTime								= DEFAULT_REMIND_TIME;
 	_addRemindTime									= DEFAULT_REMIND_TIME;
