@@ -310,18 +310,18 @@ if(flag && commandType->getFlagDue()==false){
 		flag=false;
 	}
 
-	/*if(flag && commandType->getFlagAddTags()==false){
+	if(flag && commandType->getFlagAddTags()==false){
 
 		list<string>content;
 		if(getAddTagsMessage(commandStr,flag, content)){
-			commandType->setAddParticipants(content);
+			commandType->setAddTags(content);
 		}
 
 	}
 	else {
 
 		flag=false;
-	}*/
+	}
 
 
 	if(commandType->getFlagFrom()==true && commandType->getFlagTo()==true){
