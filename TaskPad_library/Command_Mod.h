@@ -54,7 +54,7 @@ public:
 	void setPriority(TP::PRIORITY priority)			     { Command::setPriority(priority);	    }
 	void setTags(std::list<std::string> tags)		     { Command::setTags(tags);			    }
 	void setRemoveTags(std::list<std::string> tags)	     { Command::setRemoveTags(tags);		}
-	void setAddTags(std::list<std::string> tags)		 { Command:setAddTags(tags);			}
+	void setAddTags(std::list<std::string> tags)		 { Command::setAddTags(tags);			}
 	void setRemindTimes(std::list<std::time_t> time)     { Command::setRemindTimes(time);	    }
 	void setRemoveRemindTimes(std::list<std::time_t>time){ Command::setRemoveRemindTimes(time); }
 	void setAddRemindTimes(std::list<std::time_t>time)   { Command::setAddRemindTimes(time);    }
