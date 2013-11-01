@@ -145,8 +145,6 @@ void Executor::formTaskFromAddCmd(Command_Add* cmd, Task &newTask) {
 		newTask.setLocation(cmd->getLocation());
 	if(cmd->getFlagNote())
 		newTask.setNote(cmd->getNote());
-	if(cmd->getFlagRemindTimes())
-		newTask.setRemindTimes(cmd->getRemindTimes());
 	if(cmd->getFlagParticipants())
 		newTask.setParticipants(cmd->getParticipants());
 	if(cmd->getFlagPriority())
@@ -159,6 +157,30 @@ void Executor::formTaskFromAddCmd(Command_Add* cmd, Task &newTask) {
 		newTask.setDueDate(cmd->getDueDate());
 	if(cmd->getFlagTags())
 		newTask.setTags(cmd->getTags());
+	if(cmd->getFlagRemindTimes())
+		newTask.setRemindTimes(cmd->getRemindTimes());
+	else if (newTask.getFlagToDate())
+		setDefaultRemindTimes(newTask);
+}
+
+void Executor::setDefaultRemindTimes(Task &task) {
+	switch(task.getPriority()) {
+	case TP::PRIORITY::HIGH:	setDefaultRemindTimesPriorityH(task); break;
+	case TP::PRIORITY::MEDIUM:	setDefaultRemindTimesPriorityM(task); break;
+	case TP::PRIORITY::LOW:		setDefaultRemindTimesPriorityL(task); break;
+	}
+}
+
+void Executor::setDefaultRemindTimesPriorityH(Task &task) {
+	task.setRemindTimes(list<time_t>(1, task.getToDate()));
+}
+
+void Executor::setDefaultRemindTimesPriorityM(Task &task) {
+	task.setRemindTimes(list<time_t>(1, task.getToDate()));
+}
+
+void Executor::setDefaultRemindTimesPriorityL(Task &task) {
+	task.setRemindTimes(list<time_t>(1, task.getToDate()));
 }
 
 void Executor::handleHashTagPtrs(Task &newTask, const list<string> &hashTagsList) {
