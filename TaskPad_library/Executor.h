@@ -63,15 +63,19 @@ protected:
 	void getTasksFromTaskPtrList	(list<Task> &taskResults, list<Task*> &results);
 
 	// Functions for ADD COMMAND
-	void executeAdd					(Command_Add* cmd,  Messenger &response);
-	bool validAddCmd				(Command_Add* cmd, Messenger &response);
-	void formTaskFromAddCmd			(Command_Add* cmd, Task &newTask);
-	void handleHashTagPtrs			(Task &newTask, const list<string> &hashTagsList);
-	void handleExistingHashTag		(list<list<Task*>::iterator> &newHashTagPtrs, Task &newTask, list<Task*> &hashTag);
-	void handleNewHashTag			(list<list<Task*>::iterator> &newHashTagPtrs, Task &newTask, list<string>::const_iterator &hashTag);
-	void handleRemindTimesPtrs		(Task &newTask, const list<time_t> &remindTimesList);
-	void handleExistingRemindTime	(list<list<Task*>::iterator> &newRemindTimesPtrs, Task &newTask, list<Task*> &remindTime);
-	void handleNewRemindTime		(list<list<Task*>::iterator> &newRemindTimesPtrs, Task &newTask, list<time_t>::const_iterator &remindTime);
+	void executeAdd						(Command_Add* cmd,  Messenger &response);
+	bool validAddCmd					(Command_Add* cmd, Messenger &response);
+	void formTaskFromAddCmd				(Command_Add* cmd, Task &newTask);
+	void setDefaultRemindTimes			(Task &task);
+	void setDefaultRemindTimesPriorityH	(Task &task);
+	void setDefaultRemindTimesPriorityM	(Task &task);
+	void setDefaultRemindTimesPriorityL	(Task &task);
+	void handleHashTagPtrs				(Task &newTask, const list<string> &hashTagsList);
+	void handleExistingHashTag			(list<list<Task*>::iterator> &newHashTagPtrs, Task &newTask, list<Task*> &hashTag);
+	void handleNewHashTag				(list<list<Task*>::iterator> &newHashTagPtrs, Task &newTask, list<string>::const_iterator &hashTag);
+	void handleRemindTimesPtrs			(Task &newTask, const list<time_t> &remindTimesList);
+	void handleExistingRemindTime		(list<list<Task*>::iterator> &newRemindTimesPtrs, Task &newTask, list<Task*> &remindTime);
+	void handleNewRemindTime			(list<list<Task*>::iterator> &newRemindTimesPtrs, Task &newTask, list<time_t>::const_iterator &remindTime);
 
 	// Functions for DELETE COMMAND
 	void executeDel							(Command_Del* cmd,  Messenger &response);
