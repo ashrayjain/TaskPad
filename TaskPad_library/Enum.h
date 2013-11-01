@@ -21,11 +21,6 @@ namespace TP{
     enum PERIOD_TYPE	{ DAY, WEEK, MONTH};
     enum LIST_OP		{ ADD_ELEMENT, REMOVE_ELEMENT };
 	enum LOG_TYPE		{ INFOLOG, NOTICELOG, WARNINGLOG, ERRORLOG, FATALLOG };
-	
-	static const std::string ERROR_NAME = "Format Error: Name not within single quotation mark";
-	static const std::string ERROR_DUPLICATE = "Duplicate key word";
-	static const std::string ERROR_DATA = "Format Error: Data not within single quotation mark";
-	static const std::string ERROR_INDEX = "Invalid index";
 
 	//String representations of the Enums above
 	static const std::string COMMAND_TYPE_STRING[COMMAND_TYPE_COUNT] =	

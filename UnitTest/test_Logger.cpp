@@ -53,7 +53,7 @@ namespace UnitTest
 			
 			auto fnptr = [&] {logger->log("tClass4","Fatal Msg",FATALLOG);};
 			tempStream << "FATALLOG: tClass4: Fatal Msg" << endl;
-			Microsoft::VisualStudio::CppUnitTestFramework::Assert::ExpectException<const char*>(fnptr);
+			Microsoft::VisualStudio::CppUnitTestFramework::Assert::ExpectException<string>(fnptr);
 			Microsoft::VisualStudio::CppUnitTestFramework::Assert:: IsTrue(compareStreams(tempStream));
 
 			bool threwException = false;
@@ -61,7 +61,7 @@ namespace UnitTest
 			try
 			{
 				logger->log("tClass4","Fatal Msg",FATALLOG);
-			} catch(const char* e)
+			} catch(string e)
 			{
 				threwException = true;
 				exceptionString = e;
@@ -75,10 +75,12 @@ namespace UnitTest
 
 		}
 
-		std::string getCurTime()
+		string getCurTime()
 		{
-			time_t rawTime;
-			time(&rawTime);
+			char logTime[10];
+			time_t rawTime = time(0);
+			tm *curTimeTm = localtime(&rawTime);
+			strftime(logTime, 10, "%A %d-%m-%Y %T",curTimeTm);
 
 			return ctime(&rawTime);
 		}
