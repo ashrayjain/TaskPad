@@ -535,8 +535,15 @@ std::tm Manager::getNextDayTm(std::tm currTm)
 {
 	std::time_t intermediateResult;
 	currTm.tm_mday += 1;
+
 	intermediateResult = mktime(&currTm);
-	
+
+	if(intermediateResult == -1)
+	{
+		currTm.tm_mday -= 1;
+		intermediateResult = mktime(&currTm);
+	}
+
 	return *localtime(&intermediateResult);
 }
 
@@ -545,6 +552,12 @@ std::tm Manager::getNextWeekTm(std::tm currTm)
 	std::time_t intermediateResult;
 	currTm.tm_mday += 7;
 	intermediateResult = mktime(&currTm);
+
+	if(intermediateResult == -1)
+	{
+		currTm.tm_mday -= 7;
+		intermediateResult = mktime(&currTm);
+	}
 	
 	return *localtime(&intermediateResult);
 }
@@ -555,6 +568,12 @@ std::tm Manager::getNextMonthTm(std::tm currTm)
 	currTm.tm_mon += 1;
 	intermediateResult = mktime(&currTm);
 	
+	if(intermediateResult == -1)
+	{
+		currTm.tm_mon -= 1;
+		intermediateResult = mktime(&currTm);
+	}
+
 	return *localtime(&intermediateResult);
 }
 
@@ -562,8 +581,15 @@ std::tm Manager::getPrevDayTm(std::tm currTm)
 {
 	std::time_t intermediateResult;
 	currTm.tm_mday -= 1;
+
 	intermediateResult = mktime(&currTm);
-	
+
+	if(intermediateResult == -1)
+	{
+		currTm.tm_mday += 1;
+		intermediateResult = mktime(&currTm);
+	}
+
 	return *localtime(&intermediateResult);
 }
 
@@ -572,6 +598,12 @@ std::tm Manager::getPrevWeekTm(std::tm currTm)
 	std::time_t intermediateResult;
 	currTm.tm_mday -= 7;
 	intermediateResult = mktime(&currTm);
+
+	if(intermediateResult == -1)
+	{
+		currTm.tm_mday += 7;
+		intermediateResult = mktime(&currTm);
+	}
 	
 	return *localtime(&intermediateResult);
 }
@@ -581,6 +613,13 @@ std::tm Manager::getPrevMonthTm(std::tm currTm)
 	std::time_t intermediateResult;
 	currTm.tm_mon -= 1;
 	intermediateResult = mktime(&currTm);
+
+	if(intermediateResult == -1)
+	{
+		currTm.tm_mon += 1;
+		currTm.tm_year = 70;
+		intermediateResult = mktime(&currTm);
+	}
 	
 	return *localtime(&intermediateResult);
 }
