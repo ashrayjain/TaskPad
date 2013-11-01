@@ -153,12 +153,12 @@ std::string Logger::getNewData(std::string newLine)
 
 std::string Logger::getCurTime()
 {
-	char logTime[10];
+	char logTime[40];
 	time_t rawTime = time(0);
 	tm *curTimeTm = localtime(&rawTime);
-	strftime(logTime, 10, "%A %d-%m-%Y %T",curTimeTm);
+	strftime(logTime, 10, "%A %d-%m-%Y, %T",curTimeTm);
 
-	return ctime(&rawTime);
+	return logTime;
 }
 
 Logger::Logger()
