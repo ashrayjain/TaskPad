@@ -118,8 +118,7 @@ void Executor::executeCommandWithoutUndoRedo(Command* cmd, Messenger &response) 
 
 void Executor::executeAdd (Command_Add* cmd, Messenger &response) {
 	if(validAddCmd(cmd, response)) {
-		Task newTask = Task(cmd->getName());
-		formTaskFromAddCmd(cmd, newTask);
+		Task newTask = formTaskFromAddCmd(cmd);
 		_data->push_back(newTask);
 		_indexHash[newTask.getIndex()] = &(_data->back());
 		handleHashTagPtrs(_data->back(), _data->back().getTags());
@@ -140,7 +139,15 @@ bool Executor::validAddCmd(Command_Add* cmd, Messenger &response) {
 	return true;
 }
 
-void Executor::formTaskFromAddCmd(Command_Add* cmd, Task &newTask) {
+Task Executor::formTaskFromAddCmd(Command_Add* cmd) {
+	Task newTask;
+	if(cmd->getFlagCreatedTime()) {
+		newTask = Task(cmd->getCreatedTime());
+		newTask.setName(cmd->getName());
+	}
+	else
+		newTask = Task(cmd->getName());
+
 	if(cmd->getFlagLocation())
 		newTask.setLocation(cmd->getLocation());
 	if(cmd->getFlagNote())
@@ -161,6 +168,8 @@ void Executor::formTaskFromAddCmd(Command_Add* cmd, Task &newTask) {
 		newTask.setRemindTimes(cmd->getRemindTimes());
 	else if (newTask.getFlagToDate())
 		setDefaultRemindTimes(newTask);
+
+	return newTask;
 }
 
 void Executor::setDefaultRemindTimes(Task &task) {
@@ -734,8 +743,8 @@ void Executor::executeUndo(Command_Undo* cmd, Messenger &response) {
 		Command* undoCmd = getTransposeCommand(_undoStack.top().first, _undoStack.top().second);
 		executeCommandWithoutUndoRedo(undoCmd, response);
 		delete undoCmd;
-		if (_undoStack.top().first->getCommandType() == TP::COMMAND_TYPE::DEL)
-			dynamic_cast<Command_Del*>(_undoStack.top().first)->setCreatedTime(response.getTask().getIndex());
+		//if (_undoStack.top().first->getCommandType() == TP::COMMAND_TYPE::DEL)
+		//	dynamic_cast<Command_Del*>(_undoStack.top().first)->setCreatedTime(response.getTask().getIndex());
 		_redoStack.push(_undoStack.top());
 		_undoStack.pop();
 	}
@@ -787,6 +796,7 @@ Command* Executor::getTransposeCommand(Command_Del* cmd, Task &task) {
 }
 
 void Executor::formAddCmdFromTask(Task &task, Command_Add* cmd) {
+	cmd->setCreatedTime(task.getIndex());
 	if(task.getFlagName())
 		cmd->setName(task.getName());
 	if(task.getFlagLocation())
@@ -855,22 +865,31 @@ bool Executor::isCmdSuccessful(const Messenger &response) const {
 }
 
 void Executor::stackForUndo(Command* cmd, Messenger &response) {
-	if(cmd->getCommandType() == TP::COMMAND_TYPE::MOD) {
-		Command_Mod* newCmd = new Command_Mod();
-		*newCmd = *(dynamic_cast<Command_Mod*>(cmd));
-		_undoStack.push(pair<Command*, Task>(newCmd, _interimTask));
-	}
-	else if(cmd->getCommandType() == TP::COMMAND_TYPE::ADD) {
-		Command_Add* newCmd = new Command_Add();
-		*newCmd = *(dynamic_cast<Command_Add*>(cmd));
-		_undoStack.push(pair<Command*, Task>(newCmd, response.getTask()));
-	}
-	else {
-		Command_Del* newCmd = new Command_Del();
-		*newCmd = *(dynamic_cast<Command_Del*>(cmd));
-		_undoStack.push(pair<Command*, Task>(newCmd, response.getTask()));
+	switch(cmd->getCommandType()) {
+	case TP::COMMAND_TYPE::MOD: stackModCmdForUndo(cmd, response); break;
+	case TP::COMMAND_TYPE::ADD: stackAddCmdForUndo(cmd, response); break;
+	case TP::COMMAND_TYPE::DEL: stackDelCmdForUndo(cmd, response); break;
 	}
 	clearRedoStack();
+}
+
+void Executor::stackModCmdForUndo(Command* cmd, Messenger &response) {
+	Command* newCmd = new Command_Mod();
+	*newCmd = *cmd;
+	_undoStack.push(pair<Command*, Task>(newCmd, _interimTask));
+}
+
+void Executor::stackAddCmdForUndo(Command* cmd, Messenger &response) {
+	Command* newCmd = new Command_Add();
+	*newCmd = *cmd;
+	dynamic_cast<Command_Add*>(newCmd)->setCreatedTime(response.getTask().getIndex());
+	_undoStack.push(pair<Command*, Task>(newCmd, response.getTask()));
+}
+
+void Executor::stackDelCmdForUndo(Command* cmd, Messenger &response) {
+	Command* newCmd = new Command_Del();
+	*newCmd = *cmd;
+	_undoStack.push(pair<Command*, Task>(newCmd, response.getTask()));
 }
 
 void Executor::clearRedoStack() {
