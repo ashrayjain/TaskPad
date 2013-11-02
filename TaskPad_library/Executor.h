@@ -65,7 +65,7 @@ protected:
 	// Functions for ADD COMMAND
 	void executeAdd						(Command_Add* cmd,  Messenger &response);
 	bool validAddCmd					(Command_Add* cmd, Messenger &response);
-	void formTaskFromAddCmd				(Command_Add* cmd, Task &newTask);
+	Task formTaskFromAddCmd				(Command_Add* cmd);
 	void setDefaultRemindTimes			(Task &task);
 	void setDefaultRemindTimesPriorityH	(Task &task);
 	void setDefaultRemindTimesPriorityM	(Task &task);
@@ -143,6 +143,9 @@ protected:
 	void		formAddCmdFromTask				(Task &task, Command_Add* cmd);
 	bool		isCmdSuccessful					(const Messenger &response) const;
 	void		stackForUndo					(Command* cmd, Messenger &response);
+	void		stackModCmdForUndo				(Command* cmd, Messenger &response);
+	void		stackAddCmdForUndo				(Command* cmd, Messenger &response);
+	void		stackDelCmdForUndo				(Command* cmd, Messenger &response);
 	void		clearRedoStack					();
 	void		clearUndoStack					();
 
