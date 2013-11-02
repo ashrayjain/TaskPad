@@ -16,17 +16,20 @@
 
 using namespace TP;
 
-const unsigned		Executor::EMPTY_LIST_SIZE				= 0;
-const unsigned		Executor::SINGLE_RESULT_LIST_SIZE		= 1;
-const std::string	Executor::NAME_NOT_FOUND_ERROR			= "No results for name: ";
-const std::string	Executor::INVALID_INDEX_ERROR			= " is not a valid index!";
-const std::string	Executor::UNDOSTACK_EMPTY_MSG			= "Nothing to Undo!";
-const std::string	Executor::REDOSTACK_EMPTY_MSG			= "Nothing to Redo!";
-const std::string   Executor::MODIFY_SAME_NAME_ERROR		= "New name is the same as the Existing name!";
-const std::string   Executor::INVALID_FROMDATE_ERROR		= "Invalid 'From' Attribute!";
-const std::string   Executor::INVALID_TODATE_ERROR			= "Invalid 'To' Attribute!";
-const std::string   Executor::INVALID_FROMDATE_TODATE_ERROR	= "Invalid 'From' and 'To' Attributes!";
-const std::string	Executor::NAME_NOT_SPECIFIED_ERROR		= "No Name specified!";
+const unsigned			Executor::EMPTY_LIST_SIZE				= 0;
+const unsigned			Executor::SINGLE_RESULT_LIST_SIZE		= 1;
+const std::string		Executor::NAME_NOT_FOUND_ERROR			= "No results for name: ";
+const std::string		Executor::INVALID_INDEX_ERROR			= " is not a valid index!";
+const std::string		Executor::UNDOSTACK_EMPTY_MSG			= "Nothing to Undo!";
+const std::string		Executor::REDOSTACK_EMPTY_MSG			= "Nothing to Redo!";
+const std::string		Executor::MODIFY_SAME_NAME_ERROR		= "New name is the same as the Existing name!";
+const std::string		Executor::INVALID_FROMDATE_ERROR		= "Invalid 'From' Attribute!";
+const std::string		Executor::INVALID_TODATE_ERROR			= "Invalid 'To' Attribute!";
+const std::string		Executor::INVALID_FROMDATE_TODATE_ERROR	= "Invalid 'From' and 'To' Attributes!";
+const std::string		Executor::NAME_NOT_SPECIFIED_ERROR		= "No Name specified!";
+const unsigned			Executor::RT_MIN_H_ARR[]				= {5, 15, 30, 60};
+const unsigned			Executor::RT_MIN_M_ARR[]				= {15, 30};
+const unsigned			Executor::RT_MIN_L_ARR[]				= {60};
 
 void Executor::rebuildHashes() {
 	rebuildIndexHash();
@@ -164,6 +167,7 @@ Task Executor::formTaskFromAddCmd(Command_Add* cmd) {
 		newTask.setDueDate(cmd->getDueDate());
 	if(cmd->getFlagTags())
 		newTask.setTags(cmd->getTags());
+
 	if(cmd->getFlagRemindTimes())
 		newTask.setRemindTimes(cmd->getRemindTimes());
 	else if (newTask.getFlagToDate())
@@ -181,7 +185,8 @@ void Executor::setDefaultRemindTimes(Task &task) {
 }
 
 void Executor::setDefaultRemindTimesPriorityH(Task &task) {
-	task.setRemindTimes(list<time_t>(1, task.getToDate()));
+	int n = sizeof(RT_MIN_H_ARR) / sizeof(RT_MIN_H_ARR[0]);
+	task.setRemindTimes(getRemindTimesFromMinutesBefore(RT_MIN_H_ARR, n, task.getToDate()));
 }
 
 void Executor::setDefaultRemindTimesPriorityM(Task &task) {
@@ -190,6 +195,18 @@ void Executor::setDefaultRemindTimesPriorityM(Task &task) {
 
 void Executor::setDefaultRemindTimesPriorityL(Task &task) {
 	task.setRemindTimes(list<time_t>(1, task.getToDate()));
+}
+
+list<time_t> Executor::getRemindTimesFromMinutesBefore(const unsigned minutesBeforeList[], const int listSize, const time_t &deadline) const{
+	list<time_t> remindTimesList;
+	struct tm * deadlineTime = localtime(&deadline);
+	for(int i = 0; i < listSize; i++) {
+		deadlineTime->tm_min -= minutesBeforeList[i];
+		remindTimesList.push_back(mktime(deadlineTime));
+		deadlineTime->tm_min += minutesBeforeList[i];
+		mktime(deadlineTime);
+	}
+	return remindTimesList;
 }
 
 void Executor::handleHashTagPtrs(Task &newTask, const list<string> &hashTagsList) {
