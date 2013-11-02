@@ -160,9 +160,6 @@
     <ClInclude Include="Enum.h">
       <Filter>Header Files\Commons</Filter>
     </ClInclude>
-    <ClInclude Include="Database.h">
-      <Filter>Header Files\Commons</Filter>
-    </ClInclude>
     <ClInclude Include="Executor.h">
       <Filter>Header Files\Logic_Related</Filter>
     </ClInclude>
@@ -209,6 +206,9 @@
       <Filter>Header Files\Commons</Filter>
     </ClInclude>
     <ClInclude Include="Database_Base.h">
+      <Filter>Header Files\Commons</Filter>
+    </ClInclude>
+    <ClInclude Include="Database.h">
       <Filter>Header Files\Commons</Filter>
     </ClInclude>
   </ItemGroup>

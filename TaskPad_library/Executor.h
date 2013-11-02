@@ -27,8 +27,8 @@
 class Executor
 {
 public:
-	Executor (std::list<Task>* data) { _data = data; rebuildHashes(); }
-	~Executor ()					 { clearRedoStack(); clearUndoStack(); }
+	Executor(std::list<Task>* data)		{ _data = data; rebuildHashes(); }
+	~Executor()							{ clearRedoStack(); clearUndoStack(); }
 
 	void		executeCommand		(Command* cmd, Messenger &response);
 	list<Task>	getCurrentReminders	();
@@ -54,6 +54,9 @@ protected:
 	static const std::string	INVALID_TODATE_ERROR;
 	static const std::string	INVALID_FROMDATE_TODATE_ERROR;
 	static const std::string	NAME_NOT_SPECIFIED_ERROR;
+	static const unsigned		RT_MIN_H_ARR[];
+	static const unsigned		RT_MIN_M_ARR[];
+	static const unsigned		RT_MIN_L_ARR[];
 
 	void	rebuildHashes();
 	void	rebuildIndexHash();
@@ -63,15 +66,20 @@ protected:
 	void getTasksFromTaskPtrList	(list<Task> &taskResults, list<Task*> &results);
 
 	// Functions for ADD COMMAND
-	void executeAdd					(Command_Add* cmd,  Messenger &response);
-	bool validAddCmd				(Command_Add* cmd, Messenger &response);
-	void formTaskFromAddCmd			(Command_Add* cmd, Task &newTask);
-	void handleHashTagPtrs			(Task &newTask, const list<string> &hashTagsList);
-	void handleExistingHashTag		(list<list<Task*>::iterator> &newHashTagPtrs, Task &newTask, list<Task*> &hashTag);
-	void handleNewHashTag			(list<list<Task*>::iterator> &newHashTagPtrs, Task &newTask, list<string>::const_iterator &hashTag);
-	void handleRemindTimesPtrs		(Task &newTask, const list<time_t> &remindTimesList);
-	void handleExistingRemindTime	(list<list<Task*>::iterator> &newRemindTimesPtrs, Task &newTask, list<Task*> &remindTime);
-	void handleNewRemindTime		(list<list<Task*>::iterator> &newRemindTimesPtrs, Task &newTask, list<time_t>::const_iterator &remindTime);
+	void			executeAdd						(Command_Add* cmd,  Messenger &response);
+	bool			validAddCmd						(Command_Add* cmd, Messenger &response);
+	Task			formTaskFromAddCmd				(Command_Add* cmd);
+	void			setDefaultRemindTimes			(Task &task);
+	void			setDefaultRemindTimesPriorityH	(Task &task);
+	void			setDefaultRemindTimesPriorityM	(Task &task);
+	void			setDefaultRemindTimesPriorityL	(Task &task);
+	list<time_t>	getRemindTimesFromMinutesBefore	(const unsigned minutesBeforeList[], const int N, const time_t &deadline) const;
+	void			handleHashTagPtrs				(Task &newTask, const list<string> &hashTagsList);
+	void			handleExistingHashTag			(list<list<Task*>::iterator> &newHashTagPtrs, Task &newTask, list<Task*> &hashTag);
+	void			handleNewHashTag				(list<list<Task*>::iterator> &newHashTagPtrs, Task &newTask, list<string>::const_iterator &hashTag);
+	void			handleRemindTimesPtrs			(Task &newTask, const list<time_t> &remindTimesList);
+	void			handleExistingRemindTime		(list<list<Task*>::iterator> &newRemindTimesPtrs, Task &newTask, list<Task*> &remindTime);
+	void			handleNewRemindTime				(list<list<Task*>::iterator> &newRemindTimesPtrs, Task &newTask, list<time_t>::const_iterator &remindTime);
 
 	// Functions for DELETE COMMAND
 	void executeDel							(Command_Del* cmd,  Messenger &response);
@@ -139,6 +147,9 @@ protected:
 	void		formAddCmdFromTask				(Task &task, Command_Add* cmd);
 	bool		isCmdSuccessful					(const Messenger &response) const;
 	void		stackForUndo					(Command* cmd, Messenger &response);
+	void		stackModCmdForUndo				(Command* cmd, Messenger &response);
+	void		stackAddCmdForUndo				(Command* cmd, Messenger &response);
+	void		stackDelCmdForUndo				(Command* cmd, Messenger &response);
 	void		clearRedoStack					();
 	void		clearUndoStack					();
 
