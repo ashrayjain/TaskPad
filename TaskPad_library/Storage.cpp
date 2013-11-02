@@ -16,6 +16,8 @@
   * 
  */
 
+#include <QDir>
+#include <QMessageBox>
 #include <list>
 #include <string>
 #include "Storage.h"
@@ -30,6 +32,10 @@ const string Storage::_fileName = "TaskPad.txt";
 
 Storage::Storage(list<Task>& taskList)
 {
+	QDir myDir;
+	QMessageBox qdirTest;
+	qdirTest.setText("Storage::Storage -- simple QDir test " + myDir.absolutePath());
+	qdirTest.exec();
 	_logger = Logger::getLogger();
 	_logger->log("Storage","in constructor");
 
