@@ -31,7 +31,7 @@ const string Storage::_fileName = "TaskPad.txt";
 Storage::Storage(list<Task>& taskList)
 {
 	_logger = Logger::getLogger();
-	_logger->log("Storage","called constructor!");
+	_logger->log("Storage","in constructor");
 
 	_loader = NULL;
 	_saver = NULL;
