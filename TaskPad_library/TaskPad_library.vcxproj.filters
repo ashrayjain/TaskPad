@@ -75,7 +75,7 @@
     <Filter Include="Header Files\Logic_Related\Executor_Derived">
       <UniqueIdentifier>{42b5f5e0-5e97-4cca-9bad-8936b9d5517f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Executor_Derived">
+    <Filter Include="Source Files\Logic_Related\Executor_Derived">
       <UniqueIdentifier>{f0c14839-e154-463e-acd1-17dbff5c8c7d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -349,22 +349,22 @@
       <Filter>Source Files\Logic_Related</Filter>
     </ClCompile>
     <ClCompile Include="Executor_Add.cpp">
-      <Filter>Source Files\Executor_Derived</Filter>
+      <Filter>Source Files\Logic_Related\Executor_Derived</Filter>
     </ClCompile>
     <ClCompile Include="Executor_Mod.cpp">
-      <Filter>Source Files\Executor_Derived</Filter>
+      <Filter>Source Files\Logic_Related\Executor_Derived</Filter>
     </ClCompile>
     <ClCompile Include="Executor_Del.cpp">
-      <Filter>Source Files\Executor_Derived</Filter>
+      <Filter>Source Files\Logic_Related\Executor_Derived</Filter>
     </ClCompile>
     <ClCompile Include="Executor_Find.cpp">
-      <Filter>Source Files\Executor_Derived</Filter>
+      <Filter>Source Files\Logic_Related\Executor_Derived</Filter>
     </ClCompile>
     <ClCompile Include="Executor_Undo.cpp">
-      <Filter>Source Files\Executor_Derived</Filter>
+      <Filter>Source Files\Logic_Related\Executor_Derived</Filter>
     </ClCompile>
     <ClCompile Include="Executor_Redo.cpp">
-      <Filter>Source Files\Executor_Derived</Filter>
+      <Filter>Source Files\Logic_Related\Executor_Derived</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
