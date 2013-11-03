@@ -12,7 +12,7 @@
 
  ** Gist of File Contents:
   *
-  * This file defines an abstract TaskLoader Class that inherits from the FileHandler Class
+  * This file defines an abstract TaskLoader Class that inherits from the TaskFileHandler Class
   * This class defines what it means to be a loader for tasks by specifying the necessary
   * functions that such a loader must implement.
   *
@@ -23,11 +23,11 @@
 
 #include <list>
 #include <fstream>
-#include "FileHandler.h"
+#include "TaskFileHandler.h"
 
 class Task;
 
-class TaskLoader: public FileHandler
+class TaskLoader: public TaskFileHandler
 {
 	public:
 		virtual void load (std::list<Task>& taskList, const std::string& fileName) =0;

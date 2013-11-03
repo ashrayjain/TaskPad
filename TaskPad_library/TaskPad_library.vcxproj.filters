@@ -163,9 +163,6 @@
     <ClInclude Include="Executor.h">
       <Filter>Header Files\Logic_Related</Filter>
     </ClInclude>
-    <ClInclude Include="FileHandler.h">
-      <Filter>Header Files\Logic_Related</Filter>
-    </ClInclude>
     <ClInclude Include="Interpreter.h">
       <Filter>Header Files\Logic_Related</Filter>
     </ClInclude>
@@ -210,6 +207,9 @@
     </ClInclude>
     <ClInclude Include="Database.h">
       <Filter>Header Files\Commons</Filter>
+    </ClInclude>
+    <ClInclude Include="TaskFileHandler.h">
+      <Filter>Header Files\Logic_Related</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -256,9 +256,6 @@
       <Filter>Source Files\Commons</Filter>
     </ClCompile>
     <ClCompile Include="Executor.cpp">
-      <Filter>Source Files\Logic_Related</Filter>
-    </ClCompile>
-    <ClCompile Include="FileHandler.cpp">
       <Filter>Source Files\Logic_Related</Filter>
     </ClCompile>
     <ClCompile Include="Interpreter.cpp">
@@ -311,6 +308,9 @@
     </ClCompile>
     <ClCompile Include="Database_List.cpp">
       <Filter>Source Files\Commons</Filter>
+    </ClCompile>
+    <ClCompile Include="TaskFileHandler.cpp">
+      <Filter>Source Files\Logic_Related</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

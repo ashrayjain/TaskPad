@@ -34,7 +34,7 @@
     <ClInclude Include="Database.h" />
     <ClInclude Include="Database_Base.h" />
     <ClInclude Include="Database_List.h" />
-    <ClInclude Include="FileHandler.h" />
+    <ClInclude Include="TaskFileHandler.h" />
     <ClInclude Include="GeneratedFiles\ui_quickadd_window.h" />
     <CustomBuild Include="ListItemDelegate.h">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath);$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
@@ -181,7 +181,7 @@
     <ClCompile Include="QuickAddWindow.cpp" />
     <ClCompile Include="Storage.cpp" />
     <ClCompile Include="Task.cpp" />
-    <ClCompile Include="FileHandler.cpp" />
+    <ClCompile Include="TaskFileHandler.cpp" />
     <ClCompile Include="TaskLoaderText.cpp" />
     <ClCompile Include="TaskSaverText.cpp" />
   </ItemGroup>
