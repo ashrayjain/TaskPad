@@ -33,38 +33,24 @@ TaskSaverText::TaskSaverText() {
 	this->_logger = Logger::getLogger();
 }
 
+/****************************************************/
+/*************** Public Save APIs *******************/
+/****************************************************/
+
 void TaskSaverText::save(const list<Task>& taskList, const std::string& fileName) {
 	this->openFile(fileName);
 	this->saveTaskList(taskList);
 	this->closeFile();
+
+	// remove the quick save files
 	this->removeTaskFiles();
 	this->removeSaveRecord();
 	this->removeDeleteRecord();
 	return;
 }
 
-void TaskSaverText::removeTaskFiles() {
-	ifstream record(RECORD_MODIFIED_FILE_NAME);
-	std::string nextTaskFile;
-
-	while(record.good())
-	{
-		getline(record, nextTaskFile);
-
-		if(nextTaskFile!= "")
-		{
-			_logger->log("TaskSaverText","removing file: "+nextTaskFile,NOTICELOG);
-
-			if(int ret = std::remove(nextTaskFile.c_str()) != 0)
-			{
-				_logger->log("TaskSaverText","error num: " + convertToString(ret),ERRORLOG);
-			}
-			nextTaskFile = "";
-		}
-	}
-	record.close();
-}
-
+// quick save that creates a new .task file for each task that was edited/added
+// deleted tasks' IDs are recorded in a delete record
 void TaskSaverText::save(const Task& task, const COMMAND_TYPE& cType) {
 	
 	switch(cType)
@@ -84,11 +70,9 @@ void TaskSaverText::save(const Task& task, const COMMAND_TYPE& cType) {
 	return;
 }
 
-void TaskSaverText::updateDeleteRecord (const int& entry) {
-	ofstream record(RECORD_DELETED_FILE_NAME, ios_base::app);
-	record << entry << endl;
-	record.close();
-}
+/****************************************************/
+/************** Private Save Methods ****************/
+/****************************************************/
 
 void TaskSaverText::saveTaskList(const list<Task>& taskList) {
 	list<Task>::const_iterator it = taskList.begin();
@@ -109,6 +93,10 @@ void TaskSaverText::saveTask(const Task& task) {
 	return;
 }
 
+/*****************************************************/
+/************** Task Attribute Savers ****************/
+/*****************************************************/
+
 void TaskSaverText::saveTaskAttributes(const Task& tempTask) {
 	this->saveIndex(tempTask);
 	this->saveName(tempTask);
@@ -122,14 +110,6 @@ void TaskSaverText::saveTaskAttributes(const Task& tempTask) {
 	this->saveTags(tempTask);
 	this->saveReminderTimes(tempTask);
 	this->saveState(tempTask);
-}
-
-void TaskSaverText::saveTaskLevelLabel(std::string LabelStr) {
-	writeLineToFile(LabelStr);
-}
-
-void TaskSaverText::saveAttributeLevelLabel(string LabelStr) {
-	writeLineToFile(LabelStr,false);
 }
 
 void TaskSaverText::saveIndex(const Task& tempTask) {
@@ -146,6 +126,37 @@ void TaskSaverText::saveName(const Task& tempTask) {
 		writeLineToFile(tempTask.getName());
 	}
 }
+
+void TaskSaverText::saveDueDate(const Task& tempTask) {
+	if(tempTask.getFlagDueDate())
+	{
+		saveAttributeLevelLabel(LABEL_DUE_DATE);
+
+		string dueDateStr = convertToString(tempTask.getDueDate());
+		writeLineToFile(dueDateStr);
+	}
+}
+
+void TaskSaverText::saveFromDate(const Task& tempTask) {
+	if(tempTask.getFlagFromDate())
+	{
+		saveAttributeLevelLabel(LABEL_FROM_DATE);
+
+		string fromDateStr = convertToString(tempTask.getFromDate());
+		writeLineToFile(fromDateStr);
+	}
+}
+
+void TaskSaverText::saveToDate(const Task& tempTask) {
+	if(tempTask.getFlagToDate())
+	{
+		saveAttributeLevelLabel(LABEL_TO_DATE);
+		
+		string toDateStr = convertToString(tempTask.getToDate());
+		writeLineToFile(toDateStr);
+	}
+}
+
 
 void TaskSaverText::saveLocation(const Task& tempTask) {
 	if(tempTask.getFlagLocation())
@@ -212,12 +223,13 @@ void TaskSaverText::saveReminderTimes(const Task& tempTask) {
 	{
 		list<time_t> reminderList = tempTask.getRemindTimes();
 		list<time_t>::iterator rtit = reminderList.begin();
+		string reminderStr;
 
 		while(rtit != reminderList.end())
 		{
 			saveAttributeLevelLabel(LABEL_REMINDER_TIME);
 
-			string reminderStr = convertToString(*rtit);
+			reminderStr = convertToString(*rtit);
 			writeLineToFile(reminderStr);
 			rtit++;
 		}
@@ -229,36 +241,6 @@ void TaskSaverText::saveState(const Task& tempTask) {
 
 	string stateStr = convertToString(tempTask.getState());
 	writeLineToFile(stateStr);
-}
-
-void TaskSaverText::saveDueDate(const Task& tempTask) {
-	if(tempTask.getFlagDueDate())
-	{
-		saveAttributeLevelLabel(LABEL_DUE_DATE);
-
-		string dueDateStr = convertToString(tempTask.getDueDate());
-		writeLineToFile(dueDateStr);
-	}
-}
-
-void TaskSaverText::saveFromDate(const Task& tempTask) {
-	if(tempTask.getFlagFromDate())
-	{
-		saveAttributeLevelLabel(LABEL_FROM_DATE);
-
-		string fromDateStr = convertToString(tempTask.getFromDate());
-		writeLineToFile(fromDateStr);
-	}
-}
-
-void TaskSaverText::saveToDate(const Task& tempTask) {
-	if(tempTask.getFlagToDate())
-	{
-		saveAttributeLevelLabel(LABEL_TO_DATE);
-		
-		string toDateStr = convertToString(tempTask.getToDate());
-		writeLineToFile(toDateStr);
-	}
 }
 
 /****************************************************/
@@ -291,6 +273,31 @@ string TaskSaverText::convertToString(TASK_STATE state) {
 	return TASK_STATE_STRING[state];
 }
 
+/*********************************************************/
+/********** Quick Save/Delete Record Managers ************/
+/*********************************************************/
+
+void TaskSaverText::removeTaskFiles() {
+	ifstream record(RECORD_MODIFIED_FILE_NAME);
+	std::string nextTaskFile;
+
+	while(record.good())
+	{
+		getline(record, nextTaskFile);
+
+		if(nextTaskFile!= "")
+		{
+			_logger->log("TaskSaverText","removing file: "+nextTaskFile,NOTICELOG);
+
+			if(int ret = std::remove(nextTaskFile.c_str()) != 0)
+			{
+				_logger->log("TaskSaverText","error num: " + convertToString(ret),ERRORLOG);
+			}
+			nextTaskFile = "";
+		}
+	}
+	record.close();
+}
 
 void TaskSaverText::updateSaveRecord (const std::string& entry) {
 	ofstream record(RECORD_MODIFIED_FILE_NAME,std::ios_base::app);
@@ -309,6 +316,12 @@ void TaskSaverText::removeSaveRecord () {
 	return;
 }
 
+void TaskSaverText::updateDeleteRecord (const int& entry) {
+	ofstream record(RECORD_DELETED_FILE_NAME, ios_base::app);
+	record << entry << endl;
+	record.close();
+}
+
 void TaskSaverText::removeDeleteRecord () {
 	//empty the file just in case
 	ofstream record(RECORD_DELETED_FILE_NAME,ios_base::trunc);
@@ -322,6 +335,14 @@ void TaskSaverText::removeDeleteRecord () {
 /****************************************************/
 /***************** Actual Writers *******************/
 /****************************************************/
+
+void TaskSaverText::saveTaskLevelLabel(std::string LabelStr) {
+	writeLineToFile(LabelStr);
+}
+
+void TaskSaverText::saveAttributeLevelLabel(string LabelStr) {
+	writeLineToFile(LabelStr,false);
+}
 
 void TaskSaverText::writeLineToFile(string line, bool newLine) {
 	if(newLine)
