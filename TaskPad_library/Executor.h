@@ -14,7 +14,6 @@
 
 #include <string>
 #include <cstring>
-#include <chrono>
 #include <list>
 #include <unordered_map>
 #include <stack>
@@ -94,7 +93,7 @@ protected:
 	void deleteRemindTimes					(Task &task);
 
 	// Functions for MODIFY COMMAND
-	void			executeMod						(Command_Mod* cmd,  Messenger &response);
+	void			executeMod						(Command_Mod* cmd, Messenger &response);
 	void			modifyByIndex					(Command_Mod* cmd, Messenger &response);
 	void			modifyByName					(Command_Mod* cmd, Messenger &response);
 	void			modifyByExactName				(Command_Mod* cmd, Messenger &response);
