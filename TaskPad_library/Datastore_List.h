@@ -1,7 +1,7 @@
 /*
  * =====================================================================================
  *
- *       Filename:  Database_List.h
+ *       Filename:  Datastore_List.h
  *
  *        Version:  1.0
  *        Created:  10/28/13 15:47:28
@@ -12,19 +12,19 @@
  * =====================================================================================
  */
 
-#ifndef TASKPAD_DATABASE_LIST_H
-#define TASKPAD_DATABASE_LIST_H
+#ifndef TASKPAD_DATASTORE_LIST_H
+#define TASKPAD_DATASTORE_LIST_H
 
-#include "Database_Base.h"
+#include "Datastore_Base.h"
 
-class Database_List: public Database_Base {
+class Datastore_List: public Datastore_Base {
 private:
 	std::list<Task> _db;
 
 public:
-	~Database_List() {};
+	~Datastore_List() {};
 
-	class iterator: public Database_Base::iterator {
+	class iterator: public Datastore_Base::iterator {
 	public:
 		iterator()											{ }
 		iterator(std::list<Task>::iterator _it): i(_it)		{ }
@@ -44,11 +44,10 @@ public:
 	std::list<Task>				getAllTasks();
 	void						addTask(Task newTask)	{ _db.push_back(newTask);		}
 	void						deleteTask(iterator i)	{ _db.erase(i.getIterator());	}
-
-	Database_List::iterator		begin()	{ return _db.begin();	}
-	Database_List::iterator		end()	{ return _db.end();		}
 	Task&						front() { return _db.front();	}
 	Task&						back()	{ return _db.back();	}
+	Datastore_List::iterator	begin()	{ return _db.begin();	}
+	Datastore_List::iterator	end()	{ return _db.end();		}
 };
 
 #endif

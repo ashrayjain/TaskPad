@@ -69,6 +69,15 @@
     <Filter Include="Source Files\Logic_Related\FileHandler_Derived">
       <UniqueIdentifier>{8afacf71-fd37-4a64-b102-77784bb31772}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Commons\Datastore_Derived">
+      <UniqueIdentifier>{ff3d25fe-b1bd-48e0-a045-d5758f344cd3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Logic_Related\Executor_Derived">
+      <UniqueIdentifier>{42b5f5e0-5e97-4cca-9bad-8936b9d5517f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Logic_Related\Executor_Derived">
+      <UniqueIdentifier>{f0c14839-e154-463e-acd1-17dbff5c8c7d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="mainwindow.ui">
@@ -193,22 +202,46 @@
     <ClInclude Include="TaskSaverText.h">
       <Filter>Header Files\Logic_Related\FileHandler_Derived</Filter>
     </ClInclude>
-    <ClInclude Include="StorableTaskDatabase.h">
-      <Filter>Header Files\Commons</Filter>
-    </ClInclude>
     <ClInclude Include="Interpreter_base.h">
       <Filter>Header Files\Logic_Related</Filter>
     </ClInclude>
-    <ClInclude Include="Database_List.h">
-      <Filter>Header Files\Commons</Filter>
-    </ClInclude>
-    <ClInclude Include="Database_Base.h">
-      <Filter>Header Files\Commons</Filter>
-    </ClInclude>
-    <ClInclude Include="Database.h">
-      <Filter>Header Files\Commons</Filter>
-    </ClInclude>
     <ClInclude Include="TaskFileHandler.h">
+      <Filter>Header Files\Logic_Related</Filter>
+    </ClInclude>
+    <ClInclude Include="Datastore_Base.h">
+      <Filter>Header Files\Commons</Filter>
+    </ClInclude>
+    <ClInclude Include="Datastore_List.h">
+      <Filter>Header Files\Commons\Datastore_Derived</Filter>
+    </ClInclude>
+    <ClInclude Include="StorableTaskDatastore.h">
+      <Filter>Header Files\Commons</Filter>
+    </ClInclude>
+    <ClInclude Include="ExecutableTaskDatastore.h">
+      <Filter>Header Files\Commons</Filter>
+    </ClInclude>
+    <ClInclude Include="Datastore.h">
+      <Filter>Header Files\Commons</Filter>
+    </ClInclude>
+    <ClInclude Include="Executor_Add.h">
+      <Filter>Header Files\Logic_Related\Executor_Derived</Filter>
+    </ClInclude>
+    <ClInclude Include="Executor_Del.h">
+      <Filter>Header Files\Logic_Related\Executor_Derived</Filter>
+    </ClInclude>
+    <ClInclude Include="Executor_Find.h">
+      <Filter>Header Files\Logic_Related\Executor_Derived</Filter>
+    </ClInclude>
+    <ClInclude Include="Executor_Mod.h">
+      <Filter>Header Files\Logic_Related\Executor_Derived</Filter>
+    </ClInclude>
+    <ClInclude Include="Executor_Redo.h">
+      <Filter>Header Files\Logic_Related\Executor_Derived</Filter>
+    </ClInclude>
+    <ClInclude Include="Executor_Undo.h">
+      <Filter>Header Files\Logic_Related\Executor_Derived</Filter>
+    </ClInclude>
+    <ClInclude Include="Executor_Base.h">
       <Filter>Header Files\Logic_Related</Filter>
     </ClInclude>
   </ItemGroup>
@@ -251,9 +284,6 @@
     </ClCompile>
     <ClCompile Include="CommandBar.cpp">
       <Filter>Source Files\UI_Related</Filter>
-    </ClCompile>
-    <ClCompile Include="Database.cpp">
-      <Filter>Source Files\Commons</Filter>
     </ClCompile>
     <ClCompile Include="Executor.cpp">
       <Filter>Source Files\Logic_Related</Filter>
@@ -306,11 +336,35 @@
     <ClCompile Include="GeneratedFiles\Release\moc_MainWindow.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="Database_List.cpp">
-      <Filter>Source Files\Commons</Filter>
-    </ClCompile>
     <ClCompile Include="TaskFileHandler.cpp">
       <Filter>Source Files\Logic_Related</Filter>
+    </ClCompile>
+    <ClCompile Include="Datastore_List.cpp">
+      <Filter>Source Files\Commons</Filter>
+    </ClCompile>
+    <ClCompile Include="Datastore.cpp">
+      <Filter>Source Files\Commons</Filter>
+    </ClCompile>
+    <ClCompile Include="Executor_Base.cpp">
+      <Filter>Source Files\Logic_Related</Filter>
+    </ClCompile>
+    <ClCompile Include="Executor_Add.cpp">
+      <Filter>Source Files\Logic_Related\Executor_Derived</Filter>
+    </ClCompile>
+    <ClCompile Include="Executor_Mod.cpp">
+      <Filter>Source Files\Logic_Related\Executor_Derived</Filter>
+    </ClCompile>
+    <ClCompile Include="Executor_Del.cpp">
+      <Filter>Source Files\Logic_Related\Executor_Derived</Filter>
+    </ClCompile>
+    <ClCompile Include="Executor_Find.cpp">
+      <Filter>Source Files\Logic_Related\Executor_Derived</Filter>
+    </ClCompile>
+    <ClCompile Include="Executor_Undo.cpp">
+      <Filter>Source Files\Logic_Related\Executor_Derived</Filter>
+    </ClCompile>
+    <ClCompile Include="Executor_Redo.cpp">
+      <Filter>Source Files\Logic_Related\Executor_Derived</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -122,10 +122,12 @@ void Executor::executeCommandWithoutUndoRedo(Command* cmd, Messenger &response) 
 void Executor::executeAdd (Command_Add* cmd, Messenger &response) {
 	if(validAddCmd(cmd, response)) {
 		Task newTask = formTaskFromAddCmd(cmd);
+		//
 		_data->push_back(newTask);
 		_indexHash[newTask.getIndex()] = &(_data->back());
 		handleHashTagPtrs(_data->back(), _data->back().getTags());
 		handleRemindTimesPtrs(_data->back(), _data->back().getRemindTimes());
+		//
 		setOpSuccessTask(newTask, response);
 	}
 }
@@ -190,13 +192,14 @@ void Executor::setDefaultRemindTimesPriorityH(Task &task) {
 }
 
 void Executor::setDefaultRemindTimesPriorityM(Task &task) {
-	task.setRemindTimes(list<time_t>(1, task.getToDate()));
+	int n = sizeof(RT_MIN_M_ARR) / sizeof(RT_MIN_M_ARR[0]);
+	task.setRemindTimes(getRemindTimesFromMinutesBefore(RT_MIN_M_ARR, n, task.getToDate()));
 }
 
 void Executor::setDefaultRemindTimesPriorityL(Task &task) {
-	task.setRemindTimes(list<time_t>(1, task.getToDate()));
+	int n = sizeof(RT_MIN_L_ARR) / sizeof(RT_MIN_L_ARR[0]);
+	task.setRemindTimes(getRemindTimesFromMinutesBefore(RT_MIN_L_ARR, n, task.getToDate()));
 }
-
 list<time_t> Executor::getRemindTimesFromMinutesBefore(const unsigned minutesBeforeList[], const int listSize, const time_t &deadline) const{
 	list<time_t> remindTimesList;
 	struct tm * deadlineTime = localtime(&deadline);
