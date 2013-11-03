@@ -31,9 +31,17 @@
     <ClInclude Include="Command_Redo.h" />
     <ClInclude Include="Command_Sync.h" />
     <ClInclude Include="Command_Undo.h" />
-    <ClInclude Include="Database.h" />
-    <ClInclude Include="Database_Base.h" />
-    <ClInclude Include="Database_List.h" />
+    <ClInclude Include="Datastore.h" />
+    <ClInclude Include="Datastore_Base.h" />
+    <ClInclude Include="Datastore_List.h" />
+    <ClInclude Include="ExecutableTaskDatastore.h" />
+    <ClInclude Include="Executor_Add.h" />
+    <ClInclude Include="Executor_Base.h" />
+    <ClInclude Include="Executor_Del.h" />
+    <ClInclude Include="Executor_Find.h" />
+    <ClInclude Include="Executor_Mod.h" />
+    <ClInclude Include="Executor_Redo.h" />
+    <ClInclude Include="Executor_Undo.h" />
     <ClInclude Include="TaskFileHandler.h" />
     <ClInclude Include="GeneratedFiles\ui_quickadd_window.h" />
     <CustomBuild Include="ListItemDelegate.h">
@@ -77,7 +85,7 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DWIN64 -DQT_DLL -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DTASKPAD_LIBRARY_LIB "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets"</Command>
     </CustomBuild>
-    <ClInclude Include="StorableTaskDatabase.h" />
+    <ClInclude Include="StorableTaskDatastore.h" />
     <ClInclude Include="TaskLoader.h" />
     <ClInclude Include="TaskLoaderText.h" />
     <ClInclude Include="TaskSaver.h" />
@@ -124,9 +132,16 @@
   <ItemGroup>
     <ClCompile Include="Command.cpp" />
     <ClCompile Include="CommandBar.cpp" />
-    <ClCompile Include="Database.cpp" />
-    <ClCompile Include="Database_List.cpp" />
+    <ClCompile Include="Datastore.cpp" />
+    <ClCompile Include="Datastore_List.cpp" />
     <ClCompile Include="Executor.cpp" />
+    <ClCompile Include="Executor_Add.cpp" />
+    <ClCompile Include="Executor_Base.cpp" />
+    <ClCompile Include="Executor_Del.cpp" />
+    <ClCompile Include="Executor_Find.cpp" />
+    <ClCompile Include="Executor_Mod.cpp" />
+    <ClCompile Include="Executor_Redo.cpp" />
+    <ClCompile Include="Executor_Undo.cpp" />
     <ClCompile Include="GeneratedFiles\Debug\moc_CommandBar.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>

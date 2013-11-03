@@ -1,10 +1,10 @@
 /*
  * =====================================================================================
  *
- *       Filename:  Database_List.cpp
+ *       Filename:  Executor_Redo.h
  *
  *        Version:  1.0
- *        Created:  10/28/13 15:47:28
+ *        Created:  11/02/13 13:47:00
  *
  *         Author:  ASHRAY JAIN (A0105199B), ashrayj11@gmail.com
  *   Organization:  NUS, SoC
@@ -12,15 +12,12 @@
  * =====================================================================================
  */
 
-#include "Database_List.h"
+#pragma once
 
-using namespace std;
+#include "Executor_Base.h"
 
-list<Task> Database_List::getAllTasks() {
-	list<Task> taskList;
-	for (list<Task>::iterator i = _db.begin(); i != _db.end(); i++)
-		taskList.push_back(Task(*i));
-	return taskList;
-}
-
-
+class Executor_Redo: public Executor_Base {
+public:
+	void executeCommand(Command_Redo* cmd, Messenger &response, Datastore &ds);
+private:
+};
