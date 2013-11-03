@@ -12,7 +12,7 @@
 
  ** Gist of File Contents:
   *
-  * This file defines an abstract TaskSaver Class that inherits from the FileHandler Class
+  * This file defines an abstract TaskSaver Class that inherits from the TaskFileHandler Class
   * This class defines what it means to be a saver of tasks by specifying the necessary
   * functions that such a saver must implement.
   *
@@ -23,18 +23,18 @@
 
 #include <list>
 #include <fstream>
-#include "FileHandler.h"
+#include "TaskFileHandler.h"
 #include "Enum.h"
 
 class Task;
 
-class TaskSaver :public FileHandler
+class TaskSaver :public TaskFileHandler
 {
 	public:
 		virtual void save (const std::list<Task>& taskList, const std::string& fileName) =0;
 		virtual void save (const Task& task, const TP::COMMAND_TYPE& cType) =0;
 	protected:
-		virtual void updateSaveRecord	(std::string entry) =0;
+		virtual void updateSaveRecord	(const std::string& entry) =0;
 		virtual void removeSaveRecord	() =0;
 
 		void openFile(const std::string& fileName, std::ios_base::openmode oMode = std::ios::trunc)	

@@ -16,8 +16,9 @@
   * 
  */
 
+/*#include <QtCore/qstring.h>
 #include <QDir>
-#include <QMessageBox>
+#include <QMessageBox>*/
 #include <list>
 #include <string>
 #include "Storage.h"
@@ -30,12 +31,11 @@ using namespace std;
 
 const string Storage::_fileName = "TaskPad.txt";
 
-Storage::Storage(list<Task>& taskList)
-{
-	QDir myDir;
-	QMessageBox qdirTest;
-	qdirTest.setText("Storage::Storage -- simple QDir test " + myDir.absolutePath());
-	qdirTest.exec();
+Storage::Storage(list<Task>& taskList) {
+//	QDir myDir;
+//	QMessageBox qdirTest;
+//	qdirTest.setText("Storage::Storage -- simple QDir test " + myDir.absolutePath());
+//	qdirTest.exec();
 	_logger = Logger::getLogger();
 	_logger->log("Storage","in constructor");
 
@@ -44,8 +44,7 @@ Storage::Storage(list<Task>& taskList)
 	this->load(taskList);
 }
 
-bool Storage::save(const list<Task>& taskList)
-{
+bool Storage::save(const list<Task>& taskList) {
 	_saver = new TaskSaverText;
 
 	_saver->save(taskList,_fileName);
@@ -56,8 +55,7 @@ bool Storage::save(const list<Task>& taskList)
 	return true;
 }
 
-bool Storage::save(const Task& task, const TP::COMMAND_TYPE& cType)
-{
+bool Storage::save(const Task& task, const TP::COMMAND_TYPE& cType) {
 	_saver = new TaskSaverText;
 
 	_saver->save(task,cType);
@@ -68,8 +66,7 @@ bool Storage::save(const Task& task, const TP::COMMAND_TYPE& cType)
 	return true;
 }
 
-void Storage::load (list<Task>& taskList)
-{
+void Storage::load (list<Task>& taskList) {
 	_loader = new TaskLoaderText;
 
 	_loader->load(taskList,_fileName);
@@ -80,7 +77,6 @@ void Storage::load (list<Task>& taskList)
 	return;
 }
 
-Storage::~Storage()
-{
+Storage::~Storage() {
 	//Empty
 }

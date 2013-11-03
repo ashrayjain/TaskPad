@@ -35,23 +35,21 @@ class TaskSaverText: public TaskSaver
 		void save (const std::list<Task>& taskList, const std::string& fileName);
 		void save (const Task& task, const TP::COMMAND_TYPE& cType);
 
-		const static std::string TASK_DIRECTORY;
-		const static std::string RECORD_MODIFIED_FILE_NAME;
-		const static std::string RECORD_DELETED_FILE_NAME;
 		TaskSaverText();
 	private:
 
 		Logger* _logger;
 
 		//save records
-		void updateSaveRecord	(std::string entry);
-		void removeSaveRecord	();
-		void removeDeleteRecord	();
+		void updateSaveRecord		(const std::string& entry);
+		void removeSaveRecord		();
+		void updateDeleteRecord		(const int& entry);
+		void removeDeleteRecord		();
 
 		//savers
-		void saveTaskList		(const std::list<Task>& taskList);
-		void saveTask			(const Task& task);
-		void saveTaskAttributes	(const Task& tempTaskTask);
+		void saveTaskList			(const std::list<Task>& taskList);
+		void saveTask				(const			 Task &	task);
+		void saveTaskAttributes		(const			 Task &	tempTaskTask);
 
 		//file level attributes
 		void saveTaskLevelLabel			(std::string LabelStr);
