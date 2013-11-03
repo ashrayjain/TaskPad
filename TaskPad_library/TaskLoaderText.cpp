@@ -29,67 +29,61 @@
 using namespace TP;
 using namespace std;
 
-const std::string TaskLoaderText::TASK_DIRECTORY = "Tasks\\";
-const std::string TaskLoaderText::RECORD_MODIFIED_FILE_NAME = "savedTasks.txt";
-const std::string TaskLoaderText::RECORD_DELETED_FILE_NAME = "deletedTasks.txt";
+TaskLoaderText::TaskLoaderText() {
+	this->_logger = Logger::getLogger();
+}
 
-void TaskLoaderText::load (list<Task>& taskList, const string& fileName)
-{
+/****************************************************/
+/**************** Public Load API *******************/
+/****************************************************/
+
+void TaskLoaderText::load (list<Task>& taskList, const string& fileName) {
 	this->recoverUnsavedChanges(taskList);
+
 	this->openFile(fileName);
 	this->loadTaskList(taskList);
 	this->closeFile();
 	return;
 }
 
-void TaskLoaderText::recoverUnsavedChanges(list<Task>& taskList)
-{
+/****************************************************/
+/*************** Recovery Methods *******************/
+/****************************************************/
+
+void TaskLoaderText::recoverUnsavedChanges(list<Task>& taskList) {
 	this->loadDeletedIndices();
 	this->loadModifiedTasks(taskList);
 }
 
-void TaskLoaderText::loadDeletedIndices()
-{
-	Logger::getLogger()->log("TaskLoaderText","entering loadDeletedIndices");
+void TaskLoaderText::loadDeletedIndices() {
+	_logger->log("TaskLoaderText","entering loadDeletedIndices");
 	ifstream record(RECORD_DELETED_FILE_NAME);
 	std::string nextTaskIndex;
 
-	while(record.good())
-	{
+	while(record.good()) {
 		getline(record, nextTaskIndex);
-		if(nextTaskIndex!= "")
-		{
+		if(nextTaskIndex!= "") {
 			this->recoveredIndices.insert(nextTaskIndex);
-			Logger::getLogger()->log("TaskLoaderText","reading deleted tasks file: " + nextTaskIndex,NOTICELOG);
+			_logger->log("TaskLoaderText","reading deleted tasks file: " + nextTaskIndex,NOTICELOG);
 			nextTaskIndex = "";
 		}
 	}
 	record.close();
 }
 
-void TaskLoaderText::loadModifiedTasks(list<Task>& taskList)
-{
-	Logger::getLogger()->log("TaskLoaderText","entering loadModifiedTasks");
+void TaskLoaderText::loadModifiedTasks(list<Task>& taskList) {
+	_logger->log("TaskLoaderText","entering loadModifiedTasks");
 	ifstream recoverFile(RECORD_MODIFIED_FILE_NAME);
 	std::string nextTaskFile;
 	Task nextTask;
 
-	while(recoverFile.good())
-	{
+	while(recoverFile.good()) {
 		getline(recoverFile,nextTaskFile);
-		if(nextTaskFile != "")
-		{
+		if(nextTaskFile != "") {
 			this->openFile(nextTaskFile);
 
 			nextTask = this->getNextTask();
-			if(nextTask.getFlagIndex())
-			{
-				taskList.push_back(nextTask);
-			}
-			else
-			{
-				Logger::getLogger()->log("TaskLoaderText","flagIndex false for task with fileName "+nextTaskFile,NOTICELOG);
-			}
+			validateAndAddTaskToList(taskList, nextTask);
 
 			this->closeFile();
 		}
@@ -98,27 +92,37 @@ void TaskLoaderText::loadModifiedTasks(list<Task>& taskList)
 	return;
 }
 
+/****************************************************/
+/************** Private Load Method *****************/
+/****************************************************/
 
-void TaskLoaderText::loadTaskList(list<Task>& taskList)
-{
-	Logger::getLogger()->log("TaskLoaderText","entering loadTaskList");
-	while(_fileReader.good() && hasNextTask())
-	{
+void TaskLoaderText::loadTaskList(list<Task>& taskList) {
+	_logger->log("TaskLoaderText","entering loadTaskList");
+	while(_fileReader.good() && hasNextTask()) {
 		Task nextTask = this->getNextTask();
-
-		if(nextTask.getFlagIndex())
-		{
-			Logger::getLogger()->log("TaskLoaderText","created proper task",NOTICELOG);
-			taskList.push_back(nextTask);
-		}
+		validateAndAddTaskToList(taskList, nextTask);
 		this->getNextLineFromFile();
 	}
 	return;
 }
 
-Task TaskLoaderText::getNextTask()
-{
-	Logger::getLogger()->log("TaskLoaderText","entering getNextTask");
+void TaskLoaderText::validateAndAddTaskToList(list<Task>& taskList, const Task& nextTask) {
+	string taskFilePath = getTaskFilePath(nextTask);
+	if(nextTask.getFlagIndex()) {
+		taskList.push_back(nextTask);
+		_logger->log("TaskLoaderText","created proper task from "+taskFilePath,NOTICELOG);
+	}
+	else {
+		_logger->log("TaskLoaderText","flagIndex false for task with fileName "+taskFilePath,NOTICELOG);
+	}
+}
+
+/*****************************************************/
+/************** Task Attribute Loaders ***************/
+/*****************************************************/
+
+Task TaskLoaderText::getNextTask() {
+	_logger->log("TaskLoaderText","entering getNextTask");
 	string newLine;
 	string newLabel;
 	string newData;
@@ -126,30 +130,13 @@ Task TaskLoaderText::getNextTask()
 
 	while(_fileReader.good()) {
 
-		newLine = getNextLineFromFile();
-		newLabel = getNewLabel(newLine);
-		newData = getNewData(newLine);
+		newLine		= getNextLineFromFile();
+		newLabel	= getNewLabel(newLine);
+		newData		= getNewData(newLine);
 
 		if(newLabel == LABEL_INDEX) {
-			bool taskHasBeenDeleted = recoveredIndices.find(newData) != recoveredIndices.end();
-
-			if(taskHasBeenDeleted) {
-				Logger::getLogger()->log("TaskLoaderText","deleted task found: "+newData, NOTICELOG);
-				this->skipThisTask();
-				newTask = Task();
+			if(!validateAndCreateTask(newTask, newData)) {
 				break;
-			}
-			else {
-				try {
-					int newIndex = getTaskIndex(newData);
-					newTask = createNewTask(newIndex);
-					Logger::getLogger()->log("TaskLoaderText","created new task with index: "+newData);
-				}
-				catch (exception e) {
-					Logger::getLogger()->log("TaskLoaderText","recovered task duplicate in masterFile: "+newData, NOTICELOG);
-					newTask = Task();
-					return newTask;
-				}
 			}
 		}
 		else if(newLabel == LABEL_NAME) {
@@ -193,31 +180,107 @@ Task TaskLoaderText::getNextTask()
 	return newTask;
 }
 
-void TaskLoaderText::skipThisTask()
-{
+bool TaskLoaderText::validateAndCreateTask (Task& newTask, const std::string& newData) {
+	bool taskHasBeenDeleted = recoveredIndices.find(newData) != recoveredIndices.end();
+
+	if(taskHasBeenDeleted) {
+		_logger->log("TaskLoaderText","deleted task found: " + newData, NOTICELOG);
+		this->skipThisTask();
+		newTask = Task();
+		return false;
+	}
+	else {
+		try {
+			int newIndex = getTaskIndex(newData);
+			newTask = createNewTask(newIndex);
+			_logger->log("TaskLoaderText","created new task with index: " + newData);
+			return true;
+		}
+		catch (string e) {
+			_logger->log("TaskLoaderText","recovered task duplicate in masterFile: " + newData, NOTICELOG);
+			newTask = Task();
+			return false;
+		}
+	}
+}
+
+Task TaskLoaderText::createNewTask(unsigned long long index) {
+	return Task(index);
+}
+
+void TaskLoaderText::setTaskName	(Task& task,string taskName) {
+	task.setName(taskName);
+}
+
+void TaskLoaderText::setTaskDueDate	(Task& task, string dueDateStr) {
+	time_t dueDate = getTimeFromString(dueDateStr);
+	task.setDueDate(dueDate);
+}
+
+void TaskLoaderText::setTaskFromDate(Task& task, string fromDateStr) {
+	time_t fromDate = getTimeFromString(fromDateStr);
+	task.setFromDate(fromDate);
+}
+
+void TaskLoaderText::setTaskToDate(Task& task, string toDateStr) {
+	time_t toDate = getTimeFromString(toDateStr);
+	task.setToDate(toDate);
+}
+
+void TaskLoaderText::setTaskLocation(Task& task, string location) {
+	task.setLocation(location);
+}
+
+void TaskLoaderText::setTaskParticipant(Task& task, string participant) {
+	task.setParticipants(participant,ADD_ELEMENT);
+}
+
+void TaskLoaderText::setTaskNote(Task& task, string note) {
+	task.setNote(note);
+}
+
+void TaskLoaderText::setTaskPriority(Task& task, string taskPriorityStr) {
+	PRIORITY taskPriority = getPriorityFromString(taskPriorityStr);
+	task.setPriority(taskPriority);
+}
+
+void TaskLoaderText::setTaskTag(Task& task, string tag) {
+	task.setTags(tag,ADD_ELEMENT);
+}
+
+void TaskLoaderText::setTaskReminderTime(Task& task, string reminderTimeStr) {
+	time_t reminderTime = getTimeFromString(reminderTimeStr);
+	task.setRemindTimes(reminderTime,ADD_ELEMENT);
+}
+
+void TaskLoaderText::setTaskState(Task& task, string taskStateStr) {
+	TASK_STATE taskState = getTaskStateFromString(taskStateStr);
+	task.setState(taskState);
+}
+
+/****************************************************/
+/****** Helper Functions to Naviagate the File ******/
+/****************************************************/
+
+void TaskLoaderText::skipThisTask() {
 	bool hasEnded = false;
 
-	while(_fileReader.good())
-	{
+	while(_fileReader.good()) {
 		hasEnded = (getNextLineFromFile() == LABEL_END_OF_TASK);
 
-		if(hasEnded)
-		{
+		if(hasEnded) {
 			break;
 		}
 	}
 }
 
-bool TaskLoaderText::hasNextTask()
-{
+bool TaskLoaderText::hasNextTask() {
 	bool hasNextTask = false;
 
-	while(_fileReader.good())
-	{
+	while(_fileReader.good()) {
 		hasNextTask = (getNextLineFromFile() == LABEL_START_OF_TASK);
 
-		if(hasNextTask)
-		{
+		if(hasNextTask) {
 			break;
 		}
 	}
@@ -225,8 +288,7 @@ bool TaskLoaderText::hasNextTask()
 	return hasNextTask;
 }
 
-string TaskLoaderText::getNewLabel(string newLine)
-{
+string TaskLoaderText::getNewLabel(string newLine) {
 	string label;
 	stringstream tempStream(newLine);
 
@@ -235,8 +297,7 @@ string TaskLoaderText::getNewLabel(string newLine)
 	return label;
 }
 
-string TaskLoaderText::getNewData(string newLine)
-{
+string TaskLoaderText::getNewData(string newLine) {
 	int pos = newLine.find_first_of(" ");
 	if(pos != string::npos) {
 		return newLine.substr(pos+1);
@@ -246,63 +307,9 @@ string TaskLoaderText::getNewData(string newLine)
 	}
 }
 
-unsigned long long TaskLoaderText::getTaskIndex(string indexStr)
-{
-	return getIndexFromString(indexStr);
-}
-
-Task TaskLoaderText::createNewTask(unsigned long long index) {
-	return Task(index);
-}
-void TaskLoaderText::setTaskName	(Task& task,string taskName) {
-	task.setName(taskName);
-}
-void TaskLoaderText::setTaskDueDate	(Task& task, string dueDateStr) {
-	time_t dueDate = getTimeFromString(dueDateStr);
-	task.setDueDate(dueDate);
-}
-void TaskLoaderText::setTaskFromDate(Task& task, string fromDateStr) {
-	time_t fromDate = getTimeFromString(fromDateStr);
-	task.setFromDate(fromDate);
-}
-void TaskLoaderText::setTaskToDate(Task& task, string toDateStr) {
-	time_t toDate = getTimeFromString(toDateStr);
-	task.setToDate(toDate);
-}
-void TaskLoaderText::setTaskLocation(Task& task, string location) {
-	task.setLocation(location);
-}
-void TaskLoaderText::setTaskParticipant(Task& task, string participant) {
-	task.setParticipants(participant,ADD_ELEMENT);
-}
-void TaskLoaderText::setTaskNote(Task& task, string note) {
-	task.setNote(note);
-}
-void TaskLoaderText::setTaskPriority(Task& task, string taskPriorityStr) {
-	PRIORITY taskPriority = getPriorityFromString(taskPriorityStr);
-	task.setPriority(taskPriority);
-}
-void TaskLoaderText::setTaskTag(Task& task, string tag) {
-	task.setTags(tag,ADD_ELEMENT);
-}
-void TaskLoaderText::setTaskReminderTime(Task& task, string reminderTimeStr) {
-	time_t reminderTime = getTimeFromString(reminderTimeStr);
-	task.setRemindTimes(reminderTime,ADD_ELEMENT);
-}
-void TaskLoaderText::setTaskState(Task& task, string taskStateStr) {
-	TASK_STATE taskState = getTaskStateFromString(taskStateStr);
-	task.setState(taskState);
-}
-
-string TaskLoaderText::getNextLineFromFile()
-{
-	string nextLine;
-	getline(_fileReader,nextLine);
-
-	return nextLine;
-}
-
-// From String converters
+/****************************************************/
+/************** From String Converters **************/
+/****************************************************/
 
 int	TaskLoaderText::getIntFromString (string attribute) {
 	stringstream tempStream(attribute);
@@ -312,7 +319,12 @@ int	TaskLoaderText::getIntFromString (string attribute) {
 
 	return returnValue;
 }
-unsigned long long TaskLoaderText::getIndexFromString		(string attribute){
+
+unsigned long long TaskLoaderText::getTaskIndex(string indexStr) {
+	return getIndexFromString(indexStr);
+}
+
+unsigned long long TaskLoaderText::getIndexFromString (string attribute) {
 	stringstream tempStream(attribute);
 	unsigned long long returnValue;
 
@@ -320,7 +332,8 @@ unsigned long long TaskLoaderText::getIndexFromString		(string attribute){
 
 	return returnValue;
 }
-time_t TaskLoaderText::getTimeFromString (string attribute){
+
+time_t TaskLoaderText::getTimeFromString (string attribute) {
 	stringstream tempStream(attribute);
 	time_t returnValue;
 
@@ -328,24 +341,22 @@ time_t TaskLoaderText::getTimeFromString (string attribute){
 
 	return returnValue;
 }
-PRIORITY TaskLoaderText::getPriorityFromString	(string attribute){
+
+PRIORITY TaskLoaderText::getPriorityFromString	(string attribute) {
 	PRIORITY returnValue;
-	for (PRIORITY prio = HIGH; prio <= LOW; prio = static_cast<PRIORITY>(prio + 1))
-	{
-		if(attribute == PRIORITY_STRING[prio])
-		{
+	for (PRIORITY prio = HIGH; prio <= LOW; prio = static_cast<PRIORITY>(prio + 1)) {
+		if(attribute == PRIORITY_STRING[prio]) {
 			returnValue = prio;
 			break;
 		}
 	}
 	return returnValue;
 }
+
 TASK_STATE TaskLoaderText::getTaskStateFromString	(string attribute) {
 	TASK_STATE returnValue;
-	for (TASK_STATE state = UNDONE; state <= DONE; state = static_cast<TASK_STATE>(state + 1))
-	{
-		if(attribute == TASK_STATE_STRING[state])
-		{
+	for (TASK_STATE state = UNDONE; state <= DONE; state = static_cast<TASK_STATE>(state + 1)) {
+		if(attribute == TASK_STATE_STRING[state]) {
 			returnValue = state;
 			break;
 		}
@@ -354,5 +365,16 @@ TASK_STATE TaskLoaderText::getTaskStateFromString	(string attribute) {
 	return returnValue;
 }
 
+/***************************************************/
+/***************** Actual Reader *******************/
+/***************************************************/
+
+string TaskLoaderText::getNextLineFromFile()
+{
+	string nextLine;
+	getline(_fileReader,nextLine);
+
+	return nextLine;
+}
 
 #endif

@@ -34,8 +34,9 @@ class TaskLoader: public TaskFileHandler
 		virtual ~TaskLoader() {}
 	protected:
 		void openFile(const std::string& fileName, std::ios_base::openmode oMode = std::ios::in)
-											{ this->_fileReader.open(fileName,oMode); }
-		void closeFile() { _fileReader.close(); }
+							{ this->_fileReader.open(fileName,oMode); }
+
+		void closeFile()	{ _fileReader.close(); }
 
 		std::ifstream _fileReader;
 };

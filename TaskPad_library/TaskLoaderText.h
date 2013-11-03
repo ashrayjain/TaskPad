@@ -34,33 +34,34 @@ class TaskLoaderText :public TaskLoader
 {
 	public:
 		void load (std::list<Task>& taskList, const std::string& fileName);
-
-		const static std::string TASK_DIRECTORY;
-		const static std::string RECORD_MODIFIED_FILE_NAME;
-		const static std::string RECORD_DELETED_FILE_NAME;
-
+		TaskLoaderText();
 	private:
 
+		Logger* _logger;
+
 		//recovery system
-		void recoverUnsavedChanges	(std::list<Task>& taskList);
-		void loadDeletedIndices		();
-		void loadModifiedTasks		(std::list<Task>& taskList);
 		std::set<std::string> recoveredIndices;
 
+		void recoverUnsavedChanges		(std::list<Task>& taskList);
+		void loadDeletedIndices			();
+		void loadModifiedTasks			(std::list<Task>& taskList);
+		void validateAndAddTaskToList	(std::list<Task>& taskList, const Task& nextTask);
+
 		//loader
-		void loadTaskList	(std::list<Task>& taskList);
+		void loadTaskList				(std::list<Task>& taskList);
 
 		//helper functions
-		std::string			getNewLabel		(std::string);
-		std::string			getNewData		(std::string);
-		Task				getNextTask		();
-		void				skipThisTask	();
-		unsigned long long	getTaskIndex	(std::string);
-		bool				hasNextTask		();
+		std::string			getNewLabel				(std::string);
+		std::string			getNewData				(std::string);
+		Task				getNextTask				();
+		bool				validateAndCreateTask	(Task& newTask, const std::string& newData);
+		void				skipThisTask			();
+		unsigned long long	getTaskIndex			(std::string);
+		bool				hasNextTask				();
 
 		// task constructing functions
 		Task createNewTask			(unsigned long long index);
-		void setTaskName			(Task& task,std::string name);
+		void setTaskName			(Task& task, std::string name);
 		void setTaskDueDate			(Task& task, std::string dueDate);
 		void setTaskFromDate		(Task& task, std::string fromDate);
 		void setTaskToDate			(Task& task, std::string toDate);
