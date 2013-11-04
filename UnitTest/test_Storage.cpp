@@ -1,5 +1,7 @@
 #include "stdafx.h"
 #include "CppUnitTest.h"
+#include "../TaskPad_library/StorableTaskDatastore.h"
+#include "../TaskPad_library/Datastore.h"
 #include "../TaskPad_library/Task.h"
 #include "../TaskPad_library/Enum.h"
 #include "../TaskPad_library/Storage.h"
@@ -16,7 +18,7 @@ namespace UnitTest
 		
 		TEST_METHOD(saveList)
 		{
-			list<Task> taskList;
+			Datastore* taskList = new Datastore;
 			setupTaskList(taskList);
 
 			Storage testStore(taskList);
@@ -24,7 +26,7 @@ namespace UnitTest
 			Assert::IsTrue(testStore.save(taskList));
 		}
 
-		void setupTaskList(list<Task>& taskList)
+		void setupTaskList(StorableTaskDatastore* taskList)
 		{
 			Task task(101),task1(201);
 			time_t t = time(NULL);
@@ -40,7 +42,7 @@ namespace UnitTest
 			task.setRemindTimes((t + 432000),ADD_ELEMENT);
 			task.setRemindTimes((t + 691200),ADD_ELEMENT);
 
-			taskList.push_back(task);
+			taskList->addTask(task);
 
 
 			task1.setName("task 2");
@@ -48,7 +50,7 @@ namespace UnitTest
 			task1.setTags("test1",ADD_ELEMENT);
 			task1.setTags("test2",ADD_ELEMENT);
 
-			taskList.push_back(task1);
+			taskList->addTask(task1);
 
 			return;
 		}

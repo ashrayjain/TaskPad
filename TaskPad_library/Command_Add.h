@@ -28,6 +28,7 @@ public:
 	TP::PRIORITY				getPriority()		{ return Command::getPriority();	}
 	std::list<std::string>		getTags()			{ return Command::getTags();		}
 	std::list<std::time_t>		getRemindTimes()	{ return Command::getRemindTimes();	}
+	unsigned long long			getCreatedTime()	{ return Command::getCreatedTime(); }
 	
 	//setter for fields
 	void setName(std::string name)					{ Command::setName(name);			}
@@ -40,6 +41,7 @@ public:
 	void setPriority(TP::PRIORITY priority)			{ Command::setPriority(priority);	}
 	void setTags(std::list<std::string> tags)		{ Command::setTags(tags);			}
 	void setRemindTimes(std::list<std::time_t> time){ Command::setRemindTimes(time);	}
+	void setCreatedTime(unsigned long long ctime)	{ Command::setCreatedTime(ctime);	}
 	
 	//getter for flags
 	bool getFlagName()								{ return Command::getFlagName();		}
@@ -52,6 +54,7 @@ public:
 	bool getFlagPriority()							{ return Command::getFlagPriority();	}
 	bool getFlagTags()								{ return Command::getFlagTags();		}
 	bool getFlagRemindTimes()						{ return Command::getFlagRemindTimes();	}
+	bool getFlagCreatedTime()						{ return Command::getFlagCreatedTime();	}
 };
 
 #endif

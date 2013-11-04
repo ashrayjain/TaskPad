@@ -1,7 +1,7 @@
 /*
  * =====================================================================================
  *
- *       Filename:  Database_Base.h
+ *       Filename:  Datastore_Base.h
  *
  *        Version:  1.0
  *        Created:  10/28/13 15:47:28
@@ -12,20 +12,24 @@
  * =====================================================================================
  */
 
-#ifndef TASKPAD_DATABASE_BASE_H
-#define TASKPAD_DATABASE_BASE_H
+#ifndef TASKPAD_DATASTORE_BASE_H
+#define TASKPAD_DATASTORE_BASE_H
 
 #include <list>
 #include "Task.h"
 
-class Database_Base {
+class Datastore_Base {
 public:
-	Database_Base(){}
-	virtual ~Database_Base() = 0;
+	virtual ~Datastore_Base() = 0;
 
-	class iterator
-    {
+	class iterator {
         public:
+			typedef iterator self_type;
+            typedef Task value_type;
+            typedef Task& reference;
+            typedef Task* pointer;
+			typedef std::bidirectional_iterator_tag iterator_category;
+            typedef int difference_type;
             virtual void operator++();
             virtual void operator++(int junk);
 			virtual void operator--();
@@ -37,13 +41,13 @@ public:
     };
 
 
-	virtual std::list<Task> getAllTasks();
-	virtual void			addTask(Task newTask);
-	virtual void			deleteTask(iterator i);
-	iterator				begin();
-	iterator				end();
-	virtual Task&			front();
-	virtual Task&			back();
+	std::list<Task>				getAllTasks();
+	void						addTask(Task newTask);
+	void						deleteTask(iterator i);
+	Task&						front();
+	Task&						back();
+	Datastore_Base::iterator	begin();
+	Datastore_Base::iterator	end();
 };
 
 #endif

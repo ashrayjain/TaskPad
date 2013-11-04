@@ -13,19 +13,23 @@
  */
 
 #include "Executor.h"
-
+/*
 using namespace TP;
 
-const unsigned		Executor::EMPTY_LIST_SIZE			= 0;
-const unsigned		Executor::SINGLE_RESULT_LIST_SIZE	= 1;
-const std::string	Executor::NAME_NOT_FOUND_ERROR		= "No results for name: ";
-const std::string	Executor::INVALID_INDEX_ERROR		= " is not a valid index!";
-const std::string	Executor::UNDOSTACK_EMPTY_MSG		= "Nothing to Undo!";
-const std::string	Executor::REDOSTACK_EMPTY_MSG		= "Nothing to Redo!";
-const std::string   Executor::MODIFY_SAME_NAME_ERROR	= "New name is the same as the Existing name!";
-const std::string   Executor::INVALID_FROMDATE_ERROR	= "Invalid 'From' Attribute!";
-const std::string   Executor::INVALID_TODATE_ERROR		= "Invalid 'To' Attribute!";
-const std::string   Executor::INVALID_FROMDATE_TODATE_ERROR		= "Invalid 'From' and 'To' Attributes!";
+const unsigned			Executor::EMPTY_LIST_SIZE				= 0;
+const unsigned			Executor::SINGLE_RESULT_LIST_SIZE		= 1;
+const std::string		Executor::NAME_NOT_FOUND_ERROR			= "No results for name: ";
+const std::string		Executor::INVALID_INDEX_ERROR			= " is not a valid index!";
+const std::string		Executor::UNDOSTACK_EMPTY_MSG			= "Nothing to Undo!";
+const std::string		Executor::REDOSTACK_EMPTY_MSG			= "Nothing to Redo!";
+const std::string		Executor::MODIFY_SAME_NAME_ERROR		= "New name is the same as the Existing name!";
+const std::string		Executor::INVALID_FROMDATE_ERROR		= "Invalid 'From' Attribute!";
+const std::string		Executor::INVALID_TODATE_ERROR			= "Invalid 'To' Attribute!";
+const std::string		Executor::INVALID_FROMDATE_TODATE_ERROR	= "Invalid 'From' and 'To' Attributes!";
+const std::string		Executor::NAME_NOT_SPECIFIED_ERROR		= "No Name specified!";
+const unsigned			Executor::RT_MIN_H_ARR[]				= {5, 15, 30, 60};
+const unsigned			Executor::RT_MIN_M_ARR[]				= {15, 30};
+const unsigned			Executor::RT_MIN_L_ARR[]				= {60};
 
 void Executor::rebuildHashes() {
 	rebuildIndexHash();
@@ -49,80 +53,96 @@ void Executor::rebuildRemindTimesHash() {
 		if(i->getFlagRemindTimes())
 			handleRemindTimesPtrs(*i, i->getRemindTimes());
 }
-
+*/
 list<Task> Executor::getCurrentReminders() {
 	time_t now = time(NULL);
 	struct tm* timeNow = localtime(&now);
 	timeNow->tm_sec = 0;
 	now = mktime(timeNow);
-
+	/*
 	list<Task> taskResults;
 	unordered_map<time_t, list<Task*>>::iterator result = _remindTimesHash.find(now);
 	if (result != _remindTimesHash.end())
 		getTasksFromTaskPtrList(taskResults, result->second);
 	return taskResults;
+	*/
+	return _ds.getTasksWithRemindTimes(now);
 }
-
+/*
 void Executor::getTasksFromTaskPtrList(list<Task> &taskResults, list<Task*> &results) {
 	for(list<Task*>::iterator i = results.begin(); i != results.end(); i++)
 		taskResults.push_back(Task(**i));
 }
-
+*/
 void Executor::executeCommand(Command* cmd, Messenger &response) {
+	Executor_Base* executor;
 	switch (cmd->getCommandType()) {
-	case COMMAND_TYPE::ADD:
-		executeAdd (dynamic_cast<Command_Add*>(cmd), response);
-		if (isCmdSuccessful(response))
-			stackForUndo(cmd, response);
-		break;
-	case COMMAND_TYPE::DEL:
-		executeDel (dynamic_cast<Command_Del*>(cmd), response);
-		if (isCmdSuccessful(response))
-			stackForUndo(cmd, response);
-		break;
-	case COMMAND_TYPE::MOD:
-		executeMod (dynamic_cast<Command_Mod*>(cmd), response);
-		if (isCmdSuccessful(response))
-			stackForUndo(cmd, response);
-		break;
-	case COMMAND_TYPE::FIND:
-		executeFind(dynamic_cast<Command_Find*>(cmd), response);
-		break;
-	case COMMAND_TYPE::UNDO:
-		executeUndo(dynamic_cast<Command_Undo*>(cmd), response);
-		break;
-	case COMMAND_TYPE::REDO:
-		executeRedo(dynamic_cast<Command_Redo*>(cmd), response);
-		break;
+	case COMMAND_TYPE::ADD:	executor = new Executor_Add();
+							executor->executeCommand(cmd, response, _ds);
+							if (isCmdSuccessful(response))
+								_ds.stackCmdForUndo(cmd, response);
+							break;
+	case COMMAND_TYPE::DEL:	executor = new Executor_Del();
+							executor->executeCommand(cmd, response, _ds);
+							if (isCmdSuccessful(response))
+								_ds.stackCmdForUndo(cmd, response);
+							break;
+	case COMMAND_TYPE::MOD:	executor = new Executor_Mod();
+							executor->executeCommand(cmd, response, _ds);
+							if (isCmdSuccessful(response))
+								_ds.stackCmdForUndo(cmd, response);
+							break;
+	case COMMAND_TYPE::FIND:executor = new Executor_Find();
+							executor->executeCommand(cmd, response, _ds);
+							break;
+	case COMMAND_TYPE::UNDO:executor = new Executor_Undo();
+							executor->executeCommand(cmd, response, _ds);
+							executeCommandWithoutUndoRedo(
+								dynamic_cast<Executor_Undo*>(executor)->getUndoCommandToExecute(), 
+								response);
+							break;
+	case COMMAND_TYPE::REDO:executor = new Executor_Redo();
+							executor->executeCommand(cmd, response, _ds);
+							executeCommandWithoutUndoRedo(
+								dynamic_cast<Executor_Redo*>(executor)->getRedoCommandToExecute(), 
+								response);
+							break;
 	default:
 		break;
 	}
+	delete executor;
 }
 
 void Executor::executeCommandWithoutUndoRedo(Command* cmd, Messenger &response) {
+	Executor_Base* executor;
 	switch (cmd->getCommandType()) {
-	case COMMAND_TYPE::ADD:
-		executeAdd (dynamic_cast<Command_Add*>(cmd), response);
-		break;
-	case COMMAND_TYPE::DEL:
-		executeDel (dynamic_cast<Command_Del*>(cmd), response);
-		break;
-	case COMMAND_TYPE::MOD:
-		executeMod (dynamic_cast<Command_Mod*>(cmd), response);
-		break;
+	case COMMAND_TYPE::ADD:	executor = new Executor_Add();
+							break;
+	case COMMAND_TYPE::DEL:	executor = new Executor_Del();
+							break;
+	case COMMAND_TYPE::MOD:	executor = new Executor_Mod();
+							break;
 	}
+	executor->executeCommand(cmd, response, _ds);
+	delete executor;
 }
 
+bool Executor::isCmdSuccessful(const Messenger &response) const {
+	return response.getStatus() == TP::STATUS::SUCCESS;
+}
+
+/*
 // Add functions
 
 void Executor::executeAdd (Command_Add* cmd, Messenger &response) {
 	if(validAddCmd(cmd, response)) {
-		Task newTask = Task(cmd->getName());
-		formTaskFromAddCmd(cmd, newTask);
+		Task newTask = formTaskFromAddCmd(cmd);
+		//
 		_data->push_back(newTask);
 		_indexHash[newTask.getIndex()] = &(_data->back());
 		handleHashTagPtrs(_data->back(), _data->back().getTags());
 		handleRemindTimesPtrs(_data->back(), _data->back().getRemindTimes());
+		//
 		setOpSuccessTask(newTask, response);
 	}
 }
@@ -132,16 +152,26 @@ bool Executor::validAddCmd(Command_Add* cmd, Messenger &response) {
 		setErrorWithErrMsg(response, INVALID_FROMDATE_TODATE_ERROR);
 		return false;
 	}
+	if (!cmd->getFlagName()) {
+		setErrorWithErrMsg(response, NAME_NOT_SPECIFIED_ERROR);
+		return false;
+	}
 	return true;
 }
 
-void Executor::formTaskFromAddCmd(Command_Add* cmd, Task &newTask) {
+Task Executor::formTaskFromAddCmd(Command_Add* cmd) {
+	Task newTask;
+	if(cmd->getFlagCreatedTime()) {
+		newTask = Task(cmd->getCreatedTime());
+		newTask.setName(cmd->getName());
+	}
+	else
+		newTask = Task(cmd->getName());
+
 	if(cmd->getFlagLocation())
 		newTask.setLocation(cmd->getLocation());
 	if(cmd->getFlagNote())
 		newTask.setNote(cmd->getNote());
-	if(cmd->getFlagRemindTimes())
-		newTask.setRemindTimes(cmd->getRemindTimes());
 	if(cmd->getFlagParticipants())
 		newTask.setParticipants(cmd->getParticipants());
 	if(cmd->getFlagPriority())
@@ -154,6 +184,47 @@ void Executor::formTaskFromAddCmd(Command_Add* cmd, Task &newTask) {
 		newTask.setDueDate(cmd->getDueDate());
 	if(cmd->getFlagTags())
 		newTask.setTags(cmd->getTags());
+
+	if(cmd->getFlagRemindTimes())
+		newTask.setRemindTimes(cmd->getRemindTimes());
+	else if (newTask.getFlagFromDate())
+		setDefaultRemindTimes(newTask);
+
+	return newTask;
+}
+
+void Executor::setDefaultRemindTimes(Task &task) {
+	switch(task.getPriority()) {
+	case TP::PRIORITY::HIGH:	setDefaultRemindTimesPriorityH(task); break;
+	case TP::PRIORITY::MEDIUM:	setDefaultRemindTimesPriorityM(task); break;
+	case TP::PRIORITY::LOW:		setDefaultRemindTimesPriorityL(task); break;
+	}
+}
+
+void Executor::setDefaultRemindTimesPriorityH(Task &task) {
+	int n = sizeof(RT_MIN_H_ARR) / sizeof(RT_MIN_H_ARR[0]);
+	task.setRemindTimes(getRemindTimesFromMinutesBefore(RT_MIN_H_ARR, n, task.getFromDate()));
+}
+
+void Executor::setDefaultRemindTimesPriorityM(Task &task) {
+	int n = sizeof(RT_MIN_M_ARR) / sizeof(RT_MIN_M_ARR[0]);
+	task.setRemindTimes(getRemindTimesFromMinutesBefore(RT_MIN_M_ARR, n, task.getFromDate()));
+}
+
+void Executor::setDefaultRemindTimesPriorityL(Task &task) {
+	int n = sizeof(RT_MIN_L_ARR) / sizeof(RT_MIN_L_ARR[0]);
+	task.setRemindTimes(getRemindTimesFromMinutesBefore(RT_MIN_L_ARR, n, task.getFromDate()));
+}
+list<time_t> Executor::getRemindTimesFromMinutesBefore(const unsigned minutesBeforeList[], const int listSize, const time_t &deadline) const{
+	list<time_t> remindTimesList;
+	struct tm * deadlineTime = localtime(&deadline);
+	for(int i = 0; i < listSize; i++) {
+		deadlineTime->tm_min -= minutesBeforeList[i];
+		remindTimesList.push_back(mktime(deadlineTime));
+		deadlineTime->tm_min += minutesBeforeList[i];
+		mktime(deadlineTime);
+	}
+	return remindTimesList;
 }
 
 void Executor::handleHashTagPtrs(Task &newTask, const list<string> &hashTagsList) {
@@ -246,12 +317,27 @@ void Executor::deleteByExactName(const string &name, Messenger &response) {
 
 void Executor::deleteByApproxName(const string &name, Messenger &response) {
 	list<Task> matchingResults;
-	for(list<Task>::iterator i = _data->begin(); i != _data->end(); ++i)
-		if (i->getName().find(name) != string::npos)
+	list<Task> caseInsensitiveResults;
+	string lowerName = getLowerStr(name);
+	for(list<Task>::iterator i = _data->begin(); i != _data->end(); ++i) {
+		string currName = getLowerStr(i->getName());
+		if (currName.find(name) != string::npos)
 			matchingResults.push_back(Task(*i));
+		else if (currName.find(lowerName) != string::npos)
+			caseInsensitiveResults.push_back(Task(*i));
+	}
+	selectAppropriateDeleteResponse(matchingResults, caseInsensitiveResults, name, response);
+}
 
-	if (matchingResults.size() == EMPTY_LIST_SIZE)
-		setNameNotFound(name, response);
+void Executor::selectAppropriateDeleteResponse(const list<Task> &matchingResults, const list<Task> &caseInsensitiveResults, const string &name, Messenger &response) {
+	if (matchingResults.size() == EMPTY_LIST_SIZE) {
+		if (caseInsensitiveResults.size() == EMPTY_LIST_SIZE)
+			setNameNotFound(name, response);
+		else if (caseInsensitiveResults.size() == SINGLE_RESULT_LIST_SIZE)
+			deleteTaskByIndex(caseInsensitiveResults.front().getIndex(), response);
+		else
+			setOpIntermediateTaskList(caseInsensitiveResults, response);
+	}
 	else if (matchingResults.size() == SINGLE_RESULT_LIST_SIZE)
 		deleteTaskByIndex(matchingResults.front().getIndex(), response);
 	else
@@ -328,12 +414,29 @@ void Executor::modifyByExactName(Command_Mod* cmd, Messenger &response) {
 
 void Executor::modifyByApproxName(Command_Mod* cmd, Messenger &response) {
 	list<Task> matchingResults;
-	for(list<Task>::iterator i = _data->begin(); i != _data->end(); ++i)
-		if (i->getName().find(cmd->getName()) != string::npos)
+	list<Task> caseInsensitiveResults;
+	string lowerName = getLowerStr(cmd->getName());
+	for(list<Task>::iterator i = _data->begin(); i != _data->end(); ++i) {
+		string currName = getLowerStr(i->getName());
+		if (currName.find(cmd->getName()) != string::npos)
 			matchingResults.push_back(Task(*i));
+		else if (currName.find(lowerName) != string::npos)
+			caseInsensitiveResults.push_back(Task(*i));
+	}
+	selectAppropriateModifyResponse(matchingResults, caseInsensitiveResults, cmd, response);
+}
 
-	if (matchingResults.size() == EMPTY_LIST_SIZE)
-		setNameNotFound(cmd->getName(), response);
+void Executor::selectAppropriateModifyResponse(const list<Task> &matchingResults, const list<Task> &caseInsensitiveResults, Command_Mod* cmd, Messenger &response) {
+	if (matchingResults.size() == EMPTY_LIST_SIZE) {
+		if (caseInsensitiveResults.size() == EMPTY_LIST_SIZE)
+			setNameNotFound(cmd->getName(), response);
+		else if (caseInsensitiveResults.size() == SINGLE_RESULT_LIST_SIZE) {
+			cmd->setCreatedTime(caseInsensitiveResults.front().getIndex());
+			modifyByIndex(cmd, response);
+		}
+		else
+			setOpIntermediateTaskList(caseInsensitiveResults, response);
+	}
 	else if(matchingResults.size() == SINGLE_RESULT_LIST_SIZE){
 		cmd->setCreatedTime(matchingResults.front().getIndex());
 		modifyByIndex(cmd, response);
@@ -359,6 +462,11 @@ void Executor::modifyTaskTo(Task &oldTask, Command_Mod* cmd) {
 		oldTask.setParticipants(Task::DEFAULT_PARTICIPANTS);
 	if(cmd->getFlagTags())
 		handleHashTagsModify(oldTask, cmd->getTags());
+	if(cmd->getFlagAddTags()) {
+		list<string> tags = oldTask.getTags();
+		tags.splice(tags.end(), cmd->getAddTags());
+		handleHashTagsModify(oldTask, tags);
+	}
 	if(cmd->getFlagRemoveTags())
 		handleHashTagsModify(oldTask, getTagsListDifference(oldTask.getTags(), cmd->getRemoveTags()));
 	if(cmd->getFlagRemoveAllTags())
@@ -452,6 +560,7 @@ void Executor::executeFind (Command_Find* cmd, Messenger &response) {
 		findGeneral(cmd, response);
 	if(cmd->getFlagTaskType())
 		filterResponseListByType(response, list<TP::TASK_TYPE>(1, cmd->getTaskType()));
+	response.setList(getSortListByPriority(response.getList()));
 }
 
 void Executor::formTaskFromFindCmd(Command_Find* cmd, Task &newTask) {
@@ -495,7 +604,7 @@ void Executor::findGeneral(Command_Find* cmd, Messenger &response) {
 
 	runSearch(taskToCompare,
 		results, 
-		cmd->getOptName(), 
+		getLowerStr(cmd->getOptName()),
 		customDataRange, 
 		cmd->getFlagTags() || cmd->getFlagRemindTimes());		
 
@@ -537,7 +646,7 @@ void Executor::findByRemindTimes(Command_Find* cmd, Messenger &response) {
 	runSearchWithTaskOnData(taskToCompare, results, customDataRange);
 	setOpSuccessTaskList(results, response);
 }
-*/
+*//*
 void Executor::getCustomDataRangeByTags(set<Task*> &customDataRange, list<string> &tags) {
 	for(list<string>::iterator i = tags.begin(); i != tags.end(); ++i)
 		customDataRange.insert(_hashTagsHash[*i].begin(), _hashTagsHash[*i].end());
@@ -564,7 +673,7 @@ void Executor::runSearchWithTask(const Task &taskToCompare, list<Task> &results)
 
 void Executor::runSearchWithTask(const Task &taskToCompare, list<Task> &results, string substringName) {
 	for(list<Task>::iterator i = _data->begin(); i != _data->end(); ++i)
-		if (i->getFlagName() && i->getName().find(substringName) != string::npos && taskMatch(*i, taskToCompare))
+		if (getLowerStr(i->getName()).find(substringName) != string::npos && taskMatch(*i, taskToCompare))
 			results.push_back(Task(*i));
 }
 
@@ -576,16 +685,16 @@ void Executor::runSearchWithTask(const Task &taskToCompare, list<Task> &results,
 
 void Executor::runSearchWithTask(const Task &taskToCompare, list<Task> &results, string substringName, set<Task*> &customData) {
 	for(set<Task*>::iterator i = customData.begin(); i != customData.end(); ++i)
-		if ((*i)->getFlagName() && (*i)->getName().find(substringName) != string::npos && taskMatch(**i, taskToCompare))
+		if (getLowerStr((*i)->getName()).find(substringName) != string::npos && taskMatch(**i, taskToCompare))
 			results.push_back(Task(**i));
 }
 
-bool Executor::taskMatch(const Task& lhs, const Task& rhs) const {
-	if (rhs.getFlagName() && (!lhs.getFlagName() || rhs.getName() != lhs.getName()))
+bool Executor::taskMatch(const Task& lhs, const Task& rhs) {
+	if (rhs.getFlagName() && strcmpi(rhs.getName().c_str(), lhs.getName().c_str()))
 		return false;
 	else if (rhs.getFlagLocation() && (!lhs.getFlagLocation() || rhs.getLocation() != lhs.getLocation()))
 		return false;
-	else if (rhs.getFlagParticipants() && (!lhs.getFlagParticipants() || rhs.getParticipants() != lhs.getParticipants()))
+	else if (rhs.getFlagParticipants() && (!lhs.getFlagParticipants() || !participantsMatchFound(getLowerStrList(rhs.getParticipants()), getLowerStrList(lhs.getParticipants()))))
 		return false;
 	else if (rhs.getFlagNote() && (!lhs.getFlagNote() || rhs.getNote() != lhs.getNote()))
 		return false;
@@ -597,6 +706,14 @@ bool Executor::taskMatch(const Task& lhs, const Task& rhs) const {
 		return false;
 	return true;
 } 
+
+bool Executor::participantsMatchFound(const list<string> &rhsParticipants, const list<string> &lhsParticipants) const {
+	for(list<string>::const_iterator i = lhsParticipants.begin(); i != lhsParticipants.end(); i++)
+		for(list<string>::const_iterator j = rhsParticipants.begin(); j != rhsParticipants.end(); j++)
+			if(i->find(*j) != string::npos)
+				return true;
+	return false;
+}
 
 bool Executor::invalidDateChk(const Task &lhs, const Task &rhs) const {
 	bool retVal = true;
@@ -643,6 +760,15 @@ bool Executor::chkToDateBound(const time_t &toTime, const Task &lhs) const {
 	return retVal;
 }
 
+list<Task> Executor::getSortListByPriority(list<Task> &taskList) {
+	taskList.sort(sortTaskByPriorityComparator);
+	return taskList;
+}
+
+bool Executor::sortTaskByPriorityComparator(const Task first, const Task second) {
+	return (first.getPriority() < second.getPriority());
+}
+
 // Undo and Redo functions
 
 void Executor::executeUndo(Command_Undo* cmd, Messenger &response) {
@@ -652,8 +778,8 @@ void Executor::executeUndo(Command_Undo* cmd, Messenger &response) {
 		Command* undoCmd = getTransposeCommand(_undoStack.top().first, _undoStack.top().second);
 		executeCommandWithoutUndoRedo(undoCmd, response);
 		delete undoCmd;
-		if (_undoStack.top().first->getCommandType() == TP::COMMAND_TYPE::DEL)
-			dynamic_cast<Command_Del*>(_undoStack.top().first)->setCreatedTime(response.getTask().getIndex());
+		//if (_undoStack.top().first->getCommandType() == TP::COMMAND_TYPE::DEL)
+		//	dynamic_cast<Command_Del*>(_undoStack.top().first)->setCreatedTime(response.getTask().getIndex());
 		_redoStack.push(_undoStack.top());
 		_undoStack.pop();
 	}
@@ -705,6 +831,7 @@ Command* Executor::getTransposeCommand(Command_Del* cmd, Task &task) {
 }
 
 void Executor::formAddCmdFromTask(Task &task, Command_Add* cmd) {
+	cmd->setCreatedTime(task.getIndex());
 	if(task.getFlagName())
 		cmd->setName(task.getName());
 	if(task.getFlagLocation())
@@ -752,6 +879,7 @@ void Executor::getCmdForSubtractingCmdFromTask(Command_Mod* subtractCmd, Command
 		cmd->getFlagRemoveAllParticipants())
 		subtractCmd->setParticipants(task.getParticipants());
 	if(cmd->getFlagTags() || 
+		cmd->getFlagAddTags() ||
 		cmd->getFlagRemoveTags() || 
 		cmd->getFlagRemoveAllTags())
 		subtractCmd->setTags(task.getTags());
@@ -772,22 +900,31 @@ bool Executor::isCmdSuccessful(const Messenger &response) const {
 }
 
 void Executor::stackForUndo(Command* cmd, Messenger &response) {
-	if(cmd->getCommandType() == TP::COMMAND_TYPE::MOD) {
-		Command_Mod* newCmd = new Command_Mod();
-		*newCmd = *(dynamic_cast<Command_Mod*>(cmd));
-		_undoStack.push(pair<Command*, Task>(newCmd, _interimTask));
-	}
-	else if(cmd->getCommandType() == TP::COMMAND_TYPE::ADD) {
-		Command_Add* newCmd = new Command_Add();
-		*newCmd = *(dynamic_cast<Command_Add*>(cmd));
-		_undoStack.push(pair<Command*, Task>(newCmd, response.getTask()));
-	}
-	else {
-		Command_Del* newCmd = new Command_Del();
-		*newCmd = *(dynamic_cast<Command_Del*>(cmd));
-		_undoStack.push(pair<Command*, Task>(newCmd, response.getTask()));
+	switch(cmd->getCommandType()) {
+	case TP::COMMAND_TYPE::MOD: stackModCmdForUndo(cmd, response); break;
+	case TP::COMMAND_TYPE::ADD: stackAddCmdForUndo(cmd, response); break;
+	case TP::COMMAND_TYPE::DEL: stackDelCmdForUndo(cmd, response); break;
 	}
 	clearRedoStack();
+}
+
+void Executor::stackModCmdForUndo(Command* cmd, Messenger &response) {
+	Command* newCmd = new Command_Mod();
+	*newCmd = *cmd;
+	_undoStack.push(pair<Command*, Task>(newCmd, _interimTask));
+}
+
+void Executor::stackAddCmdForUndo(Command* cmd, Messenger &response) {
+	Command* newCmd = new Command_Add();
+	*newCmd = *cmd;
+	dynamic_cast<Command_Add*>(newCmd)->setCreatedTime(response.getTask().getIndex());
+	_undoStack.push(pair<Command*, Task>(newCmd, response.getTask()));
+}
+
+void Executor::stackDelCmdForUndo(Command* cmd, Messenger &response) {
+	Command* newCmd = new Command_Del();
+	*newCmd = *cmd;
+	_undoStack.push(pair<Command*, Task>(newCmd, response.getTask()));
 }
 
 void Executor::clearRedoStack() {
@@ -804,6 +941,20 @@ void Executor::clearUndoStack() {
 	}
 }
 
+// Utility functions
+
+string Executor::getLowerStr(string str) {
+	string lowerStr = str;
+	transform(str.begin(), str.end(), lowerStr.begin(), ::tolower);
+	return lowerStr;
+}
+
+list<string> Executor::getLowerStrList(list<string> strList) {
+	list<string> lowerStrList;
+	for(list<string>::const_iterator i = strList.begin(); i != strList.end(); i++)
+		lowerStrList.push_back(getLowerStr(*i));
+	return lowerStrList;
+}
 
 // Status setting functions
 
@@ -836,5 +987,5 @@ void Executor::setErrorWithErrMsg(Messenger &response, const string errMsg) {
 	response.setStatus(TP::STATUS::ERROR);
 	response.setErrorMsg(errMsg);
 }
-
+*/
 

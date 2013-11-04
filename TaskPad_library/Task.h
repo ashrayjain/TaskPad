@@ -48,6 +48,14 @@ public:
     // Note: Throws Exception on invalid index
     Task(unsigned long long indexToPut)	{ defaultTaskInit(indexToPut); }
 	~Task()								{ listOfAllIndices.erase(_taskIndex); }
+	
+	// Overloaded Operators
+	bool operator<	(const Task& a) const { return this->getIndex() < a.getIndex();  }
+	bool operator==	(const Task& a) const { return this->getIndex() == a.getIndex(); }
+	bool operator<=	(const Task& a) const { return !operator>(a);					 }
+	bool operator>=	(const Task& a) const { return !operator<(a);					 }
+	bool operator!=	(const Task& a) const { return !operator==(a);					 }
+	bool operator>	(const Task& a) const { return this->getIndex() > a.getIndex();  }
 
 	// Default Attributes Values
 	static const unsigned long long						DEFAULT_INDEX;

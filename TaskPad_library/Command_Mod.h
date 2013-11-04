@@ -32,6 +32,7 @@ public:
 	TP::PRIORITY				getPriority()		    { return Command::getPriority();	      }
 	std::list<std::string>		getTags()			    { return Command::getTags();		      }
 	std::list<std::string>		getRemoveTags()		    { return Command::getRemoveTags();	      }
+	std::list<std::string>		getAddTags()			{ return Command::getAddTags();			  }
 	std::list<std::time_t>		getRemindTimes()	    { return Command::getRemindTimes();	      }
 	std::list<std::time_t>		getRemoveRemindTimes()  { return Command::getRemoveRemindTimes(); }
 	std::list<std::time_t>		getAddRemindTimes()	    { return Command::getAddRemindTimes();    }
@@ -53,6 +54,7 @@ public:
 	void setPriority(TP::PRIORITY priority)			     { Command::setPriority(priority);	    }
 	void setTags(std::list<std::string> tags)		     { Command::setTags(tags);			    }
 	void setRemoveTags(std::list<std::string> tags)	     { Command::setRemoveTags(tags);		}
+	void setAddTags(std::list<std::string> tags)		 { Command::setAddTags(tags);			}
 	void setRemindTimes(std::list<std::time_t> time)     { Command::setRemindTimes(time);	    }
 	void setRemoveRemindTimes(std::list<std::time_t>time){ Command::setRemoveRemindTimes(time); }
 	void setAddRemindTimes(std::list<std::time_t>time)   { Command::setAddRemindTimes(time);    }
@@ -79,6 +81,7 @@ public:
 	bool getFlagPriority()							{ return Command::getFlagPriority();	         }
 	bool getFlagTags()								{ return Command::getFlagTags();		         }
 	bool getFlagRemoveTags()						{ return Command::getFlagRemoveTags();	         }
+	bool getFlagAddTags()							{ return Command::getFlagAddTags();				 }
 	bool getFlagRemoveAllTags()						{ return Command::getFlagRemoveAllTags();        }
 	bool getFlagRemindTimes()						{ return Command::getFlagRemindTimes();	         }
 	bool getFlagRemoveRemindTimes()					{ return Command::getFlagRemoveRemindTimes();	 }

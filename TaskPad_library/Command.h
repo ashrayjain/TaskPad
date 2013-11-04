@@ -96,6 +96,7 @@ protected:
 	TP::PRIORITY			getPriority()			{ return _priority;			 }
 	std::list<std::string>	getTags()				{ return _tags;				 }
 	std::list<std::string>	getRemoveTags()			{ return _removeTags;		 }
+	std::list<std::string>	getAddTags()			{ return _addTags;			 }
 	std::list<std::time_t>	getRemindTimes()		{ return _remindTime;		 }
 	std::list<std::time_t>	getRemoveRemindTimes()	{ return _removeRemindTime;	 }
 	std::list<std::time_t>	getAddRemindTimes()		{ return _addRemindTime;	 }
@@ -119,6 +120,7 @@ protected:
 	void setPriority(TP::PRIORITY priority)			     { _priority		  = priority;	FLAG_priority	= TP::EDITED;       }
 	void setTags(std::list<std::string> tags)		     { _tags			  = tags;		FLAG_tags		= TP::EDITED;       }
 	void setRemoveTags(std::list<std::string> tags)	     { _removeTags	      = tags;		FLAG_removeTags	= TP::EDITED;       }
+	void setAddTags(std::list<std::string> tags)         { _addTags	          = tags;		FLAG_addTags	= TP::EDITED;		}
 	void setRemindTimes(std::list<std::time_t> time)     { _remindTime	      = time;		FLAG_remindTime	= TP::EDITED;       }
 	void setRemoveRemindTimes(std::list<std::time_t>time){_removeRemindTime   = time;       FLAG_removeRemindTime = TP::EDITED; }
 	void setAddRemindTimes(std::list<std::time_t>time)   {_addRemindTime      = time;	    FLAG_addRemindTime = TP::EDITED;    }
@@ -147,6 +149,7 @@ protected:
 	bool getFlagPriority()							{ return FLAG_priority;			    }
 	bool getFlagTags()								{ return FLAG_tags;				    }
 	bool getFlagRemoveTags()						{ return FLAG_removeTags;		    }
+	bool getFlagAddTags()							{ return FLAG_addTags;				}
 	bool getFlagRemoveAllTags()						{ return FLAG_removeAllTags;	    }
 	bool getFlagRemindTimes()						{ return FLAG_remindTime;		    }
 	bool getFlagRemoveRemindTimes()					{ return FLAG_removeRemindTime;	    }
@@ -200,6 +203,7 @@ private:
 	bool FLAG_priority;
 	bool FLAG_tags;
 	bool FLAG_removeTags;
+	bool FLAG_addTags;
 	bool FLAG_removeAllTags;
 	bool FLAG_remindTime;
 	bool FLAG_removeRemindTime;
@@ -226,6 +230,7 @@ private:
 	TP::PRIORITY									_priority;//high | medium | low
 	std::list<std::string>							_tags;
 	std::list<std::string>							_removeTags;
+	std::list<std::string>							_addTags;
 	std::list<std::time_t>							_remindTime;
 	std::list<std::time_t>							_removeRemindTime;
 	std::list<std::time_t>							_addRemindTime;
