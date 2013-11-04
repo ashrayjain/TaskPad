@@ -33,8 +33,8 @@ class Logger;
 class TaskLoaderText :public TaskLoader
 {
 	public:
-		void load (std::list<Task>& taskList, const std::string& fileName);
-		TaskLoaderText();
+		void load (const std::string& fileName);
+		TaskLoaderText(StorableTaskDatastore* taskDB);
 	private:
 
 		Logger* _logger;
@@ -42,13 +42,13 @@ class TaskLoaderText :public TaskLoader
 		//recovery system
 		std::set<std::string> recoveredIndices;
 
-		void recoverUnsavedChanges		(std::list<Task>& taskList);
+		void recoverUnsavedChanges		();
 		void loadDeletedIndices			();
-		void loadModifiedTasks			(std::list<Task>& taskList);
-		void validateAndAddTaskToList	(std::list<Task>& taskList, const Task& nextTask);
+		void loadModifiedTasks			();
+		void validateAndAddTaskToList	(const Task& nextTask);
 
 		//loader
-		void loadTaskList				(std::list<Task>& taskList);
+		void loadTaskDB				();
 
 		//helper functions
 		std::string			getNewLabel				(std::string);
