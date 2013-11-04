@@ -16,9 +16,6 @@
   * 
  */
 
-/*#include <QtCore/qstring.h>
-#include <QDir>
-#include <QMessageBox>*/
 #include <list>
 #include <string>
 #include "Storage.h"
@@ -26,12 +23,13 @@
 #include "Logger.h"
 #include "TaskLoaderText.h"
 #include "TaskSaverText.h"
+#include "StorableTaskDatastore.h"
 
 using namespace std;
 
 const string Storage::_fileName = "TaskPad.txt";
 
-Storage::Storage(list<Task>& taskList) {
+Storage::Storage(StorableTaskDatastore* taskDB) {
 //	QDir myDir;
 //	QMessageBox qdirTest;
 //	qdirTest.setText("Storage::Storage -- simple QDir test " + myDir.absolutePath());
@@ -41,7 +39,7 @@ Storage::Storage(list<Task>& taskList) {
 
 	_loader = NULL;
 	_saver = NULL;
-	this->load(taskList);
+	this->load(taskDB);
 }
 
 bool Storage::save(const list<Task>& taskList) {
@@ -55,6 +53,11 @@ bool Storage::save(const list<Task>& taskList) {
 	return true;
 }
 
+bool Storage::save (StorableTaskDatastore* taskDB)
+{
+	return save(taskDB->getTaskList());
+}
+
 bool Storage::save(const Task& task, const TP::COMMAND_TYPE& cType) {
 	_saver = new TaskSaverText;
 
@@ -65,11 +68,23 @@ bool Storage::save(const Task& task, const TP::COMMAND_TYPE& cType) {
 
 	return true;
 }
-
+/*
 void Storage::load (list<Task>& taskList) {
-	_loader = new TaskLoaderText;
+	_loader = new TaskLoaderText();
 
-	_loader->load(taskList,_fileName);
+	_loader->load(_fileName);
+
+	delete _loader;
+	_loader = NULL;
+
+	return;
+}*/
+
+void Storage::load (StorableTaskDatastore* taskDB)
+{
+	_loader = new TaskLoaderText(taskDB);
+
+	_loader->load(_fileName);
 
 	delete _loader;
 	_loader = NULL;
