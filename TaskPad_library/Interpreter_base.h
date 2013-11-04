@@ -22,41 +22,64 @@ public:
 
 protected:
 
-	time_t                           setTime(string commandStr, bool& _isSuccess); 
+	time_t                           setTime(string commandStr, bool&flag,bool& isDue); 
 	bool                             integerConverter(string& requiredString, int& number);
-
+    string                           toUpper(string str);
 	int	                             getIndexMessage(string command,bool&flag);			
+	
+/*
+
 	bool                             getNameMessage(string command,bool&flag,string& content);
 	bool                             getOptNameMessage(string command, bool&flag, string& content);
+	bool				             getLocationMessage(string command, bool&flag,string& content);
+	bool				             getNoteMessage(string command, bool&flag,string& content);
+	
+*/	
+	
+	bool                             setGeneralMessage(string command, bool&flag,string& content,string regexTemplete);
+	bool                             setSingleRemoveMessage(string command, bool&flag, string regexTemplate);
+	
+
+
+	bool			                 getTaskStateMessage(string command, bool&flag,TASK_STATE& content);
+	bool			                 getTaskTypeMessage(string command, bool&flag,TASK_TYPE& content);
+
+
 	bool				             getDueDateMessage(string command, bool&flag,time_t& content);
 	bool				             getFromDateMessage(string command, bool&flag,time_t& content);	
 	bool				             getToDateMessage(string command, bool&flag,time_t& content);
-	bool				             getLocationMessage(string command, bool&flag,string& content);
-	bool	                         getParticipantsMessage(string command, bool&flag,list<std::string>& content);
-	bool				             getNoteMessage(string command, bool&flag,string& content);
+	
+	
+	
+	
 	bool			                 getPriorityMessage(string command, bool&flag,PRIORITY& content);
-	bool	                         getTagsMessage(string command, bool&flag,list<std::string>& content);
-	bool	                         getRemindTimesMessage(string command, bool&flag,list<std::time_t>& content);
-	bool			                 getTaskStateMessage(string command, bool&flag,TASK_STATE& content);
-	bool			                 getTaskTypeMessage(string command, bool&flag,TASK_TYPE& content);
+	
+	
+	
+	
 	bool				             getSyncProviderNameMessage(string command, bool&flag,string& content);
 	
-	bool							 getRemoveDueDateInstruction(string command, bool&flag);
-	bool							 getRemoveFromDateInstruction(string command, bool&flag);
-	bool							 getRemoveToDateInstruction(string command, bool&flag);
-	bool							 getRemoveAllRemindTimesInstruction(string command, bool&flag);
-	bool							 getRemoveAllParticipantsInstruction(string command, bool&flag);
-	bool							 getRemoveAllTagsInstruction(string command, bool&flag);
+	
 
+
+	
+	
+	bool	                         getRemindTimesMessage(string command, bool&flag,list<std::time_t>& content);
+	bool							 getAddRemindTimesMessage(string command, bool&flag,list<std::time_t>& content);
 	bool							 getRemoveRemindTimesMessage(string command, bool&flag,list<std::time_t>& content);
-	bool							 getRemoveParticipantsMessage(string command, bool&flag,list<std::string>& content);
+
+	
+	bool	                         getTagsMessage(string command, bool&flag,list<std::string>& content);	
+	bool							 getAddTagsMessage(string command, bool&flag,list<std::string>& content);
 	bool							 getRemoveTagsMessage(string command, bool&flag,list<std::string>& content);
 	
-	bool							 getAddRemindTimesMessage(string command, bool&flag,list<std::time_t>& content);
+	bool	                         getParticipantsMessage(string command, bool&flag,list<std::string>& content);
 	bool							 getAddParticipantsMessage(string command, bool&flag,list<std::string>& content);
-	bool							 getAddTagsMessage(string command, bool&flag,list<std::string>& content);
+	bool							 getRemoveParticipantsMessage(string command, bool&flag,list<std::string>& content);
+	
+	
 
-	bool                             checkDuplicate(string command, string cmdTemplate,int startPosition);
+    bool                             checkDuplicate(string command, string cmdTemplate,int startPosition);
 	bool                             checkKeyWord(string command, int position);       
 	void                             convertToTime(string timeStr, time_t &result,bool&flag);
 

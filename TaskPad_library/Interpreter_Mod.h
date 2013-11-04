@@ -10,18 +10,24 @@ public:
 
 	Command* interpretModify(Command_Mod* commandType, std::string commandStr, Messenger &response, bool &flag);
 
-	time_t            setTime(string commandStr, bool& _isSuccess)                        { return Interpreter_base::setTime(commandStr, _isSuccess); }
+	time_t            setTime(string commandStr, bool& _isSuccess,bool&isDue )            { return Interpreter_base::setTime(commandStr, _isSuccess,isDue); }
 	bool              integerConverter(string& requiredString, int& number)               { return Interpreter_base::integerConverter(requiredString,number);}
+	string            toUpper(string str)                                                 { return Interpreter_base::toUpper(str);}
 
 	int	              getIndexMessage(string command,bool&flag)                           { return Interpreter_base::getIndexMessage(command,flag); }			
-	bool              getNameMessage(string command,bool&flag,string& content)            { return Interpreter_base::getNameMessage(command,flag,content); }
-	bool              getOptNameMessage(string command, bool&flag, string& content)       { return Interpreter_base:: getOptNameMessage(command,flag,content); }
+//	bool              getNameMessage(string command,bool&flag,string& content)            { return Interpreter_base::getNameMessage(command,flag,content); }
+//	bool              getOptNameMessage(string command, bool&flag, string& content)       { return Interpreter_base:: getOptNameMessage(command,flag,content); }
+	
+	bool             setGeneralMessage(string command, bool&flag,string& content,string regexTemplete) { return Interpreter_base::setGeneralMessage(command,flag,content,regexTemplete);}
+	bool             setSingleRemoveMessage(string command, bool&flag, string regexTemplate){return Interpreter_base::setSingleRemoveMessage(command,flag, regexTemplate);}
+	
+	
 	bool			  getDueDateMessage(string command, bool&flag,time_t& content)        { return Interpreter_base::getDueDateMessage(command,flag,content); }
 	bool		      getFromDateMessage(string command, bool&flag,time_t& content)       { return Interpreter_base:: getFromDateMessage(command,flag,content); }
 	bool			  getToDateMessage(string command, bool&flag,time_t& content)         { return Interpreter_base::getToDateMessage(command,flag,content); }
-	bool		      getLocationMessage(string command, bool&flag,string& content)       { return Interpreter_base::getLocationMessage(command,flag,content); }
+//	bool		      getLocationMessage(string command, bool&flag,string& content)       { return Interpreter_base::getLocationMessage(command,flag,content); }
 	bool	          getParticipantsMessage(string command, bool&flag,list<std::string>& content){return Interpreter_base::getParticipantsMessage(command,flag,content); }
-	bool		      getNoteMessage(string command, bool&flag,string& content)           { return Interpreter_base::getNoteMessage(command,flag,content); }
+	//bool		      getNoteMessage(string command, bool&flag,string& content)           { return Interpreter_base::getNoteMessage(command,flag,content); }
 	bool			  getPriorityMessage(string command, bool&flag,PRIORITY& content)     { return Interpreter_base::getPriorityMessage(command, flag,content); }
 	bool	          getTagsMessage(string command, bool&flag,list<std::string>& content){ return Interpreter_base::getTagsMessage(command,flag,content); }
 	bool	          getRemindTimesMessage(string command, bool&flag,list<std::time_t>& content){ return Interpreter_base::getRemindTimesMessage(command,flag,content);}
@@ -94,7 +100,7 @@ if(flag && commandType->getFlagDue()==false){
 	if(flag && commandType->getFlagNote()==false){
 
 		string content;
-		if(getNoteMessage(commandStr,flag,content)){
+		if(setGeneralMessage(commandStr,flag,content," note `[^`]*`")){
 			commandType->setNote(content);
 		}
 	}
@@ -106,7 +112,7 @@ if(flag && commandType->getFlagDue()==false){
 
 	if(flag && commandType->getFlagLocation()==false){
 		string content;
-		if(getLocationMessage(commandStr,flag,content)){
+		if(setGeneralMessage(commandStr,flag,content," at `[^`]*`")){
 			commandType->setLocation(content);
 		}
 	}
@@ -153,7 +159,7 @@ if(flag && commandType->getFlagDue()==false){
 	if(flag && commandType->getFlagOptName()==false){
 
 		string content;
-		if(getNameMessage(commandStr,flag,content)){
+		if(setGeneralMessage(commandStr,flag,content," name `[^`]*`")){
 			commandType->setOptName(content);
 		}
 	}
@@ -175,7 +181,7 @@ if(flag && commandType->getFlagDue()==false){
 
 	if(flag && commandType->getFlagRemoveDue()==false){
 
-		if(getRemoveDueDateInstruction(commandStr,flag)){
+		if(setSingleRemoveMessage(commandStr,flag,"\\s(-due)(\\s|$)")){
 			commandType->setFlagRemoveDue();
 		}
 
@@ -187,7 +193,7 @@ if(flag && commandType->getFlagDue()==false){
 
 	if(flag && commandType->getFlagRemoveFrom()==false){
 
-		if(getRemoveFromDateInstruction(commandStr,flag)){
+		if(setSingleRemoveMessage(commandStr,flag,"\\s(-from)(\\s|$)")){
 			commandType->setFlagRemoveFrom();
 		}
 
@@ -199,7 +205,7 @@ if(flag && commandType->getFlagDue()==false){
 
 	if(flag && commandType->getFlagRemoveTo()==false){
 
-		if(getRemoveToDateInstruction(commandStr,flag)){
+		if(setSingleRemoveMessage(commandStr,flag,"\\s(-to)(\\s|$)")){
 			commandType->setFlagRemoveTo();
 		}
 
@@ -211,7 +217,7 @@ if(flag && commandType->getFlagDue()==false){
 
 	if(flag && commandType->getFlagRemoveAllRemindTimes()==false){
 
-		if(getRemoveAllRemindTimesInstruction(commandStr,flag)){
+		if(setSingleRemoveMessage(commandStr,flag,"\\s(-rtall)(\\s|$)")){
 			commandType->setFlagRemoveAllRemindTimes();
 		}
 
@@ -223,7 +229,7 @@ if(flag && commandType->getFlagDue()==false){
 
 	if(flag && commandType->getFlagRemoveAllParticipants()==false){
 
-		if(getRemoveAllParticipantsInstruction(commandStr,flag)){
+		if(setSingleRemoveMessage(commandStr,flag,"\\s(-pplall)(\\s|$)")){
 			commandType->setFlagRemoveAllParticipants();
 		}
 
@@ -235,7 +241,7 @@ if(flag && commandType->getFlagDue()==false){
 
 	if(flag && commandType->getFlagRemoveAllTags()==false){
 
-		if(getRemoveAllTagsInstruction(commandStr,flag)){
+		if(setSingleRemoveMessage(commandStr,flag,"\\s(-#)(\\s|$)")){
 			commandType->setFlagRemoveAllTags();
 		}
 
