@@ -26,13 +26,16 @@
 #include "TaskFileHandler.h"
 
 class Task;
+class StorableTaskDatastore;
 
 class TaskLoader: public TaskFileHandler
 {
 	public:
-		virtual void load (std::list<Task>& taskList, const std::string& fileName) =0;
+		virtual void load (const std::string& fileName) =0;
+
 		virtual ~TaskLoader() {}
 	protected:
+		StorableTaskDatastore* _taskDB;
 		void openFile(const std::string& fileName, std::ios_base::openmode oMode = std::ios::in)
 							{ this->_fileReader.open(fileName,oMode); }
 

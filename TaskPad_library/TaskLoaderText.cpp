@@ -25,23 +25,25 @@
 #include "Task.h"
 #include "Enum.h"
 #include "Logger.h"
+#include "StorableTaskDatastore.h"
 
 using namespace TP;
 using namespace std;
 
-TaskLoaderText::TaskLoaderText() {
+TaskLoaderText::TaskLoaderText(StorableTaskDatastore* taskDB) {
 	this->_logger = Logger::getLogger();
+	this->_taskDB = taskDB;
 }
 
 /****************************************************/
 /**************** Public Load API *******************/
 /****************************************************/
 
-void TaskLoaderText::load (list<Task>& taskList, const string& fileName) {
-	this->recoverUnsavedChanges(taskList);
+void TaskLoaderText::load (const string& fileName) {
+	this->recoverUnsavedChanges();
 
 	this->openFile(fileName);
-	this->loadTaskList(taskList);
+	this->loadTaskDB();
 	this->closeFile();
 	return;
 }
@@ -50,9 +52,9 @@ void TaskLoaderText::load (list<Task>& taskList, const string& fileName) {
 /*************** Recovery Methods *******************/
 /****************************************************/
 
-void TaskLoaderText::recoverUnsavedChanges(list<Task>& taskList) {
+void TaskLoaderText::recoverUnsavedChanges() {
 	this->loadDeletedIndices();
-	this->loadModifiedTasks(taskList);
+	this->loadModifiedTasks();
 }
 
 void TaskLoaderText::loadDeletedIndices() {
@@ -71,7 +73,7 @@ void TaskLoaderText::loadDeletedIndices() {
 	record.close();
 }
 
-void TaskLoaderText::loadModifiedTasks(list<Task>& taskList) {
+void TaskLoaderText::loadModifiedTasks() {
 	_logger->log("TaskLoaderText","entering loadModifiedTasks");
 	ifstream recoverFile(RECORD_MODIFIED_FILE_NAME);
 	std::string nextTaskFile;
@@ -83,7 +85,7 @@ void TaskLoaderText::loadModifiedTasks(list<Task>& taskList) {
 			this->openFile(nextTaskFile);
 
 			nextTask = this->getNextTask();
-			validateAndAddTaskToList(taskList, nextTask);
+			validateAndAddTaskToList(nextTask);
 
 			this->closeFile();
 		}
@@ -96,20 +98,20 @@ void TaskLoaderText::loadModifiedTasks(list<Task>& taskList) {
 /************** Private Load Method *****************/
 /****************************************************/
 
-void TaskLoaderText::loadTaskList(list<Task>& taskList) {
+void TaskLoaderText::loadTaskDB() {
 	_logger->log("TaskLoaderText","entering loadTaskList");
 	while(_fileReader.good() && hasNextTask()) {
 		Task nextTask = this->getNextTask();
-		validateAndAddTaskToList(taskList, nextTask);
+		validateAndAddTaskToList(nextTask);
 		this->getNextLineFromFile();
 	}
 	return;
 }
 
-void TaskLoaderText::validateAndAddTaskToList(list<Task>& taskList, const Task& nextTask) {
+void TaskLoaderText::validateAndAddTaskToList(const Task& nextTask) {
 	string taskFilePath = getTaskFilePath(nextTask);
 	if(nextTask.getFlagIndex()) {
-		taskList.push_back(nextTask);
+		_taskDB->addTask(nextTask);
 		_logger->log("TaskLoaderText","created proper task from "+taskFilePath,NOTICELOG);
 	}
 	else {

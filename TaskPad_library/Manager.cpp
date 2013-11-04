@@ -27,6 +27,7 @@
 #include "Task.h"
 #include "Enum.h"
 #include "Logger.h"
+#include "Datastore.h"
 
 using namespace TP;
 
@@ -34,9 +35,10 @@ const string Manager::MESSAGE_INDEX_OUT_OF_RANGE = "Given index is out of range!
 const string Manager::MESSAGE_ERROR_UNEXPECTED_COMMAND_TYPE_WITH_INDEX = "Unexpected Command with index!!";
 
 Manager::Manager() {
+	this->_taskDB					= new Datastore;
 	this->_logger					= Logger::getLogger();
-	this->_storage					= new Storage(_tasks);
-	this->_executor					= new Executor(&_tasks);
+	this->_storage					= new Storage(_taskDB);
+	this->_executor					= new Executor(*_taskDB);
 	this->_interpreter				= new Interpreter;
 	this->_response					= Messenger();
 	this->_cmd						= NULL;
@@ -75,18 +77,26 @@ void Manager::resetStatus() {
 }
 
 Manager::~Manager() {
-	this->_storage->save(this->_tasks);
+	this->_storage->save(this->_taskDB);
+
+	if(this->_taskDB != NULL) {
+		delete this->_taskDB;
+		_taskDB = NULL;
+	}
 
 	if(this->_interpreter != NULL) {
 		delete this->_interpreter;
+		_interpreter = NULL;
 	}
 
 	if(this->_executor != NULL) {
 		delete this->_executor;
+		_executor = NULL;
 	}
 
 	if(this->_storage != NULL) {
 		delete this->_storage;
+		_storage = NULL;
 	}
 
 	this->removePreviousCommand				();

@@ -31,7 +31,7 @@ class Command;
 class Logger;
 class TaskLoader;
 class TaskSaver;
-class StorableTaskDatabase;
+class StorableTaskDatastore;
 
 class Storage
 {
@@ -43,14 +43,14 @@ class Storage
 		static const std::string _fileName;
 
 	public:
-		Storage (std::list<Task>& taskList);
+		Storage (StorableTaskDatastore* taskDB);
 
 		bool save	(const std::list<Task>&);
-		bool save	(StorableTaskDatabase* taskDB) {};
+		bool save	(StorableTaskDatastore* taskDB);
 		bool save	(const Task& task, const TP::COMMAND_TYPE& cType);
 
-		void load	(std::list<Task>& taskList);
-		void load	(StorableTaskDatabase* taskDB) {};
+		//void load	(std::list<Task>& taskList);
+		void load	(StorableTaskDatastore* taskDB);
 
 		const std::string FILENAME;
 

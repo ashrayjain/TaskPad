@@ -27,11 +27,12 @@
 #include "Enum.h"
 
 class Task;
+class StorableTaskDatastore;
 
 class TaskSaver :public TaskFileHandler
 {
 	public:
-		virtual void save (const std::list<Task>& taskList, const std::string& fileName) =0;
+		virtual void save (StorableTaskDatastore* taskDB, const std::string& fileName) =0;
 		virtual void save (const Task& task, const TP::COMMAND_TYPE& cType) =0;
 	protected:
 		virtual void updateSaveRecord	(const std::string& entry) =0;
