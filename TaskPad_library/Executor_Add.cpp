@@ -18,9 +18,10 @@ const unsigned			Executor_Add::RT_MIN_H_ARR[]				= {5, 15, 30, 60};
 const unsigned			Executor_Add::RT_MIN_M_ARR[]				= {15, 30};
 const unsigned			Executor_Add::RT_MIN_L_ARR[]				= {60};
 
-void Executor_Add::executeCommand(Command_Add* cmd, Messenger &response, Datastore &ds) {
-	if(validAddCmd(cmd, response)) {
-		Task newTask = formTaskFromAddCmd(cmd);
+void Executor_Add::executeCommand(Command* cmd, Messenger &response, Datastore &ds) {
+	Command_Add* addCmd = dynamic_cast<Command_Add*>(cmd);
+	if(validAddCmd(addCmd, response)) {
+		Task newTask = formTaskFromAddCmd(addCmd);
 		ds.addTask(newTask);
 		setOpSuccessTask(newTask, response);
 	}

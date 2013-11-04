@@ -18,6 +18,11 @@
 
 class Executor_Redo: public Executor_Base {
 public:
-	void executeCommand(Command_Redo* cmd, Messenger &response, Datastore &ds);
+	Executor_Redo()	{ _redoCommandToExecute = NULL; }
+	~Executor_Redo(){ delete _redoCommandToExecute; }
+
+	void		executeCommand					(Command* cmd, Messenger &response, Datastore &ds);
+	Command*	getRedoCommandToExecute			();
 private:
+	Command*	_redoCommandToExecute;
 };

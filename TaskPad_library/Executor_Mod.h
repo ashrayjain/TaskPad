@@ -18,7 +18,7 @@
 
 class Executor_Mod: public Executor_Base {
 public:
-	void executeCommand					(Command_Mod* cmd, Messenger &response, Datastore &ds);
+	void executeCommand					(Command* cmd, Messenger &response, Datastore &ds);
 private:
 	void modifyByIndex					(Command_Mod* cmd, Messenger &response, Datastore &ds);
 	void modifyByName					(Command_Mod* cmd, Messenger &response, Datastore &ds);

@@ -13,7 +13,7 @@
  */
 
 #include "Executor.h"
-
+/*
 using namespace TP;
 
 const unsigned			Executor::EMPTY_LIST_SIZE				= 0;
@@ -53,70 +53,85 @@ void Executor::rebuildRemindTimesHash() {
 		if(i->getFlagRemindTimes())
 			handleRemindTimesPtrs(*i, i->getRemindTimes());
 }
-
+*/
 list<Task> Executor::getCurrentReminders() {
 	time_t now = time(NULL);
 	struct tm* timeNow = localtime(&now);
 	timeNow->tm_sec = 0;
 	now = mktime(timeNow);
-
+	/*
 	list<Task> taskResults;
 	unordered_map<time_t, list<Task*>>::iterator result = _remindTimesHash.find(now);
 	if (result != _remindTimesHash.end())
 		getTasksFromTaskPtrList(taskResults, result->second);
 	return taskResults;
+	*/
+	return _ds.getTasksWithRemindTimes(now);
 }
-
+/*
 void Executor::getTasksFromTaskPtrList(list<Task> &taskResults, list<Task*> &results) {
 	for(list<Task*>::iterator i = results.begin(); i != results.end(); i++)
 		taskResults.push_back(Task(**i));
 }
-
+*/
 void Executor::executeCommand(Command* cmd, Messenger &response) {
+	Executor_Base* executor;
 	switch (cmd->getCommandType()) {
-	case COMMAND_TYPE::ADD:
-		executeAdd (dynamic_cast<Command_Add*>(cmd), response);
-		if (isCmdSuccessful(response))
-			stackForUndo(cmd, response);
-		break;
-	case COMMAND_TYPE::DEL:
-		executeDel (dynamic_cast<Command_Del*>(cmd), response);
-		if (isCmdSuccessful(response))
-			stackForUndo(cmd, response);
-		break;
-	case COMMAND_TYPE::MOD:
-		executeMod (dynamic_cast<Command_Mod*>(cmd), response);
-		if (isCmdSuccessful(response))
-			stackForUndo(cmd, response);
-		break;
-	case COMMAND_TYPE::FIND:
-		executeFind(dynamic_cast<Command_Find*>(cmd), response);
-		break;
-	case COMMAND_TYPE::UNDO:
-		executeUndo(dynamic_cast<Command_Undo*>(cmd), response);
-		break;
-	case COMMAND_TYPE::REDO:
-		executeRedo(dynamic_cast<Command_Redo*>(cmd), response);
-		break;
+	case COMMAND_TYPE::ADD:	executor = new Executor_Add();
+							executor->executeCommand(cmd, response, _ds);
+							if (isCmdSuccessful(response))
+								_ds.stackCmdForUndo(cmd, response);
+							break;
+	case COMMAND_TYPE::DEL:	executor = new Executor_Del();
+							executor->executeCommand(cmd, response, _ds);
+							if (isCmdSuccessful(response))
+								_ds.stackCmdForUndo(cmd, response);
+							break;
+	case COMMAND_TYPE::MOD:	executor = new Executor_Mod();
+							executor->executeCommand(cmd, response, _ds);
+							if (isCmdSuccessful(response))
+								_ds.stackCmdForUndo(cmd, response);
+							break;
+	case COMMAND_TYPE::FIND:executor = new Executor_Find();
+							executor->executeCommand(cmd, response, _ds);
+							break;
+	case COMMAND_TYPE::UNDO:executor = new Executor_Undo();
+							executor->executeCommand(cmd, response, _ds);
+							executeCommandWithoutUndoRedo(
+								dynamic_cast<Executor_Undo*>(executor)->getUndoCommandToExecute(), 
+								response);
+							break;
+	case COMMAND_TYPE::REDO:executor = new Executor_Redo();
+							executor->executeCommand(cmd, response, _ds);
+							executeCommandWithoutUndoRedo(
+								dynamic_cast<Executor_Redo*>(executor)->getRedoCommandToExecute(), 
+								response);
+							break;
 	default:
 		break;
 	}
+	delete executor;
 }
 
 void Executor::executeCommandWithoutUndoRedo(Command* cmd, Messenger &response) {
+	Executor_Base* executor;
 	switch (cmd->getCommandType()) {
-	case COMMAND_TYPE::ADD:
-		executeAdd (dynamic_cast<Command_Add*>(cmd), response);
-		break;
-	case COMMAND_TYPE::DEL:
-		executeDel (dynamic_cast<Command_Del*>(cmd), response);
-		break;
-	case COMMAND_TYPE::MOD:
-		executeMod (dynamic_cast<Command_Mod*>(cmd), response);
-		break;
+	case COMMAND_TYPE::ADD:	executor = new Executor_Add();
+							break;
+	case COMMAND_TYPE::DEL:	executor = new Executor_Del();
+							break;
+	case COMMAND_TYPE::MOD:	executor = new Executor_Mod();
+							break;
 	}
+	executor->executeCommand(cmd, response, _ds);
+	delete executor;
 }
 
+bool Executor::isCmdSuccessful(const Messenger &response) const {
+	return response.getStatus() == TP::STATUS::SUCCESS;
+}
+
+/*
 // Add functions
 
 void Executor::executeAdd (Command_Add* cmd, Messenger &response) {
@@ -631,7 +646,7 @@ void Executor::findByRemindTimes(Command_Find* cmd, Messenger &response) {
 	runSearchWithTaskOnData(taskToCompare, results, customDataRange);
 	setOpSuccessTaskList(results, response);
 }
-*/
+*//*
 void Executor::getCustomDataRangeByTags(set<Task*> &customDataRange, list<string> &tags) {
 	for(list<string>::iterator i = tags.begin(); i != tags.end(); ++i)
 		customDataRange.insert(_hashTagsHash[*i].begin(), _hashTagsHash[*i].end());
@@ -972,5 +987,5 @@ void Executor::setErrorWithErrMsg(Messenger &response, const string errMsg) {
 	response.setStatus(TP::STATUS::ERROR);
 	response.setErrorMsg(errMsg);
 }
-
+*/
 

@@ -18,7 +18,11 @@
 
 class Executor_Undo: public Executor_Base {
 public:
-	void executeCommand(Command_Undo* cmd, Messenger &response, Datastore &ds);
+	Executor_Undo()	{ _undoCommandToExecute = NULL; }
+	~Executor_Undo(){ delete _undoCommandToExecute; }
+
+	void		executeCommand					(Command* cmd, Messenger &response, Datastore &ds);
+	Command*	getUndoCommandToExecute			();
 private:
 	Command*	getTransposeCommand				(Command* cmd, Task &task);
 	Command*	getTransposeCommand				(Command_Add* cmd, Task &task);
@@ -26,5 +30,5 @@ private:
 	Command*	getTransposeCommand				(Command_Mod* cmd, Task &task);
 	void		getCmdForSubtractingCmdFromTask	(Command_Mod* subtractCmd, Command_Mod* cmd, Task &task);
 	void		formAddCmdFromTask				(Task &task, Command_Add* cmd);
-
+	Command*	_undoCommandToExecute;
 };

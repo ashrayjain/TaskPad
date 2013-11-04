@@ -14,11 +14,12 @@
 
 #include "Executor_Mod.h"
 
-void Executor_Mod::executeCommand(Command_Mod* cmd, Messenger &response, Datastore &ds) {
-	if(cmd->getFlagCreatedTime())
-		modifyByIndex(cmd, response, ds);
+void Executor_Mod::executeCommand(Command* cmd, Messenger &response, Datastore &ds) {
+	Command_Mod* modCmd = dynamic_cast<Command_Mod*>(cmd);
+	if(modCmd->getFlagCreatedTime())
+		modifyByIndex(modCmd, response, ds);
 	else
-		modifyByName(cmd, response, ds);
+		modifyByName(modCmd, response, ds);
 }
 
 void Executor_Mod::modifyByIndex(Command_Mod* cmd, Messenger &response, Datastore &ds) {

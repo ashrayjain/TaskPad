@@ -18,7 +18,7 @@
 
 class Executor_Find: public Executor_Base {
 public:
-	void executeCommand(Command_Find* cmd, Messenger &response, Datastore &ds);
+	void executeCommand(Command* cmd, Messenger &response, Datastore &ds);
 private:
 	void			formTaskFromFindCmd			(Command_Find* cmd, Task &newTask);
 	void			findByIndex					(const unsigned long long index, Messenger &response, Datastore &ds);

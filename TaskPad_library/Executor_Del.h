@@ -18,7 +18,7 @@
 
 class Executor_Del: public Executor_Base {
 public:
-	void executeCommand						(Command_Del* cmd, Messenger &response, Datastore &ds);
+	void executeCommand						(Command* cmd, Messenger &response, Datastore &ds);
 private:
 	void deleteTaskByIndex					(const unsigned long long &index, Messenger &reponse, Datastore &ds);	
 	void deleteTaskByName					(const string &name, Messenger &reponse, const bool &exactFlag, Datastore &ds);

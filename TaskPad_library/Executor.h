@@ -12,6 +12,7 @@
  * =====================================================================================
  */
 
+/*
 #include <string>
 #include <cstring>
 #include <list>
@@ -21,18 +22,36 @@
 #include "Task.h"
 #include "Messenger.h"
 #include "Command.h"
+*/
+#include "Task.h"
+#include "Command.h"
+#include "Messenger.h"
+#include "Datastore.h"
+#include "Executor_Base.h"
+#include "Executor_Add.h"
+#include "Executor_Del.h"
+#include "Executor_Mod.h"
+#include "Executor_Find.h"
+#include "Executor_Undo.h"
+#include "Executor_Redo.h"
 
 
 class Executor
 {
 public:
-	Executor(std::list<Task>* data)		{ _data = data; rebuildHashes(); }
-	~Executor()							{ clearRedoStack(); clearUndoStack(); }
+	Executor(Datastore &ds):_ds(ds)			{ }
+	//Executor(std::list<Task>* data)		{ _data = data; rebuildHashes(); }
+	//~Executor()							{ clearRedoStack(); clearUndoStack(); }
 
-	void		executeCommand		(Command* cmd, Messenger &response);
+	void executeCommand	(Command* cmd, Messenger &response);
 	list<Task>	getCurrentReminders	();
 
 protected:
+	Datastore _ds;
+	void		executeCommandWithoutUndoRedo	(Command* cmd, Messenger &response);
+	bool		isCmdSuccessful					(const Messenger &response) const;
+	
+	/*
 	std::list<Task>*									_data;
 	std::unordered_map<unsigned long long, Task*>		_indexHash;
 	std::unordered_map<std::string, std::list<Task*>>	_hashTagsHash;
@@ -134,6 +153,7 @@ protected:
 	static bool sortTaskByPriorityComparator	(const Task first, const Task second);
 
 	// Functions for UNDO and REDO COMMAND
+	
 	void		executeCommandWithoutUndoRedo	(Command* cmd, Messenger &response);
 	void		executeUndo						(Command_Undo* cmd, Messenger &response);
 	void		executeRedo						(Command_Redo* cmd, Messenger &response);
@@ -163,4 +183,5 @@ protected:
 	void setIndexNotFound			(const unsigned long long &index, Messenger &response);
 	void setNameNotFound			(const string &name, Messenger &response);
 	void setErrorWithErrMsg			(Messenger &response, const string errMsg);
+	*/
 };

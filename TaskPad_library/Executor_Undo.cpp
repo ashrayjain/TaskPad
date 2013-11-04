@@ -14,15 +14,17 @@
 
 #include "Executor_Undo.h"
 
-void Executor_Undo::executeCommand(Command_Undo* cmd, Messenger &response, Datastore &ds) {
+void Executor_Undo::executeCommand(Command* cmd, Messenger &response, Datastore &ds) {
 	if (ds.isUndoStackEmpty())
 		setErrorWithErrMsg(response, UNDOSTACK_EMPTY_MSG);
 	else {
-		Command* undoCmd = getTransposeCommand(ds.undoStackTop().first, ds.undoStackTop().second);
-		//executeCommandWithoutUndoRedo(undoCmd, response);
-		delete undoCmd;
+		_undoCommandToExecute = getTransposeCommand(ds.undoStackTop().first, ds.undoStackTop().second);
 		ds.popTopUndoStackToRedoStack();
 	}
+}
+
+Command* Executor_Undo::getUndoCommandToExecute() {
+	return _undoCommandToExecute;
 }
 
 Command* Executor_Undo::getTransposeCommand(Command* cmd, Task &task) {

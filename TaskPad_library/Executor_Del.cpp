@@ -14,11 +14,12 @@
 
 #include "Executor_Del.h"
 
-void Executor_Del::executeCommand(Command_Del* cmd, Messenger &response, Datastore &ds) {
-	if (cmd->getFlagCreatedTime())
-		deleteTaskByIndex(cmd->getCreatedTime(), response, ds);
+void Executor_Del::executeCommand(Command* cmd, Messenger &response, Datastore &ds) {
+	Command_Del* delCmd = dynamic_cast<Command_Del*>(cmd);
+	if (delCmd->getFlagCreatedTime())
+		deleteTaskByIndex(delCmd->getCreatedTime(), response, ds);
 	else
-		deleteTaskByName(cmd->getName(), response, cmd->getFlagExact(), ds);
+		deleteTaskByName(delCmd->getName(), response, delCmd->getFlagExact(), ds);
 }
 
 void Executor_Del::deleteTaskByIndex(const unsigned long long &index, Messenger &response, Datastore &ds) {

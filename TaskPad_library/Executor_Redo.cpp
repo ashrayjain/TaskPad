@@ -14,11 +14,15 @@
 
 #include "Executor_Redo.h"
 
-void Executor_Redo::executeCommand(Command_Redo* cmd, Messenger &response, Datastore &ds) {
+void Executor_Redo::executeCommand(Command* cmd, Messenger &response, Datastore &ds) {
 	if (ds.isRedoStackEmpty())
 		setErrorWithErrMsg(response, REDOSTACK_EMPTY_MSG);
 	else {
-		//executeCommandWithoutUndoRedo(_redoStack.top().first, response);		
+		_redoCommandToExecute = ds.undoStackTop().first;
 		ds.popTopRedoStackToUndoStack();
 	}
+}
+
+Command* Executor_Redo::getRedoCommandToExecute() {
+	return _redoCommandToExecute;
 }

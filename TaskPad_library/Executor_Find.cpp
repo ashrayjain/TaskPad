@@ -14,9 +14,10 @@
 
 #include "Executor_Find.h"
 
-void Executor_Find::executeCommand(Command_Find* cmd, Messenger &response, Datastore &ds) {
-	if(cmd->getFlagIndex())
-		findByIndex(cmd->getIndex(), response, ds);
+void Executor_Find::executeCommand(Command* cmd, Messenger &response, Datastore &ds) {
+	Command_Find* findCmd = dynamic_cast<Command_Find*>(cmd);
+	if(findCmd->getFlagIndex())
+		findByIndex(findCmd->getIndex(), response, ds);
 	//else
 	//	findGeneral(cmd, response, ds);
 	//if(cmd->getFlagTaskType())
