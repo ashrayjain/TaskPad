@@ -32,7 +32,7 @@ class Logger;
 class TaskSaverText: public TaskSaver
 {
 	public:
-		void save (const std::list<Task>& taskList, const std::string& fileName);
+		void save (StorableTaskDatastore* taskDB, const std::string& fileName);
 		void save (const Task& task, const TP::COMMAND_TYPE& cType);
 
 		TaskSaverText();

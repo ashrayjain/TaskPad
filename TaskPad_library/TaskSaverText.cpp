@@ -25,6 +25,7 @@
 #include "Enum.h"
 #include "Task.h"
 #include "Logger.h"
+#include "StorableTaskDatastore.h"
 
 using namespace TP;
 using namespace std;
@@ -37,9 +38,9 @@ TaskSaverText::TaskSaverText() {
 /*************** Public Save APIs *******************/
 /****************************************************/
 
-void TaskSaverText::save(const list<Task>& taskList, const std::string& fileName) {
+void TaskSaverText::save(StorableTaskDatastore* taskDB, const std::string& fileName) {
 	this->openFile(fileName);
-	this->saveTaskList(taskList);
+	this->saveTaskList(taskDB->getTaskList());
 	this->closeFile();
 
 	// remove the quick save files

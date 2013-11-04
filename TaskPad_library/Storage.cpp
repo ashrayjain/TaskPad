@@ -30,10 +30,6 @@ using namespace std;
 const string Storage::_fileName = "TaskPad.txt";
 
 Storage::Storage(StorableTaskDatastore* taskDB) {
-//	QDir myDir;
-//	QMessageBox qdirTest;
-//	qdirTest.setText("Storage::Storage -- simple QDir test " + myDir.absolutePath());
-//	qdirTest.exec();
 	_logger = Logger::getLogger();
 	_logger->log("Storage","in constructor");
 
@@ -42,20 +38,16 @@ Storage::Storage(StorableTaskDatastore* taskDB) {
 	this->load(taskDB);
 }
 
-bool Storage::save(const list<Task>& taskList) {
+bool Storage::save (StorableTaskDatastore* taskDB)
+{
 	_saver = new TaskSaverText;
 
-	_saver->save(taskList,_fileName);
+	_saver->save(taskDB,_fileName);
 
 	delete _saver;
 	_saver = NULL;
 
 	return true;
-}
-
-bool Storage::save (StorableTaskDatastore* taskDB)
-{
-	return save(taskDB->getTaskList());
 }
 
 bool Storage::save(const Task& task, const TP::COMMAND_TYPE& cType) {
@@ -68,17 +60,6 @@ bool Storage::save(const Task& task, const TP::COMMAND_TYPE& cType) {
 
 	return true;
 }
-/*
-void Storage::load (list<Task>& taskList) {
-	_loader = new TaskLoaderText();
-
-	_loader->load(_fileName);
-
-	delete _loader;
-	_loader = NULL;
-
-	return;
-}*/
 
 void Storage::load (StorableTaskDatastore* taskDB)
 {
