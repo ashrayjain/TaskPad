@@ -20,7 +20,7 @@
 #include <Task.h>
 #include <sstream>
 
-const std::string TaskFileHandler::TASK_DIRECTORY				= "Tasks\\";
+const std::string TaskFileHandler::TASK_DIRECTORY				= "";//"Tasks\\";
 const std::string TaskFileHandler::RECORD_MODIFIED_FILE_NAME	= "savedTasks.txt";
 const std::string TaskFileHandler::RECORD_DELETED_FILE_NAME		= "deletedTasks.txt";
 
