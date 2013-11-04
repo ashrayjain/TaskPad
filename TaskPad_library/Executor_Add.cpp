@@ -69,7 +69,7 @@ Task Executor_Add::formTaskFromAddCmd(Command_Add* cmd) {
 
 	if(cmd->getFlagRemindTimes())
 		newTask.setRemindTimes(cmd->getRemindTimes());
-	else if (newTask.getFlagToDate())
+	else if (newTask.getFlagFromDate())
 		setDefaultRemindTimes(newTask);
 
 	return newTask;
@@ -85,17 +85,17 @@ void Executor_Add::setDefaultRemindTimes(Task &task) {
 
 void Executor_Add::setDefaultRemindTimesPriorityH(Task &task) {
 	int n = sizeof(RT_MIN_H_ARR) / sizeof(RT_MIN_H_ARR[0]);
-	task.setRemindTimes(getRemindTimesFromMinutesBefore(RT_MIN_H_ARR, n, task.getToDate()));
+	task.setRemindTimes(getRemindTimesFromMinutesBefore(RT_MIN_H_ARR, n, task.getFromDate()));
 }
 
 void Executor_Add::setDefaultRemindTimesPriorityM(Task &task) {
 	int n = sizeof(RT_MIN_M_ARR) / sizeof(RT_MIN_M_ARR[0]);
-	task.setRemindTimes(getRemindTimesFromMinutesBefore(RT_MIN_M_ARR, n, task.getToDate()));
+	task.setRemindTimes(getRemindTimesFromMinutesBefore(RT_MIN_M_ARR, n, task.getFromDate()));
 }
 
 void Executor_Add::setDefaultRemindTimesPriorityL(Task &task) {
 	int n = sizeof(RT_MIN_L_ARR) / sizeof(RT_MIN_L_ARR[0]);
-	task.setRemindTimes(getRemindTimesFromMinutesBefore(RT_MIN_L_ARR, n, task.getToDate()));
+	task.setRemindTimes(getRemindTimesFromMinutesBefore(RT_MIN_L_ARR, n, task.getFromDate()));
 }
 
 list<time_t> Executor_Add::getRemindTimesFromMinutesBefore(const unsigned minutesBeforeList[], const int listSize, const time_t &deadline) const{
