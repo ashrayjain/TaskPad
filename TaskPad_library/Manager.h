@@ -28,7 +28,7 @@ class Executor;
 class Storage;
 class Command;
 class Logger;
-class Database;
+class Datastore;
 
 class Manager {
 	private:
@@ -46,10 +46,7 @@ class Manager {
 		pair<tm,tm> _currentPeriod;
 
 		//the list of tasks
-		list<Task>	_tasks;
-
-		//DB pointer
-		Database* taskDB;
+		Datastore*	_taskDB;
 
 		//saver
 		void saveChanges	();
