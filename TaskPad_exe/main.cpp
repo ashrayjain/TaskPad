@@ -12,16 +12,25 @@
 //	instructions. Some additional features include Synchronization and Arrow Keys (Up - Down) Navigation.
 //
 #include <QtWidgets/QApplication>
-#include "../TaskPad_library/mainwindow.h"
+#include <QSharedMemory>
+#include "../TaskPad_library/MainWindow.h"
 //#include <vld.h>
 
 int main(int argc, char *argv[])
 {
-	QApplication app(argc, argv);
+	const int ONE_INSTANCE_MODE = 1;
+	const QString APP_NAME = "TaskPad";
 
-	Q_INIT_RESOURCE(images);
-	MainWindow window;
-	window.show();
+	int ret = 0;
+	QSharedMemory singletonCheck(APP_NAME);
 
-	return app.exec();
+	singletonCheck.create(ONE_INSTANCE_MODE);
+	if(singletonCheck.error() != QSharedMemory::AlreadyExists){
+		QApplication app(argc, argv);
+		Q_INIT_RESOURCE(images);
+		MainWindow window;
+		window.show();
+		ret = app.exec();
+	}
+	return ret;
 }

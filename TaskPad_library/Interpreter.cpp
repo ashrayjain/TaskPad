@@ -16,10 +16,11 @@ bool Interpreter::checkCommand(string command, int& commandType){
 	int num=-1;
 
 	string generalAddCase="((( due| from| to| impt| at| ppl| note| rt) `[^`]*`)|( #[^( |`)]*))*(\\s*)";
-	string generalModCase="((( due| from| name| to| impt| at| ppl| note| rt) `[^`]*`)|( done| undone)|( (#)[^( |`)]*))*(\\s*)";
+	string generalModCase="((( due| from| name| to| impt| at| ppl| note| rt| -rt| -ppl| \\+rt| \\+ppl) `[^`]*`)|( done| undone)|( -due| -from| -to)|( -rtall| -pplall| -#)|( (#|-#|\\+#)[^( |`)]*))*(\\s*)";
 	string generalFindCase="((( from| name| to| impt| at| ppl| note| rt) `[^`]*`)|( #[^( |`)]*)|( done| undone)|(( timed| deadline| floating)))*(\\s*)";
 
 	regex test_add_command("^add `([^`]+)`"+generalAddCase); 
+
 	regex test_mod_command("^mod `([^`]+)`"+generalModCase); 
 	regex test_mod_exact_command("^mod exact `([^`]+)`"+generalModCase);
 	regex test_mod_index_command("^mod ([0-9]+)"+generalModCase);
@@ -30,8 +31,11 @@ bool Interpreter::checkCommand(string command, int& commandType){
 	regex test_del_command("^del `([^`]+)`(\\s*)");
 	regex test_del_exact_command("^del exact `([^`]+)`(\\s*)");
 	regex test_del_index_command("^del ([0-9]+)(\\s*)");
+
 	regex test_undo_command("^undo(\\s*)");
+
 	regex test_redo_command("^redo(\\s*)");
+
 	regex test_sync_command("^sync `([^`]+)`(\\s*)");
 
 

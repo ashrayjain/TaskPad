@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "CppUnitTest.h"
 #include "../TaskPad_library/Executor.h"
+#include "../TaskPad_library//Datastore.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
@@ -10,12 +11,13 @@ namespace UnitTest
 	TEST_CLASS(test_Executor)
 	{
 	private:
-		list<Task> data;
+		Datastore ds;
+		//list<Task> data;
 
 	public:
 		TEST_METHOD_INITIALIZE(Generate_Test_Data)
 		{
-			data.clear();
+			//data.clear();
 			
 			time_t now = time(NULL);
 
@@ -29,7 +31,8 @@ namespace UnitTest
 			testTask_1.setRemindTimes(now + 432000, TP::LIST_OP::ADD_ELEMENT);
 			testTask_1.setRemindTimes(now + 691000, TP::LIST_OP::ADD_ELEMENT);
 			
-			data.push_back(testTask_1);
+			ds.addTask(testTask_1);
+			//data.push_back(testTask_1);
 
 			Task testTask_2 = Task(2);
 			testTask_2.setName("Test Task 2");
@@ -40,7 +43,8 @@ namespace UnitTest
 			testTask_2.setPriority(TP::PRIORITY::LOW);
 			testTask_2.setRemindTimes(now + 1032000, TP::LIST_OP::ADD_ELEMENT);
 			
-			data.push_back(testTask_2);
+			ds.addTask(testTask_2);
+			//data.push_back(testTask_2);
 
 			Task testTask_3 = Task(3);
 			testTask_3.setName("Test Task 3");
@@ -49,17 +53,28 @@ namespace UnitTest
 			testTask_3.setParticipants(list<string>(2, "Participant X"));
 			testTask_3.setRemindTimes(now + 232000, TP::LIST_OP::ADD_ELEMENT);
 			
-			data.push_back(testTask_3);
+			ds.addTask(testTask_3);
+			//data.push_back(testTask_3);
 		}
+		/*
+		TEST_METHOD_CLEANUP(Clean_Up)
+		{
+			ds.deleteTask(0);
+			ds.deleteTask(0);
+			ds.deleteTask(0);
+		}
+		*/
 
 		TEST_METHOD(Execute_Add_Command_Test)
 		{
+			
 			Command* testCmd = new Command_Add();
 			Command_Add* testAddCmd = dynamic_cast<Command_Add*>(testCmd);
 			time_t now = time(NULL);
-			Executor testExecutor(&data);
+			Datastore s;
+			Executor testExecutor(ds);
 			Messenger testResponse;
-
+			/*
 			testAddCmd->setName("Test Task");
 			testAddCmd->setDueDate(now + 864000);
 			testAddCmd->setLocation("Someplace");
@@ -71,28 +86,33 @@ namespace UnitTest
 			
 			testExecutor.executeCommand(testCmd, testResponse);
 
-			Assert::IsTrue(string("Test Task") == data.back().getName());
-			Assert::IsTrue((now + 864000) == data.back().getDueDate());
-			Assert::IsTrue(string("Someplace") == data.back().getLocation());
-			Assert::IsTrue(string("This is a sample note!") == data.back().getNote());
-			Assert::IsTrue(list<string>(1, "#testhashtag") == data.back().getTags());
-			Assert::IsTrue(list<string>(5, "Participant X") == data.back().getParticipants());
-			Assert::IsTrue(TP::PRIORITY::HIGH == data.back().getPriority());
-			Assert::IsTrue(list<time_t>(1, now + 432000) == data.back().getRemindTimes());
-			
+			Datastore::const_iterator i = ds.cend();
+			i--;
+			//string name = i->getName();
+			//Assert::IsTrue(string("Test Task") == i->getName());
+			//Assert::IsTrue((now + 864000) == i->getDueDate());
+			//Assert::IsTrue(string("Someplace") == i->getLocation());
+			//Assert::IsTrue(string("This is a sample note!") == i->getNote());
+			//Assert::IsTrue(list<string>(1, "#testhashtag") == i->getTags());
+			//Assert::IsTrue(list<string>(5, "Participant X") == i->getParticipants());
+			//Assert::IsTrue(TP::PRIORITY::HIGH == i->getPriority());
+			//Assert::IsTrue(list<time_t>(1, now + 432000) == i->getRemindTimes());
 			delete testCmd;
+			*/
 		}
 
 		TEST_METHOD(Execute_Del_Command_Test)
 		{
 			Command* testCmd = new Command_Del();
 			Command_Del* testDelCmd = dynamic_cast<Command_Del*>(testCmd);
-			Executor testExecutor(&data);
+			Executor testExecutor(ds);
 			Messenger testResponse;
 
-			testDelCmd->setCreatedTime(data.back().getIndex());
+			Datastore::const_iterator i = ds.cend();
+			i--;
+			testDelCmd->setCreatedTime(i->getIndex());
 			testExecutor.executeCommand(testCmd, testResponse);
-			Assert::IsTrue(2 == data.size());
+			Assert::IsTrue(2 == ds.size());
 
 			testDelCmd->setCreatedTime(time(NULL));
 			testExecutor.executeCommand(testCmd, testResponse);
@@ -102,14 +122,14 @@ namespace UnitTest
 			Command_Del* testDelCmd_2 = dynamic_cast<Command_Del*>(testCmd_2);
 			testDelCmd_2->setName("Test Task 1");
 			testExecutor.executeCommand(testCmd_2, testResponse);
-			Assert::IsTrue(1 == data.size());
+			Assert::IsTrue(1 == ds.size());
 
 			Command* testCmd_3 = new Command_Del();
 			Command_Del* testDelCmd_3 = dynamic_cast<Command_Del*>(testCmd_3);
 			testDelCmd_3->setName("Test Task 2");
 			testDelCmd_3->setFlagExact();
 			testExecutor.executeCommand(testCmd_3, testResponse);
-			Assert::IsTrue(0 == data.size());
+			Assert::IsTrue(0 == ds.size());
 
 			delete testCmd;
 			delete testCmd_2;
@@ -120,20 +140,24 @@ namespace UnitTest
 		{
 			Command* testCmd = new Command_Mod();
 			Command_Mod* testModCmd = dynamic_cast<Command_Mod*>(testCmd);
-			Executor testExecutor(&data);
+			Executor testExecutor(ds);
 			Messenger testResponse;
 
-			testModCmd->setCreatedTime(data.back().getIndex());
+			Datastore::const_iterator i = ds.cend();
+			i--;
+			testModCmd->setCreatedTime(i->getIndex());
 			testModCmd->setOptName("New Task Name");
 			testModCmd->setTaskState(TP::TASK_STATE::DONE);
 			testExecutor.executeCommand(testCmd, testResponse);
-			Assert::IsTrue("New Task Name" == data.back().getName());
-			Assert::IsTrue(TP::TASK_STATE::DONE == data.back().getState());
+			Assert::IsTrue("New Task Name" == i->getName());
+			Assert::IsTrue(TP::TASK_STATE::DONE == i->getState());
 
 			testModCmd->setCreatedTime(time(NULL));
 			testExecutor.executeCommand(testCmd, testResponse);
 			Assert::IsTrue(TP::STATUS::ERROR==testResponse.getStatus());
 
+			Datastore::const_iterator j = ds.cbegin();
+			j++;
 			time_t now = time(NULL);
 			Command* testCmd_2 = new Command_Mod();
 			Command_Mod* testModCmd_2 = dynamic_cast<Command_Mod*>(testCmd_2);
@@ -143,9 +167,9 @@ namespace UnitTest
 			testModCmd_2->setRemindTimes(list<time_t>(1, now + 32000));
 			testModCmd_2->setTaskState(TP::TASK_STATE::DONE);
 			testExecutor.executeCommand(testCmd_2, testResponse);
-			Assert::IsTrue(list<string>(1, "#hashtag") == (++data.begin())->getTags());
-			Assert::IsTrue(list<time_t>(1, now + 32000) == (++data.begin())->getRemindTimes());
-			Assert::IsTrue(TP::TASK_STATE::DONE == (++data.begin())->getState());
+			Assert::IsTrue(list<string>(1, "#hashtag") == j->getTags());
+			Assert::IsTrue(list<time_t>(1, now + 32000) == j->getRemindTimes());
+			Assert::IsTrue(TP::TASK_STATE::DONE == j->getState());
 			
 			delete testCmd;
 			delete testCmd_2;
@@ -156,7 +180,7 @@ namespace UnitTest
 			Command* testCmd = new Command_Find();
 			Command_Find* testFindCmd = dynamic_cast<Command_Find*>(testCmd);
 			time_t now = time(NULL);
-			Executor testExecutor(&data);
+			Executor testExecutor(ds);
 			Messenger testResponse;
 
 			testFindCmd->setOptName("Test Task");

@@ -28,6 +28,7 @@ class Executor;
 class Storage;
 class Command;
 class Logger;
+class Datastore;
 
 class Manager {
 	private:
@@ -45,7 +46,7 @@ class Manager {
 		pair<tm,tm> _currentPeriod;
 
 		//the list of tasks
-		list<Task>	_tasks;
+		Datastore*	_taskDB;
 
 		//saver
 		void saveChanges	();

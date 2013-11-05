@@ -27,6 +27,7 @@
 #include "Task.h"
 #include "Enum.h"
 #include "Logger.h"
+#include "Datastore.h"
 
 using namespace TP;
 
@@ -34,9 +35,10 @@ const string Manager::MESSAGE_INDEX_OUT_OF_RANGE = "Given index is out of range!
 const string Manager::MESSAGE_ERROR_UNEXPECTED_COMMAND_TYPE_WITH_INDEX = "Unexpected Command with index!!";
 
 Manager::Manager() {
+	this->_taskDB					= new Datastore;
 	this->_logger					= Logger::getLogger();
-	this->_storage					= new Storage(_tasks);
-	this->_executor					= new Executor(&_tasks);
+	this->_storage					= new Storage(_taskDB);
+	this->_executor					= new Executor(*_taskDB);
 	this->_interpreter				= new Interpreter;
 	this->_response					= Messenger();
 	this->_cmd						= NULL;
@@ -70,22 +72,31 @@ void Manager::resetStatus() {
 	this->_currentPeriod = pair<tm,tm>();
 	this->_response.resetMessenger();
 	std::tm todayTm = getTodayTm();
-	this->setCurrPeriod(todayTm,todayTm);
+	std::tm nextDayTm = getNextDayTm(todayTm);
+	this->setCurrPeriod(todayTm,nextDayTm);
 }
 
 Manager::~Manager() {
-	this->_storage->save(this->_tasks);
+	this->_storage->save(this->_taskDB);
+
+	if(this->_taskDB != NULL) {
+		delete this->_taskDB;
+		_taskDB = NULL;
+	}
 
 	if(this->_interpreter != NULL) {
 		delete this->_interpreter;
+		_interpreter = NULL;
 	}
 
 	if(this->_executor != NULL) {
 		delete this->_executor;
+		_executor = NULL;
 	}
 
 	if(this->_storage != NULL) {
 		delete this->_storage;
+		_storage = NULL;
 	}
 
 	this->removePreviousCommand				();
@@ -435,8 +446,6 @@ Messenger Manager::getTodayTasks() {
 	std::string today = this->getStrFromTm(todayTm);
 	std::string end_of_today = endOfTodayCharArray;
 
-	this->setCurrPeriod(todayTm,todayTm);
-
 	return this->processCommand("find from "+ today + " to "+ end_of_today + " undone");
 	//return this->processCommand("find undone");
 }
@@ -536,8 +545,15 @@ std::tm Manager::getNextDayTm(std::tm currTm)
 {
 	std::time_t intermediateResult;
 	currTm.tm_mday += 1;
+
 	intermediateResult = mktime(&currTm);
-	
+
+	if(intermediateResult == -1)
+	{
+		currTm.tm_mday -= 1;
+		intermediateResult = mktime(&currTm);
+	}
+
 	return *localtime(&intermediateResult);
 }
 
@@ -546,6 +562,12 @@ std::tm Manager::getNextWeekTm(std::tm currTm)
 	std::time_t intermediateResult;
 	currTm.tm_mday += 7;
 	intermediateResult = mktime(&currTm);
+
+	if(intermediateResult == -1)
+	{
+		currTm.tm_mday -= 7;
+		intermediateResult = mktime(&currTm);
+	}
 	
 	return *localtime(&intermediateResult);
 }
@@ -556,6 +578,12 @@ std::tm Manager::getNextMonthTm(std::tm currTm)
 	currTm.tm_mon += 1;
 	intermediateResult = mktime(&currTm);
 	
+	if(intermediateResult == -1)
+	{
+		currTm.tm_mon -= 1;
+		intermediateResult = mktime(&currTm);
+	}
+
 	return *localtime(&intermediateResult);
 }
 
@@ -563,8 +591,15 @@ std::tm Manager::getPrevDayTm(std::tm currTm)
 {
 	std::time_t intermediateResult;
 	currTm.tm_mday -= 1;
+
 	intermediateResult = mktime(&currTm);
-	
+
+	if(intermediateResult == -1)
+	{
+		currTm.tm_mday += 1;
+		intermediateResult = mktime(&currTm);
+	}
+
 	return *localtime(&intermediateResult);
 }
 
@@ -573,6 +608,12 @@ std::tm Manager::getPrevWeekTm(std::tm currTm)
 	std::time_t intermediateResult;
 	currTm.tm_mday -= 7;
 	intermediateResult = mktime(&currTm);
+
+	if(intermediateResult == -1)
+	{
+		currTm.tm_mday += 7;
+		intermediateResult = mktime(&currTm);
+	}
 	
 	return *localtime(&intermediateResult);
 }
@@ -582,6 +623,13 @@ std::tm Manager::getPrevMonthTm(std::tm currTm)
 	std::time_t intermediateResult;
 	currTm.tm_mon -= 1;
 	intermediateResult = mktime(&currTm);
+
+	if(intermediateResult == -1)
+	{
+		currTm.tm_mon += 1;
+		currTm.tm_year = 70;
+		intermediateResult = mktime(&currTm);
+	}
 	
 	return *localtime(&intermediateResult);
 }

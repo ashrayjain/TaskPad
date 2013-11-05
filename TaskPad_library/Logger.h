@@ -36,13 +36,27 @@ class Logger
 				void	log			(std::string callingClass, std::string message, TP::LOG_TYPE logType = TP::INFOLOG);
 	private:
 		std::ofstream _logWriter;
-		static const std::string _configFileName;
-		static const std::string configLabelList[];
-		static		 std::string configDetailList[];
-		static const std::string configDefaultValues[];
-		static const std::string DEFAULT_CONFIG_FILE;
+		static		 std::string _configDetailList[];
+
+
+		static const std::string CONFIG_LABEL_LIST[];
+		static const std::string CONFIG_DEFAULT_VALUES_LIST[];
+		static const std::string CONFIG_FILE_NAME;
+
+		static const std::string DEFAULT_LOG_FILE_NAME;
 		static const std::string DEFAULT_CLASS_TO_MONITOR;
 		static const std::string DEFAULT_LEVEL_TO_LOG;
+		static const std::string DEFAULT_CONFIG_VALUE;
+		static const std::string DEFAULT_LOG_MESSAGE_LINKER;
+		static const std::string DEFAULT_KEY_VALUE_DELIMITER;
+		static const std::string DEFAULT_INFO_LOG_IDENTIFIER;
+		static const std::string DEFAULT_NOTICE_LOG_IDENTIFIER;
+		static const std::string DEFAULT_WARNING_LOG_IDENTIFIER;
+		static const std::string DEFAULT_ERROR_LOG_IDENTIFIER;
+		static const std::string DEFAULT_FATAL_LOG_IDENTIFIER;
+
+		static const std::string MESSAGE_ERROR_FATAL_LOG;
+		static const std::string MESSAGE_START_LOG;
 
 		static const int CONFIG_DETAILS_SIZE;
 		static const int FILENAME;

@@ -27,6 +27,9 @@ public:
 	bool	          getRemindTimesMessage(string command, bool&flag,list<std::time_t>& content){ return Interpreter_base::getRemindTimesMessage(command,flag,content);}
 	bool			  getTaskStateMessage(string command, bool&flag,TASK_STATE& content)  { return Interpreter_base::getTaskStateMessage(command,flag,content); }
 	bool			  getTaskTypeMessage(string command, bool&flag,TASK_TYPE& content)    { return Interpreter_base::getTaskTypeMessage(command,flag,content);}
+	
+	//bool			  getRemoveDueDateInstruction(string command, bool&flag)			  { return Interpreter_base::getRemoveDueDateInstruction(command,flag);}
+	
 	bool			  getSyncProviderNameMessage(string command, bool&flag,string& content){ return Interpreter_base::getSyncProviderNameMessage(command,flag,content); }
 	bool              checkDuplicate(string command, string cmdTemplate,int startPosition){ return Interpreter_base::checkDuplicate(command, cmdTemplate,startPosition);}
 	bool              checkKeyWord(string command, int position)                          { return Interpreter_base::checkKeyWord(command,position); }      
@@ -169,6 +172,157 @@ if(flag && commandType->getFlagDue()==false){
 
 		flag=false;
 	}
+
+	if(flag && commandType->getFlagRemoveDue()==false){
+
+		if(getRemoveDueDateInstruction(commandStr,flag)){
+			commandType->setFlagRemoveDue();
+		}
+
+	}
+	else {
+
+		flag=false;
+	}
+
+	if(flag && commandType->getFlagRemoveFrom()==false){
+
+		if(getRemoveFromDateInstruction(commandStr,flag)){
+			commandType->setFlagRemoveFrom();
+		}
+
+	}
+	else {
+
+		flag=false;
+	}
+
+	if(flag && commandType->getFlagRemoveTo()==false){
+
+		if(getRemoveToDateInstruction(commandStr,flag)){
+			commandType->setFlagRemoveTo();
+		}
+
+	}
+	else {
+
+		flag=false;
+	}
+
+	if(flag && commandType->getFlagRemoveAllRemindTimes()==false){
+
+		if(getRemoveAllRemindTimesInstruction(commandStr,flag)){
+			commandType->setFlagRemoveAllRemindTimes();
+		}
+
+	}
+	else {
+
+		flag=false;
+	}
+
+	if(flag && commandType->getFlagRemoveAllParticipants()==false){
+
+		if(getRemoveAllParticipantsInstruction(commandStr,flag)){
+			commandType->setFlagRemoveAllParticipants();
+		}
+
+	}
+	else {
+
+		flag=false;
+	}
+
+	if(flag && commandType->getFlagRemoveAllTags()==false){
+
+		if(getRemoveAllTagsInstruction(commandStr,flag)){
+			commandType->setFlagRemoveAllTags();
+		}
+
+	}
+	else {
+
+		flag=false;
+	}
+
+	if(flag && commandType->getFlagRemoveRemindTimes()==false){
+
+		list<time_t>content;
+		if(getRemoveRemindTimesMessage(commandStr,flag, content)){
+			commandType->setRemoveRemindTimes(content);
+		}
+
+	}
+	else {
+
+		flag=false;
+	}
+
+	if(flag && commandType->getFlagRemoveParticipants()==false){
+
+		list<string>content;
+		if(getRemoveParticipantsMessage(commandStr,flag, content)){
+			commandType->setRemoveParticipants(content);
+		}
+
+	}
+	else {
+
+		flag=false;
+	}
+
+	if(flag && commandType->getFlagRemoveTags()==false){
+
+		list<string>content;
+		if(getRemoveTagsMessage(commandStr,flag, content)){
+			commandType->setRemoveTags(content);
+		}
+
+	}
+	else {
+
+		flag=false;
+	}
+
+	if(flag && commandType->getFlagAddRemindTimes()==false){
+
+		list<time_t>content;
+		if(getAddRemindTimesMessage(commandStr,flag, content)){
+			commandType->setAddRemindTimes(content);
+		}
+
+	}
+	else {
+
+		flag=false;
+	}
+
+	if(flag && commandType->getFlagAddParticipants()==false){
+
+		list<string>content;
+		if(getAddParticipantsMessage(commandStr,flag, content)){
+			commandType->setAddParticipants(content);
+		}
+
+	}
+	else {
+
+		flag=false;
+	}
+
+	if(flag && commandType->getFlagAddTags()==false){
+
+		list<string>content;
+		if(getAddTagsMessage(commandStr,flag, content)){
+			commandType->setAddTags(content);
+		}
+
+	}
+	else {
+
+		flag=false;
+	}
+
 
 	if(commandType->getFlagFrom()==true && commandType->getFlagTo()==true){
 	
