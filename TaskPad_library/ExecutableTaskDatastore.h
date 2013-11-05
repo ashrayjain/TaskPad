@@ -24,7 +24,7 @@ class ExecutableTaskDatastore
 	public:
 		virtual void addTask(const Task&)=0;
 		virtual void deleteTask(const unsigned &pos)=0;
-
-		virtual	~ExecutableTaskDatastore	()=0;
+		
+		virtual ~ExecutableTaskDatastore()=0 {};
 };
 #endif
