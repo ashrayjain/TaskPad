@@ -2,7 +2,7 @@
 #define QUICKADD_WINDOW_H
 
 #include "./GeneratedFiles/ui_quickadd_window.h"
-#include "mainwindow.h"
+#include "MainWindow.h"
 
 class QuickAddWindow: public QDialog
 {

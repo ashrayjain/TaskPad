@@ -39,6 +39,8 @@ protected slots:
 private:
 	static const QStringList COMMAND_LIST;
 	static const QStringList KEYWORD_LIST;
+	static const QStringList KEYWORD_LIST_REMOVE;
+	static const QStringList KEYWORD_LIST_ADD;
 	static const QStringList KEYWORD_LIST_FIND;
 	static const QString SPACE;
 	static const QString INCLUDE_QUOTE_LEFT_PAIR;
@@ -74,6 +76,8 @@ private:
 	bool hasSpace_LHS();
 	bool hasSpace_RHS();
 	bool hasSharp_LHS();
+	bool hasAdd_LHS();
+	bool hasMinus_LHS();
 	void clearCharNearby(QTextCursor::MoveOperation direction);
 	void clearCharRHS();
 	void clearCharLHS();

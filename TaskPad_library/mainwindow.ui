@@ -114,9 +114,25 @@ QTreeWidget#TaskList:Item {
 	padding: 10px 0 10px 10px;
 }
 
+QTreeWidget#TaskList:Item:hover {
+	background-color:#B2D2FD;
+}
+
+QTreeWidget#TaskList:Item:selected {
+	background-color:#70A1E2;
+}
+
 QTreeWidget#TaskList:Item:last {
 	color: #9ac3fa;
 	padding: 10px 18px 10px 10px;
+}
+
+QTreeWidget#TaskList:Item:hover:last {
+	color: #B2D2FD;
+}
+
+QTreeWidget#TaskList:Item:selected:last {
+	color: #70A1E2;
 }
 
 QTreeWidget#TaskList QScrollBar:vertical {
@@ -369,6 +385,9 @@ QTextEdit#cmdBar:hover {
      <property name="readOnly">
       <bool>true</bool>
      </property>
+     <property name="placeholderText">
+      <string>Name</string>
+     </property>
     </widget>
     <widget class="QLineEdit" name="dueOrFromTo">
      <property name="enabled">
@@ -387,6 +406,9 @@ QTextEdit#cmdBar:hover {
      </property>
      <property name="readOnly">
       <bool>true</bool>
+     </property>
+     <property name="placeholderText">
+      <string>Time</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="location">
@@ -407,6 +429,9 @@ QTextEdit#cmdBar:hover {
      <property name="readOnly">
       <bool>true</bool>
      </property>
+     <property name="placeholderText">
+      <string>Location</string>
+     </property>
     </widget>
     <widget class="QLineEdit" name="participants">
      <property name="enabled">
@@ -425,6 +450,9 @@ QTextEdit#cmdBar:hover {
      </property>
      <property name="readOnly">
       <bool>true</bool>
+     </property>
+     <property name="placeholderText">
+      <string>Participants</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="tags">
@@ -445,6 +473,9 @@ QTextEdit#cmdBar:hover {
      <property name="readOnly">
       <bool>true</bool>
      </property>
+     <property name="placeholderText">
+      <string>Tags</string>
+     </property>
     </widget>
     <widget class="QLineEdit" name="remindTime">
      <property name="enabled">
@@ -463,6 +494,9 @@ QTextEdit#cmdBar:hover {
      </property>
      <property name="readOnly">
       <bool>true</bool>
+     </property>
+     <property name="placeholderText">
+      <string>Remind me : none</string>
      </property>
     </widget>
    </widget>

@@ -7,8 +7,7 @@ bool Interpreter_base::checkKeyWord(string command, int position){
 	bool isKeyWord=true;
 
 
-	for(int i=0;i<command.length();i++)
-	{
+	for(int i=0;i<command.length();i++){
 		if(command.at(i)=='`'){
 
 			positionForNotion.push_back(i);
@@ -731,6 +730,630 @@ bool Interpreter_base::getTaskTypeMessage(string command, bool&flag, TP::TASK_TY
 	return isNotEmpty;
 }
 
+bool Interpreter_base::getRemoveDueDateInstruction(string command, bool&flag){
+	
+	string commandStr;
+	smatch match;
+	regex extractTemplete("\\s(-due)(\\s|$)");
+	string subStirng=command;
+
+	string::const_iterator startPos = command.begin();
+	string::const_iterator endPos = command.end();
+
+	int startIndex=0;
+	int count=0;
+	bool isNotEmpty=true;
+
+
+	if (regex_search(startPos,endPos, match, extractTemplete)){
+
+		commandStr=match[0];
+
+	}
+
+	while(!commandStr.empty()){
+
+		if(checkKeyWord(command,startIndex+match.position())==true){
+			count++;
+		}	
+
+		startIndex=startIndex+match.position()+1;
+		startPos=startPos+match.position()+1;
+
+		commandStr.clear();
+		if(startPos!=endPos){
+			if (regex_search(startPos,endPos, match, extractTemplete)){
+
+				commandStr=match[0];
+
+			}
+		}
+	}
+
+	if(count==0){
+		isNotEmpty=false;
+	}
+	else if(count==1){
+		isNotEmpty=true;
+	}
+	else{
+		flag=false;
+	}
+
+	return isNotEmpty;
+}
+
+bool Interpreter_base::getRemoveFromDateInstruction(string command, bool&flag){
+	
+	string commandStr;
+	smatch match;
+	regex extractTemplete("\\s(-from)(\\s|$)");
+	string subStirng=command;
+
+	string::const_iterator startPos = command.begin();
+	string::const_iterator endPos = command.end();
+
+	int startIndex=0;
+	int count=0;
+	bool isNotEmpty=true;
+
+
+	if (regex_search(startPos,endPos, match, extractTemplete)){
+
+		commandStr=match[0];
+
+	}
+
+	while(!commandStr.empty()){
+
+		if(checkKeyWord(command,startIndex+match.position())==true){
+			count++;
+		}	
+
+		startIndex=startIndex+match.position()+1;
+		startPos=startPos+match.position()+1;
+
+		commandStr.clear();
+		if(startPos!=endPos){
+			if (regex_search(startPos,endPos, match, extractTemplete)){
+
+				commandStr=match[0];
+
+			}
+		}
+	}
+
+	if(count==0){
+		isNotEmpty=false;
+	}
+	else if(count==1){
+		isNotEmpty=true;
+	}
+	else{
+		flag=false;
+	}
+
+	return isNotEmpty;
+}
+
+bool Interpreter_base::getRemoveToDateInstruction(string command, bool&flag){
+	
+	string commandStr;
+	smatch match;
+	regex extractTemplete("\\s(-to)(\\s|$)");
+	string subStirng=command;
+
+	string::const_iterator startPos = command.begin();
+	string::const_iterator endPos = command.end();
+
+	int startIndex=0;
+	int count=0;
+	bool isNotEmpty=true;
+
+
+	if (regex_search(startPos,endPos, match, extractTemplete)){
+
+		commandStr=match[0];
+
+	}
+
+	while(!commandStr.empty()){
+
+		if(checkKeyWord(command,startIndex+match.position())==true){
+			count++;
+		}	
+
+		startIndex=startIndex+match.position()+1;
+		startPos=startPos+match.position()+1;
+
+		commandStr.clear();
+		if(startPos!=endPos){
+			if (regex_search(startPos,endPos, match, extractTemplete)){
+
+				commandStr=match[0];
+
+			}
+		}
+	}
+
+	if(count==0){
+		isNotEmpty=false;
+	}
+	else if(count==1){
+		isNotEmpty=true;
+	}
+	else{
+		flag=false;
+	}
+
+	return isNotEmpty;
+}
+
+bool Interpreter_base::getRemoveAllRemindTimesInstruction(string command, bool&flag){
+	
+	string commandStr;
+	smatch match;
+	regex extractTemplete("\\s(-rtall)(\\s|$)");
+	string subStirng=command;
+
+	string::const_iterator startPos = command.begin();
+	string::const_iterator endPos = command.end();
+
+	int startIndex=0;
+	int count=0;
+	bool isNotEmpty=true;
+
+
+	if (regex_search(startPos,endPos, match, extractTemplete)){
+
+		commandStr=match[0];
+
+	}
+
+	while(!commandStr.empty()){
+
+		if(checkKeyWord(command,startIndex+match.position())==true){
+			count++;
+		}	
+
+		startIndex=startIndex+match.position()+1;
+		startPos=startPos+match.position()+1;
+
+		commandStr.clear();
+		if(startPos!=endPos){
+			if (regex_search(startPos,endPos, match, extractTemplete)){
+
+				commandStr=match[0];
+
+			}
+		}
+	}
+
+	if(count==0){
+		isNotEmpty=false;
+	}
+	else if(count==1){
+		isNotEmpty=true;
+	}
+	else{
+		flag=false;
+	}
+
+	return isNotEmpty;
+}
+
+bool Interpreter_base::getRemoveAllParticipantsInstruction(string command, bool&flag){
+	
+	string commandStr;
+	smatch match;
+	regex extractTemplete("\\s(-pplall)(\\s|$)");
+	string subStirng=command;
+
+	string::const_iterator startPos = command.begin();
+	string::const_iterator endPos = command.end();
+
+	int startIndex=0;
+	int count=0;
+	bool isNotEmpty=true;
+
+
+	if (regex_search(startPos,endPos, match, extractTemplete)){
+
+		commandStr=match[0];
+
+	}
+
+	while(!commandStr.empty()){
+
+		if(checkKeyWord(command,startIndex+match.position())==true){
+			count++;
+		}	
+
+		startIndex=startIndex+match.position()+1;
+		startPos=startPos+match.position()+1;
+
+		commandStr.clear();
+		if(startPos!=endPos){
+			if (regex_search(startPos,endPos, match, extractTemplete)){
+
+				commandStr=match[0];
+
+			}
+		}
+	}
+
+	if(count==0){
+		isNotEmpty=false;
+	}
+	else if(count==1){
+		isNotEmpty=true;
+	}
+	else{
+		flag=false;
+	}
+
+	return isNotEmpty;
+}
+
+bool Interpreter_base::getRemoveAllTagsInstruction(string command, bool&flag){
+
+		string commandStr;
+	smatch match;
+	regex extractTemplete("\\s(-#)(\\s|$)");
+	string subStirng=command;
+
+	string::const_iterator startPos = command.begin();
+	string::const_iterator endPos = command.end();
+
+	int startIndex=0;
+	int count=0;
+	bool isNotEmpty=true;
+
+
+	if (regex_search(startPos,endPos, match, extractTemplete)){
+
+		commandStr=match[0];
+
+	}
+
+	while(!commandStr.empty()){
+
+		if(checkKeyWord(command,startIndex+match.position())==true){
+			count++;
+		}	
+
+		startIndex=startIndex+match.position()+1;
+		startPos=startPos+match.position()+1;
+
+		commandStr.clear();
+		if(startPos!=endPos){
+			if (regex_search(startPos,endPos, match, extractTemplete)){
+
+				commandStr=match[0];
+
+			}
+		}
+	}
+
+	if(count==0){
+		isNotEmpty=false;
+	}
+	else if(count==1){
+		isNotEmpty=true;
+	}
+	else{
+		flag=false;
+	}
+
+	return isNotEmpty;
+}
+
+bool Interpreter_base::getRemoveRemindTimesMessage(string command, bool&flag,list<std::time_t>& content){
+
+	list<time_t>rtList;
+	regex extractTemplete(" -rt `[^`]*`");
+	smatch match;
+	string commandStr;
+	string preContent;
+	bool isNotEmpty=true;
+
+	if (regex_search(command, match, extractTemplete)){
+
+		commandStr=match[0];
+
+	}
+	if(!commandStr.empty()){
+
+		stringstream extract(commandStr);
+		getline(extract,preContent,'`');
+		preContent.clear();
+		getline(extract,preContent,'`');
+
+		stringstream extractIndividual(preContent);
+		string time="";
+		getline(extractIndividual,time,',');
+
+		while(!time.empty()){
+			time_t rtTime=setTime(time,flag);
+			rtList.push_back(rtTime);
+			time.clear();
+			getline(extractIndividual,time,',');
+		}
+		content=rtList;
+		if(content.empty())isNotEmpty=false;
+		if(checkDuplicate(command," -rt `[^`]*`",match.position())==true){
+
+			flag=false;
+		}
+	}
+	else{
+
+		isNotEmpty=false;
+	}
+
+
+
+	return isNotEmpty;
+}
+
+bool Interpreter_base::getRemoveParticipantsMessage(string command, bool&flag, list<std::string>& content){
+	list<string>pplList;
+	regex extractTemplete(" -ppl `[^`]*`");
+	smatch match;
+	string commandStr;
+	string preContent;
+	bool isNotEmpty=true;
+
+	if (regex_search(command, match, extractTemplete)){
+
+		commandStr=match[0];
+
+	}
+	if(!commandStr.empty()){
+
+		stringstream extract(commandStr);
+		getline(extract,preContent,'`');
+		content.clear();
+		getline(extract,preContent,'`');
+
+		stringstream extractIndividual(preContent);
+		string name="";
+		getline(extractIndividual,name,',');
+		while(!name.empty()){
+
+			pplList.push_back(name);
+			name.clear();
+			getline(extractIndividual,name,',');
+		}
+
+		content=pplList;
+		if(pplList.empty())isNotEmpty=false;
+
+		if(checkDuplicate(command," -ppl `[^`]*`",match.position())==true){
+
+			flag=false;
+		}	
+
+	}
+	else{
+
+		isNotEmpty=false;
+	}
+
+
+	return isNotEmpty;
+
+}
+
+bool Interpreter_base::getRemoveTagsMessage(string command, bool&flag, list<std::string>& content){
+	list<string>tagList;
+	regex extractTemplete("\\s(-#[^( |`)]*)(\\s|$)");
+
+	smatch match;
+	string commandStr;
+	string preContent;
+	bool isNotEmpty=true;
+	string subStirng=command;
+
+	int count=0;
+
+	if (regex_search(subStirng, match, extractTemplete)){
+
+		commandStr=match[0];
+
+	}
+
+	while(!commandStr.empty()){
+
+		if(checkKeyWord(subStirng,match.position())==true){
+
+			stringstream extract(commandStr);
+			string tagContent;
+			getline(extract,tagContent,'#');
+			tagContent.clear();
+			getline(extract,tagContent,' ');
+			
+			if(!tagContent.empty()){
+			
+				tagList.push_back(tagContent);
+			}
+			count++;
+		}	
+
+
+		subStirng=subStirng.substr(match.position()+1);
+		commandStr.clear();
+
+		if (regex_search(subStirng, match, extractTemplete)){
+
+			commandStr=match[0];
+
+		}
+
+	}
+
+	if(count==0 || tagList.empty()){
+		isNotEmpty=false;
+	}
+
+	content=tagList;
+	return isNotEmpty;
+
+}
+
+bool Interpreter_base::getAddRemindTimesMessage(string command, bool&flag,list<std::time_t>& content){
+
+	list<time_t>rtList;
+	regex extractTemplete(" \\+rt `[^`]*`");
+	smatch match;
+	string commandStr;
+	string preContent;
+	bool isNotEmpty=true;
+
+	if (regex_search(command, match, extractTemplete)){
+
+		commandStr=match[0];
+
+	}
+	if(!commandStr.empty()){
+
+		stringstream extract(commandStr);
+		getline(extract,preContent,'`');
+		preContent.clear();
+		getline(extract,preContent,'`');
+
+		stringstream extractIndividual(preContent);
+		string time="";
+		getline(extractIndividual,time,',');
+
+		while(!time.empty()){
+			time_t rtTime=setTime(time,flag);
+			rtList.push_back(rtTime);
+			time.clear();
+			getline(extractIndividual,time,',');
+		}
+		content=rtList;
+		if(content.empty())isNotEmpty=false;
+		if(checkDuplicate(command," \\+rt `[^`]*`",match.position())==true){
+
+			flag=false;
+		}
+	}
+	else{
+
+		isNotEmpty=false;
+	}
+
+
+
+	return isNotEmpty;
+}
+
+bool Interpreter_base::getAddParticipantsMessage(string command, bool&flag, list<std::string>& content){
+	list<string>pplList;
+	regex extractTemplete(" \\+ppl `[^`]*`");
+	smatch match;
+	string commandStr;
+	string preContent;
+	bool isNotEmpty=true;
+
+	if (regex_search(command, match, extractTemplete)){
+
+		commandStr=match[0];
+
+	}
+	if(!commandStr.empty()){
+
+		stringstream extract(commandStr);
+		getline(extract,preContent,'`');
+		content.clear();
+		getline(extract,preContent,'`');
+
+		stringstream extractIndividual(preContent);
+		string name="";
+		getline(extractIndividual,name,',');
+		while(!name.empty()){
+
+			pplList.push_back(name);
+			name.clear();
+			getline(extractIndividual,name,',');
+		}
+
+		content=pplList;
+		if(pplList.empty())isNotEmpty=false;
+
+		if(checkDuplicate(command," \\+ppl `[^`]*`",match.position())==true){
+
+			flag=false;
+		}	
+
+	}
+	else{
+
+		isNotEmpty=false;
+	}
+
+
+	return isNotEmpty;
+
+}
+
+bool Interpreter_base::getAddTagsMessage(string command, bool&flag, list<std::string>& content){
+
+	list<string>tagList;
+	regex extractTemplete("\\s(\\+#[^( |`)]*)(\\s|$)");
+
+	smatch match;
+	string commandStr;
+	string preContent;
+	bool isNotEmpty=true;
+	string subStirng=command;
+
+	int count=0;
+
+	if (regex_search(subStirng, match, extractTemplete)){
+
+		commandStr=match[0];
+
+	}
+
+	while(!commandStr.empty()){
+
+		if(checkKeyWord(subStirng,match.position())==true){
+
+			stringstream extract(commandStr);
+			string tagContent;
+			getline(extract,tagContent,'#');
+			tagContent.clear();
+			getline(extract,tagContent,' ');
+			
+			if(!tagContent.empty()){
+			
+				tagList.push_back(tagContent);
+			}
+			count++;
+		}	
+
+
+		subStirng=subStirng.substr(match.position()+1);
+		commandStr.clear();
+
+		if (regex_search(subStirng, match, extractTemplete)){
+
+			commandStr=match[0];
+
+		}
+
+	}
+
+	if(count==0 || tagList.empty()){
+		isNotEmpty=false;
+	}
+
+	content=tagList;
+	return isNotEmpty;
+}
+
 bool Interpreter_base::getSyncProviderNameMessage(string command, bool&flag, string&content){
 
 	regex extractTemplete("sync `[^`]+`");
@@ -786,20 +1409,52 @@ time_t Interpreter_base::setTime(string commandStr,bool& flag){
 
 	case 0: 
 	{	
-		stringstream extract(commandStr);
-		getline(extract,content,' ');
-		flag=integerConverter(content,day);
-		content.clear();
-		getline(extract,content,':');
-		if(!content.empty()){
+		int countSpace=0;
+		for(int i=0;i<commandStr.length();i++){
 
-			flag=integerConverter(content,hour);
+			if(commandStr.at(i)==' '){
+
+				countSpace++;
+			}
+
 		}
-		content.clear();
-		getline(extract,content);
-		if(!content.empty()){
 
-			flag=integerConverter(content,min);
+		if(countSpace>0){
+			stringstream extract(commandStr);
+			getline(extract,content,' ');
+			if(!content.empty()){
+				flag=integerConverter(content,day);
+			}
+			else{
+				flag=false;
+			}
+			content.clear();
+			getline(extract,content,':');
+			if(!content.empty()){
+
+				flag=integerConverter(content,hour);
+			}
+			content.clear();
+			getline(extract,content);
+			if(!content.empty()){
+
+				flag=integerConverter(content,min);
+			}
+		}
+		else{
+			stringstream extract(commandStr);
+			getline(extract,content,':');
+			if(!content.empty()){
+
+				flag=integerConverter(content,hour);
+			}
+			content.clear();
+			getline(extract,content);
+			if(!content.empty()){
+
+				flag=integerConverter(content,min);
+			}
+
 		}
 		break;
 	}
@@ -874,6 +1529,10 @@ if(year>2100)
 else if(month>12)
 	flag=false;
 else if(day>31)
+	flag=false;
+else if(hour>24)
+	flag=false;
+else if(min>59)
 	flag=false;
 
 if(flag!=false){

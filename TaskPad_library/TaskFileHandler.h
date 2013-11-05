@@ -1,7 +1,7 @@
 /*
  * =====================================================================================
  *
- *		Filename:  FileHandler.h
+ *		Filename:  TaskFileHandler.h
  *
  *      Version:  1.0
  *
@@ -12,21 +12,28 @@
 
  ** Gist of File Contents:
   *
-  * This header file defines an abstract class called FileHandler and all file handling classes
+  * This header file defines an abstract class called TaskFileHandler and all file handling classes
   * in this program will inherit from this class
   * 
  */
 
-#ifndef _FILEHANDLER_H_
-#define _FILEHANDLER_H_
+#ifndef _TaskFileHandler_H_
+#define _TaskFileHandler_H_
 
 #include<fstream>
 
-class FileHandler
+class Task;
+
+class TaskFileHandler
 {
 	protected:
-		virtual void openFile(const std::string& fileName, std::ios_base::openmode) =0;
-		virtual void closeFile() =0;
+		virtual void		openFile		(const std::string& fileName, std::ios_base::openmode) =0;
+		virtual void		closeFile		() =0;
+				std::string getTaskFilePath	(const Task& task);
+
+		const static std::string TASK_DIRECTORY;
+		const static std::string RECORD_MODIFIED_FILE_NAME;
+		const static std::string RECORD_DELETED_FILE_NAME;
 
 		static const std::string LABEL_START_OF_TASK;
 		static const std::string LABEL_NAME;
