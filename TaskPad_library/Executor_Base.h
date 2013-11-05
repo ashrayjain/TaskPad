@@ -53,6 +53,6 @@ protected:
 	void setErrorWithErrMsg			(Messenger &response, const std::string errMsg);
 
 public:
-	virtual ~Executor_Base			()=0;
+	virtual ~Executor_Base			()=0  {};
 	virtual void executeCommand		(Command* cmd, Messenger &response, Datastore &ds)=0;
 };

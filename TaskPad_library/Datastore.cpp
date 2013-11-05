@@ -82,11 +82,11 @@ void Datastore::handleNewRemindTime(list<list<Task*>::iterator> &newRemindTimesP
 }
 
 void Datastore::deleteTask(const unsigned &pos) {
-	Datastore_Base::iterator i = _ds->begin();
-	advance(i, pos);
-	_indexHash.erase(i->getIndex());
-	deleteHashTags(*i);
-	deleteRemindTimes(*i);
+	Datastore_Base::iterator* i = _ds->begin();
+	advance(*i, pos);
+	_indexHash.erase((*i)->getIndex());
+	deleteHashTags(**i);
+	deleteRemindTimes(**i);
 	_ds->deleteTask(i);
 }
 
@@ -108,7 +108,7 @@ void Datastore::deleteRemindTimes(Task &task) {
 
 Task Datastore::indexHashSearch(unsigned long long indexToSearch) {
 	unordered_map<unsigned long long, Task*>::iterator result = _indexHash.find(indexToSearch);
-	if (result != _indexHash.end())
+	if (result == _indexHash.end())
 		throw exception("Invalid Index");	
 	return *(result->second);
 }
@@ -132,11 +132,11 @@ list<Task> Datastore::getTasksWithRemindTimes(time_t remindTime) {
 }
 
 Task Datastore::modifyTask(const unsigned &pos, Command_Mod* cmd) {
-	Datastore_Base::iterator i = _ds->begin();
-	advance(i, pos);
-	_interimTask = Task(*i);
-	modifyTaskWithPtr(*i, cmd);
-	return Task(*i);
+	Datastore_Base::iterator* i = _ds->begin();
+	advance(*i, pos);
+	_interimTask = Task(**i);
+	modifyTaskWithPtr(**i, cmd);
+	return Task(**i);
 }
 
 Task Datastore::modifyTaskWithIndex(const unsigned long long index, Command_Mod* cmd) {

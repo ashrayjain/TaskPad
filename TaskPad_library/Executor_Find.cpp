@@ -18,10 +18,10 @@ void Executor_Find::executeCommand(Command* cmd, Messenger &response, Datastore 
 	Command_Find* findCmd = dynamic_cast<Command_Find*>(cmd);
 	if(findCmd->getFlagIndex())
 		findByIndex(findCmd->getIndex(), response, ds);
-	//else
-	//	findGeneral(cmd, response, ds);
-	//if(cmd->getFlagTaskType())
-	//	filterResponseListByType(response, list<TP::TASK_TYPE>(1, cmd->getTaskType()));
+	else
+		findGeneral(findCmd, response, ds);
+	if(findCmd->getFlagTaskType())
+		filterResponseListByType(response, list<TP::TASK_TYPE>(1, findCmd->getTaskType()));
 	response.setList(getSortListByPriority(response.getList()));
 
 }

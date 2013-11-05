@@ -18,7 +18,15 @@ void Executor_Redo::executeCommand(Command* cmd, Messenger &response, Datastore 
 	if (ds.isRedoStackEmpty())
 		setErrorWithErrMsg(response, REDOSTACK_EMPTY_MSG);
 	else {
-		_redoCommandToExecute = ds.undoStackTop().first;
+		switch(ds.redoStackTop().first->getCommandType()) {
+		case TP::COMMAND_TYPE::ADD:
+			_redoCommandToExecute = new Command_Add(); break;
+		case TP::COMMAND_TYPE::DEL:
+			_redoCommandToExecute = new Command_Del(); break;
+		case TP::COMMAND_TYPE::MOD:
+			_redoCommandToExecute = new Command_Mod(); break;
+		};
+		*_redoCommandToExecute = *(ds.redoStackTop().first);
 		ds.popTopRedoStackToUndoStack();
 	}
 }

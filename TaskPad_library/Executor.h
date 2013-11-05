@@ -47,7 +47,7 @@ public:
 	list<Task>	getCurrentReminders	();
 
 protected:
-	Datastore _ds;
+	Datastore &_ds;
 	void		executeCommandWithoutUndoRedo	(Command* cmd, Messenger &response);
 	bool		isCmdSuccessful					(const Messenger &response) const;
 	

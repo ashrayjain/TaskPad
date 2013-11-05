@@ -97,13 +97,15 @@ void Executor::executeCommand(Command* cmd, Messenger &response) {
 							break;
 	case COMMAND_TYPE::UNDO:executor = new Executor_Undo();
 							executor->executeCommand(cmd, response, _ds);
-							executeCommandWithoutUndoRedo(
+							if(response.getStatus() != TP::STATUS::ERROR)
+								executeCommandWithoutUndoRedo(
 								dynamic_cast<Executor_Undo*>(executor)->getUndoCommandToExecute(), 
 								response);
 							break;
 	case COMMAND_TYPE::REDO:executor = new Executor_Redo();
 							executor->executeCommand(cmd, response, _ds);
-							executeCommandWithoutUndoRedo(
+							if(response.getStatus() != TP::STATUS::ERROR)
+								executeCommandWithoutUndoRedo(
 								dynamic_cast<Executor_Redo*>(executor)->getRedoCommandToExecute(), 
 								response);
 							break;

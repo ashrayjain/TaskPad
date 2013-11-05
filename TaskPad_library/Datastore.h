@@ -27,6 +27,7 @@
 
 class Datastore: public ExecutableTaskDatastore, public StorableTaskDatastore {
 private:
+	typedef Datastore_List Datastore_Type;
 	Datastore_Base*								_ds;
 	unordered_map<unsigned long long, Task*>	_indexHash;
 	unordered_map<string, list<Task*>>			_hashTagsHash;
@@ -66,26 +67,51 @@ private:
 
 
 public:
-	Datastore()		{ _ds = new Datastore_List();									}
+	Datastore()		{ _ds = new Datastore_Type();									}
 	~Datastore()	{ clearRedoStack(); clearUndoStack(); delete _ds; _ds = NULL;	}
+
+	class const_iterator {
+        public:
+			const_iterator(Datastore_Type::const_iterator* it): i(it)	{ }
+			typedef const_iterator self_type;
+            typedef Task value_type;
+            typedef Task& reference;
+            typedef Task* pointer;
+			typedef std::bidirectional_iterator_tag iterator_category;
+            typedef int difference_type;
+			void operator++()											{ i->operator++(); }
+			void operator++(int junk)									{ i->operator++(junk); }
+			void operator--()											{ i->operator--(); }
+			void operator--(int junk)									{ i->operator--(junk); }
+			const Task& operator*()										{ return i->operator*(); }
+			const Task* operator->()									{ return i->operator->(); }
+			bool operator==(const Datastore::const_iterator& rhs)		{ return i==rhs.i; }
+			bool operator!=(const Datastore::const_iterator& rhs)		{ return i!=rhs.i; }
+	private:
+		Datastore_Type::const_iterator* i;
+    };
 
 	list<Task>	getTaskList(){ return _ds->getAllTasks();	}
 
-	void					addTask						(const Task &newTask);
-	void					deleteTask					(const unsigned &pos);
-	Task					modifyTask					(const unsigned &pos, Command_Mod* cmd);
-	Task					modifyTaskWithIndex			(const unsigned long long index, Command_Mod* cmd);
-	Task					indexHashSearch				(unsigned long long indexToSearch);
-	bool					isIndexPresent				(unsigned long long indexToSearch);
-	list<Task>				getTasksWithHash			(string hash);
-	list<Task>				getTasksWithRemindTimes		(time_t remindTime);
-	void					stackCmdForUndo				(Command* cmd, Messenger &response);
-	bool					isUndoStackEmpty			() { return _undoStack.empty(); }
-	bool					isRedoStackEmpty			() { return _redoStack.empty(); }
-	pair<Command*, Task>	undoStackTop				() { return _undoStack.top();	}
-	pair<Command*, Task>	redoStackTop				() { return _redoStack.top();	}
-	void					popTopRedoStackToUndoStack	(); 
-	void					popTopUndoStackToRedoStack	();
+	void							addTask						(const Task &newTask);
+	void							deleteTask					(const unsigned &pos);
+	Task							modifyTask					(const unsigned &pos, Command_Mod* cmd);
+	Task							modifyTaskWithIndex			(const unsigned long long index, Command_Mod* cmd);
+	Task							indexHashSearch				(unsigned long long indexToSearch);
+	bool							isIndexPresent				(unsigned long long indexToSearch);
+	list<Task>						getTasksWithHash			(string hash);
+	list<Task>						getTasksWithRemindTimes		(time_t remindTime);
+	void							stackCmdForUndo				(Command* cmd, Messenger &response);
+	bool							isUndoStackEmpty			() { return _undoStack.empty(); }
+	bool							isRedoStackEmpty			() { return _redoStack.empty(); }
+	pair<Command*, Task>			undoStackTop				() { return _undoStack.top();	}
+	pair<Command*, Task>			redoStackTop				() { return _redoStack.top();	}
+	void							popTopRedoStackToUndoStack	(); 
+	void							popTopUndoStackToRedoStack	();
+
+	Datastore::const_iterator		cbegin						() { return dynamic_cast<Datastore_Type::const_iterator*>(_ds->cbegin());	}
+	Datastore::const_iterator		cend						() { return dynamic_cast<Datastore_Type::const_iterator*>(_ds->cend());		}
+	unsigned						size						() { return _ds->size();		}
 	
 };
 
