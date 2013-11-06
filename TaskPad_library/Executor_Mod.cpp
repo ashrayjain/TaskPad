@@ -40,10 +40,11 @@ void Executor_Mod::modifyByName(Command_Mod* cmd, Messenger &response, Datastore
 void Executor_Mod::modifyByExactName(Command_Mod* cmd, Messenger &response, Datastore &ds) {
 	bool nameFound = false;
 	list<Task> tasks = ds.getTaskList();
-	for(list<Task>::iterator i = tasks.begin(); i != tasks.end() && !nameFound; ++i)
+	for(Datastore::const_iterator i = ds.cbegin(); i != ds.cend() && !nameFound; i++)
+	//for(list<Task>::iterator i = tasks.begin(); i != tasks.end() && !nameFound; ++i)
 		if (i->getName() == cmd->getName()) {
 			if (isModCmdValid(cmd, *i, response))
-				setOpSuccessTask(ds.modifyTask(distance(tasks.begin(), i), cmd), response);
+				setOpSuccessTask(ds.modifyTask(i, cmd), response);
 			nameFound = true;
 		}
 
@@ -56,7 +57,8 @@ void Executor_Mod::modifyByApproxName(Command_Mod* cmd, Messenger &response, Dat
 	list<Task> caseInsensitiveResults;
 	list<Task> tasks = ds.getTaskList();
 	string lowerName = getLowerStr(cmd->getName());
-	for(list<Task>::iterator i = tasks.begin(); i != tasks.end(); ++i) {
+	for(Datastore::const_iterator i = ds.cbegin(); i != ds.cend(); i++) {
+	//for(list<Task>::iterator i = tasks.begin(); i != tasks.end(); ++i) {
 		string currName = getLowerStr(i->getName());
 		if (currName.find(cmd->getName()) != string::npos)
 			matchingResults.push_back(Task(*i));

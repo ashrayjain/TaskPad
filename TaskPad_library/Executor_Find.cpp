@@ -133,7 +133,8 @@ void Executor_Find::filterResponseListByType(Messenger &response, list<TP::TASK_
 
 void Executor_Find::runSearchWithTask(const Task &taskToCompare, list<Task> &results, Datastore &ds) {
 	list<Task> tasks = ds.getTaskList();
-	for(list<Task>::iterator i = tasks.begin(); i != tasks.end(); ++i)
+	for(Datastore::const_iterator i = ds.cbegin(); i != ds.cend(); i++)
+	//for(list<Task>::iterator i = tasks.begin(); i != tasks.end(); ++i)
 		if (taskMatch(*i, taskToCompare))
 			results.push_back(Task(*i));
 }
@@ -141,7 +142,8 @@ void Executor_Find::runSearchWithTask(const Task &taskToCompare, list<Task> &res
 void Executor_Find::runSearchWithTask(const Task &taskToCompare, list<Task> &results, 
 									  string substringName, Datastore &ds) {
 	list<Task> tasks = ds.getTaskList();
-	for(list<Task>::iterator i =tasks.begin(); i != tasks.end(); ++i)
+	for(Datastore::const_iterator i = ds.cbegin(); i != ds.cend(); i++)
+	//for(list<Task>::iterator i =tasks.begin(); i != tasks.end(); ++i)
 		if (getLowerStr(i->getName()).find(substringName) != string::npos && taskMatch(*i, taskToCompare))
 			results.push_back(Task(*i));
 }

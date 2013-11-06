@@ -67,7 +67,7 @@ private:
 
 
 public:
-	Datastore()		{ _ds = new Datastore_Type();									}
+	Datastore()		{ _ds = new Datastore_Type();								}
 	~Datastore()	{ clearRedoStack(); clearUndoStack(); delete _ds; _ds = NULL;	}
 
 	class const_iterator: public StorableTaskDatastore::const_iterator {
@@ -87,8 +87,14 @@ public:
 			void operator--(int junk)									{ i->operator--(junk); }
 			const Task& operator*()										{ return i->operator*(); }
 			const Task* operator->()									{ return i->operator->(); }
-			bool operator==(const StorableTaskDatastore::const_iterator* rhs)		{ return i==dynamic_cast<const Datastore::const_iterator*>(rhs)->i; }
-			bool operator!=(const StorableTaskDatastore::const_iterator* rhs)		{ return i!=dynamic_cast<const Datastore::const_iterator*>(rhs)->i; }
+			bool operator==(const StorableTaskDatastore::const_iterator* rhs)		{ return *i==dynamic_cast<const Datastore::const_iterator*>(rhs)->i; }
+			bool operator!=(const StorableTaskDatastore::const_iterator* rhs)		{ return *i!=dynamic_cast<const Datastore::const_iterator*>(rhs)->i; }
+			bool operator==(const Datastore::const_iterator* rhs)		{ return *i==(rhs)->i; }
+			bool operator!=(const Datastore::const_iterator* rhs)		{ return *i!=(rhs)->i; }
+			bool operator==(const Datastore::const_iterator rhs)		{ return *i==rhs.i; }
+			bool operator!=(const Datastore::const_iterator rhs)		{ return *i!=rhs.i; }
+
+
 	private:
 		Datastore_Type::const_iterator* i;
     };
@@ -97,7 +103,9 @@ public:
 
 	void							addTask						(const Task &newTask);
 	void							deleteTask					(const unsigned &pos);
+	void							deleteTask					(Datastore::const_iterator i);
 	Task							modifyTask					(const unsigned &pos, Command_Mod* cmd);
+	Task							modifyTask					(Datastore::const_iterator i, Command_Mod *cmd);
 	Task							modifyTaskWithIndex			(const unsigned long long index, Command_Mod* cmd);
 	Task							indexHashSearch				(unsigned long long indexToSearch);
 	bool							isIndexPresent				(unsigned long long indexToSearch);

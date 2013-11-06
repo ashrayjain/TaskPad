@@ -25,10 +25,11 @@ void Executor_Del::executeCommand(Command* cmd, Messenger &response, Datastore &
 void Executor_Del::deleteTaskByIndex(const unsigned long long &index, Messenger &response, Datastore &ds) {
 	bool indexFound = false;
 	list<Task> tasks = ds.getTaskList();
-	for(list<Task>::iterator i = tasks.begin(); i != tasks.end() && !indexFound; ++i)
+	for(Datastore::const_iterator i = ds.cbegin(); i != ds.cend() && !indexFound; i++)
+	//for(list<Task>::iterator i = tasks.begin(); i != tasks.end() && !indexFound; ++i)
 		if (i->getIndex() == index) {
 			setOpSuccessTask(*i, response);
-			ds.deleteTask(distance(tasks.begin(), i));
+			ds.deleteTask(i);
 			indexFound = true;
 			break;
 		}
@@ -47,10 +48,11 @@ void Executor_Del::deleteTaskByName(const string &name, Messenger &response, con
 void Executor_Del::deleteByExactName(const string &name, Messenger &response, Datastore &ds) {
 	bool nameFound = false;
 	list<Task> tasks = ds.getTaskList();
-	for(list<Task>::iterator i = tasks.begin(); i != tasks.end() && !nameFound; ++i)
-		if (i->getName() == name) {
-			setOpSuccessTask(*i, response);
-			ds.deleteTask(distance(tasks.begin(), i));			
+	for(Datastore::const_iterator* i = ds.cbeginPtr(); i != ds.cendPtr() && !nameFound; ++(*i))
+	//for(list<Task>::iterator i = tasks.begin(); i != tasks.end() && !nameFound; ++i)
+		if ((*i)->getName() == name) {
+			setOpSuccessTask(*(*i), response);
+			ds.deleteTask((*i));//distance(tasks.begin(), i));			
 			nameFound = true;
 			break;
 		}
@@ -64,7 +66,8 @@ void Executor_Del::deleteByApproxName(const string &name, Messenger &response, D
 	list<Task> caseInsensitiveResults;
 	list<Task> tasks = ds.getTaskList();
 	string lowerName = getLowerStr(name);
-	for(list<Task>::iterator i = tasks.begin(); i != tasks.end(); ++i) {
+	for(Datastore::const_iterator i = ds.cbegin(); i != ds.cend(); i++) {
+	//for(list<Task>::iterator i = tasks.begin(); i != tasks.end(); ++i) {
 		string currName = getLowerStr(i->getName());
 		if (currName.find(name) != string::npos)
 			matchingResults.push_back(Task(*i));
