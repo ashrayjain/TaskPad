@@ -11,18 +11,23 @@ public:
 	Command* interpretAdd(Command_Add* commandType, std::string commandStr, Messenger &response, bool &flag);
 
 
-	time_t            setTime(string commandStr, bool& _isSuccess)                        { return Interpreter_base::setTime(commandStr, _isSuccess); }
+	time_t            setTime(string commandStr, bool& _isSuccess,bool& isDue)                        { return Interpreter_base::setTime(commandStr, _isSuccess,isDue); }
 	bool              integerConverter(string& requiredString, int& number)               { return Interpreter_base::integerConverter(requiredString,number);}
-
+	string            toUpper(string str)                                                 { return Interpreter_base::toUpper(str);}
 	int	              getIndexMessage(string command,bool&flag)                           { return Interpreter_base::getIndexMessage(command,flag); }			
-	bool              getNameMessage(string command,bool&flag,string& content)            { return Interpreter_base::getNameMessage(command,flag,content); }
-	bool              getOptNameMessage(string command, bool&flag, string& content)       { return Interpreter_base:: getOptNameMessage(command,flag,content); }
+	
+	
+//	bool              getNameMessage(string command,bool&flag,string& content)            { return Interpreter_base::getNameMessage(command,flag,content); }
+//	bool              getOptNameMessage(string command, bool&flag, string& content)       { return Interpreter_base:: getOptNameMessage(command,flag,content); }
+	
+	bool             setGeneralMessage(string command, bool&flag,string& content,string regexTemplete) { return Interpreter_base::setGeneralMessage(command,flag,content,regexTemplete);}
+	
 	bool			  getDueDateMessage(string command, bool&flag,time_t& content)        { return Interpreter_base::getDueDateMessage(command,flag,content); }
 	bool		      getFromDateMessage(string command, bool&flag,time_t& content)       { return Interpreter_base:: getFromDateMessage(command,flag,content); }
 	bool			  getToDateMessage(string command, bool&flag,time_t& content)         { return Interpreter_base::getToDateMessage(command,flag,content); }
-	bool		      getLocationMessage(string command, bool&flag,string& content)       { return Interpreter_base::getLocationMessage(command,flag,content); }
+//	bool		      getLocationMessage(string command, bool&flag,string& content)       { return Interpreter_base::getLocationMessage(command,flag,content); }
 	bool	          getParticipantsMessage(string command, bool&flag,list<std::string>& content){return Interpreter_base::getParticipantsMessage(command,flag,content); }
-	bool		      getNoteMessage(string command, bool&flag,string& content)           { return Interpreter_base::getNoteMessage(command,flag,content); }
+//	bool		      getNoteMessage(string command, bool&flag,string& content)           { return Interpreter_base::getNoteMessage(command,flag,content); }
 	bool			  getPriorityMessage(string command, bool&flag,PRIORITY& content)     { return Interpreter_base::getPriorityMessage(command, flag,content); }
 	bool	          getTagsMessage(string command, bool&flag,list<std::string>& content){ return Interpreter_base::getTagsMessage(command,flag,content); }
 	bool	          getRemindTimesMessage(string command, bool&flag,list<std::time_t>& content){ return Interpreter_base::getRemindTimesMessage(command,flag,content);}
@@ -91,7 +96,7 @@ Command* Interpreter_Add::interpretAdd(Command_Add* commandType, std::string com
 	if(flag && commandType->getFlagNote()==false){
 
 		string content;
-		if(getNoteMessage(commandStr,flag,content)){
+		if(setGeneralMessage(commandStr,flag,content," note `[^`]*`")){
 			commandType->setNote(content);
 		}
 	}
@@ -103,7 +108,7 @@ Command* Interpreter_Add::interpretAdd(Command_Add* commandType, std::string com
 
 	if(flag && commandType->getFlagLocation()==false){
 		string content;
-		if(getLocationMessage(commandStr,flag,content)){
+		if(setGeneralMessage(commandStr,flag,content," at `[^`]*`")){
 			commandType->setLocation(content);
 		}
 	}
