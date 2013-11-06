@@ -75,6 +75,16 @@ void TaskSaverText::save(const Task& task, const COMMAND_TYPE& cType) {
 /************** Private Save Methods ****************/
 /****************************************************/
 
+void TaskSaverText::saveTaskDB(StorableTaskDatastore* taskDB) {
+	/*
+	StorableTaskDatastore::const_iterator it = (*taskDB).cbegin();
+	while(it != (*taskDB).cend())
+	{
+		this->saveTask(*it);
+		it++;
+	}*/
+}
+
 void TaskSaverText::saveTaskList(const list<Task>& taskList) {
 	list<Task>::const_iterator it = taskList.begin();
 	while(it != taskList.end())

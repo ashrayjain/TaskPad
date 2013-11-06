@@ -48,6 +48,7 @@ class TaskSaverText: public TaskSaver
 
 		//savers
 		void saveTaskList			(const std::list<Task>& taskList);
+		void saveTaskDB				(StorableTaskDatastore* taskDB);
 		void saveTask				(const			 Task &	task);
 		void saveTaskAttributes		(const			 Task &	tempTaskTask);
 
