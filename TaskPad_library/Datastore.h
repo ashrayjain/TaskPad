@@ -25,7 +25,7 @@
 #include "StorableTaskDatastore.h"
 #include "Datastore_List.h"
 
-class Datastore: public ExecutableTaskDatastore, public StorableTaskDatastore {
+class Datastore: public StorableTaskDatastore {
 private:
 	typedef Datastore_List Datastore_Type;
 	Datastore_Base*								_ds;
@@ -70,8 +70,10 @@ public:
 	Datastore()		{ _ds = new Datastore_Type();									}
 	~Datastore()	{ clearRedoStack(); clearUndoStack(); delete _ds; _ds = NULL;	}
 
-	class const_iterator {
+	class const_iterator: public StorableTaskDatastore::const_iterator {
         public:
+			const_iterator()											{ }
+			~const_iterator()											{ }
 			const_iterator(Datastore_Type::const_iterator* it): i(it)	{ }
 			typedef const_iterator self_type;
             typedef Task value_type;
@@ -85,8 +87,8 @@ public:
 			void operator--(int junk)									{ i->operator--(junk); }
 			const Task& operator*()										{ return i->operator*(); }
 			const Task* operator->()									{ return i->operator->(); }
-			bool operator==(const Datastore::const_iterator& rhs)		{ return i==rhs.i; }
-			bool operator!=(const Datastore::const_iterator& rhs)		{ return i!=rhs.i; }
+			bool operator==(const StorableTaskDatastore::const_iterator* rhs)		{ return i==dynamic_cast<const Datastore::const_iterator*>(rhs)->i; }
+			bool operator!=(const StorableTaskDatastore::const_iterator* rhs)		{ return i!=dynamic_cast<const Datastore::const_iterator*>(rhs)->i; }
 	private:
 		Datastore_Type::const_iterator* i;
     };
