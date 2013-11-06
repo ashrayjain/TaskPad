@@ -14,7 +14,7 @@
 #include <QtWidgets/QApplication>
 #include <QSharedMemory>
 #include "../TaskPad_library/MainWindow.h"
-#include "Source.h"
+#include "Natty.h"
 //#include <vld.h>
 
 int main(int argc, char *argv[])

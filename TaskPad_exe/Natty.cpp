@@ -1,4 +1,4 @@
-#include "Source.h"
+#include "Natty.h"
 
 natty::natty() {
 	_options[0].optionString = "-Djava.class.path=../Natty;../Natty/java;../Natty/java/lib;../Natty/java/lib/natty-0.7.jar;../Natty/java/lib/ical4j-1.0.2.jar;../Natty/java/lib/antlr-runtime-3.2.jar;../Natty/java/lib/antlr-2.7.7.jar";
