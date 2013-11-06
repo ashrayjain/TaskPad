@@ -29,8 +29,8 @@ class StorableTaskDatastore
 				virtual bool operator!=(const const_iterator* rhs)=0;
 		};
 
-		virtual StorableTaskDatastore::const_iterator* cbegin	()=0;
-		virtual StorableTaskDatastore::const_iterator* cend		()=0;
+		virtual StorableTaskDatastore::const_iterator* cbeginPtr	()=0;
+		virtual StorableTaskDatastore::const_iterator* cendPtr		()=0;
 
 
 		virtual ~StorableTaskDatastore()=0 {};

@@ -77,12 +77,13 @@ void TaskSaverText::save(const Task& task, const COMMAND_TYPE& cType) {
 
 void TaskSaverText::saveTaskDB(StorableTaskDatastore* taskDB) {
 	
-	StorableTaskDatastore::const_iterator* it = (*taskDB).cbegin();
-	while(it != (*taskDB).cend())
+	StorableTaskDatastore::const_iterator* it = (*taskDB).cbeginPtr();
+	while(it != (*taskDB).cendPtr())
 	{
 		this->saveTask(*(*it));
 		it++;
 	}
+	delete it;
 }
 
 void TaskSaverText::saveTaskList(const list<Task>& taskList) {
