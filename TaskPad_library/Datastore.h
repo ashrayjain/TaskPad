@@ -111,8 +111,15 @@ public:
 	void							popTopRedoStackToUndoStack	(); 
 	void							popTopUndoStackToRedoStack	();
 
-	Datastore::const_iterator		cbegin						() { return dynamic_cast<Datastore_Type::const_iterator*>(_ds->cbegin());	}
-	Datastore::const_iterator		cend						() { return dynamic_cast<Datastore_Type::const_iterator*>(_ds->cend());		}
+	Datastore::const_iterator*		cbeginPtr						() 
+	{ return new Datastore::const_iterator(dynamic_cast<Datastore_Type::const_iterator*>(_ds->cbegin()));	}
+	Datastore::const_iterator*		cend						() 
+	{ return new Datastore::const_iterator(dynamic_cast<Datastore_Type::const_iterator*>(_ds->cend()));		}
+
+	Datastore::const_iterator		cbeginPtr						() 
+	{ return dynamic_cast<Datastore_Type::const_iterator*>(_ds->cbegin());	}
+	Datastore::const_iterator		cend						() 
+	{ return dynamic_cast<Datastore_Type::const_iterator*>(_ds->cend());		}
 	unsigned						size						() { return _ds->size();		}
 	
 };
