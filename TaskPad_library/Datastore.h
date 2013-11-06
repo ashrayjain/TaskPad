@@ -113,10 +113,10 @@ public:
 
 	Datastore::const_iterator*		cbeginPtr						() 
 	{ return new Datastore::const_iterator(dynamic_cast<Datastore_Type::const_iterator*>(_ds->cbegin()));	}
-	Datastore::const_iterator*		cend						() 
+	Datastore::const_iterator*		cendPtr						() 
 	{ return new Datastore::const_iterator(dynamic_cast<Datastore_Type::const_iterator*>(_ds->cend()));		}
 
-	Datastore::const_iterator		cbeginPtr						() 
+	Datastore::const_iterator		cbegin						() 
 	{ return dynamic_cast<Datastore_Type::const_iterator*>(_ds->cbegin());	}
 	Datastore::const_iterator		cend						() 
 	{ return dynamic_cast<Datastore_Type::const_iterator*>(_ds->cend());		}
