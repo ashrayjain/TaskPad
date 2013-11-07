@@ -74,6 +74,7 @@ void MainWindow::customisedUi(){
 	detailsViewOpacity = 0.4;
 	this->setWindowFlags(Qt::FramelessWindowHint);
 	this->setAttribute(Qt::WA_TranslucentBackground, true);
+	ui.errorBgWidget->setHidden(true);
 	ui.TaskList->header()->resizeSection(0, 70);
 	ui.TaskList->header()->resizeSection(1, 220);
 }
@@ -490,6 +491,7 @@ void MainWindow::handleDisplay(Messenger msg, bool callFromSignal){
 void MainWindow::handleQA_ERROR(QString requestStr, Messenger &msg){
 	if(!isEqualOne(requestStr)){
 		showTrayMsg(msg.getErrorMsg().c_str());
+		displayErrorView();
 	}
 	else{
 		closeQuickAddWindow();
@@ -511,11 +513,13 @@ void MainWindow::handleQA_DISPLAY(Messenger msg){
 
 void MainWindow::handleMsg_ERROR(Messenger &msg){
 	updateStatusBar(msg.getErrorMsg().c_str());
+	displayErrorView();
 }
 
 void MainWindow::handleMsg_ERROR_INTERMEDIATE(){
 	updateNavLabel("Select a task by typing its index");
 	updateStatusBar("Wrong input. Kindly press ECS to cancel");
+	displayErrorView();
 }
 
 void MainWindow::handleMsg_SUCCESS(Messenger &msg){
@@ -820,6 +824,18 @@ void MainWindow::setDetailsViewOpacity40(){
 	animation->setEndValue(0.4);
 	animation->start(QAbstractAnimation::DeleteWhenStopped);
 	detailsViewOpacity = 0.4;
+}
+
+void MainWindow::displayErrorView(){
+	QGraphicsOpacityEffect* opacityEffect = new QGraphicsOpacityEffect(this);
+	opacityEffect->setOpacity(1.0);
+	ui.errorBgWidget->setGraphicsEffect(opacityEffect);
+	ui.errorBgWidget->setHidden(false);
+	QPropertyAnimation *animation = new QPropertyAnimation(opacityEffect, "opacity");
+	animation->setDuration(1200);
+	animation->setStartValue(1.0);
+	animation->setEndValue(0.0);
+	animation->start(QAbstractAnimation::DeleteWhenStopped);
 }
 
 void MainWindow::setDetailsViewOpacity100(){

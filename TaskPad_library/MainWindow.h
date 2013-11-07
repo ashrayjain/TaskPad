@@ -98,6 +98,7 @@ private:
 	//View Related*******************************
 	void          reset                        ();
 	void          updateStatusBar              (QString str);
+	void          displayErrorView             ();
 	//--Task List Related************************
 	void          updateMainView               (Messenger &msg, QString listTitle, QString statusBarLabel = DEFAULT_STATUS_BAR_TEXT);
 	void          updateNavLabel               (QString str);
