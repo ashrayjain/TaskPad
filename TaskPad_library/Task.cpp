@@ -49,7 +49,7 @@ void Task::defaultTaskInit(unsigned long long indexToPut)
 {
 	initFlags();
     initTaskAttributes();
-    if (isIndexInList(indexToPut))
+    if (!isIndexInList(indexToPut))
     {
         _taskIndex = indexToPut;
         listOfAllIndices.insert(indexToPut);
