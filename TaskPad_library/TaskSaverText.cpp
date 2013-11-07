@@ -38,9 +38,9 @@ TaskSaverText::TaskSaverText() {
 /*************** Public Save APIs *******************/
 /****************************************************/
 
-void TaskSaverText::save(StorableTaskDatastore* taskDB, const std::string& fileName) {
+void TaskSaverText::save(StorableTaskDatastore* taskDS, const std::string& fileName) {
 	this->openFile(fileName);
-	this->saveTaskList(taskDB->getTaskList());
+	this->saveTaskDS(taskDS);
 	this->closeFile();
 
 	// remove the quick save files
@@ -75,15 +75,9 @@ void TaskSaverText::save(const Task& task, const COMMAND_TYPE& cType) {
 /************** Private Save Methods ****************/
 /****************************************************/
 
-void TaskSaverText::saveTaskDB(StorableTaskDatastore* taskDB) {
+void TaskSaverText::saveTaskDS(StorableTaskDatastore* taskDS) {
 	
-	StorableTaskDatastore::const_iterator* it = (*taskDB).cbeginPtr();
-	while(it != (*taskDB).cendPtr())
-	{
-		this->saveTask(*(*it));
-		it++;
-	}
-	delete it;
+	saveTaskList(taskDS->getTaskList());
 }
 
 void TaskSaverText::saveTaskList(const list<Task>& taskList) {
