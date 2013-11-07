@@ -14,6 +14,30 @@ using namespace std;
 #ifndef _INTERPRETER_CASE_H_
 #define _INTERPRETER_CASE_H_
 
+const string FIELD_NAME=" name `[^`]*`";
+const string FIELD_DUE=" due `[^`]*`";
+const string FIELD_FROM=" from `[^`]*`";
+const string FIELD_TO=" to `[^`]*`";
+const string FIELD_AT=" at `[^`]*`";
+const string FIELD_PPL=" ppl `[^`]*`";
+const string FIELD_NOTE=" note `[^`]*`";
+const string FIELD_PRIORITY=" impt `[^`]*`";
+const string FIELD_TAG="\\s(#[^( |`)]*)(\\s|$)";
+const string FIELD_RT=" rt `[^`]*`";
+const string FIELD_TASK_STATE="\\s(done|undone|overdue)(\\s|$)";
+const string FIELD_TASK_TYPE="\\s(timed|deadline|floating)(\\s|$)";
+const string FIELD_DUE_REMOVE="\\s(-due)(\\s|$)";
+const string FIELD_FROM_REMOVE="\\s(-from)(\\s|$)";
+const string FIELD_TO_REMOVE="\\s(-to)(\\s|$)";
+const string FIELD_RT_REMOVE_ALL="\\s(-rtall)(\\s|$)";
+const string FIELD_PPL_REMOVE_ALL="\\s(-pplall)(\\s|$)";
+const string FIELD_TAG_REMOVE_ALL="\\s(-#)(\\s|$)";
+const string FIELD_RT_REMOVE=" -rt `[^`]*`";
+const string FIELD_PPL_REMOVE=" -ppl `[^`]*`";
+const string FIELD_TAG_REMOVE="\\s(-#[^( |`)]*)(\\s|$)";
+const string FIELD_RT_ADD=" \\+rt `[^`]*`";
+const string FIELD_PPL_ADD=" \\+ppl `[^`]*`";
+const string FIELD_TAG_ADD="\\s(\\+#[^( |`)]*)(\\s|$)";
 
 class Interpreter_base{
 
@@ -38,7 +62,7 @@ protected:
 */	
 	
 	bool                             setGeneralMessage(string command, bool&flag,string& content,string regexTemplete);
-	bool                             setSingleRemoveMessage(string command, bool&flag, string regexTemplate);
+	bool                             setNoParameterMessage(string command, bool&flag, string regexTemplate);
 	
 
 
@@ -61,15 +85,16 @@ protected:
 	bool				             getSyncProviderNameMessage(string command, bool&flag,string& content);
 	
 	
-
+	bool	                         setRemindTimesMessage(string command, bool&flag,list<std::time_t>& content,string regexTemplate);
+	bool	                         setTagsMessage(string command, bool&flag,list<std::string>& content, string regexTemplate);
+	bool	                         setParticipantsMessage(string command, bool&flag,list<std::string>& content, string regexTemplate);
 
 	
-	
+	/*
 	bool	                         getRemindTimesMessage(string command, bool&flag,list<std::time_t>& content);
 	bool							 getAddRemindTimesMessage(string command, bool&flag,list<std::time_t>& content);
 	bool							 getRemoveRemindTimesMessage(string command, bool&flag,list<std::time_t>& content);
 
-	
 	bool	                         getTagsMessage(string command, bool&flag,list<std::string>& content);	
 	bool							 getAddTagsMessage(string command, bool&flag,list<std::string>& content);
 	bool							 getRemoveTagsMessage(string command, bool&flag,list<std::string>& content);
@@ -77,7 +102,9 @@ protected:
 	bool	                         getParticipantsMessage(string command, bool&flag,list<std::string>& content);
 	bool							 getAddParticipantsMessage(string command, bool&flag,list<std::string>& content);
 	bool							 getRemoveParticipantsMessage(string command, bool&flag,list<std::string>& content);
+	*/
 	
+	//bool							 getOverdueMsg(string command, bool&flag);
 	
 
     bool                             checkDuplicate(string command, string cmdTemplate,int startPosition);

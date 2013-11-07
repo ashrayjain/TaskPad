@@ -26,11 +26,11 @@ public:
 	bool		      getFromDateMessage(string command, bool&flag,time_t& content)       { return Interpreter_base:: getFromDateMessage(command,flag,content); }
 	bool			  getToDateMessage(string command, bool&flag,time_t& content)         { return Interpreter_base::getToDateMessage(command,flag,content); }
 //	bool		      getLocationMessage(string command, bool&flag,string& content)       { return Interpreter_base::getLocationMessage(command,flag,content); }
-	bool	          getParticipantsMessage(string command, bool&flag,list<std::string>& content){return Interpreter_base::getParticipantsMessage(command,flag,content); }
+//	bool	          getParticipantsMessage(string command, bool&flag,list<std::string>& content){return Interpreter_base::getParticipantsMessage(command,flag,content); }
 //	bool		      getNoteMessage(string command, bool&flag,string& content)           { return Interpreter_base::getNoteMessage(command,flag,content); }
 	bool			  getPriorityMessage(string command, bool&flag,PRIORITY& content)     { return Interpreter_base::getPriorityMessage(command, flag,content); }
-	bool	          getTagsMessage(string command, bool&flag,list<std::string>& content){ return Interpreter_base::getTagsMessage(command,flag,content); }
-	bool	          getRemindTimesMessage(string command, bool&flag,list<std::time_t>& content){ return Interpreter_base::getRemindTimesMessage(command,flag,content);}
+//	bool	          getTagsMessage(string command, bool&flag,list<std::string>& content){ return Interpreter_base::getTagsMessage(command,flag,content); }
+//	bool	          getRemindTimesMessage(string command, bool&flag,list<std::time_t>& content){ return Interpreter_base::getRemindTimesMessage(command,flag,content);}
 	bool			  getTaskStateMessage(string command, bool&flag,TASK_STATE& content)  { return Interpreter_base::getTaskStateMessage(command,flag,content); }
 	bool			  getTaskTypeMessage(string command, bool&flag,TASK_TYPE& content)    { return Interpreter_base::getTaskTypeMessage(command,flag,content);}
 	bool			  getSyncProviderNameMessage(string command, bool&flag,string& content){ return Interpreter_base::getSyncProviderNameMessage(command,flag,content); }
@@ -83,7 +83,7 @@ Command* Interpreter_Add::interpretAdd(Command_Add* commandType, std::string com
 	if(flag && commandType->getFlagParticipants()==false){
 
 		list<string>content;
-		if(getParticipantsMessage(commandStr,flag,content)){
+		if(setParticipantsMessage(commandStr,flag,content,FIELD_PPL)){
 			commandType->setParticipants(content);
 		}
 
@@ -96,7 +96,7 @@ Command* Interpreter_Add::interpretAdd(Command_Add* commandType, std::string com
 	if(flag && commandType->getFlagNote()==false){
 
 		string content;
-		if(setGeneralMessage(commandStr,flag,content," note `[^`]*`")){
+		if(setGeneralMessage(commandStr,flag,content,FIELD_NOTE)){
 			commandType->setNote(content);
 		}
 	}
@@ -108,7 +108,7 @@ Command* Interpreter_Add::interpretAdd(Command_Add* commandType, std::string com
 
 	if(flag && commandType->getFlagLocation()==false){
 		string content;
-		if(setGeneralMessage(commandStr,flag,content," at `[^`]*`")){
+		if(setGeneralMessage(commandStr,flag,content,FIELD_AT)){
 			commandType->setLocation(content);
 		}
 	}
@@ -119,7 +119,7 @@ Command* Interpreter_Add::interpretAdd(Command_Add* commandType, std::string com
 
 	if(flag && commandType->getFlagRemindTimes()==false){
 		list<time_t>content;
-		if(getRemindTimesMessage(commandStr,flag,content)){
+		if(setRemindTimesMessage(commandStr,flag,content,FIELD_RT)){
 			commandType->setRemindTimes(content);
 		}
 	}
@@ -143,7 +143,7 @@ Command* Interpreter_Add::interpretAdd(Command_Add* commandType, std::string com
 	if(flag && commandType->getFlagTags()==false){
 		list<string>content;
 
-		if(getTagsMessage(commandStr,flag,content)){
+		if(setTagsMessage(commandStr,flag,content,FIELD_TAG)){
 			commandType->setTags(content);
 		}
 	}
