@@ -15,6 +15,9 @@
     <Filter Include="natty\Header Files">
       <UniqueIdentifier>{b7ef5d6a-5cc7-474f-81e5-1b2493928c9e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Icon">
+      <UniqueIdentifier>{01ec733f-2566-44ba-974c-33619961afc7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -28,5 +31,15 @@
     <ClInclude Include="Natty.h">
       <Filter>natty\Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Icon.ico">
+      <Filter>Icon</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Icon.rc">
+      <Filter>Icon</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

@@ -51,10 +51,7 @@ QLineEdit#location, QLineEdit#participants, QLineEdit#tags, QLineEdit#remindTime
   </property>
   <widget class="QWidget" name="centralWidget">
    <property name="styleSheet">
-    <string notr="true">QWidget#centralWidget {
-	background-color: transparent;
-	background-image: url(:/MainWindow/Resources/mainwindow_bg.png);
-}</string>
+    <string notr="true"/>
    </property>
    <widget class="QLabel" name="Navigation_taskList">
     <property name="geometry">
@@ -658,6 +655,40 @@ QToolButton#HelpButton:hover
      <string>No task</string>
     </property>
    </widget>
+   <widget class="QWidget" name="normalBgWidget" native="true">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>1100</width>
+      <height>600</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QWidget#normalBgWidget {
+	background-color: transparent;
+	background-image: url(:/MainWindow/Resources/mainwindow_bg.png);
+}</string>
+    </property>
+   </widget>
+   <widget class="QWidget" name="errorBgWidget" native="true">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>1100</width>
+      <height>600</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QWidget#errorBgWidget {
+	background-color: transparent;
+	background-image: url(:/MainWindow/Resources/mainwindow_bg_errBar.png);
+}</string>
+    </property>
+   </widget>
+   <zorder>normalBgWidget</zorder>
+   <zorder>errorBgWidget</zorder>
    <zorder>NoTaskLabel</zorder>
    <zorder>Navigation_taskList</zorder>
    <zorder>TaskList</zorder>

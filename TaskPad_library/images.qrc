@@ -10,6 +10,7 @@
         <file>Resources/details_normal_bg.png</file>
         <file>Resources/mainwindow_bg.png</file>
         <file>Resources/logo.png</file>
+        <file>Resources/mainwindow_bg_errBar.png</file>
     </qresource>
     <qresource prefix="/QuickAddWindow">
         <file>Resources/quick_add.png</file>
