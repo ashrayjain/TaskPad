@@ -6,15 +6,6 @@
       <Extensions>cpp;cxx;c;def</Extensions>
       <ParseFiles>true</ParseFiles>
     </Filter>
-    <Filter Include="natty">
-      <UniqueIdentifier>{5b32eeb3-616c-4326-b20d-811e217e7083}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="natty\Source Files">
-      <UniqueIdentifier>{91904462-dcf2-4c96-b27b-5b9334fb0132}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="natty\Header Files">
-      <UniqueIdentifier>{b7ef5d6a-5cc7-474f-81e5-1b2493928c9e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Icon">
       <UniqueIdentifier>{01ec733f-2566-44ba-974c-33619961afc7}</UniqueIdentifier>
     </Filter>
@@ -23,14 +14,6 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Natty.cpp">
-      <Filter>natty\Source Files</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Natty.h">
-      <Filter>natty\Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon.ico">
