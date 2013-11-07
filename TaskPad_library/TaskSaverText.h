@@ -40,9 +40,13 @@ class TaskSaverText: public TaskSaver
 		Logger* _logger;
 
 		//save records
+		void saveDeleteCommand			(const Task& task);
+		void saveNonDeleteCommands		(const Task& task);
+		void removeTaskFile				(const Task& task);
+		void removeDeletedTaskFile		(const Task& task);
 		void updateSaveRecord			(const std::string& entry);
 		void removeSaveRecord			();
-		void updateDeleteRecord			(const int& entry);
+		void updateDeleteRecord			(const unsigned long long& entry);
 		void removeDeleteRecord			();
 
 		//savers

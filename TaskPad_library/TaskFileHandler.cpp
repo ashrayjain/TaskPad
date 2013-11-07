@@ -20,7 +20,7 @@
 #include <Task.h>
 #include <sstream>
 
-const std::string TaskFileHandler::TASK_DIRECTORY				= "";//"Tasks\\";
+const std::string TaskFileHandler::TASK_DIRECTORY				= "Tasks\\";
 const std::string TaskFileHandler::RECORD_MODIFIED_FILE_NAME	= "savedTasks.txt";
 const std::string TaskFileHandler::RECORD_DELETED_FILE_NAME		= "deletedTasks.txt";
 
@@ -42,8 +42,20 @@ const std::string TaskFileHandler::LABEL_END_OF_TASK			= "EndOfTask";
 std::string TaskFileHandler::getTaskFilePath	(const Task& task) {
 	std::stringstream tempStream;
 	tempStream << TASK_DIRECTORY;
-	tempStream << task.getIndex();
+	tempStream << (task.getIndex());
 	tempStream << ".task";
+
+	std::string taskFilePath = tempStream.str();
+
+	return taskFilePath;
+}
+
+std::string TaskFileHandler::getDeletedTaskFilePath	(const Task& task)
+{
+	std::stringstream tempStream;
+	tempStream << TASK_DIRECTORY;
+	tempStream << (task.getIndex());
+	tempStream << ".deltask";
 
 	std::string taskFilePath = tempStream.str();
 

@@ -21,6 +21,7 @@
 
 #include <fstream>
 #include <sstream>
+#include <QDir>
 #include "TaskSaverText.h"
 #include "Enum.h"
 #include "Task.h"
@@ -57,18 +58,55 @@ void TaskSaverText::save(const Task& task, const COMMAND_TYPE& cType) {
 	switch(cType)
 	{
 		case DEL:
-			updateDeleteRecord(task.getIndex());
+			saveDeleteCommand(task);
+			//updateDeleteRecord(task.getIndex());
 			break;
 		default:
-			std::string taskFilePath = getTaskFilePath(task);
-			this->openFile(taskFilePath);
-			this->saveTask(task);
-			this->closeFile();
+			saveNonDeleteCommands(task);
+			
+			//std::string taskFilePath = getTaskFilePath(task);
+			//this->openFile(taskFilePath);
+			//this->saveTask(task);
+			//this->closeFile();
 
-			this->updateSaveRecord(taskFilePath);
+			//this->updateSaveRecord(taskFilePath);
 			break;
 	}
 	return;
+}
+
+void TaskSaverText::saveNonDeleteCommands (const Task& task) {
+	std::string taskFilePath = getTaskFilePath(task);
+
+	this->openFile(taskFilePath);
+	this->saveTask(task);
+	this->closeFile();
+
+	removeDeletedTaskFile(task);
+}
+void TaskSaverText::saveDeleteCommand(const Task& task) {
+	std::string taskDeleteFilePath = getDeletedTaskFilePath(task);
+
+	this->openFile(taskDeleteFilePath);
+	writeLineToFile(convertToString(task.getIndex()));
+	this->closeFile();
+
+	removeTaskFile(task);
+}
+
+void TaskSaverText::removeTaskFile	(const Task& task) {
+	string taskFileName = convertToString(task.getIndex()) + ".task";
+	//string taskFileName = getTaskFilePath(task);
+	QDir curDir(QString::fromStdString(TASK_DIRECTORY));
+
+	bool test = curDir.remove(QString::fromStdString(taskFileName));
+}
+
+void TaskSaverText::removeDeletedTaskFile (const Task& task) {
+	string taskFileName = convertToString(task.getIndex())+ ".deltask";
+	QDir curDir(QString::fromStdString(TASK_DIRECTORY));
+
+	bool test = curDir.remove(QString::fromStdString(taskFileName));
 }
 
 /****************************************************/
@@ -322,8 +360,9 @@ void TaskSaverText::removeSaveRecord () {
 	return;
 }
 
-void TaskSaverText::updateDeleteRecord (const int& entry) {
+void TaskSaverText::updateDeleteRecord (const unsigned long long& entry) {
 	ofstream record(RECORD_DELETED_FILE_NAME, ios_base::app);
+
 	record << entry << endl;
 	record.close();
 }
