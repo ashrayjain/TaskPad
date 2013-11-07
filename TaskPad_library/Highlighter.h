@@ -23,7 +23,7 @@ public:
 		addRegex(COMMAND, "^(add|mod|del|find|undo|redo|sync)");
 		addRegex(KEYWORD, " exact| name| due| from| to| at| ppl| note| impt"\
 						"| rt| done| undone| deadline| timed| floating| #| -due"\
-						"| -from| -to| -ppl| -rt| -#| \\+ppl| \\+rt| \\+#");
+						"| -from| -to| -ppl(all|[^a])| -rt(all|[^a])| -#| \\+ppl| \\+rt| \\+#");
 		addRegex(PAIR_QUOTE_LEFT, "`(.*)`");
 		addRegex(BLANK, "__[A-Z]+__");
 	}
