@@ -6,8 +6,23 @@
 #include "Interpreter_Redo.h"
 #include "Interpreter_Undo.h"
 #include "Interpreter_Sync.h"
-#include<regex>
+#include <regex>
 
+const string GENERAL_ADD_CASE="((( (due|by)| from| to| (impt|priority)| (at|place|location)| (ppl|with)| note| (rt|remind)) `[^`]*`)|( #[^( |`)]*))*(\\s*)";
+const string GENERAL_MOD_CASE="((( (due|by)| from| name| to| (impt|priority)| (at|place|location)| (ppl|with)| note| (rt|remind)| -(rt|remind)| -(ppl|with)| \\+(rt|remind)| \\+(ppl|with)) `[^`]*`)|( done| undone)|( -(due|by)| -from| -to)|( -rtall| -pplall| -#)|( (#|-#|\\+#)[^( |`)]*))*(\\s*)";
+const string GENERAL_FIND_CASE="((( from| name| to| (impt|priority)| (at|place|location)| (ppl|with)| note| (rt|remind)) `[^`]*`)|( #[^( |`)]*)|( done| undone| overdue)|(( timed| deadline| floating)))*(\\s*)";
+const string COMMAND_ADD="^add `([^`]+)`";
+const string COMMAND_MOD="^mod `([^`]+)`";
+const string COMMAND_MOD_EXACT="^mod exact `([^`]+)`";
+const string COMMAND_MOD_INDEX="^mod ([0-9]+)";
+const string COMMAND_FIND="^find";
+const string COMMAND_FIND_EXACT="^find exact";
+const string COMMAND_DEL="^del `([^`]+)`(\\s*)";
+const string COMMAND_DEL_EXACT="^del exact `([^`]+)`(\\s*)";
+const string COMMAND_DEL_INDEX="^del ([0-9]+)(\\s*)";
+const string COMMAND_UNDO="^undo(\\s*)";
+const string COMMAND_REDO="^redo(\\s*)";
+const string ERROR_MSG="invalid command";
 
 bool Interpreter::checkCommand(string command, int& commandType){
 
@@ -15,26 +30,22 @@ bool Interpreter::checkCommand(string command, int& commandType){
 	bool testlist[12]={false};
 	int num=-1;
 
-	string generalAddCase="((( due| from| to| impt| at| ppl| note| rt) `[^`]*`)|( #[^( |`)]*))*(\\s*)";
-	string generalModCase="((( due| from| name| to| impt| at| ppl| note| rt| -rt| -ppl| \\+rt| \\+ppl) `[^`]*`)|( done| undone)|( -due| -from| -to)|( -rtall| -pplall| -#)|( (#|-#|\\+#)[^( |`)]*))*(\\s*)";
-	string generalFindCase="((( from| name| to| impt| at| ppl| note| rt) `[^`]*`)|( #[^( |`)]*)|( done| undone)|(( timed| deadline| floating)))*(\\s*)";
+	regex test_add_command(COMMAND_ADD+GENERAL_ADD_CASE); 
 
-	regex test_add_command("^add `([^`]+)`"+generalAddCase); 
+	regex test_mod_command(COMMAND_MOD+GENERAL_MOD_CASE); 
+	regex test_mod_exact_command(COMMAND_MOD_EXACT+GENERAL_MOD_CASE);
+	regex test_mod_index_command(COMMAND_MOD_INDEX+GENERAL_MOD_CASE);
 
-	regex test_mod_command("^mod `([^`]+)`"+generalModCase); 
-	regex test_mod_exact_command("^mod exact `([^`]+)`"+generalModCase);
-	regex test_mod_index_command("^mod ([0-9]+)"+generalModCase);
+	regex test_find_command(COMMAND_FIND+GENERAL_FIND_CASE);
+	regex test_find_exact_command(COMMAND_FIND_EXACT+GENERAL_FIND_CASE);
 
-	regex test_find_command("^find"+generalFindCase);
-	regex test_find_exact_command("^find exact"+generalFindCase);
+	regex test_del_command(COMMAND_DEL);
+	regex test_del_exact_command(COMMAND_DEL_EXACT);
+	regex test_del_index_command(COMMAND_DEL_INDEX);
 
-	regex test_del_command("^del `([^`]+)`(\\s*)");
-	regex test_del_exact_command("^del exact `([^`]+)`(\\s*)");
-	regex test_del_index_command("^del ([0-9]+)(\\s*)");
+	regex test_undo_command(COMMAND_UNDO);
 
-	regex test_undo_command("^undo(\\s*)");
-
-	regex test_redo_command("^redo(\\s*)");
+	regex test_redo_command(COMMAND_REDO);
 
 	regex test_sync_command("^sync `([^`]+)`(\\s*)");
 
@@ -119,7 +130,7 @@ int Interpreter::interpretIndex(std::string indexStr, Messenger &response){
 	else{ 
 
 		response.setStatus(ERROR);
-		response.setErrorMsg("The index is invalid");
+		response.setErrorMsg(ERROR_MSG);
 	}
 
 	return num;
@@ -324,7 +335,7 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 	if(flag==false){
 
 		response.setStatus(ERROR);
-		response.setErrorMsg("invalid command");
+		response.setErrorMsg(ERROR_MSG);
 		return NULL;
 	}
 

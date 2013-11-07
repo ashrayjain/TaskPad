@@ -17,8 +17,7 @@
   * 
  */
 
-#ifndef _TaskFileHandler_H_
-#define _TaskFileHandler_H_
+#pragma once
 
 #include<fstream>
 
@@ -27,9 +26,10 @@ class Task;
 class TaskFileHandler
 {
 	protected:
-		virtual void		openFile		(const std::string& fileName, std::ios_base::openmode) =0;
-		virtual void		closeFile		() =0;
-				std::string getTaskFilePath	(const Task& task);
+		virtual void		openFile				(const std::string& fileName, std::ios_base::openmode) =0;
+		virtual void		closeFile				() =0;
+				std::string getTaskFilePath			(const Task& task);
+				std::string getDeletedTaskFilePath	(const Task& task);
 
 		const static std::string TASK_DIRECTORY;
 		const static std::string RECORD_MODIFIED_FILE_NAME;
@@ -50,5 +50,3 @@ class TaskFileHandler
 		static const std::string LABEL_STATE;
 		static const std::string LABEL_END_OF_TASK;
 };
-
-#endif
