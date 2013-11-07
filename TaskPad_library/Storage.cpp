@@ -19,6 +19,7 @@
 
 #include <list>
 #include <string>
+#include <QDir>
 #include "Storage.h"
 #include "Task.h"
 #include "Logger.h"
@@ -33,14 +34,18 @@ const string Storage::_fileName = "TaskPad.txt";
 Storage::Storage(StorableTaskDatastore* taskDS) {
 	_logger = Logger::getLogger();
 	_logger->log("Storage","in constructor");
+	QDir temp;
+	if (!temp.cd(QString("Tasks")))
+	{
+		temp.mkdir("Tasks");
+	}
 
 	_loader = NULL;
 	_saver = NULL;
 	this->load(taskDS);
 }
 
-bool Storage::save (StorableTaskDatastore* taskDS)
-{
+bool Storage::save (StorableTaskDatastore* taskDS) {
 	_saver = new TaskSaverText;
 
 	_saver->save(taskDS,_fileName);
@@ -62,8 +67,7 @@ bool Storage::save(const Task& task, const TP::COMMAND_TYPE& cType) {
 	return true;
 }
 
-void Storage::load (StorableTaskDatastore* taskDS)
-{
+void Storage::load (StorableTaskDatastore* taskDS) {
 	_loader = new TaskLoaderText(taskDS);
 
 	_loader->load(_fileName);
@@ -76,4 +80,5 @@ void Storage::load (StorableTaskDatastore* taskDS)
 
 Storage::~Storage() {
 	//Empty
+
 }
