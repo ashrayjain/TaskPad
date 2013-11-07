@@ -244,6 +244,12 @@
     <ClInclude Include="Executor_Base.h">
       <Filter>Header Files\Logic_Related</Filter>
     </ClInclude>
+    <ClInclude Include="Natty.h">
+      <Filter>Header Files\Logic_Related</Filter>
+    </ClInclude>
+    <ClInclude Include="DateTimeParser.h">
+      <Filter>Header Files\Logic_Related</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GeneratedFiles\Debug\moc_CommandBar.cpp">
@@ -365,6 +371,9 @@
     </ClCompile>
     <ClCompile Include="Executor_Redo.cpp">
       <Filter>Source Files\Logic_Related\Executor_Derived</Filter>
+    </ClCompile>
+    <ClCompile Include="Natty.cpp">
+      <Filter>Source Files\Logic_Related</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

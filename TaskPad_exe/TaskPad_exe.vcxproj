@@ -12,15 +12,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Natty.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TaskPad_library\TaskPad_library.vcxproj">
       <Project>{b12702ad-abfb-343a-a199-8e24837244a3}</Project>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Natty.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon.ico" />

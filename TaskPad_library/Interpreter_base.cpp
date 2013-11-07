@@ -1,4 +1,5 @@
 #include "Interpreter_base.h"
+#include "Natty.h"
 
 bool Interpreter_base::checkKeyWord(string command, int position){
 
@@ -1030,6 +1031,7 @@ bool Interpreter_base::getSyncProviderNameMessage(string command, bool&flag, str
 }
 
 time_t Interpreter_base::setTime(string commandStr,bool& flag, bool& isDue){
+	commandStr = natty::getNatty().parseDateTime(commandStr);
 	int year=-1,month=-1,day=-1,hour=-1,min=-1;
 	time_t rawtime;
 	string inputInfo=commandStr;

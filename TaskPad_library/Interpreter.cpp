@@ -9,7 +9,6 @@
 #include<regex>
 
 
-
 bool Interpreter::checkCommand(string command, int& commandType){
 
 	bool flag=false;
