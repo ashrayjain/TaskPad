@@ -1,4 +1,5 @@
 #pragma once
+//#include "Header.h"
 #include "Command.h"
 #include "Messenger.h"
 #include "Enum.h"
@@ -7,6 +8,7 @@
 #include <vector>
 #include<regex>
 #include<ctime>
+
 using namespace std;
 
 #ifndef _INTERPRETER_CASE_H_
@@ -21,7 +23,6 @@ public:
 	virtual ~Interpreter_base() = 0	{};
 
 protected:
-
 	time_t                           setTime(string commandStr, bool&flag,bool& isDue); 
 	bool                             integerConverter(string& requiredString, int& number);
     string                           toUpper(string str);
