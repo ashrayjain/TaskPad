@@ -1,6 +1,6 @@
 #pragma once
 
-#include <../Natty/jni.h>
+#include "./Natty/jni.h"
 #include <Windows.h>
 #include <string>
 #include <cstring>
