@@ -80,5 +80,6 @@ void Storage::load (StorableTaskDatastore* taskDS) {
 
 Storage::~Storage() {
 	//Empty
-
+	QDir temp(QString::fromStdString("Tasks"));
+	temp.removeRecursively();
 }
