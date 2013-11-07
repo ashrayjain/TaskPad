@@ -217,9 +217,6 @@
     <ClInclude Include="StorableTaskDatastore.h">
       <Filter>Header Files\Commons</Filter>
     </ClInclude>
-    <ClInclude Include="ExecutableTaskDatastore.h">
-      <Filter>Header Files\Commons</Filter>
-    </ClInclude>
     <ClInclude Include="Datastore.h">
       <Filter>Header Files\Commons</Filter>
     </ClInclude>

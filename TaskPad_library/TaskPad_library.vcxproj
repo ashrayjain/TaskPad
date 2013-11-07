@@ -35,7 +35,6 @@
     <ClInclude Include="Datastore_Base.h" />
     <ClInclude Include="Datastore_List.h" />
     <ClInclude Include="DateTimeParser.h" />
-    <ClInclude Include="ExecutableTaskDatastore.h" />
     <ClInclude Include="Executor_Add.h" />
     <ClInclude Include="Executor_Base.h" />
     <ClInclude Include="Executor_Del.h" />
