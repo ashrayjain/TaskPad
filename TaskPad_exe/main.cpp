@@ -14,10 +14,12 @@
 #include <QtWidgets/QApplication>
 #include <QSharedMemory>
 #include "../TaskPad_library/MainWindow.h"
+#include "Natty.h"
 //#include <vld.h>
 
 int main(int argc, char *argv[])
 {
+	natty t;
 	const int ONE_INSTANCE_MODE = 1;
 	const QString APP_NAME = "TaskPad";
 

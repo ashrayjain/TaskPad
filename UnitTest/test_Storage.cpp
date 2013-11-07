@@ -18,12 +18,16 @@ namespace UnitTest
 		
 		TEST_METHOD(saveList)
 		{
-			Datastore* taskList = new Datastore;
-			setupTaskList(taskList);
+			Datastore taskStore, emptyStore;
+			setupTaskList(&taskStore);
 
-			Storage testStore(taskList);
+			Storage testStore(&taskStore);
 
-			Assert::IsTrue(testStore.save(taskList));
+			Assert::IsTrue(testStore.save(&taskStore));
+
+
+			//empty the file.
+			testStore.save(&emptyStore);
 		}
 
 		void setupTaskList(StorableTaskDatastore* taskList)
