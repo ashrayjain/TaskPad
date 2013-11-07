@@ -8,9 +8,9 @@
 #include "Interpreter_Sync.h"
 #include <regex>
 
-const string GENERAL_ADD_CASE="((( due| from| to| impt| at| ppl| note| rt) `[^`]*`)|( #[^( |`)]*))*(\\s*)";
-const string GENERAL_MOD_CASE="((( due| from| name| to| impt| at| ppl| note| rt| -rt| -ppl| \\+rt| \\+ppl) `[^`]*`)|( done| undone)|( -due| -from| -to)|( -rtall| -pplall| -#)|( (#|-#|\\+#)[^( |`)]*))*(\\s*)";
-const string GENERAL_FIND_CASE="((( from| name| to| impt| at| ppl| note| rt) `[^`]*`)|( #[^( |`)]*)|( done| undone| overdue)|(( timed| deadline| floating)))*(\\s*)";
+const string GENERAL_ADD_CASE="((( (due|by)| from| to| (impt|priority)| (at|place|location)| (ppl|with)| note| (rt|remind)) `[^`]*`)|( #[^( |`)]*))*(\\s*)";
+const string GENERAL_MOD_CASE="((( (due|by)| from| name| to| (impt|priority)| (at|place|location)| (ppl|with)| note| (rt|remind)| -(rt|remind)| -(ppl|with)| \\+(rt|remind)| \\+(ppl|with)) `[^`]*`)|( done| undone)|( -(due|by)| -from| -to)|( -rtall| -pplall| -#)|( (#|-#|\\+#)[^( |`)]*))*(\\s*)";
+const string GENERAL_FIND_CASE="((( from| name| to| (impt|priority)| (at|place|location)| (ppl|with)| note| (rt|remind)) `[^`]*`)|( #[^( |`)]*)|( done| undone| overdue)|(( timed| deadline| floating)))*(\\s*)";
 const string COMMAND_ADD="^add `([^`]+)`";
 const string COMMAND_MOD="^mod `([^`]+)`";
 const string COMMAND_MOD_EXACT="^mod exact `([^`]+)`";
