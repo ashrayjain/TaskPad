@@ -15,6 +15,7 @@
   * This file implements all of the functions defined in Storage.h file
   * 
  */
+#pragma once
 
 #include <list>
 #include <string>
@@ -29,20 +30,20 @@ using namespace std;
 
 const string Storage::_fileName = "TaskPad.txt";
 
-Storage::Storage(StorableTaskDatastore* taskDB) {
+Storage::Storage(StorableTaskDatastore* taskDS) {
 	_logger = Logger::getLogger();
 	_logger->log("Storage","in constructor");
 
 	_loader = NULL;
 	_saver = NULL;
-	this->load(taskDB);
+	this->load(taskDS);
 }
 
-bool Storage::save (StorableTaskDatastore* taskDB)
+bool Storage::save (StorableTaskDatastore* taskDS)
 {
 	_saver = new TaskSaverText;
 
-	_saver->save(taskDB,_fileName);
+	_saver->save(taskDS,_fileName);
 
 	delete _saver;
 	_saver = NULL;
@@ -61,9 +62,9 @@ bool Storage::save(const Task& task, const TP::COMMAND_TYPE& cType) {
 	return true;
 }
 
-void Storage::load (StorableTaskDatastore* taskDB)
+void Storage::load (StorableTaskDatastore* taskDS)
 {
-	_loader = new TaskLoaderText(taskDB);
+	_loader = new TaskLoaderText(taskDS);
 
 	_loader->load(_fileName);
 

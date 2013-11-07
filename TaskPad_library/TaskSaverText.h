@@ -20,8 +20,7 @@
   *
  */
 
-#ifndef _TASKSAVERTEXT_H_
-#define _TASKSAVERTEXT_H_
+#pragma once
 
 #include <list>
 #include "TaskSaver.h"
@@ -32,8 +31,8 @@ class Logger;
 class TaskSaverText: public TaskSaver
 {
 	public:
-		void save (StorableTaskDatastore* taskDB, const std::string& fileName);
-		void save (const Task& task, const TP::COMMAND_TYPE& cType);
+		void save						(StorableTaskDatastore* taskDS, const std::string& fileName);
+		void save						(const Task& task, const TP::COMMAND_TYPE& cType);
 
 		TaskSaverText();
 	private:
@@ -41,49 +40,45 @@ class TaskSaverText: public TaskSaver
 		Logger* _logger;
 
 		//save records
-		void updateSaveRecord		(const std::string& entry);
-		void removeSaveRecord		();
-		void updateDeleteRecord		(const int& entry);
-		void removeDeleteRecord		();
+		void updateSaveRecord			(const std::string& entry);
+		void removeSaveRecord			();
+		void updateDeleteRecord			(const int& entry);
+		void removeDeleteRecord			();
 
 		//savers
-		void saveTaskList			(const std::list<Task>& taskList);
-		void saveTaskDB				(StorableTaskDatastore* taskDB);
-		void saveTask				(const			 Task &	task);
-		void saveTaskAttributes		(const			 Task &	tempTaskTask);
+		void saveTaskList				(const std::list<Task>& taskList);
+		void saveTaskDS					(StorableTaskDatastore* taskDS);
+		void saveTask					(const			 Task &	task);
+		void saveTaskAttributes			(const			 Task &	tempTaskTask);
 
 		//file level attributes
 		void saveTaskLevelLabel			(std::string LabelStr);
 		void saveAttributeLevelLabel	(std::string LabelStr);
 
 		//saving generic attributes of all tasks
-		void saveIndex				(const Task& tempTask);
-		void saveName				(const Task& tempTask);
-		void saveLocation			(const Task& tempTask);
-		void saveParticipants		(const Task& tempTask);
-		void saveNote				(const Task& tempTask);
-		void savePriority			(const Task& tempTask);
-		void saveTags				(const Task& tempTask);
-		void saveReminderTimes		(const Task& tempTask);
-		void saveState				(const Task& tempTask);
-		void saveDueDate			(const Task& tempTask);
-		void saveFromDate			(const Task& tempTask);
-		void saveToDate				(const Task& tempTask);
-
-		static std::string convertTimeToString(time_t time);
+		void saveIndex					(const Task& tempTask);
+		void saveName					(const Task& tempTask);
+		void saveLocation				(const Task& tempTask);
+		void saveParticipants			(const Task& tempTask);
+		void saveNote					(const Task& tempTask);
+		void savePriority				(const Task& tempTask);
+		void saveTags					(const Task& tempTask);
+		void saveReminderTimes			(const Task& tempTask);
+		void saveState					(const Task& tempTask);
+		void saveDueDate				(const Task& tempTask);
+		void saveFromDate				(const Task& tempTask);
+		void saveToDate					(const Task& tempTask);
 
 		// std::string converters
-		std::string convertToString	(int num);
-		std::string convertToString	(unsigned long long index);
-		std::string convertToString	(time_t time);
-		std::string convertToString	(TP::PRIORITY priority);
-		std::string convertToString	(TP::TASK_STATE state);
+		std::string convertToString		(int num);
+		std::string convertToString		(unsigned long long index);
+		std::string convertToString		(time_t time);
+		std::string convertToString		(TP::PRIORITY priority);
+		std::string convertToString		(TP::TASK_STATE state);
 
 		//writers
-		void writeLineToFile	(std::string line, bool newLine = true);
+		void writeLineToFile			(std::string line, bool newLine = true);
 				
 		//removes Task files
 		void removeTaskFiles();
 };
-
-#endif

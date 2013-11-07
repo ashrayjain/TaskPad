@@ -18,11 +18,10 @@
   * 
  */
 
-#ifndef _STORAGE_H_
-#define _STORAGE_H_
+#pragma once
 
-#include<fstream>
-#include<list>
+#include <fstream>
+#include <list>
 #include "Enum.h"
 
 //forward definitions
@@ -42,18 +41,17 @@ class Storage
 
 		static const std::string _fileName;
 
-	public:
-		Storage (StorableTaskDatastore* taskDB);
-
 		bool save	(const std::list<Task>&);
-		bool save	(StorableTaskDatastore* taskDB);
+
+	public:
+		Storage (StorableTaskDatastore* taskDS);
+
+		bool save	(StorableTaskDatastore* taskDS);
 		bool save	(const Task& task, const TP::COMMAND_TYPE& cType);
 
-		//void load	(std::list<Task>& taskList);
-		void load	(StorableTaskDatastore* taskDB);
+		void load	(StorableTaskDatastore* taskDS);
 
 		const std::string FILENAME;
 
 		~Storage();
 };
-#endif

@@ -132,11 +132,18 @@ void Task::setDueDate(std::time_t newDueDate) {
 
 void Task::handleDatesChange() {
     if (getFlagDueDate() == true)
-        setTaskType(TP::DEADLINE);
+		setTaskType(TP::TASK_TYPE::DEADLINE);
 	else if (getFlagFromDate() || getFlagToDate())
-        setTaskType(TP::TIMED);
+        setTaskType(TP::TASK_TYPE::TIMED);
     else
-        setTaskType(TP::FLOATING);
+        setTaskType(TP::TASK_TYPE::FLOATING);
+
+	if (getFlagToDate() && getState() != TP::TASK_STATE::DONE) {
+		if (time(NULL) > getToDate())
+			setState(TP::TASK_STATE::OVERDUE);
+		else if (time(NULL) <= getToDate())
+			setState(TP::TASK_STATE::UNDONE);
+	}
 }
 
 
