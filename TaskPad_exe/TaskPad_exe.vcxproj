@@ -22,6 +22,12 @@
   <ItemGroup>
     <ClInclude Include="Natty.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="Icon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Icon.rc" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{C35BB46E-DC31-4917-ADD2-E6414815E5FF}</ProjectGuid>
     <Keyword>Qt4VSv1.0</Keyword>
