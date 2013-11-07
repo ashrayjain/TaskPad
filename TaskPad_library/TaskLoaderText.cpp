@@ -16,11 +16,11 @@
   * 
  */
 
-#ifndef _TASKLOADERTEXT_CPP_
-#define _TASKLOADERTEXT_CPP_
+#pragma once
 
-#include<list>
+#include <list>
 #include <sstream>
+#include <QDir>
 #include "TaskLoaderText.h"
 #include "Task.h"
 #include "Enum.h"
@@ -59,29 +59,54 @@ void TaskLoaderText::recoverUnsavedChanges() {
 
 void TaskLoaderText::loadDeletedIndices() {
 	_logger->log("TaskLoaderText","entering loadDeletedIndices");
-	ifstream record(RECORD_DELETED_FILE_NAME);
 	std::string nextTaskIndex;
+	std::string nextTaskFile;
+	Task nextTask;
 
-	while(record.good()) {
-		getline(record, nextTaskIndex);
+	QDir temp(QString::fromStdString(TASK_DIRECTORY));
+	QStringList filters;
+	filters << "*.deltask";
+	temp.setNameFilters(filters);
+	QStringList taskFiles = temp.entryList();
+	QStringList::iterator taskFilesIt= taskFiles.begin();
+
+	ifstream deletedFile;
+	while(taskFilesIt != taskFiles.end()) {
+		std::string nextTaskFile = temp.filePath(*taskFilesIt).toUtf8().constData();
+		_logger->log("TaskLoaderText","found deleted task file: "+nextTaskFile,NOTICELOG);
+
+		deletedFile.open(nextTaskFile);
+		getline(deletedFile, nextTaskIndex);
+
 		if(nextTaskIndex!= "") {
-			this->recoveredIndices.insert(nextTaskIndex);
+			this->recoveredDeletedIndices.insert(nextTaskIndex);
 			_logger->log("TaskLoaderText","reading deleted tasks file: " + nextTaskIndex,NOTICELOG);
 			nextTaskIndex = "";
 		}
-	}
-	record.close();
+
+		deletedFile.close();
+		taskFilesIt++;
+	}	
 }
 
 void TaskLoaderText::loadModifiedTasks() {
 	_logger->log("TaskLoaderText","entering loadModifiedTasks");
-	ifstream recoverFile(RECORD_MODIFIED_FILE_NAME);
+
 	std::string nextTaskFile;
 	Task nextTask;
 
-	while(recoverFile.good()) {
-		getline(recoverFile,nextTaskFile);
-		if(nextTaskFile != "") {
+	QDir temp(QString::fromStdString(TASK_DIRECTORY));
+	QStringList filters;
+	filters << "*.task";
+	temp.setNameFilters(filters);
+	QStringList taskFiles = temp.entryList();
+	QStringList::iterator taskFilesIt= taskFiles.begin();
+
+	while(taskFilesIt != taskFiles.end()) {
+		nextTaskFile = temp.filePath(*taskFilesIt).toUtf8().constData();
+		_logger->log("TaskLoaderText","found task file: "+nextTaskFile,NOTICELOG);
+
+		if(nextTaskFile != "Tasks/." && nextTaskFile != "Tasks/..") {
 			this->openFile(nextTaskFile);
 
 			nextTask = this->getNextTask();
@@ -89,8 +114,8 @@ void TaskLoaderText::loadModifiedTasks() {
 
 			this->closeFile();
 		}
+		taskFilesIt++;
 	}
-
 	return;
 }
 
@@ -183,7 +208,7 @@ Task TaskLoaderText::getNextTask() {
 }
 
 bool TaskLoaderText::validateAndCreateTask (Task& newTask, const std::string& newData) {
-	bool taskHasBeenDeleted = recoveredIndices.find(newData) != recoveredIndices.end();
+	bool taskHasBeenDeleted = recoveredDeletedIndices.find(newData) != recoveredDeletedIndices.end();
 
 	if(taskHasBeenDeleted) {
 		_logger->log("TaskLoaderText","deleted task found: " + newData, NOTICELOG);
@@ -193,7 +218,7 @@ bool TaskLoaderText::validateAndCreateTask (Task& newTask, const std::string& ne
 	}
 	else {
 		try {
-			int newIndex = getTaskIndex(newData);
+			unsigned long long newIndex = getTaskIndex(newData);
 			newTask = createNewTask(newIndex);
 			_logger->log("TaskLoaderText","created new task with index: " + newData);
 			return true;
@@ -378,5 +403,3 @@ string TaskLoaderText::getNextLineFromFile()
 
 	return nextLine;
 }
-
-#endif
