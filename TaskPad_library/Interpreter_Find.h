@@ -143,7 +143,7 @@ Command* Interpreter_Find::interpretFind(Command_Find* commandType, std::string 
 	if(flag && commandType->getFlagOptName()==false){
 
 		string content;
-		if(setGeneralMessage(commandStr,flag,content," name `[^`]*`")){
+		if(setGeneralMessage(commandStr,flag,content,FIELD_NAME)){
 			commandType->setOptName(content);
 		}
 	}
