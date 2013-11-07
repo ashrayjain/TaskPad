@@ -20,8 +20,7 @@
   *
  */
 
-#ifndef _TASKLOADERTEXT_H_
-#define _TASKLOADERTEXT_H_
+#pragma once
 
 #include <list>
 #include <set>
@@ -34,7 +33,7 @@ class TaskLoaderText :public TaskLoader
 {
 	public:
 		void load (const std::string& fileName);
-		TaskLoaderText(StorableTaskDatastore* taskDB);
+		TaskLoaderText(StorableTaskDatastore* taskDS);
 	private:
 
 		Logger* _logger;
@@ -48,7 +47,7 @@ class TaskLoaderText :public TaskLoader
 		void validateAndAddTaskToList	(const Task& nextTask);
 
 		//loader
-		void loadTaskDB				();
+		void loadTaskDB					();
 
 		//helper functions
 		std::string			getNewLabel				(std::string);
@@ -82,5 +81,3 @@ class TaskLoaderText :public TaskLoader
 		TP::PRIORITY		getPriorityFromString	(std::string attribute);
 		TP::TASK_STATE		getTaskStateFromString	(std::string attribute);
 };
-
-#endif

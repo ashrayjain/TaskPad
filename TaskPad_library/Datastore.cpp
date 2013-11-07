@@ -90,6 +90,17 @@ void Datastore::deleteTask(const unsigned &pos) {
 	_ds->deleteTask(i);
 }
 
+void Datastore::deleteTask(Datastore::const_iterator k) {
+	Datastore::const_iterator j = dynamic_cast<Datastore_Type::const_iterator*>(_ds->cbegin());
+	Datastore_Base::iterator* i = _ds->begin();
+	advance(*i, distance(j, k));
+	_indexHash.erase((*i)->getIndex());
+	deleteHashTags(**i);
+	deleteRemindTimes(**i);
+	_ds->deleteTask(i);
+}
+
+
 void Datastore::deleteHashTags(Task &task) {
 	list<string> tags = task.getTags();
 	list<list<Task*>::iterator> tagPtrs = task.getHashTagPtrs();
@@ -134,6 +145,16 @@ list<Task> Datastore::getTasksWithRemindTimes(time_t remindTime) {
 Task Datastore::modifyTask(const unsigned &pos, Command_Mod* cmd) {
 	Datastore_Base::iterator* i = _ds->begin();
 	advance(*i, pos);
+	_interimTask = Task(**i);
+	modifyTaskWithPtr(**i, cmd);
+	return Task(**i);
+}
+
+Task Datastore::modifyTask(Datastore::const_iterator k, Command_Mod* cmd) {
+	Datastore::const_iterator j = dynamic_cast<Datastore_Type::const_iterator*>(_ds->cbegin());
+	Datastore_Base::iterator* i = _ds->begin();
+	advance(*i, distance(j, k));
+	//advance(*i, pos);
 	_interimTask = Task(**i);
 	modifyTaskWithPtr(**i, cmd);
 	return Task(**i);
