@@ -235,9 +235,9 @@ bool Interpreter_base::getToDateMessage(string command, bool&flag, time_t& conte
 
 
 
-bool Interpreter_base::getParticipantsMessage(string command, bool&flag, list<std::string>& content){
+bool Interpreter_base::setParticipantsMessage(string command, bool&flag, list<std::string>& content,string regexTemplate){
 	list<string>pplList;
-	regex extractTemplete(" ppl `[^`]*`");
+	regex extractTemplete(regexTemplate);
 	smatch match;
 	string commandStr;
 	string preContent;
@@ -268,7 +268,7 @@ bool Interpreter_base::getParticipantsMessage(string command, bool&flag, list<st
 		content=pplList;
 		if(pplList.empty())isNotEmpty=false;
 
-		if(checkDuplicate(command," ppl `[^`]*`",match.position())==true){
+		if(checkDuplicate(command,regexTemplate,match.position())==true){
 
 			flag=false;
 		}	
@@ -387,10 +387,10 @@ bool Interpreter_base::getPriorityMessage(string command, bool&flag,TP::PRIORITY
 	return isNotEmpty;
 }
 
-bool Interpreter_base::getTagsMessage(string command, bool&flag,list<std::string>& content){
+bool Interpreter_base::setTagsMessage(string command, bool&flag,list<std::string>& content,string regexTemplate){
 
 	list<string>tagList;
-	regex extractTemplete("\\s(#[^( |`)]*)(\\s|$)");
+	regex extractTemplete(regexTemplate);
 
 	smatch match;
 	string commandStr;
@@ -444,10 +444,10 @@ bool Interpreter_base::getTagsMessage(string command, bool&flag,list<std::string
 
 }	
 
-bool Interpreter_base::	getRemindTimesMessage(string command, bool&flag,list<std::time_t>&content){
+bool Interpreter_base::	setRemindTimesMessage(string command, bool&flag,list<std::time_t>&content, string regexTemplate){
 
 	list<time_t>rtList;
-	regex extractTemplete(" rt `[^`]*`");
+	regex extractTemplete(regexTemplate);
 	smatch match;
 	string commandStr;
 	string preContent;
@@ -478,7 +478,7 @@ bool Interpreter_base::	getRemindTimesMessage(string command, bool&flag,list<std
 		}
 		content=rtList;
 		if(content.empty())isNotEmpty=false;
-		if(checkDuplicate(command," rt `[^`]*`",match.position())==true){
+		if(checkDuplicate(command,regexTemplate,match.position())==true){
 
 			flag=false;
 		}
@@ -499,7 +499,7 @@ bool Interpreter_base::getTaskStateMessage(string command, bool&flag, TP::TASK_S
 	string commandStr;
 	smatch match;
 	bool isNotEmpty=true;
-	regex extractTemplete("\\s(done|undone)(\\s|$)");
+	regex extractTemplete(FIELD_TASK_STATE);
 	string subStirng=command;
 
 	int startIndex=0;
@@ -545,9 +545,15 @@ bool Interpreter_base::getTaskStateMessage(string command, bool&flag, TP::TASK_S
 			content=UNDONE;
 		}
 
-		else {
+		else if(result.at(0).find("done")!=string::npos){
 			content=DONE;	
 
+		}
+		else if(result.at(0).find("overdue")!=string::npos){
+			content=OVERDUE;
+		}
+		else{
+			flag=false;
 		}
 	}
 
@@ -632,7 +638,7 @@ bool Interpreter_base::getTaskTypeMessage(string command, bool&flag, TP::TASK_TY
 
 
 
-bool  Interpreter_base::setSingleRemoveMessage(string command, bool&flag, string regexTemplate){
+bool  Interpreter_base::setNoParameterMessage(string command, bool&flag, string regexTemplate){
 	string commandStr;
 	smatch match;
 	regex extractTemplete(regexTemplate);
@@ -688,315 +694,6 @@ bool  Interpreter_base::setSingleRemoveMessage(string command, bool&flag, string
 
 
 
-}
-
-
-bool Interpreter_base::getRemoveRemindTimesMessage(string command, bool&flag,list<std::time_t>& content){
-
-	list<time_t>rtList;
-	regex extractTemplete(" -rt `[^`]*`");
-	smatch match;
-	string commandStr;
-	string preContent;
-	bool isNotEmpty=true;
-
-	if (regex_search(command, match, extractTemplete)){
-
-		commandStr=match[0];
-
-	}
-	if(!commandStr.empty()){
-
-		stringstream extract(commandStr);
-		getline(extract,preContent,'`');
-		preContent.clear();
-		getline(extract,preContent,'`');
-
-		stringstream extractIndividual(preContent);
-		string time="";
-		getline(extractIndividual,time,',');
-
-		while(!time.empty()){
-			bool isDue=false;
-			time_t rtTime=setTime(time,flag,isDue);
-			rtList.push_back(rtTime);
-			time.clear();
-			getline(extractIndividual,time,',');
-		}
-		content=rtList;
-		if(content.empty())isNotEmpty=false;
-		if(checkDuplicate(command," -rt `[^`]*`",match.position())==true){
-
-			flag=false;
-		}
-	}
-	else{
-
-		isNotEmpty=false;
-	}
-
-
-
-	return isNotEmpty;
-}
-
-bool Interpreter_base::getRemoveParticipantsMessage(string command, bool&flag, list<std::string>& content){
-	list<string>pplList;
-	regex extractTemplete(" -ppl `[^`]*`");
-	smatch match;
-	string commandStr;
-	string preContent;
-	bool isNotEmpty=true;
-
-	if (regex_search(command, match, extractTemplete)){
-
-		commandStr=match[0];
-
-	}
-	if(!commandStr.empty()){
-
-		stringstream extract(commandStr);
-		getline(extract,preContent,'`');
-		content.clear();
-		getline(extract,preContent,'`');
-
-		stringstream extractIndividual(preContent);
-		string name="";
-		getline(extractIndividual,name,',');
-		while(!name.empty()){
-
-			pplList.push_back(name);
-			name.clear();
-			getline(extractIndividual,name,',');
-		}
-
-		content=pplList;
-		if(pplList.empty())isNotEmpty=false;
-
-		if(checkDuplicate(command," -ppl `[^`]*`",match.position())==true){
-
-			flag=false;
-		}	
-
-	}
-	else{
-
-		isNotEmpty=false;
-	}
-
-
-	return isNotEmpty;
-
-}
-
-bool Interpreter_base::getRemoveTagsMessage(string command, bool&flag, list<std::string>& content){
-	list<string>tagList;
-	regex extractTemplete("\\s(-#[^( |`)]*)(\\s|$)");
-
-	smatch match;
-	string commandStr;
-	string preContent;
-	bool isNotEmpty=true;
-	string subStirng=command;
-
-	int count=0;
-
-	if (regex_search(subStirng, match, extractTemplete)){
-
-		commandStr=match[0];
-
-	}
-
-	while(!commandStr.empty()){
-
-		if(checkKeyWord(subStirng,match.position())==true){
-
-			stringstream extract(commandStr);
-			string tagContent;
-			getline(extract,tagContent,'#');
-			tagContent.clear();
-			getline(extract,tagContent,' ');
-
-			if(!tagContent.empty()){
-
-				tagList.push_back(tagContent);
-			}
-			count++;
-		}	
-
-
-		subStirng=subStirng.substr(match.position()+1);
-		commandStr.clear();
-
-		if (regex_search(subStirng, match, extractTemplete)){
-
-			commandStr=match[0];
-
-		}
-
-	}
-
-	if(count==0 || tagList.empty()){
-		isNotEmpty=false;
-	}
-
-	content=tagList;
-	return isNotEmpty;
-
-}
-
-bool Interpreter_base::getAddRemindTimesMessage(string command, bool&flag,list<std::time_t>& content){
-
-	list<time_t>rtList;
-	regex extractTemplete(" \\+rt `[^`]*`");
-	smatch match;
-	string commandStr;
-	string preContent;
-	bool isNotEmpty=true;
-
-	if (regex_search(command, match, extractTemplete)){
-
-		commandStr=match[0];
-
-	}
-	if(!commandStr.empty()){
-
-		stringstream extract(commandStr);
-		getline(extract,preContent,'`');
-		preContent.clear();
-		getline(extract,preContent,'`');
-
-		stringstream extractIndividual(preContent);
-		string time="";
-		getline(extractIndividual,time,',');
-
-		while(!time.empty()){
-			bool isDue=false;
-			time_t rtTime=setTime(time,flag,isDue);
-			rtList.push_back(rtTime);
-			time.clear();
-			getline(extractIndividual,time,',');
-		}
-		content=rtList;
-		if(content.empty())isNotEmpty=false;
-		if(checkDuplicate(command," \\+rt `[^`]*`",match.position())==true){
-
-			flag=false;
-		}
-	}
-	else{
-
-		isNotEmpty=false;
-	}
-
-
-
-	return isNotEmpty;
-}
-
-bool Interpreter_base::getAddParticipantsMessage(string command, bool&flag, list<std::string>& content){
-	list<string>pplList;
-	regex extractTemplete(" \\+ppl `[^`]*`");
-	smatch match;
-	string commandStr;
-	string preContent;
-	bool isNotEmpty=true;
-
-	if (regex_search(command, match, extractTemplete)){
-
-		commandStr=match[0];
-
-	}
-	if(!commandStr.empty()){
-
-		stringstream extract(commandStr);
-		getline(extract,preContent,'`');
-		content.clear();
-		getline(extract,preContent,'`');
-
-		stringstream extractIndividual(preContent);
-		string name="";
-		getline(extractIndividual,name,',');
-		while(!name.empty()){
-
-			pplList.push_back(name);
-			name.clear();
-			getline(extractIndividual,name,',');
-		}
-
-		content=pplList;
-		if(pplList.empty())isNotEmpty=false;
-
-		if(checkDuplicate(command," \\+ppl `[^`]*`",match.position())==true){
-
-			flag=false;
-		}	
-
-	}
-	else{
-
-		isNotEmpty=false;
-	}
-
-
-	return isNotEmpty;
-
-}
-
-bool Interpreter_base::getAddTagsMessage(string command, bool&flag, list<std::string>& content){
-
-	list<string>tagList;
-	regex extractTemplete("\\s(\\+#[^( |`)]*)(\\s|$)");
-
-	smatch match;
-	string commandStr;
-	string preContent;
-	bool isNotEmpty=true;
-	string subStirng=command;
-
-	int count=0;
-
-	if (regex_search(subStirng, match, extractTemplete)){
-
-		commandStr=match[0];
-
-	}
-
-	while(!commandStr.empty()){
-
-		if(checkKeyWord(subStirng,match.position())==true){
-
-			stringstream extract(commandStr);
-			string tagContent;
-			getline(extract,tagContent,'#');
-			tagContent.clear();
-			getline(extract,tagContent,' ');
-
-			if(!tagContent.empty()){
-
-				tagList.push_back(tagContent);
-			}
-			count++;
-		}	
-
-
-		subStirng=subStirng.substr(match.position()+1);
-		commandStr.clear();
-
-		if (regex_search(subStirng, match, extractTemplete)){
-
-			commandStr=match[0];
-
-		}
-
-	}
-
-	if(count==0 || tagList.empty()){
-		isNotEmpty=false;
-	}
-
-	content=tagList;
-	return isNotEmpty;
 }
 
 bool Interpreter_base::getSyncProviderNameMessage(string command, bool&flag, string&content){
