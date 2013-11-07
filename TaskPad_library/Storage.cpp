@@ -19,6 +19,7 @@
 
 #include <list>
 #include <string>
+#include <QDir>
 #include "Storage.h"
 #include "Task.h"
 #include "Logger.h"
@@ -31,6 +32,8 @@ using namespace std;
 const string Storage::_fileName = "TaskPad.txt";
 
 Storage::Storage(StorableTaskDatastore* taskDS) {
+	QDir temp;
+	temp.mkdir("testDir");
 	_logger = Logger::getLogger();
 	_logger->log("Storage","in constructor");
 

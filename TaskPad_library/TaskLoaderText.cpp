@@ -16,8 +16,7 @@
   * 
  */
 
-#ifndef _TASKLOADERTEXT_CPP_
-#define _TASKLOADERTEXT_CPP_
+#pragma once
 
 #include<list>
 #include <sstream>
@@ -65,7 +64,7 @@ void TaskLoaderText::loadDeletedIndices() {
 	while(record.good()) {
 		getline(record, nextTaskIndex);
 		if(nextTaskIndex!= "") {
-			this->recoveredIndices.insert(nextTaskIndex);
+			this->recoveredDeletedIndices.insert(nextTaskIndex);
 			_logger->log("TaskLoaderText","reading deleted tasks file: " + nextTaskIndex,NOTICELOG);
 			nextTaskIndex = "";
 		}
@@ -183,7 +182,7 @@ Task TaskLoaderText::getNextTask() {
 }
 
 bool TaskLoaderText::validateAndCreateTask (Task& newTask, const std::string& newData) {
-	bool taskHasBeenDeleted = recoveredIndices.find(newData) != recoveredIndices.end();
+	bool taskHasBeenDeleted = recoveredDeletedIndices.find(newData) != recoveredDeletedIndices.end();
 
 	if(taskHasBeenDeleted) {
 		_logger->log("TaskLoaderText","deleted task found: " + newData, NOTICELOG);
@@ -378,5 +377,3 @@ string TaskLoaderText::getNextLineFromFile()
 
 	return nextLine;
 }
-
-#endif

@@ -39,7 +39,7 @@ class TaskLoaderText :public TaskLoader
 		Logger* _logger;
 
 		//recovery system
-		std::set<std::string> recoveredIndices;
+		std::set<std::string> recoveredDeletedIndices;
 
 		void recoverUnsavedChanges		();
 		void loadDeletedIndices			();
