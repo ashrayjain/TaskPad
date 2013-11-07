@@ -143,6 +143,9 @@ protected:
     bool isIndexInList(unsigned long long index)	{ return listOfAllIndices.find(index) == listOfAllIndices.end();	}
     void setTaskType(TP::TASK_TYPE taskType)		{ _taskType = taskType;	}
     void handleDatesChange();
+	void removeSingleRTOccurrence(std::time_t &toRemove);
+	void removeSingleParticipansOccurrence(std::string &toRemove);
+	void removeSingleTagOccurrence(std::string &toRemove);
 
     // Task Attributes
     TP::TASK_TYPE			_taskType;

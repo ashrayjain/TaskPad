@@ -14,31 +14,33 @@
 
 #include "Task.h"
 
-std::set<unsigned long long>				Task::listOfAllIndices;
+using namespace std;
 
-const std::string							Task::INDEX_INVALID_ERROR	= "is not a valid index!";
+set<unsigned long long>				Task::listOfAllIndices;
 
-const unsigned long long					Task::DEFAULT_INDEX				= 0;
-const std::string							Task::DEFAULT_NAME				= "";
-const std::string							Task::DEFAULT_LOCATION			= "";
-const std::string							Task::DEFAULT_NOTE				= "";
-const TP::PRIORITY							Task::DEFAULT_PRIORITY			= TP::MEDIUM;
-const std::list<std::string>				Task::DEFAULT_PARTICIPANTS		= std::list<std::string>();
-const std::list<std::string>				Task::DEFAULT_TAGS				= std::list<std::string>();
-const std::list<std::list<Task*>::iterator>	Task::DEFAULT_HASHTAG_PTRS		= std::list<std::list<Task*>::iterator>();
-const std::list<std::time_t>				Task::DEFAULT_REMINDTIMES		= std::list<std::time_t>();
-const std::list<std::list<Task*>::iterator>	Task::DEFAULT_REMINDTIMES_PTRS	= std::list<std::list<Task*>::iterator>();
-const std::time_t							Task::DEFAULT_FROMDATE			= 0;
-const std::time_t							Task::DEFAULT_TODATE			= 0;
-const TP::TASK_STATE						Task::DEFAULT_STATE				= TP::UNDONE;	
-const TP::TASK_TYPE							Task::DEFAULT_TYPE				= TP::FLOATING;
+const string						Task::INDEX_INVALID_ERROR	= "is not a valid index!";
+
+const unsigned long long			Task::DEFAULT_INDEX				= 0;
+const string						Task::DEFAULT_NAME				= "";
+const string						Task::DEFAULT_LOCATION			= "";
+const string						Task::DEFAULT_NOTE				= "";
+const TP::PRIORITY					Task::DEFAULT_PRIORITY			= TP::MEDIUM;
+const list<string>					Task::DEFAULT_PARTICIPANTS		= list<string>();
+const list<string>					Task::DEFAULT_TAGS				= list<string>();
+const list<list<Task*>::iterator>	Task::DEFAULT_HASHTAG_PTRS		= list<list<Task*>::iterator>();
+const list<time_t>					Task::DEFAULT_REMINDTIMES		= list<time_t>();
+const list<list<Task*>::iterator>	Task::DEFAULT_REMINDTIMES_PTRS	= list<list<Task*>::iterator>();
+const time_t						Task::DEFAULT_FROMDATE			= 0;
+const time_t						Task::DEFAULT_TODATE			= 0;
+const TP::TASK_STATE				Task::DEFAULT_STATE				= TP::UNDONE;	
+const TP::TASK_TYPE					Task::DEFAULT_TYPE				= TP::FLOATING;
 
 void Task::defaultTaskInit(bool createIndex)
 {
 	initFlags();
     initTaskAttributes();
     if (createIndex) {
-		_taskIndex = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+		_taskIndex = chrono::duration_cast<chrono::milliseconds>(chrono::system_clock::now().time_since_epoch()).count();
 		listOfAllIndices.insert(_taskIndex);
 	}
 }
@@ -53,7 +55,7 @@ void Task::defaultTaskInit(unsigned long long indexToPut)
         listOfAllIndices.insert(indexToPut);
     }
     else
-        throw std::to_string(indexToPut) + INDEX_INVALID_ERROR;
+        throw to_string(indexToPut) + INDEX_INVALID_ERROR;
 }
 
 void Task::initFlags()
@@ -88,43 +90,43 @@ void Task::initTaskAttributes()
 	_taskIndex			= DEFAULT_INDEX;
 }
 
-void Task::setRemindTimes(std::time_t newRemindTime, TP::LIST_OP op) {
+void Task::setRemindTimes(time_t newRemindTime, TP::LIST_OP op) {
     if (op == TP::ADD_ELEMENT)
         _taskRemindTimes.push_back(newRemindTime);
     else if (op == TP::REMOVE_ELEMENT)
-        _taskRemindTimes.remove(newRemindTime);
+		removeSingleRTOccurrence(newRemindTime);
 	flagRemindTimes = _taskRemindTimes != DEFAULT_REMINDTIMES;
 }
 
-void Task::setParticipants(std::string newParticipant, TP::LIST_OP op) {
+void Task::setParticipants(string newParticipant, TP::LIST_OP op) {
     if (op == TP::ADD_ELEMENT)
         _taskParticipants.push_back(newParticipant);
     else if (op == TP::REMOVE_ELEMENT)
-        _taskParticipants.remove(newParticipant);
+		removeSingleParticipansOccurrence(newParticipant);
 	flagParticipants = _taskParticipants != DEFAULT_PARTICIPANTS;
 }
 
-void Task::setTags(std::string newTag, TP::LIST_OP op) {
+void Task::setTags(string newTag, TP::LIST_OP op) {
     if (op == TP::ADD_ELEMENT)
         _taskTags.push_back(newTag);
     else if (op == TP::REMOVE_ELEMENT)
-        _taskTags.remove(newTag);
+		removeSingleTagOccurrence(newTag);
 	flagTags = _taskTags !=DEFAULT_TAGS;
 }
 
-void Task::setFromDate(std::time_t newFromDate) {
+void Task::setFromDate(time_t newFromDate) {
     _taskFromDate = newFromDate;
 	flagFromDate = newFromDate != DEFAULT_FROMDATE;
     handleDatesChange();
 }
 
-void Task::setToDate(std::time_t newToDate) {
+void Task::setToDate(time_t newToDate) {
     _taskToDate = newToDate;
 	flagToDate = newToDate != DEFAULT_TODATE;
     handleDatesChange();
 }
 
-void Task::setDueDate(std::time_t newDueDate) {
+void Task::setDueDate(time_t newDueDate) {
 	_taskFromDate = _taskToDate = newDueDate;
 	flagFromDate = flagToDate = newDueDate != DEFAULT_FROMDATE;
 	handleDatesChange();
@@ -146,6 +148,29 @@ void Task::handleDatesChange() {
 	}
 }
 
+void Task::removeSingleRTOccurrence(time_t &toRemove) {
+	for(list<time_t>::iterator i = _taskRemindTimes.begin(); i != _taskRemindTimes.end(); ++i)
+		if (*i == toRemove) {
+			_taskRemindTimes.erase(i);
+			break;
+		}
+}
+
+void Task::removeSingleParticipansOccurrence(string &toRemove) {
+	for(list<string>::iterator i = _taskParticipants.begin(); i != _taskParticipants.end(); ++i)
+		if (*i == toRemove) {
+			_taskParticipants.erase(i);
+			break;
+		}
+}
+
+void Task::removeSingleTagOccurrence(string &toRemove) {
+	for(list<string>::iterator i = _taskTags.begin(); i != _taskTags.end(); ++i)
+		if (*i == toRemove) {
+			_taskTags.erase(i);
+			break;
+		}
+}
 
 
 
