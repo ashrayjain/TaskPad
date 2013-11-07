@@ -32,11 +32,13 @@ std::string natty::parseDateTime(std::string commandStr) {
 		jmethodID mid = _env->GetStaticMethodID(_cls,"parse","(Ljava/lang/String;)Ljava/lang/String;");
 		if(mid != 0){
 			jstring data = (jstring)_env->CallStaticObjectMethod(_cls,mid,_env->NewStringUTF(commandStr.c_str()));
-			const char *str= _env->GetStringUTFChars(data,0);
-			std::string result = std::string(str);
-			if(result != "")
-				commandStr = result;
-			_env->ReleaseStringUTFChars(data, str);
+			if(data != NULL){
+				const char *str= _env->GetStringUTFChars(data,0);
+				std::string result = std::string(str);
+				if(result != "")
+					commandStr = result;
+				_env->ReleaseStringUTFChars(data, str);
+			}
 		}
 	}
 	return commandStr;
