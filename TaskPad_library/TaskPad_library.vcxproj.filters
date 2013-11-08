@@ -372,5 +372,23 @@
     <ClCompile Include="Natty.cpp">
       <Filter>Source Files\Logic_Related</Filter>
     </ClCompile>
+    <ClCompile Include="Interpreter_Mod.cpp">
+      <Filter>Source Files\Logic_Related</Filter>
+    </ClCompile>
+    <ClCompile Include="Interpreter_Add.cpp">
+      <Filter>Source Files\Logic_Related</Filter>
+    </ClCompile>
+    <ClCompile Include="Interpreter_Redo.cpp">
+      <Filter>Source Files\Logic_Related</Filter>
+    </ClCompile>
+    <ClCompile Include="Interpreter_Undo.cpp">
+      <Filter>Source Files\Logic_Related</Filter>
+    </ClCompile>
+    <ClCompile Include="Interpreter_Delete.cpp">
+      <Filter>Source Files\Logic_Related</Filter>
+    </ClCompile>
+    <ClCompile Include="Interpreter_Find.cpp">
+      <Filter>Source Files\Logic_Related</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
