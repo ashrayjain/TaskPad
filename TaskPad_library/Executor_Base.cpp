@@ -61,16 +61,16 @@ void Executor_Base::setOpIntermediateTaskList(const list<Task>& results, Messeng
 }
 
 void Executor_Base::setIndexNotFound(const unsigned long long &index, Messenger &response) {
-	response.setStatus(TP::STATUS::ERROR);
+	response.setStatus(TP::STATUS::ERR);
 	response.setErrorMsg(std::to_string(index) + INVALID_INDEX_ERROR);
 }
 
 void Executor_Base::setNameNotFound(const string &name, Messenger &response) {
-	response.setStatus(TP::STATUS::ERROR);
+	response.setStatus(TP::STATUS::ERR);
 	response.setErrorMsg(NAME_NOT_FOUND_ERROR + name);
 }
 
 void Executor_Base::setErrorWithErrMsg(Messenger &response, const string errMsg) {
-	response.setStatus(TP::STATUS::ERROR);
+	response.setStatus(TP::STATUS::ERR);
 	response.setErrorMsg(errMsg);
 }

@@ -97,14 +97,14 @@ void Executor::executeCommand(Command* cmd, Messenger &response) {
 							break;
 	case COMMAND_TYPE::UNDO:executor = new Executor_Undo();
 							executor->executeCommand(cmd, response, _ds);
-							if(response.getStatus() != TP::STATUS::ERROR)
+							if(response.getStatus() != TP::STATUS::ERR)
 								executeCommandWithoutUndoRedo(
 								dynamic_cast<Executor_Undo*>(executor)->getUndoCommandToExecute(), 
 								response);
 							break;
 	case COMMAND_TYPE::REDO:executor = new Executor_Redo();
 							executor->executeCommand(cmd, response, _ds);
-							if(response.getStatus() != TP::STATUS::ERROR)
+							if(response.getStatus() != TP::STATUS::ERR)
 								executeCommandWithoutUndoRedo(
 								dynamic_cast<Executor_Redo*>(executor)->getRedoCommandToExecute(), 
 								response);
@@ -976,17 +976,17 @@ void Executor::setOpIntermediateTaskList(const list<Task>& results, Messenger &r
 }
 
 void Executor::setIndexNotFound(const unsigned long long &index, Messenger &response) {
-	response.setStatus(TP::STATUS::ERROR);
+	response.setStatus(TP::STATUS::ERR);
 	response.setErrorMsg(std::to_string(index) + INVALID_INDEX_ERROR);
 }
 
 void Executor::setNameNotFound(const string &name, Messenger &response) {
-	response.setStatus(TP::STATUS::ERROR);
+	response.setStatus(TP::STATUS::ERR);
 	response.setErrorMsg(NAME_NOT_FOUND_ERROR + name);
 }
 
 void Executor::setErrorWithErrMsg(Messenger &response, const string errMsg) {
-	response.setStatus(TP::STATUS::ERROR);
+	response.setStatus(TP::STATUS::ERR);
 	response.setErrorMsg(errMsg);
 }
 */

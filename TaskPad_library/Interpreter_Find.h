@@ -1,5 +1,5 @@
 #include "Interpreter_base.h"
-
+#include "Natty.h"
 
 class Interpreter_Find: public Interpreter_base
 {
@@ -202,7 +202,7 @@ Command* Interpreter_Find::interpretFind(Command_Find* commandType, std::string 
 }
 
 time_t Interpreter_Find::setTime(string commandStr, bool&flag){
-
+	commandStr = natty::getNatty().parseDateTime(commandStr);
 	int year=-1,month=-1,day=-1,hour=-1,min=-1,second=1;
 	time_t rawtime;
 	string inputInfo=commandStr;

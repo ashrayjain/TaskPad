@@ -116,7 +116,7 @@ namespace UnitTest
 
 			testDelCmd->setCreatedTime(time(NULL));
 			testExecutor.executeCommand(testCmd, testResponse);
-			Assert::IsTrue(TP::STATUS::ERROR==testResponse.getStatus());
+			Assert::IsTrue(TP::STATUS::ERR==testResponse.getStatus());
 
 			Command* testCmd_2 = new Command_Del();
 			Command_Del* testDelCmd_2 = dynamic_cast<Command_Del*>(testCmd_2);
@@ -154,7 +154,7 @@ namespace UnitTest
 
 			testModCmd->setCreatedTime(time(NULL));
 			testExecutor.executeCommand(testCmd, testResponse);
-			Assert::IsTrue(TP::STATUS::ERROR==testResponse.getStatus());
+			Assert::IsTrue(TP::STATUS::ERR==testResponse.getStatus());
 
 			Datastore::const_iterator j = ds.cbegin();
 			j++;

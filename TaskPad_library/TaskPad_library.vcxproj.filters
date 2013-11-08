@@ -373,8 +373,4 @@
       <Filter>Source Files\Logic_Related</Filter>
     </ClCompile>
   </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\..\..\..\..\..\Qt\Qt5.1.1\5.1.1\msvc2012\include\QtCore\QDir" />
-    <None Include="..\..\..\..\..\..\..\Qt\Qt5.1.1\5.1.1\msvc2012\include\QtCore\QString" />
-  </ItemGroup>
 </Project>
