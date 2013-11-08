@@ -109,7 +109,7 @@ Messenger Manager::processCommand(const string& newCommand) {
 	switch(this->_response.getStatus()) {
 		case INTERMEDIATE:
 			/* empty and falls through*/
-		case ERROR_INTERMEDIATE:
+		case ERR_INTER:
 			handleIntermediateScenarioCommands(newCommand);
 			break;
 		default:
@@ -213,11 +213,11 @@ void Manager::handleIntermediateScenarioCommands(string newCommand) {
 		}
 		else {
 			this->_response.setErrorMsg(MESSAGE_INDEX_OUT_OF_RANGE);
-			this->_response.setStatus(ERROR_INTERMEDIATE);
+			this->_response.setStatus(ERR_INTER);
 		}
 	}
 	else {
-		this->_response.setStatus(ERROR_INTERMEDIATE);
+		this->_response.setStatus(ERR_INTER);
 	}
 	return;
 }
@@ -229,7 +229,7 @@ void Manager::handleIndexCommand() {
 	}
 	else {
 		this->_response.setErrorMsg(MESSAGE_INDEX_OUT_OF_RANGE);
-		this->_response.setStatus(ERROR);
+		this->_response.setStatus(ERR);
 	}
 }
 
@@ -243,7 +243,7 @@ void Manager::handleCommandWithIndex()
 	}
 	else {
 		this->_response.setErrorMsg(MESSAGE_INDEX_OUT_OF_RANGE);
-		this->_response.setStatus(ERROR);
+		this->_response.setStatus(ERR);
 	}
 }
 
@@ -467,7 +467,7 @@ bool Manager::hasNoInterpretationError() {
 
 bool Manager::hasNoError()
 {
-	if(this->_response.getStatus() == ERROR || this->_response.getStatus() == ERROR_INTERMEDIATE) {
+	if(this->_response.getStatus() == ERR || this->_response.getStatus() == ERR_INTER) {
 		return false;
 	}
 	else

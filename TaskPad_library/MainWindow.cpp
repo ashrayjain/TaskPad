@@ -370,7 +370,7 @@ void MainWindow::handleQuickAddRequest(QString requestStr){
 		getToday();
 		Messenger msg = scheduler->processCommand(requestStr.toStdString());
 		switch (msg.getStatus()){
-		case TP::ERROR:
+		case TP::ERR:
 			handleQA_ERROR(requestStr, msg);
 			break;
 		case TP::SUCCESS:
@@ -422,10 +422,10 @@ std::string MainWindow::getFindRtCmd(){
 
 void MainWindow::handleMessenger(Messenger msg){
 	switch (msg.getStatus()){
-	case ERROR:
+	case ERR:
 		handleMsg_ERROR(msg);
 		break;
-	case ERROR_INTERMEDIATE:
+	case ERR_INTER:
 		handleMsg_ERROR_INTERMEDIATE();
 		break;
 	case SUCCESS:

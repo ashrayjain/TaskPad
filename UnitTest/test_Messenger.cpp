@@ -33,11 +33,11 @@ namespace UnitTest
 			list<Task> taskList= list<Task>(myTasks,myTasks + 4);
 
 			string testErrorStr = "This is a test error Message";
-			Messenger testMessenger(ADD,ERROR_INTERMEDIATE,taskList,t5,10,testErrorStr);
+			Messenger testMessenger(ADD,ERR_INTER,taskList,t5,10,testErrorStr);
 
 			Assert::AreEqual(testMessenger.getErrorMsg(),string(testErrorStr));
 			Assert::AreEqual(testMessenger.getIndex(),10);
-			Assert::AreEqual(static_cast<int>(testMessenger.getStatus()),static_cast<int>(ERROR_INTERMEDIATE));
+			Assert::AreEqual(static_cast<int>(testMessenger.getStatus()),static_cast<int>(ERR_INTER));
 			Assert::AreEqual(static_cast<int>(testMessenger.getCommandType()),static_cast<int>(ADD));
 
 			list<Task> returnList = testMessenger.getList();
@@ -94,8 +94,8 @@ namespace UnitTest
 			/*testMessenger.setStatus(DISPLAY);
 			Assert::AreEqual(static_cast<int>(testMessenger.getStatus()),static_cast<int>(SUCCESS));*/
 
-			testMessenger.setStatus(ERROR);
-			Assert::AreEqual(static_cast<int>(testMessenger.getStatus()),static_cast<int>(ERROR));
+			testMessenger.setStatus(ERR);
+			Assert::AreEqual(static_cast<int>(testMessenger.getStatus()),static_cast<int>(ERR));
 
 			/* Test important use case */
 			testMessenger.setStatus(SUCCESS);
@@ -174,7 +174,7 @@ namespace UnitTest
 			list<Task> taskList= list<Task>(myTasks,myTasks + 4);
 
 			string testErrorStr = "This is a test error Message";
-			Messenger testMessenger(ADD,ERROR_INTERMEDIATE,taskList,t5,10,testErrorStr);
+			Messenger testMessenger(ADD,ERR_INTER,taskList,t5,10,testErrorStr);
 
 			testMessenger.resetMessenger();
 

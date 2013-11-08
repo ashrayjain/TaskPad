@@ -129,7 +129,7 @@ int Interpreter::interpretIndex(std::string indexStr, Messenger &response){
 	}
 	else{ 
 
-		response.setStatus(ERROR);
+		response.setStatus(ERR);
 		response.setErrorMsg(ERROR_MSG);
 	}
 
@@ -334,7 +334,7 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 	}
 	if(flag==false){
 
-		response.setStatus(ERROR);
+		response.setStatus(ERR);
 		response.setErrorMsg(ERROR_MSG);
 		return NULL;
 	}
