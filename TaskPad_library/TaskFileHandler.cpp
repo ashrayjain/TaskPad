@@ -16,13 +16,14 @@
   * 
  */
 
+#ifndef _TASKFILEHANDLER_CPP_
+#define _TASKFILEHANDLER_CPP_
+
 #include "TaskFileHandler.h"
 #include <Task.h>
 #include <sstream>
 
 const std::string TaskFileHandler::TASK_DIRECTORY				= "Tasks\\";
-const std::string TaskFileHandler::RECORD_MODIFIED_FILE_NAME	= "savedTasks.txt";
-const std::string TaskFileHandler::RECORD_DELETED_FILE_NAME		= "deletedTasks.txt";
 
 const std::string TaskFileHandler::LABEL_START_OF_TASK			= "StartOfTask";
 const std::string TaskFileHandler::LABEL_NAME					= "name:";
@@ -61,3 +62,5 @@ std::string TaskFileHandler::getDeletedTaskFilePath	(const Task& task)
 
 	return taskFilePath;
 }
+
+#endif

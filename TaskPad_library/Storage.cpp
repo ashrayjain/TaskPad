@@ -15,11 +15,13 @@
   * This file implements all of the functions defined in Storage.h file
   * 
  */
-#pragma once
+#ifndef _STORAGE_CPP_
+#define _STORAGE_CPP_
 
 #include <list>
 #include <string>
 #include <QDir>
+#include <QString>
 #include "Storage.h"
 #include "Task.h"
 #include "Logger.h"
@@ -83,3 +85,4 @@ Storage::~Storage() {
 	QDir temp(QString::fromStdString("Tasks"));
 	temp.removeRecursively();
 }
+#endif

@@ -35,9 +35,6 @@ class TaskSaver :public TaskFileHandler
 		virtual void save (StorableTaskDatastore* taskDB, const std::string& fileName) =0;
 		virtual void save (const Task& task, const TP::COMMAND_TYPE& cType) =0;
 	protected:
-		virtual void updateSaveRecord	(const std::string& entry) =0;
-		virtual void removeSaveRecord	() =0;
-
 		void openFile(const std::string& fileName, std::ios_base::openmode oMode = std::ios::trunc)	
 							{ _fileWriter.open(fileName,oMode); }
 		

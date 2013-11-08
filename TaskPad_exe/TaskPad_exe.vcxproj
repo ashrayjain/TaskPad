@@ -24,6 +24,10 @@
   <ItemGroup>
     <ResourceCompile Include="Icon.rc" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\..\..\..\..\Qt\Qt5.1.1\5.1.1\msvc2012\include\QtCore\QDir" />
+    <None Include="..\..\..\..\..\..\..\Qt\Qt5.1.1\5.1.1\msvc2012\include\QtCore\QListData" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{C35BB46E-DC31-4917-ADD2-E6414815E5FF}</ProjectGuid>
     <Keyword>Qt4VSv1.0</Keyword>

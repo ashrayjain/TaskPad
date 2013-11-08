@@ -20,7 +20,8 @@
   *
  */
 
-#pragma once
+#ifndef _TASKSAVERTEXT_H_
+#define _TASKSAVERTEXT_H_
 
 #include <list>
 #include "TaskSaver.h"
@@ -44,10 +45,10 @@ class TaskSaverText: public TaskSaver
 		void saveNonDeleteCommands		(const Task& task);
 		void removeTaskFile				(const Task& task);
 		void removeDeletedTaskFile		(const Task& task);
-		void updateSaveRecord			(const std::string& entry);
-		void removeSaveRecord			();
-		void updateDeleteRecord			(const unsigned long long& entry);
-		void removeDeleteRecord			();
+
+		//removes Task files
+		void removeTaskFiles();
+
 
 		//savers
 		void saveTaskList				(const std::list<Task>& taskList);
@@ -82,7 +83,5 @@ class TaskSaverText: public TaskSaver
 
 		//writers
 		void writeLineToFile			(std::string line, bool newLine = true);
-				
-		//removes Task files
-		void removeTaskFiles();
 };
+#endif

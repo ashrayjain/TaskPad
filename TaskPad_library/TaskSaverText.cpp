@@ -22,6 +22,7 @@
 #include <fstream>
 #include <sstream>
 #include <QDir>
+#include <QString>
 #include "TaskSaverText.h"
 #include "Enum.h"
 #include "Task.h"
@@ -46,8 +47,6 @@ void TaskSaverText::save(StorableTaskDatastore* taskDS, const std::string& fileN
 
 	// remove the quick save files
 	this->removeTaskFiles();
-	this->removeSaveRecord();
-	this->removeDeleteRecord();
 	return;
 }
 
@@ -59,17 +58,9 @@ void TaskSaverText::save(const Task& task, const COMMAND_TYPE& cType) {
 	{
 		case DEL:
 			saveDeleteCommand(task);
-			//updateDeleteRecord(task.getIndex());
 			break;
 		default:
 			saveNonDeleteCommands(task);
-			
-			//std::string taskFilePath = getTaskFilePath(task);
-			//this->openFile(taskFilePath);
-			//this->saveTask(task);
-			//this->closeFile();
-
-			//this->updateSaveRecord(taskFilePath);
 			break;
 	}
 	return;
@@ -96,7 +87,6 @@ void TaskSaverText::saveDeleteCommand(const Task& task) {
 
 void TaskSaverText::removeTaskFile	(const Task& task) {
 	string taskFileName = convertToString(task.getIndex()) + ".task";
-	//string taskFileName = getTaskFilePath(task);
 	QDir curDir(QString::fromStdString(TASK_DIRECTORY));
 
 	bool test = curDir.remove(QString::fromStdString(taskFileName));
@@ -322,59 +312,10 @@ string TaskSaverText::convertToString(TASK_STATE state) {
 /*********************************************************/
 
 void TaskSaverText::removeTaskFiles() {
-	ifstream record(RECORD_MODIFIED_FILE_NAME);
-	std::string nextTaskFile;
-
-	while(record.good())
-	{
-		getline(record, nextTaskFile);
-
-		if(nextTaskFile!= "")
-		{
-			_logger->log("TaskSaverText","removing file: "+nextTaskFile,NOTICELOG);
-
-			if(int ret = std::remove(nextTaskFile.c_str()) != 0)
-			{
-				_logger->log("TaskSaverText","error num: " + convertToString(ret),ERRORLOG);
-			}
-			nextTaskFile = "";
-		}
-	}
-	record.close();
-}
-
-void TaskSaverText::updateSaveRecord (const std::string& entry) {
-	ofstream record(RECORD_MODIFIED_FILE_NAME,std::ios_base::app);
-	record<<entry<<endl;
-	record.close();
-	return;
-}
-
-void TaskSaverText::removeSaveRecord () {
-	//empty the file just in case
-	ofstream record(RECORD_MODIFIED_FILE_NAME,ios_base::trunc);
-	record.close();
-
-	//delete the file
-	std::remove(RECORD_MODIFIED_FILE_NAME.c_str());
-	return;
-}
-
-void TaskSaverText::updateDeleteRecord (const unsigned long long& entry) {
-	ofstream record(RECORD_DELETED_FILE_NAME, ios_base::app);
-
-	record << entry << endl;
-	record.close();
-}
-
-void TaskSaverText::removeDeleteRecord () {
-	//empty the file just in case
-	ofstream record(RECORD_DELETED_FILE_NAME,ios_base::trunc);
-	record.close();
-
-	//delete the file
-	std::remove(RECORD_DELETED_FILE_NAME.c_str());
-	return;
+	QDir temp(QString::fromStdString("Tasks"));
+	temp.removeRecursively();
+	QDir curDir;
+	curDir.mkdir("Tasks");
 }
 
 /****************************************************/

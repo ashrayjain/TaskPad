@@ -16,11 +16,14 @@
   * 
  */
 
-#pragma once
+#ifndef _TASKLOADERTEXT_CPP_
+#define _TASKLOADERTEXT_CPP_
 
 #include <list>
 #include <sstream>
 #include <QDir>
+#include <QStringList>
+#include <QString>
 #include "TaskLoaderText.h"
 #include "Task.h"
 #include "Enum.h"
@@ -403,3 +406,4 @@ string TaskLoaderText::getNextLineFromFile()
 
 	return nextLine;
 }
+#endif
