@@ -7,13 +7,14 @@
 
 class natty {
 private:
-	JavaVMOption _options[1];
-	JNIEnv *_env;
-	JavaVM *_jvm;
-	JavaVMInitArgs _vm_args;
-	long _status;
-	jclass _cls;
-	static natty *_natty;
+	JavaVMOption jvmOptions[1];
+	JNIEnv* jEnv;
+	JavaVM* jVM;
+	JavaVMInitArgs vmArgs;
+	long jvmCreated;
+	jclass parseClass;
+	HINSTANCE hVM;
+	static natty* _natty;
 	natty();
 	~natty();
 public:

@@ -66,7 +66,7 @@ class Messenger
 
 	private:
 		string			_errorMsg;
-		STATUS			_status;
+		STATUS			jvmCreated;
 		list<Task>		_resultList;
 		Task			_resultTask;
 		int				_index;

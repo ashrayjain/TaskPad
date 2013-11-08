@@ -33,7 +33,7 @@ const std::string		Messenger::DEFAULT_ERROR_MESSAGE_VALUE = "";
 // constructor
 Messenger::Messenger(COMMAND_TYPE commandType,STATUS status, list<Task> resultList, Task resultTask, int index, string errorMsg)
 {
-	this->_status = status;
+	this->jvmCreated = status;
 	this->_resultList = resultList;
 	this->_resultTask = resultTask;
 	this->_errorMsg = errorMsg;
@@ -50,7 +50,7 @@ string Messenger::getErrorMsg()  const
 
 STATUS Messenger::getStatus() const
 {
-	return this->_status;
+	return this->jvmCreated;
 }
 
 list<Task> Messenger::getList() const
@@ -82,7 +82,7 @@ void Messenger::setErrorMsg(const string& errorMsg)
 
 void Messenger::setStatus(const STATUS& status)
 {
-	this->_status = status;
+	this->jvmCreated = status;
 }
 
 void Messenger::setList(const list<Task>& result)
