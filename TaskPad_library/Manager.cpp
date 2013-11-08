@@ -416,7 +416,7 @@ std::string Manager::getStrFromTm(std::tm timeInfo)
 {
 	char todayCharArray [80];
 
-	strftime (todayCharArray,80,"%d/%m/%y",&timeInfo);
+	strftime (todayCharArray,80,"%d/%m/%Y",&timeInfo);
 
 	//convert the char array to a string
 	string today(todayCharArray);
@@ -504,10 +504,18 @@ Messenger Manager::getNextPeriodTasks(PERIOD_TYPE pType)
 	bool canAdvanceToNextPeriod = mktime(&nextTm) != mktime(&currTm);
 	if(canAdvanceToNextPeriod) {
 		this->setCurrPeriod(currTm,nextTm);
+		std::string command = this->createFindCommand(currTm,nextTm);
+		return this->processCommand(command);
 	}
+	else {
+		setResponseToError();
+		return _response;
+	}
+}
 
-	std::string command = this->createFindCommand(currTm,nextTm);
-	return this->processCommand(command);
+void Manager::setResponseToError() {
+	this->_response.setStatus(ERR);
+	return;
 }
 Messenger Manager::getPrevPeriodTasks(PERIOD_TYPE pType)
 {
@@ -530,11 +538,13 @@ Messenger Manager::getPrevPeriodTasks(PERIOD_TYPE pType)
 	bool canAdvanceToPrevPeriod = mktime(&prevTm) != mktime(&currTm);
 	if(canAdvanceToPrevPeriod) {
 		this->setCurrPeriod(prevTm, currTm);
+		std::string command = createFindCommand(prevTm, currTm);
+		return this->processCommand(command);
 	}
-
-	std::string command = createFindCommand(prevTm, currTm);
-
-	return this->processCommand(command);
+	else {
+		setResponseToError();
+		return _response;
+	}
 }
 
 pair<tm,tm> Manager::getCurrentPeriod(){
@@ -548,7 +558,7 @@ std::tm Manager::getNextDayTm(std::tm currTm)
 
 	intermediateResult = mktime(&currTm);
 
-	if(intermediateResult == -1)
+	if(currTm.tm_year == 200)
 	{
 		currTm.tm_mday -= 1;
 		intermediateResult = mktime(&currTm);
@@ -563,7 +573,7 @@ std::tm Manager::getNextWeekTm(std::tm currTm)
 	currTm.tm_mday += 7;
 	intermediateResult = mktime(&currTm);
 
-	if(intermediateResult == -1)
+	if(currTm.tm_year == 200)
 	{
 		currTm.tm_mday -= 7;
 		intermediateResult = mktime(&currTm);
@@ -578,7 +588,7 @@ std::tm Manager::getNextMonthTm(std::tm currTm)
 	currTm.tm_mon += 1;
 	intermediateResult = mktime(&currTm);
 	
-	if(intermediateResult == -1)
+	if(currTm.tm_year == 200)
 	{
 		currTm.tm_mon -= 1;
 		intermediateResult = mktime(&currTm);
@@ -594,7 +604,7 @@ std::tm Manager::getPrevDayTm(std::tm currTm)
 
 	intermediateResult = mktime(&currTm);
 
-	if(intermediateResult == -1)
+	if(currTm.tm_year == 70)
 	{
 		currTm.tm_mday += 1;
 		intermediateResult = mktime(&currTm);
@@ -609,7 +619,7 @@ std::tm Manager::getPrevWeekTm(std::tm currTm)
 	currTm.tm_mday -= 7;
 	intermediateResult = mktime(&currTm);
 
-	if(intermediateResult == -1)
+	if(currTm.tm_year == 70)
 	{
 		currTm.tm_mday += 7;
 		intermediateResult = mktime(&currTm);
@@ -624,7 +634,7 @@ std::tm Manager::getPrevMonthTm(std::tm currTm)
 	currTm.tm_mon -= 1;
 	intermediateResult = mktime(&currTm);
 
-	if(intermediateResult == -1)
+	if(currTm.tm_year == 70)
 	{
 		currTm.tm_mon += 1;
 		currTm.tm_year = 70;
