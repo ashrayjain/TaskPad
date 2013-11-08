@@ -142,9 +142,9 @@ void Task::handleDatesChange() {
 
 	if (getFlagToDate() && getState() != TP::TASK_STATE::DONE) {
 		if (time(NULL) > getToDate())
-			setState(TP::TASK_STATE::OVERDUE);
+			_taskState = TP::TASK_STATE::OVERDUE;
 		else if (time(NULL) <= getToDate())
-			setState(TP::TASK_STATE::UNDONE);
+			_taskState = TP::TASK_STATE::UNDONE;
 	}
 }
 

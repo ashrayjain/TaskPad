@@ -125,7 +125,6 @@ Messenger Manager::processCommand(const string& newCommand) {
 
 /*
  * Saves the changed Task by calling the API of the storage class
- * Only saves if the command was of type MOD, DEL or ADD
  */
 
 void Manager::saveChanges()
