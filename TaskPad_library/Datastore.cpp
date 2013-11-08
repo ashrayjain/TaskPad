@@ -98,6 +98,8 @@ void Datastore::deleteTask(Datastore::const_iterator k) {
 	deleteHashTags(**i);
 	deleteRemindTimes(**i);
 	_ds->deleteTask(i);
+	delete i;
+	i = NULL;
 }
 
 

@@ -26,9 +26,7 @@ public:
 
 	class iterator: public Datastore_Base::iterator {
 	public:
-		iterator()													{ }
 		iterator(std::list<Task>::iterator _it): i(_it)				{ }
-		~iterator()													{ }
 		void operator++()											{ i.operator++(); }
 		void operator++(int junk)									{ i.operator++(junk); }
 		void operator--()											{ i.operator--(); }
@@ -43,10 +41,8 @@ public:
 	};
 
 	class const_iterator: public Datastore_Base::const_iterator {
-	public:
-		const_iterator()											{ }
+	public:	
 		const_iterator(std::list<Task>::const_iterator _it): i(_it)	{ }
-		~const_iterator()											{ }
 		void operator++()											{ i.operator++(); }
 		void operator++(int junk)									{ i.operator++(junk); }
 		void operator--()											{ i.operator--(); }

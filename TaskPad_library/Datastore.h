@@ -72,8 +72,9 @@ public:
 	class const_iterator: public StorableTaskDatastore::const_iterator {
         public:
 			const_iterator()											{ }
-			~const_iterator()											{ }
+			~const_iterator()											{ delete i; i = NULL; }
 			const_iterator(Datastore_Type::const_iterator* it): i(it)	{ }
+			const_iterator(Datastore::const_iterator &rhs)				{ this->i = new Datastore_Type::const_iterator(*(rhs.i)); }
 			typedef const_iterator self_type;
             typedef Task value_type;
             typedef Task& reference;
