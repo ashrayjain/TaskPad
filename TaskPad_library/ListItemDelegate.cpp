@@ -65,6 +65,18 @@ void ListItemDelegate::paint( QPainter *painter, const QStyleOptionViewItem &opt
 	else if(index.column() == _2ND_COLUMN && _taskState == TP::DONE){
 		paintStrikeOut(painter, _opt);
 	}
+	else if(index.column() == _2ND_COLUMN && _taskState == TP::OVERDUE){
+		QString displayText = "!!";
+		QTextOption alignment(Qt::AlignLeft | Qt::AlignVCenter);
+		QFont font;
+		font.setFamily(FONT_SEGOE_UI);
+		font.setPixelSize(18);
+		QRect rect = _opt.rect;
+		rect = rect.adjusted(0,0,0,-2);
+		painter->setFont(font);
+		painter->setPen(WHITE_COLOR);
+		painter->drawText(rect, displayText, alignment);
+	}
 	else if(index.column() == _3RD_COLUMN){
 		alignRight(index, painter, _opt);
 	}
