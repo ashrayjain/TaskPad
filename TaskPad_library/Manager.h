@@ -71,9 +71,9 @@ class Manager {
 
 		void handleNormalScenarioCommands			(string newCommand);
 		void handleIntermediateScenarioCommands		(string newCommand);
-		void insertCreatedTimeIntoCommand			();
-		void insertCreatedTimeIntoModifyCommand		();
-		void insertCreatedTimeIntoDeleteCommand		();
+		void insertActualIndexIntoCommand			();
+		void insertActualIndexIntoModifyCommand		();
+		void insertActualIndexIntoDeleteCommand		();
 		void removePreviousCommand					();
 		void removeLastSuccessfulFindCommand		();
 		void storeIndexFromCommandToClassAttribute	();

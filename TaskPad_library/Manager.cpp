@@ -208,7 +208,7 @@ void Manager::handleNormalScenarioCommands(string newCommand) {
 void Manager::handleIntermediateScenarioCommands(string newCommand) {
 	if(isIndexGiven(newCommand)) {
 		if(isIndexWithinRange()) {
-			this->insertCreatedTimeIntoCommand();
+			this->insertActualIndexIntoCommand();
 			this->_executor->executeCommand(this->_cmd,this->_response);
 		}
 		else {
@@ -236,7 +236,7 @@ void Manager::handleIndexCommand() {
 void Manager::handleCommandWithIndex()
 {
 	if(this->isIndexWithinRange()) {
-		this->insertCreatedTimeIntoCommand();
+		this->insertActualIndexIntoCommand();
 		this->_executor->executeCommand(this->_cmd,this->_response);
 
 		if(this->hasNoError()) {
@@ -339,21 +339,21 @@ bool Manager::isIndexWithinRange() {
 	return (sizeOfCurrentList >= this->_index && this->_index > 0);
 }
 
-void Manager::insertCreatedTimeIntoCommand() {
+void Manager::insertActualIndexIntoCommand() {
 	assert(_cmd != NULL);
 	assert(isModifyCommand() || isDeleteCommand());
 
 	switch(this->_cmd->getCommandType()) {
 		case MOD:
-			this->insertCreatedTimeIntoModifyCommand();
+			this->insertActualIndexIntoModifyCommand();
 			break;
 		case DEL:
-			this->insertCreatedTimeIntoDeleteCommand();
+			this->insertActualIndexIntoDeleteCommand();
 			break;
 	}
 }
 
-void Manager::insertCreatedTimeIntoDeleteCommand() {
+void Manager::insertActualIndexIntoDeleteCommand() {
 	Task chosenTask = getPointerToChosenTask();
 	unsigned long long createdTime = this->getCreatedTimeOfTask(chosenTask);
 
@@ -362,7 +362,7 @@ void Manager::insertCreatedTimeIntoDeleteCommand() {
 	return;
 }
 
-void Manager::insertCreatedTimeIntoModifyCommand() {
+void Manager::insertActualIndexIntoModifyCommand() {
 	Task chosenTask = this->getPointerToChosenTask();
 	unsigned long long createdTime = this->getCreatedTimeOfTask(chosenTask);
 
@@ -502,9 +502,12 @@ Messenger Manager::getNextPeriodTasks(PERIOD_TYPE pType)
 			break;
 	}
 
-	this->setCurrPeriod(currTm,nextTm);
-	std::string command = this->createFindCommand(currTm,nextTm);
+	bool canAdvanceToNextPeriod = mktime(&nextTm) != mktime(&currTm);
+	if(canAdvanceToNextPeriod) {
+		this->setCurrPeriod(currTm,nextTm);
+	}
 
+	std::string command = this->createFindCommand(currTm,nextTm);
 	return this->processCommand(command);
 }
 Messenger Manager::getPrevPeriodTasks(PERIOD_TYPE pType)
@@ -525,7 +528,10 @@ Messenger Manager::getPrevPeriodTasks(PERIOD_TYPE pType)
 			break;
 	}
 
-	this->setCurrPeriod(prevTm, currTm);
+	bool canAdvanceToPrevPeriod = mktime(&prevTm) != mktime(&currTm);
+	if(canAdvanceToPrevPeriod) {
+		this->setCurrPeriod(prevTm, currTm);
+	}
 
 	std::string command = createFindCommand(prevTm, currTm);
 
