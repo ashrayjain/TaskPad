@@ -372,5 +372,8 @@
     <ClCompile Include="Natty.cpp">
       <Filter>Source Files\Logic_Related</Filter>
     </ClCompile>
+    <ClCompile Include="Highlighter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
