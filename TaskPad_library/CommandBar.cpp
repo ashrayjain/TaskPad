@@ -8,20 +8,20 @@ const QStringList CommandBar::COMMAND_LIST = QStringList() \
 	"redo" << "sync";
 
 const QStringList CommandBar::KEYWORD_LIST = QStringList() \
-	<< "name ``" << "due ``" << "from ``" << "to ``" << "at ``" << "ppl ``" \
-	<< "note ``" << "impt ``" << "rt ``" << "done" << "undone" <<  \
+	<< "name ``" << "by ``" << "due ``" << "from ``" << "to ``" << "location ``" << "place ``" << "at ``" << "with ``" << "ppl ``" \
+	<< "note ``" << "priority ``" << "impt ``" << "remind ``" << "rt ``" << "done" << "undone" <<  \
 	"exact ``";
 
 const QStringList CommandBar::KEYWORD_LIST_REMOVE = QStringList() \
-	<< "due" << "from" << "to" << "ppl ``" << "pplall" << "rt ``" \
+	<< "by" << "due" << "from" << "to" << "with ``" << "ppl ``" << "pplall" << "remind ``" << "rt ``" \
 	<< "rtall";
 
 const QStringList CommandBar::KEYWORD_LIST_ADD = QStringList() \
-	<< "ppl ``" << "rt ``";
+	<< "with ``" << "ppl ``" << "remind ``" << "rt ``";
 
 const QStringList CommandBar::KEYWORD_LIST_FIND = QStringList() \
-	<< "name ``" << "from ``" << "to ``" << "at ``" << "ppl ``" \
-	<< "note ``" << "impt ``" << "rt ``" << "done" << "undone" <<  \
+	<< "name ``" << "from ``" << "to ``" << "location ``" << "place ``" << "at ``" << "with ``" << "ppl ``" \
+	<< "note ``" << "priority ``" << "impt ``" << "remind ``" << "rt ``" << "done" << "undone" <<  \
 	"deadline" << "timed" << "floating" << "exact name ``";
 
 const QString CommandBar::SPACE = " ";

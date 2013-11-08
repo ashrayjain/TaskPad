@@ -21,9 +21,9 @@ public:
 		BlankFormat.setForeground(QBrush("#742894"));
 
 		addRegex(COMMAND, "^(add|mod|del|find|undo|redo|sync)");
-		addRegex(KEYWORD, " exact| name| due| from| to| at| ppl| note| impt"\
-						"| rt| done| undone| deadline| timed| floating| #| -due"\
-						"| -from| -to| -ppl(all|[^a])| -rt(all|[^a])| -#| \\+ppl| \\+rt| \\+#");
+		addRegex(KEYWORD, " exact| name| by| due| from| to| location| place| at| with| ppl| note| priority| impt"\
+						"| remind| rt| done| undone| deadline| timed| floating| #| -by| -due"\
+						"| -from| -to| -with(all|[^a])| -ppl(all|[^a])| -remind(all|[^a])| -rt(all|[^a])| -#| \\+with| \\+ppl| \\+remind| \\+rt| \\+#");
 		addRegex(PAIR_QUOTE_LEFT, "`(.*)`");
 		addRegex(BLANK, "__[A-Z]+__");
 	}
