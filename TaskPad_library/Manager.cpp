@@ -435,7 +435,7 @@ std::tm Manager::getTodayTm()
 }
 
 Messenger Manager::getTodayTasks() {
-	std::tm todayTm = getTodayTm();
+	/*std::tm todayTm = getTodayTm();
 
 	std::tm end_of_todayTm = todayTm;
 	end_of_todayTm.tm_hour = 23;
@@ -444,9 +444,9 @@ Messenger Manager::getTodayTasks() {
 	strftime (endOfTodayCharArray, 80, "`%d/%m/%y %H:%M`",&end_of_todayTm);
 
 	std::string today = this->getStrFromTm(todayTm);
-	std::string end_of_today = endOfTodayCharArray;
+	std::string end_of_today = endOfTodayCharArray;*/
 
-	return this->processCommand("find from "+ today + " to "+ end_of_today + " undone");
+	return this->processCommand("find from `today midnight` to `tomorrow midnight`");
 	//return this->processCommand("find undone");
 }
 
