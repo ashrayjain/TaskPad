@@ -3,12 +3,13 @@
 
 Command* Interpreter_Mod ::interpretModify(Command_Mod* commandType, std::string commandStr, Messenger &response, bool &flag){
 
-if(flag && commandType->getFlagDue()==false){		
+	if(flag && commandType->getFlagDue()==false){		
 
 		time_t content;
 		if(getDueDateMessage(commandStr,flag,content)){		
 			commandType->setDueDate(content);		
 		}		
+
 	}
 	else {
 
@@ -41,7 +42,7 @@ if(flag && commandType->getFlagDue()==false){
 		flag=false;
 	}
 
-	
+
 	if(flag && commandType->getFlagParticipants()==false){
 
 		list<string>content;
@@ -289,10 +290,10 @@ if(flag && commandType->getFlagDue()==false){
 
 
 	if(commandType->getFlagFrom()==true && commandType->getFlagTo()==true){
-	
+
 		if(commandType->getFromDate()>commandType->getToDate())flag=false;
 	}
-	
+
 	if(flag==true){
 		response.setStatus(SUCCESS);
 		response.setCommandType(MOD);

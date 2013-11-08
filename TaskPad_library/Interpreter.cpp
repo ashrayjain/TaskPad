@@ -9,18 +9,18 @@
 #include <regex>
 
 using namespace std;
-const string GENERAL_ADD_CASE="((( (due|by)| from| to| (impt|priority)| (at|place|location)| (ppl|with)| note| (rt|remind)) `[^`]*`)|( #[^( |`)]*))*(\\s*)";
-const string GENERAL_MOD_CASE="((( (due|by)| from| name| to| (impt|priority)| (at|place|location)| (ppl|with)| note| (rt|remind)| -(rt|remind)| -(ppl|with)| \\+(rt|remind)| \\+(ppl|with)) `[^`]*`)|( done| undone)|( -(due|by)| -from| -to)|( -rtall| -pplall| -#)|( (#|-#|\\+#)[^( |`)]*))*(\\s*)";
-const string GENERAL_FIND_CASE="((( from| name| to| (impt|priority)| (at|place|location)| (ppl|with)| note| (rt|remind)) `[^`]*`)|( #[^( |`)]*)|( done| undone| overdue)|(( timed| deadline| floating)))*(\\s*)";
-const string COMMAND_ADD="^add `([^`]+)`(\\s*)";
-const string COMMAND_MOD="^mod `([^`]+)`(\\s*)";
-const string COMMAND_MOD_EXACT="^mod exact `([^`]+)`(\\s*)";
-const string COMMAND_MOD_INDEX="^mod ([0-9]+)(\\s*)";
+const string GENERAL_ADD_CASE="((((\\s+)(due|by)|(\\s+)from|(\\s+)to|(\\s+)(impt|priority)|(\\s+)(at|place|location)|(\\s+)(ppl|with)|(\\s+)note|(\\s+)(rt|remind))(\\s+)`[^`]*`)|((\\s+)#[^( |`)]*))*(\\s*)";
+const string GENERAL_MOD_CASE="((((\\s+)(due|by)|(\\s+)from|(\\s+)name|(\\s+)to|(\\s+)(impt|priority)|(\\s+)(at|place|location)|(\\s+)(ppl|with)|(\\s+)note|(\\s+)(rt|remind)|(\\s+)-(rt|remind)|(\\s+)-(ppl|with)|(\\s+)\\+(rt|remind)|(\\s+)\\+(ppl|with))(\\s+)`[^`]*`)|((\\s+)done|(\\s+)undone)|((\\s+)-(due|by)|(\\s+)-from|(\\s+)-to)|((\\s+)-rtall|(\\s+)-pplall|(\\s+)-#)|((\\s+)(#|-#|\\+#)[^( |`)]*))*(\\s*)";
+const string GENERAL_FIND_CASE="((((\\s+)from|(\\s+)name|(\\s+)to|(\\s+)(impt|priority)|(\\s+)(at|place|location)|(\\s+)(ppl|with)|(\\s+)note|(\\s+)(rt|remind))(\\s+)`[^`]*`)|((\\s+)#[^( |`)]*)|((\\s+)done|(\\s+)undone|(\\s+)overdue)|(((\\s+)timed|(\\s+)deadline|(\\s+)floating)))*(\\s*)";
+const string COMMAND_ADD="^add(\\s+)`([^`]+)`(\\s*)";
+const string COMMAND_MOD="^mod(\\s+)`([^`]+)`(\\s*)";
+const string COMMAND_MOD_EXACT="^mod(\\s+)exact(\\s+)`([^`]+)`(\\s*)";
+const string COMMAND_MOD_INDEX="^mod(\\s+)([0-9]+)(\\s*)";
 const string COMMAND_FIND="^find(\\s*)";
-const string COMMAND_FIND_EXACT="^find exact(\\s*)";
-const string COMMAND_DEL="^del `([^`]+)`(\\s*)";
-const string COMMAND_DEL_EXACT="^del exact `([^`]+)`(\\s*)";
-const string COMMAND_DEL_INDEX="^del ([0-9]+)(\\s*)";
+const string COMMAND_FIND_EXACT="^find(\\s+)exact(\\s*)";
+const string COMMAND_DEL="^del(\\s+)`([^`]+)`(\\s*)";
+const string COMMAND_DEL_EXACT="^del(\\s+)exact(\\s+)`([^`]+)`(\\s*)";
+const string COMMAND_DEL_INDEX="^del(\\s+)([0-9]+)(\\s*)";
 const string COMMAND_UNDO="^undo(\\s*)";
 const string COMMAND_REDO="^redo(\\s*)";
 const string ERROR_MSG="invalid command";
@@ -153,6 +153,7 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 	int commandType;
 
 	string word;
+	string timeFormatIssue;
 	Command* returnCommand;
 
 	flag=checkCommand(commandStr,commandType);
@@ -174,9 +175,15 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 				Add_pointer->setName(taskName);
 
 				
-
+				try{
 				returnCommand=interpretAdd.interpretAdd(Add_pointer, commandStr, response,flag);
+				}catch(string timeFormatError){
 
+					timeFormatIssue=timeFormatError;
+			     
+				
+				}
+				
 				break;
 			}
 
@@ -334,7 +341,18 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 	if(flag==false){
 
 		response.setStatus(ERR);
-		response.setErrorMsg(ERROR_MSG);
+		
+		if(!timeFormatIssue.empty()){
+		
+			response.setErrorMsg(timeFormatIssue);
+		
+		}
+		
+		else{
+
+			response.setErrorMsg(ERROR_MSG);
+
+		}
 		return NULL;
 	}
 
