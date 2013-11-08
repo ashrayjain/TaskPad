@@ -3,12 +3,17 @@
 
 Command* Interpreter_Add::interpretAdd(Command_Add* commandType, std::string commandStr, Messenger &response, bool &flag){
 
+
 	if(flag && commandType->getFlagDue()==false){		
 
 		std::time_t content;
+
 		if(getDueDateMessage(commandStr,flag,content)){		
 			commandType->setDueDate(content);		
 		}		
+		if (flag==false){
+			throw (string)"Sorry, this is invalid time format!";
+		}
 	}
 	else {
 
@@ -21,6 +26,9 @@ Command* Interpreter_Add::interpretAdd(Command_Add* commandType, std::string com
 		if(getFromDateMessage(commandStr,flag,content)){
 			commandType->setFromDate(content);
 		}
+		if (flag==false){
+			throw (string)"Sorry, this is invalid time format!";
+		}	
 	}
 	else {
 		flag=false;
@@ -32,6 +40,9 @@ Command* Interpreter_Add::interpretAdd(Command_Add* commandType, std::string com
 
 		if(getToDateMessage(commandStr,flag,content)){
 			commandType->setToDate(content);
+		}
+		if (flag==false){
+			throw (string)"Sorry, this is invalid time format!";
 		}
 	}
 	else{
@@ -81,6 +92,9 @@ Command* Interpreter_Add::interpretAdd(Command_Add* commandType, std::string com
 		if(setRemindTimesMessage(commandStr,flag,content,FIELD_RT)){
 			commandType->setRemindTimes(content);
 		}
+		if (flag==false){
+			throw (string)"Sorry, this is invalid time format!";
+		}
 	}
 	else{
 
@@ -111,9 +125,9 @@ Command* Interpreter_Add::interpretAdd(Command_Add* commandType, std::string com
 		flag=false;
 	}
 
-	
+
 	if(commandType->getFlagFrom()==true && commandType->getFlagTo()==true){
-	
+
 		if(commandType->getFromDate()>commandType->getToDate())flag=false;
 	}
 	if(flag==true){
@@ -124,4 +138,4 @@ Command* Interpreter_Add::interpretAdd(Command_Add* commandType, std::string com
 	}
 
 	else return NULL;
-	}
+}

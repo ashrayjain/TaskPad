@@ -165,6 +165,7 @@ bool Interpreter_base::getDueDateMessage(string command, bool&flag, time_t& cont
 		if(!quotedMessage.empty()){
 			bool isDue=true;
 			content=setTime(quotedMessage,flag,isDue);
+		   
 		}
 		else{
 			isNotEmpty=false;
@@ -226,6 +227,7 @@ bool Interpreter_base::getFromDateMessage(string command, bool&flag, time_t& con
 		else{
 			bool isDue=false;
 			content=setTime(QuotedMessage,flag,isDue);
+			
 		}
 		if(checkDuplicate(command,FIELD_FROM,match.position())==true){
 
@@ -278,6 +280,7 @@ bool Interpreter_base::getToDateMessage(string command, bool&flag, time_t& conte
 		{
 			bool isDue=false;
 			content=setTime(QuotedMessage,flag, isDue);
+			
 		}
 
 
@@ -539,6 +542,7 @@ bool Interpreter_base::	setRemindTimesMessage(string command, bool&flag,list<tim
 		while(!time.empty()){
 			bool isDue=false;
 			time_t rtTime=setTime(time,flag,isDue);
+		
 			rtList.push_back(rtTime);
 			time.clear();
 			getline(extractIndividual,time,NOTATION_COMMA);
@@ -882,6 +886,9 @@ time_t Interpreter_base::setTime(string field,bool& flag, bool& isDue){
 		timeMessage.tm_min=min;
 	}
 
+
+	
+	
 	return mktime(&timeMessage);
 
 
