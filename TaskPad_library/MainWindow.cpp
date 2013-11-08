@@ -702,25 +702,29 @@ QString MainWindow::getFromTimeStr(Task &task, QString fromTimeStr){
 		fromTimeStr += fromTime.toString("hh:mm");
 	}
 	else{
-		fromTimeStr += fromTime.toString("dd/MM/yyyy");
+		if(fromTime.toString("yyyy") == QDateTime::currentDateTime().toString("yyyy"))
+			fromTimeStr += fromTime.toString("dd/MM hh:mm");
+		else
+			fromTimeStr += fromTime.toString("dd/MM/yyyy");
 	}
 	return fromTimeStr;
 }
 
 QString MainWindow::getToDateStr(Task &task, QString toTimeStr){
 	QDateTime toTime = QDateTime::fromTime_t(task.getToDate());
+	if(task.getFlagFromDate())
+		toTimeStr = " to ";
+	else
+		toTimeStr = "To ";
 	if(ui.Navigation_taskList->text() == "Today" && 
 		toTime.toString("dd/MM/yy") == QDateTime::currentDateTime().toString("dd/MM/yy")){
-		if(task.getFlagFromDate())
-			toTimeStr = " to " + toTime.toString("hh:mm");
-		else
-			toTimeStr = "To " + toTime.toString("hh:mm");
+		toTimeStr += toTime.toString("hh:mm");toTime.toString("hh:mm");
 	}
 	else{
-		if(task.getFlagFromDate())
-			toTimeStr = " to " + toTime.toString("dd/MM/yyyy");
+		if(toTime.toString("yyyy") == QDateTime::currentDateTime().toString("yyyy"))
+			toTimeStr += toTime.toString("dd/MM hh:mm");
 		else
-			toTimeStr = "To " + toTime.toString("dd/MM/yyyy");
+			toTimeStr += toTime.toString("dd/MM/yyyy");
 	}
 	return toTimeStr;
 }
@@ -733,7 +737,13 @@ QString MainWindow::getDueDateStr( QDateTime &time, QString dueTimeStr ){
 			dueTimeStr = "today";
 	}
 	else{
-		dueTimeStr = time.toString("dd/MM/yyyy");
+		if(time.toString("yyyy") == QDateTime::currentDateTime().toString("yyyy"))
+			if(time.toString("hh:mm") != "00:00")
+				dueTimeStr = time.toString("dd/MM hh:mm");
+			else
+				dueTimeStr = time.toString("dd/MM");
+		else
+			dueTimeStr = time.toString("dd/MM/yyyy");
 	}
 	return dueTimeStr;
 }
