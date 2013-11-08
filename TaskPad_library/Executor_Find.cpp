@@ -23,6 +23,9 @@ void Executor_Find::executeCommand(Command* cmd, Messenger &response, Datastore 
 	if(findCmd->getFlagTaskType())
 		filterResponseListByType(response, list<TP::TASK_TYPE>(1, findCmd->getTaskType()));
 	response.setList(getSortListByPriority(response.getList()));
+	if(findCmd->getFlagFrom())
+		response.setList(getSortListByFromTime(response.getList()));
+
 
 }
 
@@ -173,10 +176,14 @@ bool Executor_Find::taskMatch(const Task& lhs, const Task& rhs) {
 		return false;
 	else if (rhs.getFlagPriority() && rhs.getPriority() != lhs.getPriority())
 		return false;
-	else if (rhs.getFlagState() && rhs.getState() != lhs.getState())
+	else if (rhs.getFlagState() && taskStatesNotEqual(lhs.getState(), rhs.getState()))
 		return false;
 	return true;
 } 
+
+bool Executor_Find::taskStatesNotEqual(const TP::TASK_STATE &lhs, const TP::TASK_STATE &rhs) const {
+	return ((rhs==TP::TASK_STATE::UNDONE && lhs==TP::TASK_STATE::DONE)||(rhs!=TP::TASK_STATE::UNDONE && lhs!=rhs));
+}
 
 bool Executor_Find::participantsMatchFound(const list<string> &rhsParticipants, const list<string> &lhsParticipants) const {
 	for(list<string>::const_iterator i = lhsParticipants.begin(); i != lhsParticipants.end(); i++)
@@ -236,6 +243,15 @@ list<Task> Executor_Find::getSortListByPriority(list<Task> &taskList) {
 	return taskList;
 }
 
-bool Executor_Find::sortTaskByPriorityComparator(const Task first, const Task second) {
+list<Task> Executor_Find::getSortListByFromTime(list<Task> &taskList) {
+	taskList.sort(sortTaskByFromTimeComparator);
+	return taskList;
+}
+
+bool Executor_Find::sortTaskByPriorityComparator(const Task &first, const Task &second) {
 	return (first.getPriority() < second.getPriority());
+}
+
+bool Executor_Find::sortTaskByFromTimeComparator(const Task &first, const Task &second) {
+	return (first.getFromDate() < second.getFromDate());
 }
