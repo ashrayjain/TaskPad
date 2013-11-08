@@ -49,25 +49,25 @@ class Manager {
 		Datastore*	_taskDB;
 
 		//saver
-		void saveChanges	();
+		void saveChanges							();
 
 		//helper functions
-		bool hasNoError					();
-		bool isSuccessfulCommand		();
-		bool hasInterpretationError		();
-		bool hasNoInterpretationError	();
-		bool isIndexGiven				(string newCommand);
-		bool isCommandWithIndexGiven	(string newCommand);
-		bool isIndexedModifyCommand		();
-		bool isIndexedDeleteCommand		();
-		bool isIndexWithinRange			();
+		bool hasNoError								();
+		bool isSuccessfulCommand					();
+		bool hasInterpretationError					();
+		bool hasNoInterpretationError				();
+		bool isIndexGiven							(string newCommand);
+		bool isCommandWithIndexGiven				(string newCommand);
+		bool isIndexedModifyCommand					();
+		bool isIndexedDeleteCommand					();
+		bool isIndexWithinRange						();
 
-		bool isDeleteCommand			();
-		bool isModifyCommand			();
+		bool isDeleteCommand						();
+		bool isModifyCommand						();
 
-		void handleIndexCommand			();
-		void handleCommandWithIndex		();
-		void handleGenericCommand		();
+		void handleIndexCommand						();
+		void handleCommandWithIndex					();
+		void handleGenericCommand					();
 
 		void handleNormalScenarioCommands			(string newCommand);
 		void handleIntermediateScenarioCommands		(string newCommand);
