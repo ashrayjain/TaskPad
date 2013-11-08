@@ -1,3 +1,19 @@
+/*
+ * =====================================================================================
+ *
+ *       Filename:  Highlighter.h
+ *
+ *           Note:  Highlighter class provides highlighting features for command bar
+ *
+ *        Version:  1.0
+ *        Created:  10/21/13 16:13:09
+ *
+ *         Author:  XIE KAI (A0102016E), gigikie@gmail.com
+ *   Organization:  NUS, SoC
+ *
+ * =====================================================================================
+ */
+
 #include <QSyntaxHighlighter>
 #include <QTextCharFormat>
 
