@@ -441,7 +441,7 @@ Messenger Manager::getTodayTasks() {
 	std::tm nextDayTm = getNextDayTm(todayTm);
 	this->setCurrPeriod(todayTm,nextDayTm);
 
-	return this->processCommand("find from `today midnight` to `tomorrow midnight`");
+	return this->processCommand("find from `today midnight` to `tomorrow midnight` undone");
 }
 
 bool Manager::hasInterpretationError() {
