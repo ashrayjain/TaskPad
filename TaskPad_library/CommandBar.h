@@ -85,7 +85,9 @@ private:
 	void insertFromMimeData(const QMimeData * source);
 	bool CommandBar::containsQuoteLeftPair(QString str);
 	bool isWithinPairOfQuoteLeft();
+	int getLastQuoteLeftPos();
 	QVector<QPair<int, int> > getQuoteLeftPositions();
+	bool isEvenQuoteLefts();
 	bool isHotkeyTemplateMode();
 	void createTemplate(QString templateStr);
 	//MODEL RELATED
