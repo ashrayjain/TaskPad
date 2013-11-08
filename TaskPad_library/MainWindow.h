@@ -59,7 +59,26 @@ protected slots:
 
 private:
 	//Static Val*********************************
+	static        const double DESIRED_TRANSPARENT_OPACITY;
+	static        const int	  LENGTH_TOO_LONG;
+	static        const int   STEP;
+	static        const char* NEGLECTED;
+	static        const char* TODAY_VIEW;
+	static        const char* INBOX_VIEW;
+	static        const char* REMINDERS_VIEW;
+	static        const char* DATE_DD_MM;
+	static        const char* DATE_DD_MM_YY;
+	static        const char* DATE_DD_MM_YYYY;
+	static        const char* DATE_HH_MM;
+	static        const char* DATE_DD_MM_HH_MM;
+	static        const char* DATE_DD_MM_YYYY_HH_MM;
+	static        const char* DATE_YEAR;
 	static        const char* EMPTY;
+	static        const char* DUE_STR;
+	static        const char* FROM_STR;
+	static        const char* TO_STR;
+	static        const char* FROM_TO_STR;
+	static        const char* NEW_LINE;
 	static        const char* DEFAULT_WIN_TITLE;
 	static        const char* DEFAULT_STATUS_BAR_TEXT;
 	static        const char* DEFAULT_DETAILS_VIEW_TEXT;
@@ -75,6 +94,12 @@ private:
 	static        const char* SUCCESS_STATUS_BAR_UNDO_TEXT;
 	static        const char* SUCCESS_STATUS_BAR_REDO_TEXT;
 	static        const char* SUCCESS_STATUS_BAR_DISPLAY_TEXT;
+	static        const char* SUCCESS_NAV_LABEL_FIND_CMD;
+	static        const char* INTERMEDIATE_NAV_LABEL_INTERMEDIATE_STAGE;
+	static        const char* INTERMEDIATE_STATUS_BAR_INTERMEDIATE_STAGE;
+	static        const char* ERROR_NAV_LABLE_INTERMEDIATE_STAGE;
+	static        const char* ERROR_STATUS_BAR_INTERMEDIATE_STAGE;
+	static        const char* ERROR_ONLY_SUPPORT_ADD_N_DISPLAY_ONE_CMD;
 	//Init***************************************
 	void          setupUI                      ();
 	void          setupDependency              ();
@@ -105,6 +130,9 @@ private:
 	void          updateList                   (std::list<Task> result);
 	QTreeWidgetItem* extractTask               (int index, Task task);
 	void          setListItemDelegate          (Task &task, int index);
+	void          setForLowPrioItem            ( Task &task, int listIndex );
+	void          setForMediumPrioItem         ( Task &task, int listIndex );
+	void          setForHighPrioItem           ( Task &task, int listIndex );
 	QStringList   extractFloating              (int index, Task &task);
 	QStringList   extractTimedDate             (Task &task, QStringList strList, int index);
 	QString       getToDateStr                 (Task &task, QString toTimeStr);
@@ -113,8 +141,13 @@ private:
 	QString       getDueDateStr                (QDateTime &time, QString dueTimeStr);
 	void          setNormalDelegate            (int index);
 	void          setNormalDoneDelegate        (int index);
+	void          setNormalOverdueDelegate     (int index);
 	void          setHighPriorityDelegate      (int index);
 	void          setHighPriorityDoneDelegate  (int index);
+	void          setHighPriorityOverdueDelegate (int index);
+	void          setMediumPriorityDelegate(int index);
+	void          setMediumPriorityDoneDelegate  (int index);
+	void          setMediumPriorityOverdueDelegate(int index);
 	//--Details Related**************************
 	void          updateDetailsView            (Messenger &msg, QString detailsLabel = DEFAULT_DETAILS_VIEW_TEXT);
 	void          handleOneItemList            (Messenger &msg, QString detailsLabel = DEFAULT_DETAILS_VIEW_TEXT);
@@ -170,6 +203,8 @@ private:
 	void          changeEvent                  (QEvent* event);
 	void          runInBackground              (QEvent* event);
 	bool          eventFilter                  (QObject* watched, QEvent* event);
+	bool          handleKeyPressInCmdBar       ( bool ret, QObject* watched, QEvent* event );
+	void          handleKeyEnter               ();
 	void          mousePressEvent              (QMouseEvent *event);
 	void          mouseMoveEvent               (QMouseEvent *event);
 	//Main Widgets******************************

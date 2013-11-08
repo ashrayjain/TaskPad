@@ -29,7 +29,26 @@
 #include "QuickAddWindow.h"
 #include "Manager.h"
 
+const double MainWindow::DESIRED_TRANSPARENT_OPACITY	= 0.4;
+const int   MainWindow::LENGTH_TOO_LONG					= 77;
+const int   MainWindow::STEP							= 1;
+const char* MainWindow::NEGLECTED						= "...";
+const char* MainWindow::TODAY_VIEW						= "Today";
+const char* MainWindow::INBOX_VIEW						= "Inbox";
+const char* MainWindow::REMINDERS_VIEW					= "Reminders";
+const char* MainWindow::DATE_DD_MM						= "dd/MM";
+const char* MainWindow::DATE_DD_MM_YY					= "dd/MM/yy";
+const char* MainWindow::DATE_DD_MM_YYYY					= "dd/MM/yyyy";
+const char* MainWindow::DATE_HH_MM						= "hh:mm";
+const char* MainWindow::DATE_DD_MM_HH_MM				= "dd/MM hh:mm";
+const char* MainWindow::DATE_DD_MM_YYYY_HH_MM			= "dd/MM/yyyy hh:mm";
+const char* MainWindow::DATE_YEAR						= "yyyy";
 const char* MainWindow::EMPTY                           = "";
+const char* MainWindow::DUE_STR							= "Due ";
+const char* MainWindow::FROM_STR						= "From ";
+const char* MainWindow::TO_STR							= " to ";
+const char* MainWindow::FROM_TO_STR						= "To ";
+const char* MainWindow::NEW_LINE                        = "\n";
 const char* MainWindow::DEFAULT_WIN_TITLE               = "TaskPad";
 const char* MainWindow::DEFAULT_STATUS_BAR_TEXT         = "Ready";
 const char* MainWindow::DEFAULT_DETAILS_VIEW_TEXT       = "Task's Details";
@@ -45,6 +64,12 @@ const char* MainWindow::SUCCESS_STATUS_BAR_FIND_TEXT    = "Searched successfully
 const char* MainWindow::SUCCESS_STATUS_BAR_UNDO_TEXT    = "Undo successfully";
 const char* MainWindow::SUCCESS_STATUS_BAR_REDO_TEXT    = "Redo successfully";
 const char* MainWindow::SUCCESS_STATUS_BAR_DISPLAY_TEXT = "Task displayed successfully";
+const char* MainWindow::SUCCESS_NAV_LABEL_FIND_CMD		= "Search Results";
+const char* MainWindow::INTERMEDIATE_NAV_LABEL_INTERMEDIATE_STAGE = "Select a task by typing its index";
+const char* MainWindow::INTERMEDIATE_STATUS_BAR_INTERMEDIATE_STAGE = "Multiple results were found";
+const char* MainWindow::ERROR_NAV_LABLE_INTERMEDIATE_STAGE = "Select a task by typing its index";
+const char* MainWindow::ERROR_STATUS_BAR_INTERMEDIATE_STAGE = "Wrong input. Kindly press ECS to cancel";
+const char* MainWindow::ERROR_ONLY_SUPPORT_ADD_N_DISPLAY_ONE_CMD = "Only Add Command and Display 1 are supported";
 
 /************************************************************************/
 /*                        INITIALIZATION                                */
@@ -71,12 +96,16 @@ void MainWindow::setupUI(){
 // column width
 //************************************
 void MainWindow::customisedUi(){
-	detailsViewOpacity = 0.4;
+	const int _1ST_COLUMN = 0;
+	const int _2ND_COLUMN = 1;
+	const int DESIRED_1ST_COL_WIDTH = 70;
+	const int DESIRED_2ND_COL_WIDTH = 220;
+	detailsViewOpacity = DESIRED_TRANSPARENT_OPACITY;
 	this->setWindowFlags(Qt::FramelessWindowHint);
 	this->setAttribute(Qt::WA_TranslucentBackground, true);
 	ui.errorBgWidget->setHidden(true);
-	ui.TaskList->header()->resizeSection(0, 70);
-	ui.TaskList->header()->resizeSection(1, 220);
+	ui.TaskList->header()->resizeSection(_1ST_COLUMN, DESIRED_1ST_COL_WIDTH);
+	ui.TaskList->header()->resizeSection(_2ND_COLUMN, DESIRED_2ND_COL_WIDTH);
 }
 
 void MainWindow::installEventFilter(){
@@ -97,28 +126,38 @@ void MainWindow::setupDependency(){
 }
 
 void MainWindow::setupTimer(){
-	const int TIMER_CYCLE = 60000;
+	const int CYCLE_ONE_MIN = 60000;
 	timer = new QTimer(this);
-	timer->start(TIMER_CYCLE);
+	timer->start(CYCLE_ONE_MIN);
 }
 
 void MainWindow::setupTrayIcon(){
+	const char* LOGO_PATH = ":/MainWindow/Resources/logo.png";
 	isQuickAddOpen = false;
+
 	trayIcon = new QSystemTrayIcon(this);
-	trayIcon->setIcon(QIcon(":/MainWindow/Resources/logo.png"));
+	trayIcon->setIcon(QIcon(LOGO_PATH));
 	trayIcon->show();
 	trayIcon->setToolTip(DEFAULT_WIN_TITLE);
 }
 
 void MainWindow::setupConnection(){
+	//call showReminder every 60 sec
 	connect(timer, SIGNAL(timeout()),this, SLOT(showReminder()));
+	//handleShowReminder when try msgbox is clicked in reminder mode
 	connect(trayIcon, SIGNAL(messageClicked()),this, SLOT(handleShowReminder()));
+	//show mainwindow when click tray icon
 	connect(trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, 
 		SLOT(iconIsActived(QSystemTrayIcon::ActivationReason)));
+	//close mainwindow when click close button
 	connect(ui.CloseButton, SIGNAL(clicked()), this, SLOT(close()));
+	//minimize mainwindow when click minimum button
 	connect(ui.MinimizeButton, SIGNAL(clicked()), this, SLOT(showMinimized()));
+	//show about window
 	connect(ui.AboutButton, SIGNAL(clicked()), this, SLOT(about()));
+	//show help window
 	connect(ui.HelpButton, SIGNAL(clicked()), this, SLOT(help()));
+	//handle selected task in the list
 	connect(ui.TaskList, SIGNAL(itemSelectionChanged()), this, SLOT(handleListSelection()));
 }
 
@@ -129,28 +168,42 @@ void MainWindow::setupHotkeys(){
 }
 
 void MainWindow::setupGlobalHotkeys(){
-	QxtGlobalShortcut * scOpenQuickAddWin = new QxtGlobalShortcut(QKeySequence("Alt+`"), this);
+	const char* OPEN_QUICK_ADD_WIN = "Alt+`";
+	const char* OPEN_MAIN_WIN = "Ctrl+Alt+t";
+	QxtGlobalShortcut * scOpenQuickAddWin = new QxtGlobalShortcut(QKeySequence(OPEN_QUICK_ADD_WIN), this);
 	connect(scOpenQuickAddWin, SIGNAL(activated()),this, SLOT(showQuickAddWindow()));
-	QxtGlobalShortcut * scOpenMainWin = new QxtGlobalShortcut(QKeySequence("Ctrl+Alt+t"), this);
+	QxtGlobalShortcut * scOpenMainWin = new QxtGlobalShortcut(QKeySequence(OPEN_MAIN_WIN), this);
 	connect(scOpenMainWin, SIGNAL(activated()),this, SLOT(showWindow()));
 }
 
 void MainWindow::setupWinDisplayHotkeys(){
-	(void) new QShortcut(QKeySequence(tr("F5", "RemainderTesting")), this, SLOT(showReminder()));
-	(void) new QShortcut(QKeySequence(tr("Ctrl+H", "Minimize")), this, SLOT(showMinimized()));
-	(void) new QShortcut(QKeySequence(tr("Ctrl+T", "Today")), this, SLOT(getToday()));
-	(void) new QShortcut(QKeySequence(tr("Alt+1", "Today")), this, SLOT(getToday()));
-	(void) new QShortcut(QKeySequence(tr("Ctrl+I", "Inbox")), this, SLOT(getInbox()));
-	(void) new QShortcut(QKeySequence(tr("Alt+2", "Inbox")), this, SLOT(getInbox()));
+	const char* SHOW_REMINDER_RIGHT_NOW = "F5";
+	const char* MINIMIZE_MAIN_WIN = "Ctrl+H";
+	const char* SHOW_TODAY_1 = "Ctrl+T";
+	const char* SHOW_TODAY_2 = "Alt+1";
+	const char* SHOW_INBOX_1 = "Ctrl+I";
+	const char* SHOW_INBOX_2 = "Alt+2";
+	(void) new QShortcut(QKeySequence(SHOW_REMINDER_RIGHT_NOW), this, SLOT(showReminder()));
+	(void) new QShortcut(QKeySequence(MINIMIZE_MAIN_WIN), this, SLOT(showMinimized()));
+	(void) new QShortcut(QKeySequence(SHOW_TODAY_1), this, SLOT(getToday()));
+	(void) new QShortcut(QKeySequence(SHOW_TODAY_2), this, SLOT(getToday()));
+	(void) new QShortcut(QKeySequence(SHOW_INBOX_1), this, SLOT(getInbox()));
+	(void) new QShortcut(QKeySequence(SHOW_INBOX_2), this, SLOT(getInbox()));
 }
 
 void MainWindow::setupDateNavHotkeys(){
-	(void) new QShortcut(QKeySequence(tr("Alt+D", "Show Next Day")), this, SLOT(showNextDay()));
-	(void) new QShortcut(QKeySequence(tr("Alt+Shift+D", "Show Previous Day")), this, SLOT(showPrevDay()));
-	(void) new QShortcut(QKeySequence(tr("Alt+W", "Show Next Week")), this, SLOT(showNextWeek()));
-	(void) new QShortcut(QKeySequence(tr("Alt+Shift+W", "Show Previous Week")), this, SLOT(showPrevWeek()));
-	(void) new QShortcut(QKeySequence(tr("Alt+M", "Show Next Month")), this, SLOT(showNextMonth()));
-	(void) new QShortcut(QKeySequence(tr("Alt+Shift+M", "Show Previous Month")), this, SLOT(showPrevMonth()));
+	const char* SHOW_NEXT_DAY = "Alt+D";
+	const char* SHOW_NEXT_WEEK = "Alt+W";
+	const char* SHOW_NEXT_MONTH = "Alt+M";
+	const char* SHOW_PREV_DAY = "Alt+Shift+D";
+	const char* SHOW_PREV_WEEK = "Alt+Shift+W";
+	const char* SHOW_PREV_MONTH = "Alt+Shift+M";
+	(void) new QShortcut(QKeySequence(SHOW_NEXT_DAY), this, SLOT(showNextDay()));
+	(void) new QShortcut(QKeySequence(SHOW_PREV_DAY), this, SLOT(showPrevDay()));
+	(void) new QShortcut(QKeySequence(SHOW_NEXT_WEEK), this, SLOT(showNextWeek()));
+	(void) new QShortcut(QKeySequence(SHOW_PREV_WEEK), this, SLOT(showPrevWeek()));
+	(void) new QShortcut(QKeySequence(SHOW_NEXT_MONTH), this, SLOT(showNextMonth()));
+	(void) new QShortcut(QKeySequence(SHOW_PREV_MONTH), this, SLOT(showPrevMonth()));
 }
 
 
@@ -230,19 +283,23 @@ void MainWindow::showReminder(){
 	if(!reminderList.empty()){
 		setCurrRemindTime();
 		output = prepareTrayMsg(reminderList, output);
-		showTrayMsg(output, "Reminders");
+		showTrayMsg(output, REMINDERS_VIEW);
 		setFromReminder(true);
 	}
 }
 
 QString MainWindow::prepareTrayMsg(list<Task> &reminderList, QString output){
+	const char* FIRST_ONE = "1. ";
+	const char* SPLITTER = ". ";
 	list<Task>::iterator iter = reminderList.begin();
-	output += "1. ";
+	output += FIRST_ONE;
 	output += iter->getName().c_str();
 	advance(iter, 1);
-	for(int i = 2; iter != reminderList.end(); advance(iter, 1), i++){
-		output += "\n";
-		output += QString::number(i) + ". ";
+	for(int i = 2; 
+		iter != reminderList.end();
+		advance(iter, 1), i++){
+		output += NEW_LINE;
+		output += QString::number(i) + SPLITTER;
 		output += iter->getName().c_str();
 	}
 	return output;
@@ -258,27 +315,33 @@ void MainWindow::showQuickAddWindow(){
 }
 
 void MainWindow::showNextDay(){
-	handleDateNavigation(DAY, "Next Day: ");
+	const char* NEXT_DAY_STR = "Next Day: ";
+	handleDateNavigation(DAY, NEXT_DAY_STR);
 }
 
 void MainWindow::showNextWeek(){
-	handleDateNavigation(WEEK, "Next Week: ");
+	const char* NEXT_WEEK_STR = "Next Week: ";
+	handleDateNavigation(WEEK, NEXT_WEEK_STR);
 }
 
 void MainWindow::showNextMonth(){
-	handleDateNavigation(MONTH, "Next Month: ");
+	const char* NEXT_MONTH_STR = "Next Month: ";
+	handleDateNavigation(MONTH, NEXT_MONTH_STR);
 }
 
 void MainWindow::showPrevDay(){
-	handleDateNavigation(DAY, "Prev. Day: ", true);
+	const char* PREV_DAY_STR = "Prev. Day: ";
+	handleDateNavigation(DAY, PREV_DAY_STR, true);
 }
 
 void MainWindow::showPrevWeek(){
-	handleDateNavigation(WEEK, "Prev. Week: ", true);
+	const char* PREV_WEEK_STR = "Prev. Week: ";
+	handleDateNavigation(WEEK, PREV_WEEK_STR, true);
 }
 
 void MainWindow::showPrevMonth(){
-	handleDateNavigation(MONTH, "Prev. Month: ", true);
+	const char* PREV_MONTH_STR = "Prev. Month: ";
+	handleDateNavigation(MONTH, PREV_MONTH_STR, true);
 }
 
 void MainWindow::showTrayMsg(QString msg, QString title){
@@ -287,7 +350,7 @@ void MainWindow::showTrayMsg(QString msg, QString title){
 }
 
 void MainWindow::about(){
-	QString description = \
+	const QString DESCRIPTION = \
 		"<b>TaskPad</b> is a simple, elegant and revolutionary task organiser designed specifically for power users. " 
 		"It empowers the user with 4 basic yet comprehensive functions to Add, Modify, Find and Delete tasks. " 
 		"Add and Modify offer a comprehensive list of parameters that neatly catalogues the specifications of" 
@@ -295,12 +358,12 @@ void MainWindow::about(){
 		"Delete is just a one-line wonder that performs what it is meant to do. TaskPad also has Hot Key Templating: " 
 		"all 4 functions are made simple with intuitive hotkeys that calls the full command template with clear " 
 		"instructions.<br /><br />"
-		"<b>TaskPad Team</b>: ASHRAY JAIN, XIE KAI, AN JIANGZE, M. THYAGESH, LI ZIXUAN.";
-	popMsgBox(DEFAULT_WIN_TITLE, description);
+		"<b>TaskPad Team</b>: ASHRAY JAIN, XIE KAI, AN JIANGZE, THYAGESH M., LI ZIXUAN.";
+	popMsgBox(DEFAULT_WIN_TITLE, DESCRIPTION);
 }
 
 void MainWindow::help(){
-	QString hotkeyList = \
+	const QString HOTKEY_LIST = \
 		"<b>Global Hotkeys</b><br />"
 		"Alt + ` 			        : open quick add window<br />"
 		"Ctrl + Alt + T 		    : open main window<br />"
@@ -342,7 +405,7 @@ void MainWindow::help(){
 		"Shift + Tab 		        : jump to prev. blank;<br /><br />"
 		"For more information, kindly refer to our<br />"
 		"<a href=\"http://bit.ly/HEdCw4\">Project Manual</a>";
-	popMsgBox(DEFAULT_WIN_TITLE, hotkeyList);
+	popMsgBox(DEFAULT_WIN_TITLE, HOTKEY_LIST);
 }
 
 void MainWindow::popMsgBox(QString title, QString description){
@@ -363,8 +426,9 @@ void MainWindow::getToday(){
 }
 
 void MainWindow::getInbox(){
+	const char* GET_INBOX_CMD_STR = "find floating undone";
 	reset();
-	Messenger msg = scheduler->processCommand("find floating undone");
+	Messenger msg = scheduler->processCommand(GET_INBOX_CMD_STR);
 	handleGetInbox(msg);
 }
 
@@ -400,19 +464,20 @@ void MainWindow::handleDateNavigation(TP::PERIOD_TYPE periodType, QString listTi
 // date navigation
 //************************************
 QString MainWindow::getTimePeriodStr(pair<tm, tm> period){
+	const char* SPLITTER = " - ";
 	QDateTime fromDate = QDateTime::fromTime_t(mktime(&period.first));
 	QDateTime toDate = QDateTime::fromTime_t(mktime(&period.second));
-	QString fromStr = fromDate.toString("dd/MM/yyyy");
-	QString toStr = toDate.toString("dd/MM/yyyy");
-	return fromStr + " - " + toStr;
+	QString fromStr = fromDate.toString(DATE_DD_MM_YYYY);
+	QString toStr = toDate.toString(DATE_DD_MM_YYYY);
+	return fromStr + SPLITTER + toStr;
 }
 
 void MainWindow::handleGetToday(Messenger msg){
-	updateMainView(msg, "Today");
+	updateMainView(msg, TODAY_VIEW);
 }
 
 void MainWindow::handleGetInbox(Messenger msg){
-	updateMainView(msg, "Inbox");
+	updateMainView(msg, INBOX_VIEW);
 }
 
 void MainWindow::handleQuickAddRequest(QString requestStr){
@@ -432,7 +497,7 @@ void MainWindow::handleQuickAddRequest(QString requestStr){
 		}
 	}
 	else
-		showTrayMsg("Only Add Command and Display 1 are supported");
+		showTrayMsg(ERROR_ONLY_SUPPORT_ADD_N_DISPLAY_ONE_CMD);
 }
 
 
@@ -457,7 +522,7 @@ void MainWindow::handleShowReminder(){
 		reset();
 		string findCurrRtTasks = getFindRtCmd();
 		Messenger msg = scheduler->processCommand(findCurrRtTasks);
-		updateMainView(msg, "Reminders");
+		updateMainView(msg, REMINDERS_VIEW);
 		handleOneItemList(msg);
 		showWindow();
 		setFromReminder(false);
@@ -465,9 +530,9 @@ void MainWindow::handleShowReminder(){
 }
 
 std::string MainWindow::getFindRtCmd(){
-	string currRemindTimeStr = currRemindTime.toString("dd/MM/yy hh:mm").toStdString();
-	string findCurrRtTasks = "find rt `" + currRemindTimeStr + "` undone";
-	return findCurrRtTasks;
+	string currRemindTimeStr = currRemindTime.toString(DATE_DD_MM_YYYY_HH_MM).toStdString();
+	const string FIND_CURR_REMIND_TASKS = "find rt `" + currRemindTimeStr + "` undone";
+	return FIND_CURR_REMIND_TASKS;
 }
 
 void MainWindow::handleMessenger(Messenger msg){
@@ -497,15 +562,16 @@ void MainWindow::handleListSelection(){
 	QList<QTreeWidgetItem*> list = ui.TaskList->selectedItems();
 	if(!list.isEmpty()){
 		QTreeWidgetItem* item = ui.TaskList->selectedItems().front();
-		int index = ui.TaskList->indexOfTopLevelItem(item) + 1;
+		int listIndex = ui.TaskList->indexOfTopLevelItem(item);
+		int actualIndex = listIndex + 1;
 		if(!isIntermediateStage){
-			QString indexStr = QString::number(index);
+			QString indexStr = QString::number(actualIndex);
 			Messenger msg = scheduler->processCommand(indexStr.toStdString());
 			handleDisplay(msg, true);
 		}
-		else{
+		else{//Intermediate Stage
 			std::list<Task>::iterator iter = intermediateList.begin();
-			advance(iter, index - 1);
+			advance(iter, listIndex);
 			updateDetails(*iter);
 		}
 	}
@@ -519,19 +585,24 @@ void MainWindow::unselectAllItems(){
 }
 
 void MainWindow::selectItemAt( int index ){
-	QTreeWidgetItem* itemToShow = ui.TaskList->topLevelItem(index - 1);
+	int actualIndex = index;
+	int listIndex = actualIndex - 1;
+	QTreeWidgetItem* itemToShow = ui.TaskList->topLevelItem(listIndex);
 	ui.TaskList->setItemSelected(itemToShow, true);
 }
 
 void MainWindow::handleDisplay(Messenger msg, bool callFromSignal){
-	int index = msg.getIndex();
-	assert(index > 0);
+	int actualIndex = msg.getIndex();
+	int listIndex = actualIndex - 1;
+	assert(actualIndex > 0);//need be positive and starts from 1
+
 	list<Task> tmp_list = msg.getList();
 	list<Task>::iterator iter = tmp_list.begin();
-	advance(iter, index - 1);
+	advance(iter, listIndex);
+	//in case of causing loop, check whether from signal event calling
 	if(!callFromSignal){
 		unselectAllItems();
-		selectItemAt(index);
+		selectItemAt(actualIndex);
 	}
 	updateStatusBar(SUCCESS_STATUS_BAR_DISPLAY_TEXT);
 	updateDetailsLabel();
@@ -550,9 +621,10 @@ void MainWindow::handleQA_ERROR(QString requestStr, Messenger &msg){
 }
 
 void MainWindow::handleQA_SUCCESS(){
+	const char* SUCCESS_QA_MSG_ADDED = "Added";
 	closeQuickAddWindow();
 	refresh();
-	showTrayMsg("Added");
+	showTrayMsg(SUCCESS_QA_MSG_ADDED);
 }
 
 void MainWindow::handleQA_DISPLAY(Messenger msg){
@@ -567,8 +639,8 @@ void MainWindow::handleMsg_ERROR(Messenger &msg){
 }
 
 void MainWindow::handleMsg_ERROR_INTERMEDIATE(){
-	updateNavLabel("Select a task by typing its index");
-	updateStatusBar("Wrong input. Kindly press ECS to cancel");
+	updateNavLabel(ERROR_NAV_LABLE_INTERMEDIATE_STAGE);
+	updateStatusBar(ERROR_STATUS_BAR_INTERMEDIATE_STAGE);
 	displayErrorView();
 }
 
@@ -584,7 +656,7 @@ void MainWindow::handleMsg_SUCCESS(Messenger &msg){
 		updateForCmdExec(SUCCESS_STATUS_BAR_MOD_TEXT, SUCCESS_DETAILS_MOD_TEXT, msg);
 		break;
 	case TP::FIND:
-		updateMainView(msg, "Search Results", SUCCESS_STATUS_BAR_FIND_TEXT);
+		updateMainView(msg, SUCCESS_NAV_LABEL_FIND_CMD, SUCCESS_STATUS_BAR_FIND_TEXT);
 		handleOneItemList(msg);
 		break;
 	case TP::UNDO:
@@ -598,7 +670,8 @@ void MainWindow::handleMsg_SUCCESS(Messenger &msg){
 }
 
 void MainWindow::handleMsg_INTERMEDIATE(Messenger msg){
-	updateMainView(msg, "Select a task by typing its index", "Multiple results were found");
+	updateMainView(msg, INTERMEDIATE_NAV_LABEL_INTERMEDIATE_STAGE, 
+		INTERMEDIATE_STATUS_BAR_INTERMEDIATE_STAGE);
 	isIntermediateStage = true;
 	intermediateList = msg.getList();
 }
@@ -638,7 +711,7 @@ void MainWindow::handleOneItemList(Messenger &msg, QString detailsLabel /*= "Tas
 /************************************************************************/
 
 void MainWindow::updateNavLabel(QString str){
-	if(str != "Select a task by typing its index")
+	if(str != INTERMEDIATE_NAV_LABEL_INTERMEDIATE_STAGE)
 		navTitleOfLastTime = str;
 	ui.Navigation_taskList->setText(str);
 }
@@ -653,7 +726,7 @@ void MainWindow::updateList(std::list<Task> result){
 	int count = 1;
 	for(std::list<Task>::const_iterator iter = result.begin();
 		iter != result.end();
-		std::advance(iter, 1)){
+		std::advance(iter, STEP)){
 		item = extractTask(count, *iter);
 		ui.TaskList->addTopLevelItem(item);
 		count++;
@@ -746,16 +819,16 @@ QStringList MainWindow::extractTimedDate(Task &task, QStringList strList, int in
 
 QString MainWindow::getFromTimeStr(Task &task, QString fromTimeStr){
 	QDateTime fromTime = QDateTime::fromTime_t(task.getFromDate());
-	fromTimeStr = "From ";
-	if(ui.Navigation_taskList->text() == "Today" && 
-		fromTime.toString("dd/MM/yy") == QDateTime::currentDateTime().toString("dd/MM/yy")){
-		fromTimeStr += fromTime.toString("hh:mm");
+	fromTimeStr = FROM_STR;
+	if(ui.Navigation_taskList->text() == TODAY_VIEW && 
+		fromTime.toString(DATE_DD_MM_YY) == QDateTime::currentDateTime().toString(DATE_DD_MM_YY)){
+		fromTimeStr += fromTime.toString(DATE_HH_MM);
 	}
 	else{
-		if(fromTime.toString("yyyy") == QDateTime::currentDateTime().toString("yyyy"))
-			fromTimeStr += fromTime.toString("dd/MM hh:mm");
+		if(fromTime.toString(DATE_YEAR) == QDateTime::currentDateTime().toString(DATE_YEAR))
+			fromTimeStr += fromTime.toString(DATE_DD_MM_HH_MM);
 		else
-			fromTimeStr += fromTime.toString("dd/MM/yyyy");
+			fromTimeStr += fromTime.toString(DATE_DD_MM_YYYY);
 	}
 	return fromTimeStr;
 }
@@ -763,37 +836,38 @@ QString MainWindow::getFromTimeStr(Task &task, QString fromTimeStr){
 QString MainWindow::getToDateStr(Task &task, QString toTimeStr){
 	QDateTime toTime = QDateTime::fromTime_t(task.getToDate());
 	if(task.getFlagFromDate())
-		toTimeStr = " to ";
+		toTimeStr = FROM_TO_STR;
 	else
-		toTimeStr = "To ";
-	if(ui.Navigation_taskList->text() == "Today" && 
-		toTime.toString("dd/MM/yy") == QDateTime::currentDateTime().toString("dd/MM/yy")){
-		toTimeStr += toTime.toString("hh:mm");
+		toTimeStr = TO_STR;
+	if(ui.Navigation_taskList->text() == TODAY_VIEW && 
+		toTime.toString(DATE_DD_MM_YY) == QDateTime::currentDateTime().toString(DATE_DD_MM_YY)){
+		toTimeStr += toTime.toString(DATE_HH_MM);
 	}
 	else{
-		if(toTime.toString("yyyy") == QDateTime::currentDateTime().toString("yyyy"))
-			toTimeStr += toTime.toString("dd/MM hh:mm");
+		if(toTime.toString(DATE_YEAR) == QDateTime::currentDateTime().toString(DATE_YEAR))
+			toTimeStr += toTime.toString(DATE_DD_MM_HH_MM);
 		else
-			toTimeStr += toTime.toString("dd/MM/yyyy");
+			toTimeStr += toTime.toString(DATE_DD_MM_YYYY);
 	}
 	return toTimeStr;
 }
 
 QString MainWindow::getDueDateStr( QDateTime &time, QString dueTimeStr ){
-	if(ui.Navigation_taskList->text() == "Today"){
-		if(time.toString("hh:mm") != "00:00")
-			dueTimeStr = time.toString("hh:mm");
+	const char* MIDNIGHT = "00:00";
+	if(ui.Navigation_taskList->text() == TODAY_VIEW){
+		if(time.toString(DATE_HH_MM) != MIDNIGHT)
+			dueTimeStr = time.toString(DATE_HH_MM);
 		else
-			dueTimeStr = "today";
+			dueTimeStr = QString(TODAY_VIEW).toLower();
 	}
 	else{
-		if(time.toString("yyyy") == QDateTime::currentDateTime().toString("yyyy"))
-			if(time.toString("hh:mm") != "00:00")
-				dueTimeStr = time.toString("dd/MM hh:mm");
+		if(time.toString(DATE_YEAR) == QDateTime::currentDateTime().toString(DATE_YEAR))
+			if(time.toString(DATE_HH_MM) != MIDNIGHT)
+				dueTimeStr = time.toString(DATE_DD_MM_HH_MM);
 			else
-				dueTimeStr = time.toString("dd/MM");
+				dueTimeStr = time.toString(DATE_DD_MM);
 		else
-			dueTimeStr = time.toString("dd/MM/yyyy");
+			dueTimeStr = time.toString(DATE_DD_MM_YYYY);
 	}
 	return dueTimeStr;
 }
@@ -803,7 +877,7 @@ QStringList MainWindow::extractDueDate(Task &task, QStringList strList, int inde
 	QDateTime time = QDateTime::fromTime_t(task.getDueDate());
 	dueTimeStr = getDueDateStr(time, dueTimeStr);
 	strList = QStringList() << QString::number(index) << task.getName().c_str() << \
-		"Due " + dueTimeStr;
+		DUE_STR + dueTimeStr;
 	return strList;
 }
 
@@ -824,40 +898,49 @@ void MainWindow::setIsQuickAddOpen(bool toggle){
 }
 
 void MainWindow::setHighPriorityDelegate(int index){
-	ui.TaskList->setItemDelegateForRow(index - 1, new ListItemDelegate(HIGH, UNDONE, ui.TaskList));
+	ui.TaskList->setItemDelegateForRow(index, new ListItemDelegate(HIGH, UNDONE, ui.TaskList));
 }
 
 void MainWindow::setHighPriorityDoneDelegate(int index){
-	ui.TaskList->setItemDelegateForRow(index - 1, new ListItemDelegate(HIGH, DONE, ui.TaskList));
+	ui.TaskList->setItemDelegateForRow(index, new ListItemDelegate(HIGH, DONE, ui.TaskList));
+}
+
+void MainWindow::setHighPriorityOverdueDelegate(int index){
+	ui.TaskList->setItemDelegateForRow(index, new ListItemDelegate(HIGH, OVERDUE, ui.TaskList));
+}
+
+void MainWindow::setMediumPriorityDelegate(int index){
+	ui.TaskList->setItemDelegateForRow(index, new ListItemDelegate(MEDIUM, UNDONE, ui.TaskList));
+}
+
+void MainWindow::setMediumPriorityDoneDelegate(int index){
+	ui.TaskList->setItemDelegateForRow(index, new ListItemDelegate(MEDIUM, DONE, ui.TaskList));
+}
+
+void MainWindow::setMediumPriorityOverdueDelegate(int index){
+	ui.TaskList->setItemDelegateForRow(index, new ListItemDelegate(MEDIUM, OVERDUE, ui.TaskList));
 }
 
 void MainWindow::setNormalDelegate(int index){
-	ui.TaskList->setItemDelegateForRow(index - 1, new ListItemDelegate(NON_HIGH, UNDONE, ui.TaskList));
+	ui.TaskList->setItemDelegateForRow(index, new ListItemDelegate(LOW, UNDONE, ui.TaskList));
 }
 
 void MainWindow::setNormalDoneDelegate(int index){
-	ui.TaskList->setItemDelegateForRow(index - 1, new ListItemDelegate(NON_HIGH, DONE, ui.TaskList));
+	ui.TaskList->setItemDelegateForRow(index, new ListItemDelegate(LOW, DONE, ui.TaskList));
+}
+
+void MainWindow::setNormalOverdueDelegate(int index){
+	ui.TaskList->setItemDelegateForRow(index, new ListItemDelegate(LOW, OVERDUE, ui.TaskList));
 }
 
 void MainWindow::setListItemDelegate(Task &task, int index){
-	if(task.getPriority() == HIGH && task.getState() == UNDONE)
-		setHighPriorityDelegate(index);
-	else if(task.getPriority() == HIGH && task.getState() == DONE)
-		setHighPriorityDoneDelegate(index);
-	else if(task.getPriority() == HIGH && task.getState() == OVERDUE)
-		ui.TaskList->setItemDelegateForRow(index - 1, new ListItemDelegate(HIGH, OVERDUE, ui.TaskList));
-	else if(task.getPriority() == MEDIUM && task.getState() == UNDONE)
-		ui.TaskList->setItemDelegateForRow(index - 1, new ListItemDelegate(MEDIUM, UNDONE, ui.TaskList));
-	else if(task.getPriority() == MEDIUM && task.getState() == DONE)
-		ui.TaskList->setItemDelegateForRow(index - 1, new ListItemDelegate(MEDIUM, DONE, ui.TaskList));
-	else if(task.getPriority() == MEDIUM && task.getState() == OVERDUE)
-		ui.TaskList->setItemDelegateForRow(index - 1, new ListItemDelegate(MEDIUM, OVERDUE, ui.TaskList));
-	else if(task.getPriority() == LOW && task.getState() == OVERDUE)
-		ui.TaskList->setItemDelegateForRow(index - 1, new ListItemDelegate(LOW, OVERDUE, ui.TaskList));
-	else if(task.getState() == UNDONE)
-		setNormalDelegate(index);
-	else
-		setNormalDoneDelegate(index);
+	int listIndex = index - 1;
+	//for HIGH prio
+	setForHighPrioItem(task, listIndex);
+	//for MEDIUM
+	setForMediumPrioItem(task, listIndex);
+	//for LOW
+	setForLowPrioItem(task, listIndex);
 }
 
 void MainWindow::setDetailsViewEmpty(){
@@ -881,32 +964,41 @@ void MainWindow::setDetailsViewEmpty(){
 //    SETTERS FOR DETAILS (BELOW)
 //************************************
 void MainWindow::setDetailsViewOpacity40(){
+	const char* PROPERTY_OPACITY = "opacity";
+	const int ANIMATE_DURATION = 330;
+
 	QGraphicsOpacityEffect* opacityEffect = new QGraphicsOpacityEffect(this);
 	opacityEffect->setOpacity(detailsViewOpacity);
 	ui.DetailsView->setGraphicsEffect(opacityEffect);
-	QPropertyAnimation *animation = new QPropertyAnimation(opacityEffect, "opacity");
-	animation->setDuration(330);
+	QPropertyAnimation *animation = new QPropertyAnimation(opacityEffect, PROPERTY_OPACITY);
+	animation->setDuration(ANIMATE_DURATION);
 	animation->setStartValue(detailsViewOpacity);
-	animation->setEndValue(0.4);
+	animation->setEndValue(DESIRED_TRANSPARENT_OPACITY);
 	animation->start(QAbstractAnimation::DeleteWhenStopped);
-	detailsViewOpacity = 0.4;
+	detailsViewOpacity = DESIRED_TRANSPARENT_OPACITY;
 }
 
 void MainWindow::displayErrorView(){
+	const char* PROPERTY_OPACITY = "opacity";
+	const double NON_TRANSPARENT = 1.0;
+	const double TRANSPARENT = 0.0;
+	const int ANIMATE_DURATION = 1200;
+
 	QGraphicsOpacityEffect* opacityEffect = new QGraphicsOpacityEffect(this);
-	opacityEffect->setOpacity(1.0);
+	opacityEffect->setOpacity(NON_TRANSPARENT);
 	ui.errorBgWidget->setGraphicsEffect(opacityEffect);
 	ui.errorBgWidget->setHidden(false);
-	QPropertyAnimation *animation = new QPropertyAnimation(opacityEffect, "opacity");
-	animation->setDuration(1200);
-	animation->setStartValue(1.0);
-	animation->setEndValue(0.0);
+	QPropertyAnimation *animation = new QPropertyAnimation(opacityEffect, PROPERTY_OPACITY);
+	animation->setDuration(ANIMATE_DURATION);
+	animation->setStartValue(NON_TRANSPARENT);
+	animation->setEndValue(TRANSPARENT);
 	animation->start(QAbstractAnimation::DeleteWhenStopped);
 }
 
 void MainWindow::setDetailsViewOpacity100(){
+	const double NON_TRANSPARENT = 1.0;
 	ui.DetailsView->setGraphicsEffect(NULL);
-	detailsViewOpacity = 1.0;
+	detailsViewOpacity = NON_TRANSPARENT;
 }
 
 void MainWindow::setNameLabel(Task &task){
@@ -920,53 +1012,58 @@ void MainWindow::setNameLabel(Task &task){
 		nameFont.setStrikeOut(true);
 	}
 	ui.name->setFont(nameFont);
-	if(ui.name->text().length() < 77)
+	if(ui.name->text().length() < LENGTH_TOO_LONG)
 		ui.name->setToolTip(ui.name->text());
 	else
-		ui.name->setToolTip(ui.name->text().left(77) + "...");
+		ui.name->setToolTip(ui.name->text().left(LENGTH_TOO_LONG) + NEGLECTED);
 }
 
 void MainWindow::setPriorityLabel(Task &task){
+	const char* HIGH_PRIO_BG = "QWidget#DetailsView{\n"
+		"	background-image:url(:/MainWindow/Resources/details_high_bg.png);\n"
+		"}";
+	const char* MEDIUM_PRIO_BG = "QWidget#DetailsView{\n"
+		"	background-image:url(:/MainWindow/Resources/details_normal_bg.png);\n"
+		"}";
+	const char* LOW_PRIO_BG = "QWidget#DetailsView{\n"
+		"	background-image:url(:/MainWindow/Resources/details_low_bg.png);\n"
+		"}";
+
 	switch (task.getPriority()){
 	case HIGH:
-		ui.DetailsView->setStyleSheet(QLatin1String("QWidget#DetailsView{\n"
-			"	background-image:url(:/MainWindow/Resources/details_high_bg.png);\n"
-			"}"));
+		ui.DetailsView->setStyleSheet(QLatin1String(HIGH_PRIO_BG));
 		break;
 	case MEDIUM:
-		ui.DetailsView->setStyleSheet(QLatin1String("QWidget#DetailsView{\n"
-			"	background-image:url(:/MainWindow/Resources/details_normal_bg.png);\n"
-			"}"));
+		ui.DetailsView->setStyleSheet(QLatin1String(MEDIUM_PRIO_BG));
 		break;
 	case LOW:
-		ui.DetailsView->setStyleSheet(QLatin1String("QWidget#DetailsView{\n"
-			"	background-image:url(:/MainWindow/Resources/details_low_bg.png);\n"
-			"}"));
+		ui.DetailsView->setStyleSheet(QLatin1String(LOW_PRIO_BG));
 		break;
 	}
 }
 
 void MainWindow::setDueDateLabel(Task &task){
+	const char* MIDNIGHT = "00:00";
+
 	QDateTime time = QDateTime::fromTime_t(task.getDueDate());
-	QTime hour_n_min = time.time();
-	if(hour_n_min.hour() == 0 & hour_n_min.minute() == 0)
-		ui.dueOrFromTo->setText("Due  " + time.toString("dd/MM/yyyy"));//TODO
+	if(time.toString(DATE_HH_MM) == MIDNIGHT)
+		ui.dueOrFromTo->setText(DUE_STR + time.toString(DATE_DD_MM_YYYY));
 	else
-		ui.dueOrFromTo->setText("Due  " + time.toString("dd/MM/yyyy  hh:mm"));
+		ui.dueOrFromTo->setText(DUE_STR + time.toString(DATE_DD_MM_YYYY_HH_MM));
 }
 
 void MainWindow::setTimedLabel(Task &task){
 	QString fromTimeStr, toTimeStr;
 	if(task.getFlagFromDate()){
 		QDateTime fromTime = QDateTime::fromTime_t(task.getFromDate());
-		fromTimeStr = "From  " + fromTime.toString("dd/MM/yyyy  hh:mm");
+		fromTimeStr = FROM_STR + fromTime.toString(DATE_DD_MM_YYYY_HH_MM);
 	}
 	if(task.getFlagToDate()){
 		QDateTime toTime = QDateTime::fromTime_t(task.getToDate());
 		if(task.getFlagFromDate())
-			toTimeStr = "  to  " + toTime.toString("dd/MM/yyyy  hh:mm");//TODO
+			toTimeStr = FROM_TO_STR + toTime.toString(DATE_DD_MM_YYYY_HH_MM);
 		else
-			toTimeStr = "To  " + toTime.toString("dd/MM/yyyy  hh:mm");
+			toTimeStr = TO_STR + toTime.toString(DATE_DD_MM_YYYY_HH_MM);
 	}
 	ui.dueOrFromTo->setText(fromTimeStr + toTimeStr);
 }
@@ -991,12 +1088,14 @@ void MainWindow::setDueOrFromToLabel(Task &task){
 }
 
 void MainWindow::setLocationLabel(Task &task){
+	const char* AT = "@";
+
 	if(task.getFlagLocation()){
-		ui.location->setText(("@" + task.getLocation()).c_str());
-		if(ui.location->text().length() < 77)
+		ui.location->setText((AT + task.getLocation()).c_str());
+		if(ui.location->text().length() < LENGTH_TOO_LONG)
 			ui.location->setToolTip(ui.location->text());
 		else
-			ui.location->setToolTip(ui.location->text().left(77) + "...");
+			ui.location->setToolTip(ui.location->text().left(LENGTH_TOO_LONG) + NEGLECTED);
 	}
 	else{
 		ui.location->setText(EMPTY);
@@ -1005,6 +1104,8 @@ void MainWindow::setLocationLabel(Task &task){
 }
 
 void MainWindow::setParticipantsLabel(Task &task){
+	const char* DELIMITTER = ", ";
+
 	if(task.getFlagParticipants()){
 		QString participants;
 		list<string> listOfParticipants =  task.getParticipants();
@@ -1012,15 +1113,15 @@ void MainWindow::setParticipantsLabel(Task &task){
 		participants += iter->c_str();
 		iter++;
 		for(;iter != listOfParticipants.end();
-			advance(iter, 1)){
-				participants += ", ";
+			advance(iter, STEP)){
+				participants += DELIMITTER;
 				participants += iter->c_str();
 		}
 		ui.participants->setText(participants);
-		if(ui.participants->text().length() < 77)
+		if(ui.participants->text().length() < LENGTH_TOO_LONG)
 			ui.participants->setToolTip(ui.participants->text());
 		else
-			ui.participants->setToolTip(ui.participants->text().left(77) + "...");
+			ui.participants->setToolTip(ui.participants->text().left(LENGTH_TOO_LONG) + NEGLECTED);
 	}
 	else{
 		ui.participants->setText(EMPTY);
@@ -1029,24 +1130,27 @@ void MainWindow::setParticipantsLabel(Task &task){
 }
 
 void MainWindow::setTagsLabel(Task &task){
+	const char* SHARP = "#";
+	const char* DELIMITTER = ", ";
+
 	if(task.getFlagTags()){
 		QString tags;
 		list<string> listOfTags = task.getTags();
 		list<string>::iterator iter = listOfTags.begin();
-		tags += "#";
+		tags += SHARP;
 		tags += iter->c_str();
 		iter++;
 		for(;iter != listOfTags.end();
-			advance(iter, 1)){
-				tags += ", ";
-				tags += "#";
+			advance(iter, STEP)){
+				tags += DELIMITTER;
+				tags += SHARP;
 				tags += iter->c_str();
 		}
 		ui.tags->setText(tags);
-		if(ui.tags->text().length() < 77)
+		if(ui.tags->text().length() < LENGTH_TOO_LONG)
 			ui.tags->setToolTip(ui.tags->text());
 		else
-			ui.tags->setToolTip(ui.tags->text().left(77) + "...");
+			ui.tags->setToolTip(ui.tags->text().left(LENGTH_TOO_LONG) + NEGLECTED);
 	}
 	else{
 		ui.tags->setText(EMPTY);
@@ -1055,22 +1159,25 @@ void MainWindow::setTagsLabel(Task &task){
 }
 
 void MainWindow::setRemindTimesLabel(Task &task){
+	const char* DELIMITTER = ", ";
+	const char* REMIND_ME_STR = "Remind me : ";
+
 	if(task.getFlagRemindTimes()){
 		QString remindTimes;
 		list<time_t> listOfRemindTimes = task.getRemindTimes();
 		list<time_t>::iterator iter = listOfRemindTimes.begin();
-		remindTimes += QDateTime::fromTime_t(*iter).toString("dd/MM/yyyy hh:mm");
+		remindTimes += QDateTime::fromTime_t(*iter).toString(DATE_DD_MM_YYYY_HH_MM);
 		iter++;
 		for(;iter != listOfRemindTimes.end();
-			advance(iter, 1)){
-				remindTimes += ", ";
-				remindTimes += QDateTime::fromTime_t(*iter).toString("dd/MM/yyyy hh:mm");
+			advance(iter, STEP)){
+				remindTimes += DELIMITTER;
+				remindTimes += QDateTime::fromTime_t(*iter).toString(DATE_DD_MM_YYYY_HH_MM);
 		}
-		ui.remindTime->setText("Remind me : " + remindTimes);
-		if(ui.remindTime->text().length() < 77)
+		ui.remindTime->setText(REMIND_ME_STR + remindTimes);
+		if(ui.remindTime->text().length() < LENGTH_TOO_LONG)
 			ui.remindTime->setToolTip(ui.remindTime->text());
 		else
-			ui.remindTime->setToolTip(ui.remindTime->text().left(77) + "...");
+			ui.remindTime->setToolTip(ui.remindTime->text().left(LENGTH_TOO_LONG) + NEGLECTED);
 	}
 	else{
 		ui.remindTime->setText(EMPTY);
@@ -1081,10 +1188,10 @@ void MainWindow::setRemindTimesLabel(Task &task){
 void MainWindow::setNoteLabel(Task &task){
 	if(task.getFlagNote()){
 		ui.note->setPlainText(task.getNote().c_str());
-		if(ui.note->toPlainText().length() < 77)
+		if(ui.note->toPlainText().length() < LENGTH_TOO_LONG)
 			ui.note->setToolTip(ui.note->toPlainText());
 		else
-			ui.note->setToolTip(ui.note->toPlainText().left(77) + "...");
+			ui.note->setToolTip(ui.note->toPlainText().left(LENGTH_TOO_LONG) + NEGLECTED);
 	}
 	else{
 		ui.note->setPlainText(EMPTY);
@@ -1097,31 +1204,21 @@ void MainWindow::setNoteLabel(Task &task){
 /************************************************************************/
 
 bool MainWindow::eventFilter(QObject* watched, QEvent* event){
+	bool ret = true;
 	if(watched == ui.CloseButton || watched == ui.MinimizeButton ||
 		watched == ui.HelpButton || watched == ui.AboutButton){
-		if(event->type() == QEvent::MouseMove){
-			return true;
+		if(event->type() != QEvent::MouseMove){
+			ret = QObject::eventFilter(watched, event);//normal processing
 		}
 	}
-	else if(watched == ui.cmdBar){
-		if(event->type() == QEvent::KeyPress){
-			QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
-			if(keyEvent->key() == Qt::Key_Escape){
-				getToday();
-			}
-			else if(keyEvent->key() == Qt::Key_Return || keyEvent->key() == Qt::Key_Enter){
-				QString currentInput = ui.cmdBar->getCurrentLine();//TODO: can shrink into one API
-				ui.cmdBar->pushCurrentLine();
-				if(!currentInput.isEmpty()){
-					string inputStdString = currentInput.toLocal8Bit().constData();
-					Messenger msg = scheduler->processCommand(inputStdString);
-					handleMessenger(msg);
-				}
-				return true;//stop Key return or Key enter
-			}
-		}
+	else if(watched == ui.cmdBar && 
+		event->type() == QEvent::KeyPress){
+			ret = handleKeyPressInCmdBar(ret, watched, event);
 	}
-	return QObject::eventFilter(watched, event);//normal processing
+	else{
+		ret = QObject::eventFilter(watched, event);//normal processing
+	}
+	return ret;
 }
 
 void MainWindow::keyPressEvent(QKeyEvent* event){
@@ -1137,9 +1234,10 @@ void MainWindow::changeEvent(QEvent* event){
 }
 
 void MainWindow::runInBackground(QEvent* event){
+	const int RIGHT_AWAY = 0;
 	if(event->type()==QEvent::WindowStateChange){
 		if(windowState() == Qt::WindowMinimized){
-			QTimer::singleShot(0, this, SLOT(hide()));
+			QTimer::singleShot(RIGHT_AWAY, this, SLOT(hide()));
 		}
 	}
 }
@@ -1158,4 +1256,55 @@ void MainWindow::mouseMoveEvent(QMouseEvent *event){
 	this->mouseMovePosition = event->globalPos();
 	QPoint distanceToMove = this->mouseMovePosition - this->mousePressPosition + this->windowPosition;
 	this->move(distanceToMove);   
+}
+
+void MainWindow::setForHighPrioItem( Task &task, int listIndex ){
+	if     (task.getPriority() == HIGH   && task.getState() == UNDONE)
+		setHighPriorityDelegate(listIndex);
+	else if(task.getPriority() == HIGH   && task.getState() == DONE)
+		setHighPriorityDoneDelegate(listIndex);
+	else if(task.getPriority() == HIGH   && task.getState() == OVERDUE)
+		setHighPriorityOverdueDelegate(listIndex);
+}
+
+void MainWindow::setForMediumPrioItem( Task &task, int listIndex ){
+	if     (task.getPriority() == MEDIUM && task.getState() == UNDONE)
+		setMediumPriorityDelegate(listIndex);
+	else if(task.getPriority() == MEDIUM && task.getState() == DONE)
+		setMediumPriorityDoneDelegate(listIndex);
+	else if(task.getPriority() == MEDIUM && task.getState() == OVERDUE)
+		setMediumPriorityOverdueDelegate(listIndex);
+}
+
+void MainWindow::setForLowPrioItem( Task &task, int listIndex ){
+	if     (task.getPriority() == LOW && task.getState() == UNDONE)
+		setNormalDelegate(listIndex);
+	else if(task.getPriority() == LOW && task.getState() == DONE)
+		setNormalDoneDelegate(listIndex);
+	else if(task.getPriority() == LOW && task.getState() == OVERDUE)
+		setNormalOverdueDelegate(listIndex);
+}
+
+bool MainWindow::handleKeyPressInCmdBar( bool ret, QObject* watched, QEvent* event ){
+	QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+	if(keyEvent->key() == Qt::Key_Escape){
+		getToday();
+	}
+	else if(keyEvent->key() == Qt::Key_Return || keyEvent->key() == Qt::Key_Enter){
+		handleKeyEnter();
+	}
+	else{
+		ret = QObject::eventFilter(watched, event);//normal processing
+	}
+	return ret;
+}
+
+void MainWindow::handleKeyEnter(){
+	QString currentInput = ui.cmdBar->getCurrentLine();
+	ui.cmdBar->pushCurrentLine();
+	if(!currentInput.isEmpty()){
+		string inputStdString = currentInput.toLocal8Bit().constData();
+		Messenger msg = scheduler->processCommand(inputStdString);
+		handleMessenger(msg);
+	}
 }

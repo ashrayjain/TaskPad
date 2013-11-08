@@ -1,41 +1,39 @@
+/*
+ * =====================================================================================
+ *
+ *       Filename:  QuickAddWindow.cpp
+ *
+ *    Description:	Quick Add window allows user to add a new task quickly, without opening
+ *	the mainwindow.
+ *
+ *        Version:  1.0
+ *        Created:  10/21/13 16:13:09
+ *
+ *         Author:  XIE KAI (A0102016E), gigikie@gmail.com
+ *   Organization:  NUS, SoC
+ *
+ * =====================================================================================
+ */
+
 #include "QuickAddWindow.h"
 
-QuickAddWindow::QuickAddWindow(QWidget *parent)
-:QDialog(parent)
-{
-	ui.setupUi(this);
+QuickAddWindow::QuickAddWindow(QWidget *parent):QDialog(parent){
+	setupUi();
 	customisedUi();
-	ui.cmdBar->installEventFilter(this);
-	ui.cmdBar->setQuickAddMode();
 }
 
 bool QuickAddWindow::eventFilter(QObject* watched, QEvent* event){
-	const bool FILTERED = true;
+	bool FILTERED = true;
 
-	if(watched == ui.cmdBar)
-	{
-		if(event->type() == QEvent::KeyPress)
-		{
-			QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
-			if(keyEvent->key() == Qt::Key_Escape){
-				emitWindowClosed();
-				//wait for mainwindow to close it
-				return FILTERED;
-			}
-			else if(keyEvent->key() == Qt::Key_Return || keyEvent->key() == Qt::Key_Enter)
-			{
-				QString currentInput = ui.cmdBar->getCurrentLine();
-				ui.cmdBar->pushCurrentLine();
-				if(!currentInput.isEmpty()){
-					inputStr = currentInput;
-					emitRequest(currentInput);
-					//wait for mainwindow to decide whether close it or not
-				}
-				return FILTERED;
-			}
-		}
+	if(watched == ui.cmdBar &&
+		event->type() == QEvent::KeyPress){
+		FILTERED = handleKeyEvent(FILTERED, watched, event);
 	}
-	return QObject::eventFilter(watched, event);//normal processing
+	else{
+		//normal processing
+		FILTERED = QObject::eventFilter(watched, event);
+	}
+	return FILTERED;
 }
 
 void QuickAddWindow::customisedUi(){
@@ -61,4 +59,40 @@ void QuickAddWindow::emitRequest(QString requestStr){
 
 void QuickAddWindow::emitWindowClosed(){
 	emit windowClosed();
+}
+
+void QuickAddWindow::setupUi()
+{
+	ui.setupUi(this);
+	ui.cmdBar->installEventFilter(this);
+	ui.cmdBar->setQuickAddMode();
+}
+
+bool QuickAddWindow::handleKeyEvent( bool &FILTERED, QObject* watched, QEvent* event ){
+	QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+	if(keyEvent->key() == Qt::Key_Escape){
+		handleKeyEscape();
+	}
+	else if(keyEvent->key() == Qt::Key_Return || keyEvent->key() == Qt::Key_Enter){
+		handleKeyEnter();
+	}
+	else{
+		//normal processing
+		FILTERED = QObject::eventFilter(watched, event);
+	}
+	return FILTERED;
+}
+
+void QuickAddWindow::handleKeyEscape(){
+	emitWindowClosed();
+	//wait for parent window to close it
+}
+
+void QuickAddWindow::handleKeyEnter(){
+	QString currentInput = ui.cmdBar->getCurrentLine();
+	ui.cmdBar->pushCurrentLine();
+	if(!currentInput.isEmpty()){
+		emitRequest(currentInput);
+		//wait for parent window to decide whether close it or not
+	}
 }
