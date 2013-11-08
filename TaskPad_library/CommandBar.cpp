@@ -21,7 +21,7 @@ const QStringList CommandBar::KEYWORD_LIST_ADD = QStringList() \
 
 const QStringList CommandBar::KEYWORD_LIST_FIND = QStringList() \
 	<< "name ``" << "from ``" << "to ``" << "location ``" << "place ``" << "at ``" << "with ``" << "ppl ``" \
-	<< "note ``" << "priority ``" << "impt ``" << "remind ``" << "rt ``" << "done" << "undone" <<  \
+	<< "note ``" << "priority ``" << "impt ``" << "remind ``" << "rt ``" << "overdue" << "done" << "undone" <<  \
 	"deadline" << "timed" << "floating" << "exact name ``";
 
 const QString CommandBar::SPACE = " ";
