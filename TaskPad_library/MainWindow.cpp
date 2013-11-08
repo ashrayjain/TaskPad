@@ -718,7 +718,7 @@ QString MainWindow::getToDateStr(Task &task, QString toTimeStr){
 		toTimeStr = "To ";
 	if(ui.Navigation_taskList->text() == "Today" && 
 		toTime.toString("dd/MM/yy") == QDateTime::currentDateTime().toString("dd/MM/yy")){
-		toTimeStr += toTime.toString("hh:mm");toTime.toString("hh:mm");
+		toTimeStr += toTime.toString("hh:mm");
 	}
 	else{
 		if(toTime.toString("yyyy") == QDateTime::currentDateTime().toString("yyyy"))
