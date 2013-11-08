@@ -238,8 +238,11 @@ void Manager::handleCommandWithIndex()
 	if(this->isIndexWithinRange()) {
 		this->insertCreatedTimeIntoCommand();
 		this->_executor->executeCommand(this->_cmd,this->_response);
-		this->editTaskListInResponse();
-		this->_response.setStatus(SUCCESS_INDEXED_COMMAND);
+
+		if(this->hasNoError()) {
+			this->editTaskListInResponse();
+			this->_response.setStatus(SUCCESS_INDEXED_COMMAND);
+		}
 	}
 	else {
 		this->_response.setErrorMsg(MESSAGE_INDEX_OUT_OF_RANGE);
@@ -407,7 +410,7 @@ std::string Manager::createFindCommand(std::tm startTm, std::tm endTm)
 	std::string startTmStr = getStrFromTm(startTm);
 	std::string endTmStr = getStrFromTm(endTm);
 
-	return "find from " + startTmStr + " to " + endTmStr + " undone";
+	return "find from " + startTmStr + " to " + endTmStr;
 }
 
 std::string Manager::getStrFromTm(std::tm timeInfo)
@@ -435,19 +438,11 @@ std::tm Manager::getTodayTm()
 }
 
 Messenger Manager::getTodayTasks() {
-	/*std::tm todayTm = getTodayTm();
-
-	std::tm end_of_todayTm = todayTm;
-	end_of_todayTm.tm_hour = 23;
-	end_of_todayTm.tm_min = 59;
-	char endOfTodayCharArray [80];
-	strftime (endOfTodayCharArray, 80, "`%d/%m/%y %H:%M`",&end_of_todayTm);
-
-	std::string today = this->getStrFromTm(todayTm);
-	std::string end_of_today = endOfTodayCharArray;*/
+	std::tm todayTm = getTodayTm();
+	std::tm nextDayTm = getNextDayTm(todayTm);
+	this->setCurrPeriod(todayTm,nextDayTm);
 
 	return this->processCommand("find from `today midnight` to `tomorrow midnight`");
-	//return this->processCommand("find undone");
 }
 
 bool Manager::hasInterpretationError() {
