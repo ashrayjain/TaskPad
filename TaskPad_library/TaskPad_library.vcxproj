@@ -62,7 +62,6 @@
     <ClInclude Include="Interpreter_Find.h" />
     <ClInclude Include="Interpreter_Mod.h" />
     <ClInclude Include="Interpreter_Redo.h" />
-    <ClInclude Include="Interpreter_Sync.h" />
     <ClInclude Include="Interpreter_Undo.h" />
     <ClInclude Include="libqxt\qxtglobal.h" />
     <CustomBuild Include="libqxt\qxtglobalshortcut.h">
@@ -186,6 +185,12 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Highlighter.cpp" />
+    <ClCompile Include="Interpreter_Add.cpp" />
+    <ClCompile Include="Interpreter_Delete.cpp" />
+    <ClCompile Include="Interpreter_Find.cpp" />
+    <ClCompile Include="Interpreter_Mod.cpp" />
+    <ClCompile Include="Interpreter_Redo.cpp" />
+    <ClCompile Include="Interpreter_Undo.cpp" />
     <ClCompile Include="Natty.cpp" />
     <ClCompile Include="Interpreter.cpp" />
     <ClCompile Include="Interpreter_base.cpp" />
