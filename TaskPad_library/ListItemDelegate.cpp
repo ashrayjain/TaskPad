@@ -17,7 +17,7 @@ void ListItemDelegate::alignRight( const QModelIndex &index, QPainter * painter,
 	QTextOption alignment(Qt::AlignRight | Qt::AlignVCenter);
 	QFont font;
 	font.setFamily(FONT_SEGOE_UI);
-	font.setPixelSize(16);
+	font.setPixelSize(15);
 	QRect rect = opt.rect;
 	rect = rect.adjusted(18,0,-18,-3);
 	painter->setFont(font);

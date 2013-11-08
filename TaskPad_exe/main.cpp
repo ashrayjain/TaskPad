@@ -9,7 +9,7 @@
 //	the tasks while Find is a flexible tool that can retrieve a task according to any of its parameters. 
 //	Delete is just a one-line wonder that performs what it is meant to do. TaskPad also has Hot Key Templating: 
 //	all 4 functions are made simple with intuitive hotkeys that calls the full command template with clear 
-//	instructions. Some additional features include Synchronization and Arrow Keys (Up - Down) Navigation.
+//	instructions. Some additional features include Natural Language Processing for date parsing and Arrow Keys (Up - Down) Navigation.
 //
 #include <QtWidgets/QApplication>
 #include <QSharedMemory>

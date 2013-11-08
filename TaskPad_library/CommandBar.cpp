@@ -5,7 +5,7 @@
 
 const QStringList CommandBar::COMMAND_LIST = QStringList() \
 	<< "add ``" << "mod" << "del" << "find" << "undo" <<     \
-	"redo" << "sync";
+	"redo";
 
 const QStringList CommandBar::KEYWORD_LIST = QStringList() \
 	<< "name ``" << "by ``" << "due ``" << "from ``" << "to ``" << "location ``" << "place ``" << "at ``" << "with ``" << "ppl ``" \
@@ -378,7 +378,7 @@ bool CommandBar::isCommandFind(){
 
 bool CommandBar::containsCommand()
 {
-	const QString CMD_PATTERN = "^(add|mod|del|find|undo|redo|sync) ";
+	const QString CMD_PATTERN = "^(add|mod|del|find|undo|redo) ";
 	const int UNFOUND = -1;
 	QString currentLine = textCursor().block().text();
 	QRegExp regex(CMD_PATTERN);
