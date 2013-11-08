@@ -7,6 +7,15 @@
 
 class natty {
 private:
+	static char* JVM_OPTIONS;
+	static LPCWSTR DLL_LOCATION;
+	static char* CLASS_TO_LOAD;
+	static char* SIGNATURE;
+	static char* METHOD_TO_CALL;
+	static char* DLL_NOT_FOUND;
+	static char* JVM_LOAD_ERROR;
+	static char* CLASS_NOT_FOUND;
+	static char* JNI_CREATEVM;
 	JavaVMOption jvmOptions[1];
 	JNIEnv* jEnv;
 	JavaVM* jVM;
