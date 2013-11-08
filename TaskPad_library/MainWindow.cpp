@@ -784,10 +784,16 @@ void MainWindow::setListItemDelegate(Task &task, int index){
 		setHighPriorityDelegate(index);
 	else if(task.getPriority() == HIGH && task.getState() == DONE)
 		setHighPriorityDoneDelegate(index);
+	else if(task.getPriority() == HIGH && task.getState() == OVERDUE)
+		ui.TaskList->setItemDelegateForRow(index - 1, new ListItemDelegate(HIGH, OVERDUE, ui.TaskList));
 	else if(task.getPriority() == MEDIUM && task.getState() == UNDONE)
 		ui.TaskList->setItemDelegateForRow(index - 1, new ListItemDelegate(MEDIUM, UNDONE, ui.TaskList));
 	else if(task.getPriority() == MEDIUM && task.getState() == DONE)
 		ui.TaskList->setItemDelegateForRow(index - 1, new ListItemDelegate(MEDIUM, DONE, ui.TaskList));
+	else if(task.getPriority() == MEDIUM && task.getState() == OVERDUE)
+		ui.TaskList->setItemDelegateForRow(index - 1, new ListItemDelegate(MEDIUM, OVERDUE, ui.TaskList));
+	else if(task.getPriority() == LOW && task.getState() == OVERDUE)
+		ui.TaskList->setItemDelegateForRow(index - 1, new ListItemDelegate(LOW, OVERDUE, ui.TaskList));
 	else if(task.getState() == UNDONE)
 		setNormalDelegate(index);
 	else
@@ -846,7 +852,8 @@ void MainWindow::setDetailsViewOpacity100(){
 void MainWindow::setNameLabel(Task &task){
 	ui.name->setText(task.getName().c_str());
 	QFont nameFont = ui.name->font();
-	if(task.getState() == TP::UNDONE){
+	if(task.getState() == TP::UNDONE ||
+		task.getState() == TP::OVERDUE){
 		nameFont.setStrikeOut(false);
 	}
 	else{//DONE already
