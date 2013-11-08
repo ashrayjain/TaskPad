@@ -358,11 +358,7 @@ bool CommandBar::hasSpace_LHS(){
 void CommandBar::clearCharNearby(QTextCursor::MoveOperation direction){
 	QTextCursor cursor = textCursor();
 	cursor.movePosition(direction, QTextCursor::KeepAnchor);
-
-	TEXT_EDIT_BEGIN
 	cursor.removeSelectedText();
-	TEXT_EDIT_END
-
 	setTextCursor(cursor);
 }
 
