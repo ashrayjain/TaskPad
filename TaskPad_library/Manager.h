@@ -46,7 +46,7 @@ class Manager {
 		pair<tm,tm> _currentPeriod;
 
 		//the list of tasks
-		Datastore*	_taskDB;
+		Datastore*	_taskDS;
 
 		//saver
 		void saveChanges							();

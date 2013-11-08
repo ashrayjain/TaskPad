@@ -185,6 +185,12 @@
     <ClCompile Include="GeneratedFiles\Release\moc_qxtglobalshortcut.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="Interpreter_Add.cpp" />
+    <ClCompile Include="Interpreter_Delete.cpp" />
+    <ClCompile Include="Interpreter_Find.cpp" />
+    <ClCompile Include="Interpreter_Mod.cpp" />
+    <ClCompile Include="Interpreter_Redo.cpp" />
+    <ClCompile Include="Interpreter_Undo.cpp" />
     <ClCompile Include="Natty.cpp" />
     <ClCompile Include="Interpreter.cpp" />
     <ClCompile Include="Interpreter_base.cpp" />

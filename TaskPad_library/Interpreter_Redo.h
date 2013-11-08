@@ -1,3 +1,5 @@
+#ifndef _INTERPRETER_REDO_H
+#define _INTERPRETER_REDO_H_
 #include "Interpreter_base.h"
 
 
@@ -13,11 +15,5 @@ public:
 
 };
 
-Command* Interpreter_Redo::interpretRedo(Command_Redo*commandType,std::string commandStr, Messenger &response, bool &flag){
 
-	response.setCommandType(REDO);
-	response.setStatus(SUCCESS);
-	return (Command*)commandType;
-
-
-}
+#endif
