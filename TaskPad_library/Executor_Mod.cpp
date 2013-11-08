@@ -23,9 +23,10 @@ void Executor_Mod::executeCommand(Command* cmd, Messenger &response, Datastore &
 }
 
 void Executor_Mod::modifyByIndex(Command_Mod* cmd, Messenger &response, Datastore &ds) {
-	if (ds.isIndexPresent(cmd->getCreatedTime()) && 
-		isModCmdValid(cmd, ds.indexHashSearch(cmd->getCreatedTime()), response))
-		setOpSuccessTask(ds.modifyTaskWithIndex(cmd->getCreatedTime(), cmd), response);
+	if (ds.isIndexPresent(cmd->getCreatedTime())) {
+		if(isModCmdValid(cmd, ds.indexHashSearch(cmd->getCreatedTime()), response))
+			setOpSuccessTask(ds.modifyTaskWithIndex(cmd->getCreatedTime(), cmd), response);
+	}
 	else
 		setIndexNotFound(cmd->getCreatedTime(), response);
 }
