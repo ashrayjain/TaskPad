@@ -287,12 +287,62 @@ void MainWindow::showTrayMsg(QString msg, QString title){
 }
 
 void MainWindow::about(){
-	popMsgBox(DEFAULT_WIN_TITLE, "TaskPad is a product created by Team F12-1C.\n"
-		"Members: ASHRAY, KAI, JIANGZE, THYAGESH, ZIXUAN.");
+	QString description = \
+		"<b>TaskPad</b> is a simple, elegant and revolutionary task organiser designed specifically for power users. " 
+		"It empowers the user with 4 basic yet comprehensive functions to Add, Modify, Find and Delete tasks. " 
+		"Add and Modify offer a comprehensive list of parameters that neatly catalogues the specifications of" 
+		"the tasks while Find is a flexible tool that can retrieve a task according to any of its parameters. "
+		"Delete is just a one-line wonder that performs what it is meant to do. TaskPad also has Hot Key Templating: " 
+		"all 4 functions are made simple with intuitive hotkeys that calls the full command template with clear " 
+		"instructions.<br /><br />"
+		"<b>TaskPad Team</b>: ASHRAY JAIN, XIE KAI, AN JIANGZE, M. THYAGESH, LI ZIXUAN.";
+	popMsgBox(DEFAULT_WIN_TITLE, description);
 }
 
 void MainWindow::help(){
-	popMsgBox(DEFAULT_WIN_TITLE, "Geek doesn't need help from us :p");
+	QString hotkeyList = \
+		"<b>Global Hotkeys</b><br />"
+		"Alt + ` 			        : open quick add window<br />"
+		"Ctrl + Alt + T 		    : open main window<br />"
+		"<br />"
+		"<b>Local Hotkeys</b><br />"
+		"<b>Quick Add window</b><br />"
+		"ESC			            : exit window<br />"
+		"<br />"
+		"<b>Mainwindow</b><br />"
+		"Ctrl + H 		            : hide main window<br />"
+		"Ctrl + T 		            : show Today's view<br />"
+		"Ctrl + I			        : show Inbox's view<br />"
+		"Alt + 1 			        : show Today's view<br />"
+		"Alt + 2 			        : show Inbox's view<br />"
+		"// Date Navigation<br />"
+		"Alt + D 		            : show next day<br />"
+		"Alt + Shift + D 		    : show prev. day<br />"
+		"Alt + W 		            : show next week<br />"
+		"Alt + Shift + W 	        : show prev. day<br />"
+		"Alt + M 		            : show next month<br />"
+		"Alt + Shift + M 		    : show prev. month<br />"
+		"<br />"
+		"<b>CommandBar</b><br />"
+		"// Hotkey Template<br />"
+		"Ctrl + N		            : new deadline task<br />"
+		"Ctrl + Shift + N 	        : new timed task<br />"
+		"Ctrl + M 		            : modify task as done<br />"
+		"Ctrl + Shift + M 	        : modify task by index<br />"
+		"Ctrl + Alt + Shift + M 	: modify task by name<br />"
+		"Ctrl + D 		            : delete task by index<br />"
+		"Ctrl + Shift + D 	        : delete task by name<br />"
+		"Ctrl + F 		            : find task<br />"
+		"Ctrl + U 		            : undo<br />"
+		"Ctrl + R 		            : redo<br />"
+		"Tab/Space 		            : auto complete<br />"
+		"<br />"
+		"// in HotKey Template mode<br />"
+		"Tab 			            : jump to next blank<br />"
+		"Shift + Tab 		        : jump to prev. blank;<br /><br />"
+		"For more information, kindly refer to our<br />"
+		"<a href=\"http://bit.ly/HEdCw4\">Project Manual</a>";
+	popMsgBox(DEFAULT_WIN_TITLE, hotkeyList);
 }
 
 void MainWindow::popMsgBox(QString title, QString description){
