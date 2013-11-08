@@ -17,7 +17,8 @@
   * 
  */
 
-#pragma once
+#ifndef _FILEHANDLER_H_
+#define _FILEHANDLER_H_
 
 #include<fstream>
 
@@ -32,8 +33,6 @@ class TaskFileHandler
 				std::string getDeletedTaskFilePath	(const Task& task);
 
 		const static std::string TASK_DIRECTORY;
-		const static std::string RECORD_MODIFIED_FILE_NAME;
-		const static std::string RECORD_DELETED_FILE_NAME;
 
 		static const std::string LABEL_START_OF_TASK;
 		static const std::string LABEL_NAME;
@@ -50,3 +49,5 @@ class TaskFileHandler
 		static const std::string LABEL_STATE;
 		static const std::string LABEL_END_OF_TASK;
 };
+
+#endif
