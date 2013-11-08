@@ -35,13 +35,16 @@ private:
 	void			runSearchWithTask			(const Task &taskToCompare, list<Task> &results, string substringName, 
 												 set<Task> &customData);
 	bool			taskMatch					(const Task& lhs, const Task& rhs);
+	bool			taskStatesNotEqual			(const TP::TASK_STATE &lhs, const TP::TASK_STATE &rhs) const;
 	bool			participantsMatchFound		(const list<string> &rhsParticipants, const list<string> &lhsParticipants) const;
 	bool			invalidDateChk				(const Task &lhs, const Task &rhs) const;
 	bool			chkDateBound				(const time_t &fromTime, const time_t &toTime, const Task &lhs) const;
 	bool			chkFromDateBound			(const time_t &fromTime, const Task &lhs) const;
 	bool			chkToDateBound				(const time_t &toTime, const Task &lhs) const;
 	std::list<Task> getSortListByPriority		(std::list<Task> &taskList);
+	std::list<Task> getSortListByFromTime		(std::list<Task> &taskList);
 
 	// Custom Comparator for sorting Tasks by Priority
-	static bool sortTaskByPriorityComparator	(const Task first, const Task second);
+	static bool sortTaskByPriorityComparator	(const Task &first, const Task &second);
+	static bool sortTaskByFromTimeComparator	(const Task &first, const Task &second); 
 };
