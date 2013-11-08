@@ -52,6 +52,7 @@ class Manager {
 		void saveChanges							();
 
 		//helper functions
+		void setResponseToError						();
 		bool hasNoError								();
 		bool isSuccessfulCommand					();
 		bool hasInterpretationError					();
