@@ -1,5 +1,23 @@
+/*
+ * =====================================================================================
+ *
+ *       Filename:  CommandBar.h
+ *
+ *           Note:  CommandBar class handles all the issues of command input textbox, which
+ * are used in MainWindow and QuickAddWindow
+ *
+ *        Version:  1.0
+ *        Created:  10/21/13 16:13:09
+ *
+ *         Author:  XIE KAI (A0102016E), gigikie@gmail.com
+ *   Organization:  NUS, SoC
+ *
+ * =====================================================================================
+ */
+
 #ifndef _CMD_BAR_H
 #define _CMD_BAR_H
+
 #include <QtWidgets/QTextEdit>
 #include <QCompleter>
 #include <QStringListModel>
@@ -12,12 +30,15 @@
 #define TURN_OFF_AC		autoCompleteToggle(false);
 #define TURN_ON_AC		autoCompleteToggle(true);
 
-class CommandBar: public QTextEdit
-{
+class CommandBar: public QTextEdit{
+
 	Q_OBJECT
 
 public:
 	CommandBar(QWidget *parent);
+
+	void initRegExp();
+
 	QString getCurrentLine();
 	void pushCurrentLine();
 	void setQuickAddMode();
@@ -42,10 +63,12 @@ private:
 	static const QStringList KEYWORD_LIST_REMOVE;
 	static const QStringList KEYWORD_LIST_ADD;
 	static const QStringList KEYWORD_LIST_FIND;
+	static const char* NEW_LINE;
 	static const QString SPACE;
 	static const QString INCLUDE_QUOTE_LEFT_PAIR;
 	static const QString SINGLE_QUOTATION_MARK;
 	static const QString QUOTE_LEFT;
+	static const QString QUOTE_LEFT_PAIR;
 	static const QString EMPTY;
 	//HOTKEY TEMPLATE RELATED
 	static const QString HOTKEY_TEMPLATE_ADD;
@@ -58,6 +81,7 @@ private:
 	static const QString HOTKEY_TEMPLATE_FIND;
 	static const QString HOTKEY_TEMPLATE_UNDO;
 	static const QString HOTKEY_TEMPLATE_REDO;
+	static const QString HOTKEY_TEMPLATE_BLANK;
 	//INIT RELATED
 	void initWidgets();
 	void initCompleter();
@@ -116,7 +140,7 @@ private:
 	QStringListModel* model;
 	QCompleter* completer;
 	QRegExp hotkeyTemplate;//TODO: rename it
-	QRegExp REGEXP_quoteLeft;
+	QRegExp REGEXP_quoteLeftPairs;
 	QStack<QString> inputHistory_undo;
 	QStack<QString> inputHistory_redo;
 	//Short cut
