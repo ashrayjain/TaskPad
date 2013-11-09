@@ -33,7 +33,7 @@ void Datastore::clearUndoStack() {
 void Datastore::addTask(const Task &newTask) {
 	_ds->addTask(newTask);
 	_indexHash[newTask.getIndex()] = &(_ds->back());
-	handleHashTagPtrs(_ds->back(), _ds->back().getTags());
+	handleHashTagPtrs(_ds->back(), getLowerStrList(_ds->back().getTags()));
 	handleRemindTimesPtrs(_ds->back(), _ds->back().getRemindTimes());
 }
 
@@ -104,7 +104,7 @@ void Datastore::deleteTask(Datastore::const_iterator k) {
 
 
 void Datastore::deleteHashTags(Task &task) {
-	list<string> tags = task.getTags();
+	list<string> tags = getLowerStrList(task.getTags());
 	list<list<Task*>::iterator> tagPtrs = task.getHashTagPtrs();
 	list<string>::iterator k = tags.begin();
 	for (list<list<Task*>::iterator>::iterator j = tagPtrs.begin(); j != tagPtrs.end(); j++, k++)
@@ -225,7 +225,7 @@ void Datastore::modifyTaskWithPtr(Task &oldTask, Command_Mod* cmd) {
 void Datastore::handleHashTagsModify(Task &oldTask, const list<string> &newTags) {
 	deleteHashTags(oldTask);
 	oldTask.setTags(newTags);
-	handleHashTagPtrs(oldTask, newTags);
+	handleHashTagPtrs(oldTask, getLowerStrList(newTags));
 }
 
 void Datastore::handleRemindTimesModify(Task &oldTask, const list<time_t> &newRemindTimes) {
@@ -297,4 +297,19 @@ void Datastore::popTopUndoStackToRedoStack() {
 	}
 	else
 		throw exception("Nothing to pop");
+}
+
+// Utility functions
+
+string Datastore::getLowerStr(string str) {
+	string lowerStr = str;
+	transform(str.begin(), str.end(), lowerStr.begin(), ::tolower);
+	return lowerStr;
+}
+
+list<string> Datastore::getLowerStrList(list<string> strList) {
+	list<string> lowerStrList;
+	for(list<string>::const_iterator i = strList.begin(); i != strList.end(); i++)
+		lowerStrList.push_back(getLowerStr(*i));
+	return lowerStrList;
 }

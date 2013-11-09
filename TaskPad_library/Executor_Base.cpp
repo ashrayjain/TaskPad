@@ -28,21 +28,6 @@ const std::string		Executor_Base::INVALID_TODATE_ERROR			= "Invalid 'To' Attribu
 const std::string		Executor_Base::INVALID_FROMDATE_TODATE_ERROR= "Invalid 'From' and 'To' Attributes!";
 const std::string		Executor_Base::NAME_NOT_SPECIFIED_ERROR		= "No Name specified!";
 
-// Utility functions
-
-string Executor_Base::getLowerStr(string str) {
-	string lowerStr = str;
-	transform(str.begin(), str.end(), lowerStr.begin(), ::tolower);
-	return lowerStr;
-}
-
-list<string> Executor_Base::getLowerStrList(list<string> strList) {
-	list<string> lowerStrList;
-	for(list<string>::const_iterator i = strList.begin(); i != strList.end(); i++)
-		lowerStrList.push_back(getLowerStr(*i));
-	return lowerStrList;
-}
-
 // Status setting functions
 
 void Executor_Base::setOpSuccessTask(const Task &retTask, Messenger &response) {
