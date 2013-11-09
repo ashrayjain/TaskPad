@@ -1236,7 +1236,8 @@ bool MainWindow::eventFilter(QObject* watched, QEvent* event){
 }
 
 void MainWindow::keyPressEvent(QKeyEvent* event){
-	ui.cmdBar->setFocus();
+	if(event->modifiers() != Qt::ControlModifier)
+		ui.cmdBar->setFocus();
 	if(event->key() == Qt::Key_Escape)
 		getToday();
 	QMainWindow::keyPressEvent(event);
