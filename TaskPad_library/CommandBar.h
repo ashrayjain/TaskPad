@@ -58,6 +58,8 @@ protected slots:
 	void hkTemplateGoBackwards();
 
 private:
+	static const int TOO_LONG;
+	static const int MAX_LENGTH;
 	static const QStringList COMMAND_LIST;
 	static const QStringList KEYWORD_LIST;
 	static const QStringList KEYWORD_LIST_REMOVE;
@@ -84,32 +86,31 @@ private:
 	static const QString HOTKEY_TEMPLATE_BLANK;
 	//INIT RELATED
 	void initWidgets();
+	void initState();
 	void initCompleter();
 	void initModel();
 	void initConnections();
 	//AUTO COMPLETION RELATED
 	void autoCompleteToggle(bool flag);
 	void performCompletion(const QString&);
+	void handleTextTooLong();
 	QString getWordUnderCursor();
 	bool isLastCharLetter(QString str);
 	bool hasKeywordNearby(QString keyword, QTextCursor::MoveOperation direction);
-	bool hasSingleQuotationMark_LHS();
-	bool hasSingleQuotationMark_RHS();
 	bool hasQuoteLeft_RHS();
 	bool hasQuoteLeft_LHS();
-	bool hasSpace_LHS();
-	bool hasSpace_RHS();
-	bool hasSharp_LHS();
-	bool hasAdd_LHS();
-	bool hasMinus_LHS();
+	bool hasKeywordAtStartOfWord(const char* keyword);
+	bool hasSharpAtStartOfWord();
+	bool hasPlusAtStartOfWord();
+	bool hasMinusAtStartOfWord();
 	void clearCharNearby(QTextCursor::MoveOperation direction);
 	void clearCharRHS();
 	void clearCharLHS();
 	void insertCompletion(const QString &completion);
 	void insertFromMimeData(const QMimeData * source);
+	void makeTextPlain( const QMimeData * source );
 	bool CommandBar::containsQuoteLeftPair(QString str);
 	bool isWithinPairOfQuoteLeft();
-	int getLastQuoteLeftPos();
 	QVector<QPair<int, int> > getQuoteLeftPositions();
 	bool isEvenQuoteLefts();
 	bool isHotkeyTemplateMode();
@@ -127,6 +128,8 @@ private:
 	void handleKeyQuoteLeft(bool *isHandled);
 	void handleKeyEscape(bool *isHandled);
 	void handleKeyTab(bool *isHandled);
+	void handleHotKeyGoForwards();
+	void handleHotKeyGoBackwards();
 	void handleKeySpace(bool *isHandled);
 	void handleKeyDelete(bool *isHandled);
 	void handleKeyBackspace(bool *isHandled);
