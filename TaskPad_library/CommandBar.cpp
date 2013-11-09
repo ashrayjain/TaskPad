@@ -466,9 +466,14 @@ void CommandBar::handleKeyQuoteLeft(bool *isHandled){
 	QTextCursor cursor = textCursor();
 	if(containsQuoteLeftPair(cursor.selectedText())){
 		TEXT_EDIT_BEGIN
-			cursor.clearSelection();
+		cursor.clearSelection();
 		cursor.movePosition(QTextCursor::Left);
 		TEXT_EDIT_END
+	}
+	else if(cursor.selectedText() != EMPTY){
+		cursor.clearSelection();
+		cursor.insertText(SPACE + QUOTE_LEFT + QUOTE_LEFT);
+		cursor.movePosition(QTextCursor::Left, QTextCursor::MoveAnchor);
 	}
 	else if(isWithinPairOfQuoteLeft() && hasQuoteLeft_RHS()){
 		cursor.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor);
@@ -478,16 +483,8 @@ void CommandBar::handleKeyQuoteLeft(bool *isHandled){
 		cursor.insertText(QUOTE_LEFT + QUOTE_LEFT);
 		cursor.movePosition(QTextCursor::Left, QTextCursor::MoveAnchor);
 	}
-	else if(!isWithinPairOfQuoteLeft() && !isEvenQuoteLefts()){
-		cursor.insertText(QUOTE_LEFT);
-	}
-	else if(isWithinPairOfQuoteLeft()){
-		cursor.insertText(QUOTE_LEFT);
-	}
 	else{
-		cursor.clearSelection();
-		cursor.insertText(SPACE + QUOTE_LEFT + QUOTE_LEFT);
-		cursor.movePosition(QTextCursor::Left, QTextCursor::MoveAnchor);
+		cursor.insertText(QUOTE_LEFT);
 	}
 	setTextCursor(cursor);
 	*isHandled = true;
