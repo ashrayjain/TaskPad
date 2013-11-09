@@ -31,7 +31,13 @@ class Messenger {
 	public:
 
 		// constructor
-		Messenger(TP::COMMAND_TYPE commandType=TP::UNDEFINED, TP::STATUS status=TP::SUCCESS, std::list<Task> resultList= std::list<Task>(), Task resultTask=Task(), int index =-1, std::string errorMsg="");
+		Messenger(
+			TP::COMMAND_TYPE commandType=TP::UNDEFINED, 
+			TP::STATUS status=TP::SUCCESS, 
+			std::list<Task> resultList= std::list<Task>(), 
+			Task resultTask=Task(), 
+			int index =-1, 
+			std::string errorMsg="");
 
 		//getter methods
 		
