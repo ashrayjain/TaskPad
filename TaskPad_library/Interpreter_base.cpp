@@ -43,7 +43,7 @@ const string Interpreter_base:: STATUS_OVERDUE="overdue";
 
 const string Interpreter_base:: TYPE_TIMED="timed";
 const string Interpreter_base:: TYPE_DEADLINE="deadline";
-const string Interpreter_base:: TIME_ERROR_MESSAGE="Cannot parse the time format!";
+const string Interpreter_base:: TIME_FORMAT_ERROR="Cannot parse the time format!";
 
 const char Interpreter_base:: NOTATION_COMMA=',';
 const char Interpreter_base:: NOTATION_HASH='#';
@@ -79,25 +79,22 @@ bool Interpreter_base::checkKeyWord(string command, int position){
 	vector<int> positionForNotion; 
 	positionForNotion.push_back(DUMMY_VALUE); // dummy value;
 	bool isKeyWord=true;
-
-
+    int count=ONE_ITEM;
+	
 	for(int i=START_POSITION;i<command.length();i++){
 		if(command.at(i)==NOTATION_ACCENT_GRAVE){
 			positionForNotion.push_back(i);
 		}
 	}
-
-	int count=ONE_ITEM;
-
 	while(isKeyWord &&count<(int)positionForNotion.size()){
 		if(position>positionForNotion[count] && position<positionForNotion[count+CHANGE_BY_ONE]){
 			isKeyWord=false;
 		}
 		count=count+CHANGE_BY_TWO;
 	}
-
 	return isKeyWord;
 } 
+
 
 void Interpreter_base:: extractQuotedMessage(string field, string & QuotedMessage){
 
@@ -108,12 +105,13 @@ void Interpreter_base:: extractQuotedMessage(string field, string & QuotedMessag
 
 	return;
 }
-int Interpreter_base:: getIndexMessage(string command,bool& flag){
 
+int Interpreter_base:: getIndexMessage(string command,bool& flag){
 	int num;
 	flag=integerConverter(command, num);
 	return num;
 }	
+
 
 bool Interpreter_base::checkDuplicate(string command, string cmdTemplate,int startPosition){
 
@@ -129,11 +127,11 @@ bool Interpreter_base::checkDuplicate(string command, string cmdTemplate,int sta
 	if(field.length()>EMPTY_STRING){
 		isDuplicate=true;
 	}
-
 	return isDuplicate;
 }
 
-bool Interpreter_base::extractField(string command, smatch & match, regex extractTemplate, string&field){
+
+bool Interpreter_base::extractField(string command, smatch &match, regex extractTemplate, string&field){
 
 	bool isSuccessful=false;
 
@@ -141,11 +139,9 @@ bool Interpreter_base::extractField(string command, smatch & match, regex extrac
 		field=match[START_POSITION];
 		isSuccessful=true;
 	}
-
-
-
 	return isSuccessful;
 }
+
 
 bool Interpreter_base::getDueDateMessage(string command, bool&flag, time_t& content){
 
@@ -177,8 +173,9 @@ bool Interpreter_base::getDueDateMessage(string command, bool&flag, time_t& cont
 			flag=false;
 		}
 
+		
+		// Check whether the command has "from" or not.
 		field.clear();
-
 		regex checkFrom(FIELD_FROM);
 		if (regex_search(command, match, checkFrom)){
 			field=match[START_POSITION];
@@ -188,8 +185,8 @@ bool Interpreter_base::getDueDateMessage(string command, bool&flag, time_t& cont
 			flag=false;
 		}
 
+		// Check whether the command has "to" or not.
 		field.clear();
-
 		regex checkTo(FIELD_TO);
 
 		if (regex_search(command, match, checkTo)){
@@ -217,14 +214,11 @@ bool Interpreter_base::getFromDateMessage(string command, bool&flag, time_t& con
 	bool isNotEmpty=true;
 
 	if (regex_search(command, match, extractTemplate)){
-
 		field=match[START_POSITION];
-
 	}
+	
 	if(!field.empty()){
-
 		extractQuotedMessage(field, QuotedMessage);
-
 		if(QuotedMessage.empty())isNotEmpty=false;
 		else{
 			bool isDue=false;
@@ -236,7 +230,7 @@ bool Interpreter_base::getFromDateMessage(string command, bool&flag, time_t& con
 			flag=false;
 		}		
 
-
+       // Check whether the command has "due" or not.
 		regex checkDue(FIELD_DUE);
 		field.clear();
 		if (regex_search(command, match, checkDue)){
@@ -245,8 +239,6 @@ bool Interpreter_base::getFromDateMessage(string command, bool&flag, time_t& con
 
 		}
 		if(!field.empty())flag=false;
-
-
 
 	}
 	else{
@@ -269,9 +261,7 @@ bool Interpreter_base::getToDateMessage(string command, bool&flag, time_t& conte
 	bool isNotEmpty=true;
 
 	if (regex_search(command, match, extractTemplate)){
-
 		field=match[START_POSITION];
-
 	}
 	if(!field.empty()){
 
@@ -285,13 +275,12 @@ bool Interpreter_base::getToDateMessage(string command, bool&flag, time_t& conte
 			
 		}
 
-
 		if(checkDuplicate(command,FIELD_TO,match.position())==true){
 
 			flag=false;
 		}
 
-
+        // Check whether the command has the "due" or not.
 		regex checkDue(FIELD_DUE);
 		field.clear();
 		if (regex_search(command, match, checkDue)){
@@ -569,13 +558,10 @@ bool Interpreter_base::	setRemindTimesMessage(string command, bool&flag,list<tim
 bool Interpreter_base::getTaskStateMessage(string command, bool&flag, TP::TASK_STATE& content){ 
 
 	TASK_STATE task_state;
-
-
 	int count=EMPTY_ITEM;
 	bool isNotEmpty=true;
 
 	vector<string>result=extractNoParameterMessage(command,FIELD_TASK_STATE,count);
-
 
 	if(count==EMPTY_ITEM){
 		isNotEmpty=false;
@@ -663,10 +649,6 @@ bool Interpreter_base::getTaskTypeMessage(string command, bool&flag, TP::TASK_TY
 	bool isNotEmpty=true;
 
 	vector<string>result=extractNoParameterMessage(command,FIELD_TASK_TYPE,count);
-
-
-
-
 	if(count==EMPTY_ITEM){
 		isNotEmpty=false;
 	}
@@ -887,13 +869,8 @@ time_t Interpreter_base::setTime(string field,bool& flag, bool& isDue){
 		timeMessage.tm_hour=hour;
 		timeMessage.tm_min=min;
 	}
-
-
-	
 	
 	return mktime(&timeMessage);
-
-
 }
 
 

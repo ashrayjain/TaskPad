@@ -16,20 +16,20 @@ Command* Interpreter_Add::interpretAdd(Command_Add* commandType, std::string com
 	if(getDueDateMessage(commandStr,flag,contentTime)){		
 		commandType->setDueDate(contentTime);		
 		if(flag==false){
-			throw TIME_ERROR_MESSAGE;
+			throw TIME_FORMAT_ERROR;
 		}
 
 	}		
 	if(getFromDateMessage(commandStr,flag,contentTime)){
 		commandType->setFromDate(contentTime);
 		if(flag==false){
-			throw TIME_ERROR_MESSAGE;
+			throw TIME_FORMAT_ERROR;
 		}
 	}
 	if(getToDateMessage(commandStr,flag,contentTime)){
 		commandType->setToDate(contentTime);
 		if(flag==false){
-			throw TIME_ERROR_MESSAGE;
+			throw TIME_FORMAT_ERROR;
 		}
 	}
 	if(setParticipantsMessage(commandStr,flag,contentStringList,FIELD_PPL)){

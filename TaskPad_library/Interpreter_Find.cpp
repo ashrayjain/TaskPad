@@ -9,6 +9,74 @@ const int PULLED_DOWN_MIN=0;
 const int PUSHED_UP_HOUR=23;
 const int PUSHED_UP_MIN=59;
 
+
+Command* Interpreter_Find::interpretFind(Command_Find* commandType, std::string commandStr, Messenger &response, bool &flag){
+
+
+	PRIORITY		contentPriority;
+	string			contentString;
+	list<string>	contentStringList;
+	TASK_STATE		contentTaskState;
+	TASK_TYPE		contentTaskType;
+	time_t			contentTime;
+	list<time_t>	contentTimeList;
+
+
+	if(getFromDateMessage(commandStr,flag,contentTime)){
+		commandType->setFromDate(contentTime);
+	}
+	if(getToDateMessage(commandStr,flag,contentTime)){
+		commandType->setToDate(contentTime);
+	}
+	if(setParticipantsMessage(commandStr,flag,contentStringList,FIELD_PPL)){
+		commandType->setParticipants(contentStringList);
+	}
+	if(setGeneralMessage(commandStr,flag,contentString,FIELD_NOTE)){
+		commandType->setNote(contentString);
+	}
+	if(setGeneralMessage(commandStr,flag,contentString,FIELD_AT)){
+		commandType->setLocation(contentString);
+	}
+	if(setRemindTimesMessage(commandStr,flag,contentTimeList,FIELD_RT)){
+		commandType->setRemindTimes(contentTimeList);
+	}
+	if(setTagsMessage(commandStr,flag,contentStringList,FIELD_TAG)){
+		commandType->setTags(contentStringList);
+	}
+	if(setGeneralMessage(commandStr,flag,contentString,FIELD_NAME)){
+		commandType->setOptName(contentString);
+	}
+	if(getTaskStateMessage(commandStr,flag,contentTaskState)){
+		commandType->setTaskState(contentTaskState);
+	}
+	if(getTaskTypeMessage(commandStr,flag,contentTaskType)){
+		commandType->setTaskState(contentTaskState);
+	}	
+	if(getPriorityMessage(commandStr,flag,contentPriority)){
+		commandType->setPriority(contentPriority);
+	}
+	
+	if(commandType->getFlagFrom()==true && commandType->getFlagTo()==true){
+		if(commandType->getFromDate()>commandType->getToDate()){
+			flag=false;
+		}
+		if(commandType->getFromDate()==commandType->getToDate()){
+			commandType->setFromDate(pullDownFromDate(commandType->getFromDate()));
+			commandType->setToDate(pushUpToDate(commandType->getToDate()));
+		}
+	}
+
+	if(flag==true){
+		response.setStatus(SUCCESS);
+		response.setCommandType(FIND);
+	}
+	else{ 
+		delete commandType;
+		commandType=NULL;
+	}
+	return (Command*)commandType;
+}
+
 time_t Interpreter_Find::setTime(string commandStr, bool&flag){
 	commandStr = natty::getNatty().parseDateTime(commandStr);
 	int year=UNINITIALIZED_TIME,month=UNINITIALIZED_TIME,day=UNINITIALIZED_TIME,hour=UNINITIALIZED_TIME,min=UNINITIALIZED_TIME,second=CHANGE_BY_ONE;
@@ -281,79 +349,4 @@ time_t Interpreter_Find::pushUpToDate(std::time_t givenTime){
 	return mktime(&pushedUpTime);
 }
 
-Command* Interpreter_Find::interpretFind(Command_Find* commandType, std::string commandStr, Messenger &response, bool &flag){
-
-
-	PRIORITY		contentPriority;
-	string			contentString;
-	list<string>	contentStringList;
-	TASK_STATE		contentTaskState;
-	TASK_TYPE		contentTaskType;
-	time_t			contentTime;
-	list<time_t>	contentTimeList;
-
-
-	if(getFromDateMessage(commandStr,flag,contentTime)){
-		commandType->setFromDate(contentTime);
-		if(flag==false){
-			throw TIME_ERROR_MESSAGE;
-		}	
-	}
-	if(getToDateMessage(commandStr,flag,contentTime)){
-		commandType->setToDate(contentTime);
-		if(flag==false){
-			throw TIME_ERROR_MESSAGE;
-		}
-	}
-	if(setParticipantsMessage(commandStr,flag,contentStringList,FIELD_PPL)){
-		commandType->setParticipants(contentStringList);
-	}
-	if(setGeneralMessage(commandStr,flag,contentString,FIELD_NOTE)){
-		commandType->setNote(contentString);
-	}
-	if(setGeneralMessage(commandStr,flag,contentString,FIELD_AT)){
-		commandType->setLocation(contentString);
-	}
-	if(setRemindTimesMessage(commandStr,flag,contentTimeList,FIELD_RT)){
-		commandType->setRemindTimes(contentTimeList);
-		if(flag==false){
-			throw TIME_ERROR_MESSAGE;
-		}
-	}
-	if(setTagsMessage(commandStr,flag,contentStringList,FIELD_TAG)){
-		commandType->setTags(contentStringList);
-	}
-	if(setGeneralMessage(commandStr,flag,contentString,FIELD_NAME)){
-		commandType->setOptName(contentString);
-	}
-	if(getTaskStateMessage(commandStr,flag,contentTaskState)){
-		commandType->setTaskState(contentTaskState);
-	}
-	if(getTaskTypeMessage(commandStr,flag,contentTaskType)){
-		commandType->setTaskState(contentTaskState);
-	}	
-	if(getPriorityMessage(commandStr,flag,contentPriority)){
-		commandType->setPriority(contentPriority);
-	}
-
-	if(commandType->getFlagFrom()==true && commandType->getFlagTo()==true){
-		if(commandType->getFromDate()>commandType->getToDate()){
-			flag=false;
-		}
-		if(commandType->getFromDate()==commandType->getToDate()){
-			commandType->setFromDate(pullDownFromDate(commandType->getFromDate()));
-			commandType->setToDate(pushUpToDate(commandType->getToDate()));
-		}
-	}
-
-	if(flag==true){
-		response.setStatus(SUCCESS);
-		response.setCommandType(FIND);
-	}
-	else{ 
-		delete commandType;
-		commandType=NULL;
-	}
-	return (Command*)commandType;
-}
 
