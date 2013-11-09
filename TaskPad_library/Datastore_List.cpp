@@ -15,6 +15,7 @@
 #include "Datastore_List.h"
 
 using namespace std;
+using namespace TP;
 
 list<Task> Datastore_List::getAllTasks() {
 	list<Task> taskList;

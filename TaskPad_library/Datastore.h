@@ -105,7 +105,7 @@ public:
 		Datastore_Type::const_iterator* i;
     };
 
-	list<Task>	getTaskList(){ return _ds->getAllTasks();	}
+	std::list<Task>					getTaskList(){ return _ds->getAllTasks();	}
 
 	void							addTask						(const Task &newTask);
 	void							deleteTask					(const unsigned &pos);
@@ -115,8 +115,8 @@ public:
 	Task							modifyTaskWithIndex			(const unsigned long long index, Command_Mod* cmd);
 	Task							indexHashSearch				(unsigned long long indexToSearch);
 	bool							isIndexPresent				(unsigned long long indexToSearch);
-	list<Task>						getTasksWithHash			(std::string hash);
-	list<Task>						getTasksWithRemindTimes		(std::time_t remindTime);
+	std::list<Task>					getTasksWithHash			(std::string hash);
+	std::list<Task>					getTasksWithRemindTimes		(std::time_t remindTime);
 	void							stackCmdForUndo				(Command* cmd, Messenger &response);
 	bool							isUndoStackEmpty			() { return _undoStack.empty(); }
 	bool							isRedoStackEmpty			() { return _redoStack.empty(); }

@@ -15,6 +15,7 @@
 #include "Datastore.h"
 
 using namespace std;
+using namespace TP;
 
 void Datastore::clearRedoStack() {
 	while(!_redoStack.empty()) {

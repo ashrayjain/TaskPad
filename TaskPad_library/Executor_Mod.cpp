@@ -14,6 +14,9 @@
 
 #include "Executor_Mod.h"
 
+using namespace std;
+using namespace TP;
+
 void Executor_Mod::executeCommand(Command* cmd, Messenger &response, Datastore &ds) {
 	Command_Mod* modCmd = dynamic_cast<Command_Mod*>(cmd);
 	if(modCmd->getFlagCreatedTime())

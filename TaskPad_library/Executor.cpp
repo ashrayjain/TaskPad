@@ -14,6 +14,9 @@
 
 #include "Executor.h"
 
+using namespace std;
+using namespace TP;
+
 list<Task> Executor::getCurrentReminders() {
 	time_t now = time(NULL);
 	struct tm* timeNow = localtime(&now);

@@ -15,6 +15,7 @@
 #include "Executor_Base.h"
 
 using namespace std;
+using namespace TP;
 
 const unsigned			Executor_Base::EMPTY_LIST_SIZE				= 0;
 const unsigned			Executor_Base::SINGLE_RESULT_LIST_SIZE		= 1;

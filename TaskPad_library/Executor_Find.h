@@ -24,17 +24,18 @@ private:
 	void			findByIndex					(const unsigned long long index, Messenger &response, Datastore &ds);
 	void			findGeneral					(Command_Find* cmd, Messenger &response, Datastore &ds);
 	void			runSearch					(const Task &taskToCompare, std::list<Task> &results, std::string substringName, 
-												 set<Task> &customData, bool customDataSet, Datastore &ds);
+												 std::set<Task> &customData, bool customDataSet, Datastore &ds);
 	void			findByTags					(Command_Find* cmd, Messenger &response);
-	void			getCustomDataRangeByTags	(set<Task> &customDataRange, std::list<std::string> &tags, Datastore &ds);
-	void			getCustomDataRangeByRT		(set<Task> &customDataRange, std::list<time_t> &remindTimes, Datastore &ds);
+	void			getCustomDataRangeByTags	(std::set<Task> &customDataRange, std::list<std::string> &tags, Datastore &ds);
+	void			getCustomDataRangeByRT		(std::set<Task> &customDataRange, std::list<time_t> &remindTimes, Datastore &ds);
 	void			filterResponseListByType	(Messenger &response, std::list<TP::TASK_TYPE> &types);
 	void			runSearchWithTask			(const Task &taskToCompare,	std::list<Task> &results, Datastore &ds);
 	void			runSearchWithTask			(const Task &taskToCompare, std::list<Task> &results, 
 												 std::string substringName, Datastore &ds);
-	void			runSearchWithTask			(const Task &taskToCompare,	std::list<Task> &results, set<Task> &customData);
+	void			runSearchWithTask			(const Task &taskToCompare,	std::list<Task> &results,
+												 std::set<Task> &customData);
 	void			runSearchWithTask			(const Task &taskToCompare, std::list<Task> &results, 
-												 std::string substringName, set<Task> &customData);
+												 std::string substringName, std::set<Task> &customData);
 	bool			taskMatch					(const Task& lhs, const Task& rhs);
 	bool			taskStatesNotEqual			(const TP::TASK_STATE &lhs, const TP::TASK_STATE &rhs) const;
 	bool			participantsMatchFound		(const std::list<std::string> &rhsParticipants, 

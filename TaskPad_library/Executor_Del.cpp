@@ -14,6 +14,9 @@
 
 #include "Executor_Del.h"
 
+using namespace std;
+using namespace TP;
+
 void Executor_Del::executeCommand(Command* cmd, Messenger &response, Datastore &ds) {
 	Command_Del* delCmd = dynamic_cast<Command_Del*>(cmd);
 	if (delCmd->getFlagCreatedTime())

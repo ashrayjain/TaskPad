@@ -14,6 +14,9 @@
 
 #include "Executor_Add.h"
 
+using namespace std;
+using namespace TP;
+
 const unsigned			Executor_Add::RT_MIN_H_ARR[]				= {5, 15, 30, 60};
 const unsigned			Executor_Add::RT_MIN_M_ARR[]				= {15, 30};
 const unsigned			Executor_Add::RT_MIN_L_ARR[]				= {60};
