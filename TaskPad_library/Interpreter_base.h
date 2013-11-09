@@ -54,6 +54,7 @@ protected:
 	const static std::string PRIORITY_MEDIUM_FULL;
 	const static std::string PRIORITY_LOW_ABBREV;
 	const static std::string PRIORITY_LOW_FULL;
+	const static std::string TIME_ERROR_MESSAGE;
 
 	const static std::string STATUS_UNDONE;
 	const static std::string STATUS_DONE;
