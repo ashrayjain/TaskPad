@@ -2,6 +2,7 @@
 #include "Natty.h"
 
 using namespace std;
+using namespace TP;
 
 
 const string Interpreter_base:: FIELD_NAME=" name `[^`]*`";
