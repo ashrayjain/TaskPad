@@ -175,9 +175,6 @@
     <ClInclude Include="Interpreter.h">
       <Filter>Header Files\Logic_Related</Filter>
     </ClInclude>
-    <ClInclude Include="Logger.h">
-      <Filter>Header Files\Logic_Related</Filter>
-    </ClInclude>
     <ClInclude Include="Manager.h">
       <Filter>Header Files\Logic_Related</Filter>
     </ClInclude>
@@ -247,6 +244,9 @@
     <ClInclude Include="DateTimeParser.h">
       <Filter>Header Files\Logic_Related</Filter>
     </ClInclude>
+    <ClInclude Include="Logger.h">
+      <Filter>Header Files\Commons</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GeneratedFiles\Debug\moc_CommandBar.cpp">
@@ -299,9 +299,6 @@
     </ClCompile>
     <ClCompile Include="ListItemDelegate.cpp">
       <Filter>Source Files\UI_Related</Filter>
-    </ClCompile>
-    <ClCompile Include="Logger.cpp">
-      <Filter>Source Files\Logic_Related</Filter>
     </ClCompile>
     <ClCompile Include="Manager.cpp">
       <Filter>Source Files\Logic_Related</Filter>
@@ -389,6 +386,9 @@
     </ClCompile>
     <ClCompile Include="Interpreter_Find.cpp">
       <Filter>Source Files\Logic_Related</Filter>
+    </ClCompile>
+    <ClCompile Include="Logger.cpp">
+      <Filter>Source Files\Commons</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
