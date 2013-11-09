@@ -128,11 +128,15 @@ void Manager::saveChanges()
 	if(this->isSuccessfulCommand()){
 		switch(this->_cmd->getCommandType())
 		{
+			case ADD:
+				/* empty and falls through*/
 			case MOD:
 				/* empty and falls through*/
 			case DEL:
-				/* empty and falls through*/
-			case ADD:
+			//	/* empty and falls through*/
+			//case UNDO:
+			//	/* empty and falls through*/
+			//case REDO:
 				_logger->log("Manager","saving changes");
 				this->_storage->save(this->_response.getTask(),this->_response.getCommandType());
 				break;

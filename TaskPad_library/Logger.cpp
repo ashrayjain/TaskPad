@@ -187,7 +187,7 @@ void Logger::log (std::string callingClass, std::string message, LOG_TYPE logTyp
 				break;
 			case FATALLOG:
 				logFatal(completeMessage);
-				throw MESSAGE_ERROR_FATAL_LOG;
+				throw FatalLogException(MESSAGE_ERROR_FATAL_LOG);
 				break;
 		}
 	}
