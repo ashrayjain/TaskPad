@@ -74,7 +74,7 @@ void Executor::getTasksFromTaskPtrList(list<Task> &taskResults, list<Task*> &res
 		taskResults.push_back(Task(**i));
 }
 */
-void Executor::executeCommand(Command* cmd, Messenger &response) {
+void Executor::executeCommand(Command* &cmd, Messenger &response) {
 	Executor_Base* executor;
 	switch (cmd->getCommandType()) {
 	case COMMAND_TYPE::ADD:	executor = new Executor_Add();
@@ -97,17 +97,19 @@ void Executor::executeCommand(Command* cmd, Messenger &response) {
 							break;
 	case COMMAND_TYPE::UNDO:executor = new Executor_Undo();
 							executor->executeCommand(cmd, response, _ds);
-							if(response.getStatus() != TP::STATUS::ERR)
+							if(response.getStatus() != TP::STATUS::ERR) {
 								delete cmd;
-								cmd = dynamic_cast<Executor_Undo*>(executor)->getUndoCommandToExecute();
+								cmd = (dynamic_cast<Executor_Undo*>(executor)->getUndoCommandToExecute());
 								executeCommandWithoutUndoRedo(cmd, response);
+							}
 							break;
 	case COMMAND_TYPE::REDO:executor = new Executor_Redo();
 							executor->executeCommand(cmd, response, _ds);
-							if(response.getStatus() != TP::STATUS::ERR)
+							if(response.getStatus() != TP::STATUS::ERR) {
 								delete cmd;
-								cmd = dynamic_cast<Executor_Redo*>(executor)->getRedoCommandToExecute();
+								cmd = (dynamic_cast<Executor_Redo*>(executor)->getRedoCommandToExecute());
 								executeCommandWithoutUndoRedo(cmd, response);
+							}
 							break;
 	default:
 		break;
