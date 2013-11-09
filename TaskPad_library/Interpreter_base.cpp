@@ -43,6 +43,7 @@ const string Interpreter_base:: STATUS_OVERDUE="overdue";
 
 const string Interpreter_base:: TYPE_TIMED="timed";
 const string Interpreter_base:: TYPE_DEADLINE="deadline";
+const string Interpreter_base:: TIME_ERROR_MESSAGE="Cannot parse the time format!";
 
 const char Interpreter_base:: NOTATION_COMMA=',';
 const char Interpreter_base:: NOTATION_HASH='#';
