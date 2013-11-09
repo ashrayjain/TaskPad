@@ -85,7 +85,7 @@ protected:
 	const static std::string TYPE_TIMED;
 	const static std::string TYPE_DEADLINE;
     const static std::string TIME_FORMAT_ERROR;
-	
+	const static std::string DUPLICATE_ERROR;
 	const static char NOTATION_COMMA;
 	const static char NOTATION_HASH;
 	const static char NOTATION_SPACE;
@@ -121,35 +121,38 @@ protected:
 	const static int DUMMY_VALUE;
 	const static int CHANGE_BY_ONE;
 	const static int CHANGE_BY_TWO;
-
-
-	
-	std::time_t                      setTime(std::string commandStr, bool&flag,bool& isDue); 
-	bool                             integerConverter(std::string& required, int& number);
-    std::string                      toUpper(std::string str);
-	std::string                      trim(std::string content);
-	int	                             getIndexMessage(std::string command,bool&flag);
-	void							 extractQuotedMessage(std::string commandStr, std::string & preContent);
-	std::vector<std::string>         extractNoParameterMessage(std::string command, std::string regexTemplate,int &count); 
-	bool                             checkDuplicate(std::string command, std::string cmdTemplate,int startPosition);
-	bool                             checkKeyWord(std::string command, int position);       
-	void                             convertToTime(std::string timeStr, std::time_t &result,bool&flag);
-	bool							 extractField(std::string command, std::smatch & match, std::regex extractTemplate, std::string& extracted);
-	
-	bool                             setGeneralMessage(std::string command, bool&flag,std::string& content,std::string regexTemplete);
-	bool                             setNoParameterMessage(std::string command, bool&flag, std::string regexTemplate);
-	bool	                         setRemindTimesMessage(std::string command, bool&flag,std::list<std::time_t>& content,std::string regexTemplate);
-	bool	                         setTagsMessage(std::string command, bool&flag,std::list<std::string>& content, std::string regexTemplate);
-	bool	                         setParticipantsMessage(std::string command, bool&flag,std::list<std::string>& content, std::string regexTemplate);
-
-	bool			                 getTaskStateMessage(std::string command, bool&flag,TP::TASK_STATE& content);
-	bool			                 getTaskTypeMessage(std::string command, bool&flag,TP::TASK_TYPE& content);
-
-	bool				             getDueDateMessage(std::string command, bool&flag,std::time_t& content);
-	bool				             getFromDateMessage(std::string command, bool&flag,std::time_t& content);	
-	bool				             getToDateMessage(std::string command, bool&flag,std::time_t& content);
-	bool			                 getPriorityMessage(std::string command, bool&flag,TP::PRIORITY& content);
-	
+	 
+	bool                             checkTimeValidity        ( int year, bool& flag, int month, int day, int hour, int min );
+	bool                             integerConverter         ( std::string& required, int& number);	
+	bool                             checkDuplicate           ( std::string command, std::string cmdTemplate,int startPosition, int matchLength);
+	bool                             checkKeyWord             ( std::string command, int position);       
+	void                             convertToTime            ( std::string timeStr, std::time_t &result,bool&flag);
+	bool							 extractField             ( std::string command, std::smatch & match, std::regex extractTemplate, std::string& extracted);	
+	bool                             setGeneralMessage        ( std::string command, bool&flag,std::string& content,std::string regexTemplete);
+	bool                             setNoParameterMessage    ( std::string command, bool&flag, std::string regexTemplate);
+	bool	                         setRemindTimesMessage    ( std::string command, bool&flag,std::list<std::time_t>& content,std::string regexTemplate);
+	bool	                         setTagsMessage           ( std::string command, bool&flag,std::list<std::string>& content, std::string regexTemplate);	
+	bool	                         setParticipantsMessage   ( std::string command, bool&flag,std::list<std::string>& content, std::string regexTemplate);
+	bool			                 getTaskStateMessage      ( std::string command, bool&flag,TP::TASK_STATE& content);
+	bool			                 getTaskTypeMessage       ( std::string command, bool&flag,TP::TASK_TYPE& content);
+	bool				             getDueDateMessage        ( std::string command, bool&flag,std::time_t& content);
+    bool				             getFromDateMessage       ( std::string command, bool&flag,std::time_t& content);	
+	bool				             getToDateMessage         ( std::string command, bool&flag,std::time_t& content);
+	bool			                 getPriorityMessage       ( std::string command, bool&flag,TP::PRIORITY& content);	
+	bool                             isDueExistance           ( std::string &field,  std::string command, std::smatch match, bool& flag );
+	bool                             isToExistance            ( std::string command, std::smatch match, std::string &field, bool& flag );
+	bool                             isFromExistance          ( std::string command, std::smatch match, std::string &field, bool& flag );
+	int                              extractTagMessage        ( std::string &field,  std::string &subStirng, std::smatch &match, std::list<std::string>&tagList, int count, std::regex extractTemplate );
+	int	                             getIndexMessage          ( std::string command, bool&flag);
+	std::time_t                      setTime                  ( std::string commandStr, bool&flag,bool& isDue);
+	std::vector<std::string>         extractNoParameterMessage( std::string command, std::string regexTemplate,int &count); 
+	std::string                      toUpper                  ( std::string str);
+	std::string                      trim                     ( std::string content);
+	void                             setUnitializeTime        ( int &year, struct tm &timeinfo, int &month, int &day, bool& isDue, int &hour, int &min );
+	void                             extractTimeWithTwoSlash  ( std::string field, std::string &content, bool &flag, int& day, int& month, int &year, int& hour, int& min );
+	void                             extractTimeWithOneSlash  ( std::string field, std::string &content, bool& flag, int& day, int& month, int& hour, int& min );
+	void                             extractTimeWithEmptySlash( std::string &field, std::string &content, bool& flag, int& day, int& hour, int& min );
+	void							 extractQuotedMessage     ( std::string commandStr, std::string& preContent);
 };
 
 #endif
