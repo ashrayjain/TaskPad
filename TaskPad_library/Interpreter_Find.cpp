@@ -3,7 +3,7 @@
 
 time_t Interpreter_Find::setTime(string commandStr, bool&flag){
 	commandStr = natty::getNatty().parseDateTime(commandStr);
-	int year=UNINITIALIZED_TIME,month=UNINITIALIZED_TIME,day=UNINITIALIZED_TIME,hour=UNINITIALIZED_TIME,min=UNINITIALIZED_TIME,second=CHANGE_BY_ONE;
+	int year=UNINITIALIZED_TIME,month=UNINITIALIZED_TIME,day=UNINITIALIZED_TIME,hour=UNINITIALIZED_TIME,min=UNINITIALIZED_TIME,second=UNINITIALIZED_TIME;
 	time_t rawtime;
 	string inputInfo=commandStr;
 	struct tm  timeinfo={DEFAULT_TIME,DEFAULT_TIME,DEFAULT_TIME,DEFAULT_TIME,DEFAULT_TIME,DEFAULT_TIME};
@@ -169,7 +169,7 @@ time_t Interpreter_Find::setTime(string commandStr, bool&flag){
 		timeMessage.tm_mday=day;
 		timeMessage.tm_hour=hour;
 		timeMessage.tm_min=min;
-		timeMessage.tm_sec=second;
+		timeMessage.tm_sec=DEFAULT_TIME;
 	}
 
 	return mktime(&timeMessage);
@@ -263,6 +263,9 @@ Command* Interpreter_Find::interpretFind(Command_Find* commandType, std::string 
 		if(getFromDateMessage(commandStr,flag,content)){
 			commandType->setFromDate(content);
 		}
+	    if (flag==false){
+			throw (string)"Sorry, this is invalid time format!";
+		}	
 	}
 	else {
 		flag=false;
@@ -291,6 +294,10 @@ Command* Interpreter_Find::interpretFind(Command_Find* commandType, std::string 
 			}
 			commandType->setToDate(mktime(&timeinfo));
 		}
+	
+	      if (flag==false){
+			throw (string)"Sorry, this is invalid time format!";
+		}          
 	}
 	else{
 
@@ -398,6 +405,9 @@ Command* Interpreter_Find::interpretFind(Command_Find* commandType, std::string 
 		if(setRemindTimesMessage(commandStr,flag,content,FIELD_RT)){
 			commandType->setRemindTimes(content);
 		}
+          if (flag==false){
+			throw (string)"Sorry, this is invalid time format!";
+		}
 	}
 	else{
 
@@ -409,13 +419,19 @@ Command* Interpreter_Find::interpretFind(Command_Find* commandType, std::string 
 		if(commandType->getFromDate()>commandType->getToDate())flag=false;
 	}
 
+    if(flag==true){
 
-	if(flag==true){
 		response.setStatus(SUCCESS);
 		response.setCommandType(FIND);
-		return (Command*)commandType;
+		
 	}
-	else return NULL;
+
+	else{ 
+		
+		response.setStatus(ERR);
+		commandType=NULL;
+	}
+    return (Command*)commandType;
 
 }
 
