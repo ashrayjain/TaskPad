@@ -22,7 +22,9 @@ public:
 protected:
 	bool checkCommand(std::string command, int& commandType);
     bool integerConvert(std::string& requiredString, int& number);
-
+	bool integerConverter(std::string& required, int& number);
+    
+	int getIndexMessage(std::string command,bool&flag);
 
 };
 #endif
