@@ -43,14 +43,14 @@ const string TaskFileHandler::LABEL_END_OF_TASK				= "EndOfTask";
 
 string TaskFileHandler::getTaskFilePath	(const Task& task) {
 	string taskFileTitle	= getFileTitle(task);
-	string taskFilePath		= TASK_DIRECTORY + taskFilePath + TASK_FILE_EXTENSION;
+	string taskFilePath		= TASK_DIRECTORY + taskFileTitle + TASK_FILE_EXTENSION;
 
 	return taskFilePath;
 }
 
 string TaskFileHandler::getDeletedTaskFilePath	(const Task& task) {
 	string taskFileTitle	= getFileTitle(task);
-	string taskFilePath		= TASK_DIRECTORY + taskFilePath + TASK_DELETED_FILE_EXTENSION;
+	string taskFilePath		= TASK_DIRECTORY + taskFileTitle + TASK_DELETED_FILE_EXTENSION;
 
 	return taskFilePath;
 }
