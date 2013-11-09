@@ -43,7 +43,7 @@ class Manager {
 		Command*	_lastSuccessfulFindCmd;
 		Messenger	_response;
 		int			_index;
-		pair<tm,tm> _currentPeriod;
+		std::pair<tm,tm> _currentPeriod;
 
 		//the list of tasks
 		Datastore*	_taskDS;
@@ -52,13 +52,13 @@ class Manager {
 		void saveChanges							();
 
 		//helper functions
-		void setResponseToError						();
+		void setResponseToError						(const std::string& newCommand);
 		bool hasNoError								();
 		bool isSuccessfulCommand					();
 		bool hasInterpretationError					();
 		bool hasNoInterpretationError				();
-		bool isIndexGiven							(string newCommand);
-		bool isCommandWithIndexGiven				(string newCommand);
+		bool isIndexGiven							(std::string newCommand);
+		bool isCommandWithIndexGiven				(std::string newCommand);
 		bool isIndexedModifyCommand					();
 		bool isIndexedDeleteCommand					();
 		bool isIndexWithinRange						();
@@ -70,8 +70,8 @@ class Manager {
 		void handleCommandWithIndex					();
 		void handleGenericCommand					();
 
-		void handleNormalScenarioCommands			(string newCommand);
-		void handleIntermediateScenarioCommands		(string newCommand);
+		void handleNormalScenarioCommands			(std::string newCommand);
+		void handleIntermediateScenarioCommands		(std::string newCommand);
 		void insertActualIndexIntoCommand			();
 		void insertActualIndexIntoModifyCommand		();
 		void insertActualIndexIntoDeleteCommand		();
@@ -102,21 +102,24 @@ class Manager {
 		//constructor
 		Manager();
 
-		Messenger	processCommand		(const string&);
-		Messenger	getTodayTasks		();
-		Messenger	getNextPeriodTasks	(PERIOD_TYPE);
-		Messenger	getPrevPeriodTasks	(PERIOD_TYPE);
-		pair<tm,tm> getCurrentPeriod	();
-		void		resetStatus			();
-		Messenger	refreshList			();
-		list<Task>	getCurrentReminders	();
-		void		syncTaskList		(const list<Task>&);
-		void		syncTask			(const Task&);
+		Messenger			processCommand		(const std::string&);
+		Messenger			getTodayTasks		();
+		Messenger			getNextPeriodTasks	(TP::PERIOD_TYPE);
+		Messenger			getPrevPeriodTasks	(TP::PERIOD_TYPE);
+		std::pair<tm,tm>	getCurrentPeriod	();
+		void				resetStatus			();
+		Messenger			refreshList			();
+		std::list<Task>		getCurrentReminders	();
+		void				syncTaskList		(const std::list<Task>&);
+		void				syncTask			(const Task&);
+
+		//destructor
 		~Manager();
 
 		// response messages
-		static const string MESSAGE_INDEX_OUT_OF_RANGE;
-		static const string MESSAGE_ERROR_UNEXPECTED_COMMAND_TYPE_WITH_INDEX;
+		static const std::string MESSAGE_INDEX_OUT_OF_RANGE;
+		static const std::string MESSAGE_ERROR_UNEXPECTED_COMMAND_TYPE_WITH_INDEX;
+		static const std::string MESSAGE_DATE_LIMIT_REACHED;
 };
 
 #endif

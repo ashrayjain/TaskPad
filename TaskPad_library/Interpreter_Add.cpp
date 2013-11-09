@@ -1,5 +1,7 @@
 #include"Interpreter_Add.h"
 
+using namespace std;
+using namespace TP;
 
 Command* Interpreter_Add::interpretAdd(Command_Add* commandType, std::string commandStr, Messenger &response, bool &flag){
 
@@ -130,12 +132,20 @@ Command* Interpreter_Add::interpretAdd(Command_Add* commandType, std::string com
 
 		if(commandType->getFromDate()>commandType->getToDate())flag=false;
 	}
+	
+	
 	if(flag==true){
 
 		response.setStatus(SUCCESS);
 		response.setCommandType(ADD);
-		return (Command*)commandType;
+		
 	}
 
-	else return NULL;
+	else{ 
+		
+		response.setStatus(ERR);
+		
+		commandType=NULL;
+	}
+    return (Command*)commandType;
 }

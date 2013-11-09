@@ -29,6 +29,9 @@
 #include "QuickAddWindow.h"
 #include "Manager.h"
 
+using namespace std;
+using namespace TP;
+
 const double MainWindow::DESIRED_TRANSPARENT_OPACITY	= 0.4;
 const int   MainWindow::LENGTH_TOO_LONG					= 77;
 const int   MainWindow::STEP							= 1;
@@ -450,11 +453,18 @@ void MainWindow::handleDateNavigation(TP::PERIOD_TYPE periodType, QString listTi
 		msg = scheduler->getPrevPeriodTasks(periodType);
 	else
 		msg = scheduler->getNextPeriodTasks(periodType);
-	if(msg.getStatus() == SUCCESS){
-		pair<tm, tm> period = scheduler->getCurrentPeriod();
+
+	pair<tm, tm> period;
+	switch (msg.getStatus()){
+	case SUCCESS:
+		period = scheduler->getCurrentPeriod();
 		listTitle += getTimePeriodStr(period);
 		updateMainView(msg, listTitle);
 		handleOneItemList(msg);
+		break;
+	case ERR:
+		handleMsg_ERROR(msg);
+		break;
 	}
 }
 

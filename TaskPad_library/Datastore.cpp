@@ -15,6 +15,7 @@
 #include "Datastore.h"
 
 using namespace std;
+using namespace TP;
 
 void Datastore::clearRedoStack() {
 	while(!_redoStack.empty()) {
@@ -33,7 +34,7 @@ void Datastore::clearUndoStack() {
 void Datastore::addTask(const Task &newTask) {
 	_ds->addTask(newTask);
 	_indexHash[newTask.getIndex()] = &(_ds->back());
-	handleHashTagPtrs(_ds->back(), _ds->back().getTags());
+	handleHashTagPtrs(_ds->back(), getLowerStrList(_ds->back().getTags()));
 	handleRemindTimesPtrs(_ds->back(), _ds->back().getRemindTimes());
 }
 
@@ -104,7 +105,7 @@ void Datastore::deleteTask(Datastore::const_iterator k) {
 
 
 void Datastore::deleteHashTags(Task &task) {
-	list<string> tags = task.getTags();
+	list<string> tags = getLowerStrList(task.getTags());
 	list<list<Task*>::iterator> tagPtrs = task.getHashTagPtrs();
 	list<string>::iterator k = tags.begin();
 	for (list<list<Task*>::iterator>::iterator j = tagPtrs.begin(); j != tagPtrs.end(); j++, k++)
@@ -156,7 +157,6 @@ Task Datastore::modifyTask(Datastore::const_iterator k, Command_Mod* cmd) {
 	Datastore::const_iterator j = dynamic_cast<Datastore_Type::const_iterator*>(_ds->cbegin());
 	Datastore_Base::iterator* i = _ds->begin();
 	advance(*i, distance(j, k));
-	//advance(*i, pos);
 	_interimTask = Task(**i);
 	modifyTaskWithPtr(**i, cmd);
 	return Task(**i);
@@ -225,7 +225,7 @@ void Datastore::modifyTaskWithPtr(Task &oldTask, Command_Mod* cmd) {
 void Datastore::handleHashTagsModify(Task &oldTask, const list<string> &newTags) {
 	deleteHashTags(oldTask);
 	oldTask.setTags(newTags);
-	handleHashTagPtrs(oldTask, newTags);
+	handleHashTagPtrs(oldTask, getLowerStrList(newTags));
 }
 
 void Datastore::handleRemindTimesModify(Task &oldTask, const list<time_t> &newRemindTimes) {
@@ -281,6 +281,7 @@ void Datastore::stackDelCmdForUndo(Command* cmd, Messenger &response) {
 	*newCmd = *cmd;
 	_undoStack.push(pair<Command*, Task>(newCmd, response.getTask()));
 }
+
 void Datastore::popTopRedoStackToUndoStack() {
 	if (!_redoStack.empty()) {
 		_undoStack.push(_redoStack.top());
@@ -297,4 +298,35 @@ void Datastore::popTopUndoStackToRedoStack() {
 	}
 	else
 		throw exception("Nothing to pop");
+}
+
+Datastore::const_iterator* Datastore::cbeginPtr() { 
+	return new Datastore::const_iterator(dynamic_cast<Datastore_Type::const_iterator*>(_ds->cbegin()));
+}
+
+Datastore::const_iterator* Datastore::cendPtr() { 
+	return new Datastore::const_iterator(dynamic_cast<Datastore_Type::const_iterator*>(_ds->cend()));
+}
+
+Datastore::const_iterator  Datastore::cbegin() { 
+	return dynamic_cast<Datastore_Type::const_iterator*>(_ds->cbegin());
+}
+
+Datastore::const_iterator  Datastore::cend() {
+	return dynamic_cast<Datastore_Type::const_iterator*>(_ds->cend());
+}
+
+// Utility functions
+
+string Datastore::getLowerStr(string str) {
+	string lowerStr = str;
+	transform(str.begin(), str.end(), lowerStr.begin(), ::tolower);
+	return lowerStr;
+}
+
+list<string> Datastore::getLowerStrList(list<string> strList) {
+	list<string> lowerStrList;
+	for(list<string>::const_iterator i = strList.begin(); i != strList.end(); i++)
+		lowerStrList.push_back(getLowerStr(*i));
+	return lowerStrList;
 }

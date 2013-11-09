@@ -14,6 +14,9 @@
 
 #include "Executor_Undo.h"
 
+using namespace std;
+using namespace TP;
+
 void Executor_Undo::executeCommand(Command* cmd, Messenger &response, Datastore &ds) {
 	if (ds.isUndoStackEmpty())
 		setErrorWithErrMsg(response, UNDOSTACK_EMPTY_MSG);

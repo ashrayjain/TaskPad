@@ -116,7 +116,7 @@ private:
 	//Destroy************************************
 	void          dispose                      ();
 	//Tray Related*******************************
-	QString       prepareTrayMsg               (list<Task> &reminderList, QString output);
+	QString       prepareTrayMsg               (std::list<Task> &reminderList, QString output);
 	void          showTrayMsg                  (QString msg, QString title = DEFAULT_WIN_TITLE);
 	bool          isCommandAdd                 (QString requestStr);
 	bool          isEqualOne                   (QString &requestStr);
@@ -190,13 +190,13 @@ private:
 	void          setIsQuickAddOpen            (bool toggle);
 	void          setFromReminder              (bool toggle);
 	void          setCurrRemindTime            ();
-	string        getFindRtCmd                 ();
+	std::string        getFindRtCmd            ();
 	void          disposeQuickAddWindow        ();
 	void          disposeQuickAddConnection    ();
 	void          handleQA_DISPLAY             (Messenger msg);
 	void          handleQA_SUCCESS             ();
 	void          handleQA_ERROR               (QString requestStr, Messenger &msg);
-	QString       getTimePeriodStr             (pair<tm, tm> period);
+	QString       getTimePeriodStr             (std::pair<tm, tm> period);
 	//Other**************************************
 	void          popMsgBox                    (QString title, QString description);
 	void          keyPressEvent                (QKeyEvent*event);
@@ -218,7 +218,7 @@ private:
 	QPoint              mousePressPosition;
 	QPoint              mouseMovePosition;
 	double              detailsViewOpacity;
-	list<Task>          intermediateList;
+	std::list<Task>          intermediateList;
 	QString             navTitleOfLastTime;
 	//State Flag********************************
 	bool                isQuickAddOpen;

@@ -15,6 +15,7 @@
 #include "Executor_Base.h"
 
 using namespace std;
+using namespace TP;
 
 const unsigned			Executor_Base::EMPTY_LIST_SIZE				= 0;
 const unsigned			Executor_Base::SINGLE_RESULT_LIST_SIZE		= 1;
@@ -27,21 +28,6 @@ const std::string		Executor_Base::INVALID_FROMDATE_ERROR		= "Invalid 'From' Attr
 const std::string		Executor_Base::INVALID_TODATE_ERROR			= "Invalid 'To' Attribute!";
 const std::string		Executor_Base::INVALID_FROMDATE_TODATE_ERROR= "Invalid 'From' and 'To' Attributes!";
 const std::string		Executor_Base::NAME_NOT_SPECIFIED_ERROR		= "No Name specified!";
-
-// Utility functions
-
-string Executor_Base::getLowerStr(string str) {
-	string lowerStr = str;
-	transform(str.begin(), str.end(), lowerStr.begin(), ::tolower);
-	return lowerStr;
-}
-
-list<string> Executor_Base::getLowerStrList(list<string> strList) {
-	list<string> lowerStrList;
-	for(list<string>::const_iterator i = strList.begin(); i != strList.end(); i++)
-		lowerStrList.push_back(getLowerStr(*i));
-	return lowerStrList;
-}
 
 // Status setting functions
 

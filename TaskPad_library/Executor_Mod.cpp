@@ -14,6 +14,9 @@
 
 #include "Executor_Mod.h"
 
+using namespace std;
+using namespace TP;
+
 void Executor_Mod::executeCommand(Command* cmd, Messenger &response, Datastore &ds) {
 	Command_Mod* modCmd = dynamic_cast<Command_Mod*>(cmd);
 	if(modCmd->getFlagCreatedTime())
@@ -57,10 +60,10 @@ void Executor_Mod::modifyByApproxName(Command_Mod* cmd, Messenger &response, Dat
 	list<Task> matchingResults;
 	list<Task> caseInsensitiveResults;
 	list<Task> tasks = ds.getTaskList();
-	string lowerName = getLowerStr(cmd->getName());
+	string lowerName = Datastore::getLowerStr(cmd->getName());
 	for(Datastore::const_iterator i = ds.cbegin(); i != ds.cend(); i++) {
 	//for(list<Task>::iterator i = tasks.begin(); i != tasks.end(); ++i) {
-		string currName = getLowerStr(i->getName());
+		string currName = Datastore::getLowerStr(i->getName());
 		if (currName.find(cmd->getName()) != string::npos)
 			matchingResults.push_back(Task(*i));
 		else if (currName.find(lowerName) != string::npos)

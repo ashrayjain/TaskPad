@@ -14,6 +14,9 @@
 
 #include "Executor_Redo.h"
 
+using namespace std;
+using namespace TP;
+
 void Executor_Redo::executeCommand(Command* cmd, Messenger &response, Datastore &ds) {
 	if (ds.isRedoStackEmpty())
 		setErrorWithErrMsg(response, REDOSTACK_EMPTY_MSG);

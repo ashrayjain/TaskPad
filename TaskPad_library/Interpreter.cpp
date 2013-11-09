@@ -9,6 +9,8 @@
 #include <regex>
 
 using namespace std;
+using namespace TP;
+
 const string GENERAL_ADD_CASE="((((\\s+)(due|by)|(\\s+)from|(\\s+)to|(\\s+)(impt|priority)|(\\s+)(at|place|location)|(\\s+)(ppl|with)|(\\s+)note|(\\s+)(rt|remind))(\\s+)`[^`]*`)|((\\s+)#[^( |`)]*))*(\\s*)";
 const string GENERAL_MOD_CASE="((((\\s+)(due|by)|(\\s+)from|(\\s+)name|(\\s+)to|(\\s+)(impt|priority)|(\\s+)(at|place|location)|(\\s+)(ppl|with)|(\\s+)note|(\\s+)(rt|remind)|(\\s+)-(rt|remind)|(\\s+)-(ppl|with)|(\\s+)\\+(rt|remind)|(\\s+)\\+(ppl|with))(\\s+)`[^`]*`)|((\\s+)done|(\\s+)undone)|((\\s+)-(due|by)|(\\s+)-from|(\\s+)-to)|((\\s+)-rtall|(\\s+)-pplall|(\\s+)-#)|((\\s+)(#|-#|\\+#)[^( |`)]*))*(\\s*)";
 const string GENERAL_FIND_CASE="((((\\s+)from|(\\s+)name|(\\s+)to|(\\s+)(impt|priority)|(\\s+)(at|place|location)|(\\s+)(ppl|with)|(\\s+)note|(\\s+)(rt|remind))(\\s+)`[^`]*`)|((\\s+)#[^( |`)]*)|((\\s+)done|(\\s+)undone|(\\s+)overdue)|(((\\s+)timed|(\\s+)deadline|(\\s+)floating)))*(\\s*)";
@@ -154,7 +156,7 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 
 	string word;
 	string timeFormatIssue;
-	Command* returnCommand;
+	Command* returnCommand = NULL;
 
 	flag=checkCommand(commandStr,commandType);
 
@@ -181,6 +183,10 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 
 					timeFormatIssue=timeFormatError;
 			     
+					if(flag==false){	
+					delete Add_pointer;
+					returnCommand=NULL;
+					}
 				
 				}
 				
@@ -199,9 +205,12 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 				getline(extractName,taskName,NOTATION_ACCENT_GRACE);
 				Mod_pointer->setName(taskName);
 
-				
-				
 				returnCommand=interpretMod.interpretModify(Mod_pointer, commandStr, response,flag);
+				
+				if(flag==false){
+				   delete Mod_pointer;
+				   returnCommand=NULL;
+				}
 				break;
 			}
 		
@@ -244,6 +253,12 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 				Mod_pointer->setIndex(index);
 
 				returnCommand=interpretMod.interpretModify(Mod_pointer, commandStr, response,flag);
+				if(flag==false){
+				
+				delete Mod_pointer;
+				returnCommand=NULL;
+				}
+				
 				break;
 			}
 
@@ -351,7 +366,6 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 		else{
 
 			response.setErrorMsg(ERROR_MSG);
-
 		}
 		return NULL;
 	}

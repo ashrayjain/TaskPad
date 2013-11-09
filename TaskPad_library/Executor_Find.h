@@ -23,22 +23,25 @@ private:
 	void			formTaskFromFindCmd			(Command_Find* cmd, Task &newTask);
 	void			findByIndex					(const unsigned long long index, Messenger &response, Datastore &ds);
 	void			findGeneral					(Command_Find* cmd, Messenger &response, Datastore &ds);
-	void			runSearch					(const Task &taskToCompare, list<Task> &results, string substringName, 
-												 set<Task> &customData, bool customDataSet, Datastore &ds);
+	void			runSearch					(const Task &taskToCompare, std::list<Task> &results, std::string substringName, 
+												 std::set<Task> &customData, bool customDataSet, Datastore &ds);
 	void			findByTags					(Command_Find* cmd, Messenger &response);
-	void			getCustomDataRangeByTags	(set<Task> &customDataRange, list<string> &tags, Datastore &ds);
-	void			getCustomDataRangeByRT		(set<Task> &customDataRange, list<time_t> &remindTimes, Datastore &ds);
-	void			filterResponseListByType	(Messenger &response, list<TP::TASK_TYPE> &types);
-	void			runSearchWithTask			(const Task &taskToCompare,	list<Task> &results, Datastore &ds);
-	void			runSearchWithTask			(const Task &taskToCompare, list<Task> &results, string substringName, Datastore &ds);
-	void			runSearchWithTask			(const Task &taskToCompare,	list<Task> &results, set<Task> &customData);
-	void			runSearchWithTask			(const Task &taskToCompare, list<Task> &results, string substringName, 
-												 set<Task> &customData);
+	void			getCustomDataRangeByTags	(std::set<Task> &customDataRange, std::list<std::string> &tags, Datastore &ds);
+	void			getCustomDataRangeByRT		(std::set<Task> &customDataRange, std::list<time_t> &remindTimes, Datastore &ds);
+	void			filterResponseListByType	(Messenger &response, std::list<TP::TASK_TYPE> &types);
+	void			runSearchWithTask			(const Task &taskToCompare,	std::list<Task> &results, Datastore &ds);
+	void			runSearchWithTask			(const Task &taskToCompare, std::list<Task> &results, 
+												 std::string substringName, Datastore &ds);
+	void			runSearchWithTask			(const Task &taskToCompare,	std::list<Task> &results,
+												 std::set<Task> &customData);
+	void			runSearchWithTask			(const Task &taskToCompare, std::list<Task> &results, 
+												 std::string substringName, std::set<Task> &customData);
 	bool			taskMatch					(const Task& lhs, const Task& rhs);
 	bool			taskStatesNotEqual			(const TP::TASK_STATE &lhs, const TP::TASK_STATE &rhs) const;
-	bool			participantsMatchFound		(const list<string> &rhsParticipants, const list<string> &lhsParticipants) const;
+	bool			participantsMatchFound		(const std::list<std::string> &rhsParticipants, 
+												 const std::list<std::string> &lhsParticipants) const;
 	bool			invalidDateChk				(const Task &lhs, const Task &rhs) const;
-	bool			chkDateBound				(const time_t &fromTime, const time_t &toTime, const Task &lhs) const;
+	bool			validDateBound				(const time_t &fromTime, const time_t &toTime, const Task &lhs) const;
 	bool			chkFromDateBound			(const time_t &fromTime, const Task &lhs) const;
 	bool			chkToDateBound				(const time_t &toTime, const Task &lhs) const;
 	std::list<Task> getSortListByPriority		(std::list<Task> &taskList);

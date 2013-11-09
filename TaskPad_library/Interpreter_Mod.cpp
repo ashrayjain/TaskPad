@@ -1,5 +1,7 @@
 #include "Interpreter_Mod.h"
 
+using namespace std;
+using namespace TP;
 
 Command* Interpreter_Mod ::interpretModify(Command_Mod* commandType, std::string commandStr, Messenger &response, bool &flag){
 
@@ -299,6 +301,9 @@ Command* Interpreter_Mod ::interpretModify(Command_Mod* commandType, std::string
 		response.setCommandType(MOD);
 		return (Command*)commandType;
 	}
-	else return NULL;
+	else {
+		delete commandType;
+		return NULL;
+	}
 
 }

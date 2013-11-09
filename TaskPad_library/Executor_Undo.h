@@ -19,7 +19,7 @@
 class Executor_Undo: public Executor_Base {
 public:
 	Executor_Undo()	{ _undoCommandToExecute = NULL; }
-	~Executor_Undo(){ delete _undoCommandToExecute; }
+	~Executor_Undo(){ }
 
 	void		executeCommand					(Command* cmd, Messenger &response, Datastore &ds);
 	Command*	getUndoCommandToExecute			();
