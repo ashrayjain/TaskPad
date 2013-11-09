@@ -1,5 +1,5 @@
 
-//#include "Header.h"
+
 #include "Command.h"
 #include "Messenger.h"
 #include "Enum.h"
@@ -12,6 +12,29 @@
 
 #ifndef _INTERPRETER_BASE_H_
 #define _INTERPRETER_BASE_H_
+
+
+
+/*
+ *
+=================================================================
+=================================================================
+ *
+ *  Filename: Interpreter_base.h    
+ *  
+ *  Version V0.5
+ *  Created 15/10/13 12:00
+ *
+ *  Author: An Jiangze(A0105729A),Liu Zixuan
+ *  Organization: NUS,SOC
+ *
+==================================================================
+==================================================================
+ */
+
+
+
+
 
 class Interpreter_base{
 
@@ -54,7 +77,6 @@ protected:
 	const static std::string PRIORITY_MEDIUM_FULL;
 	const static std::string PRIORITY_LOW_ABBREV;
 	const static std::string PRIORITY_LOW_FULL;
-	const static std::string TIME_ERROR_MESSAGE;
 
 	const static std::string STATUS_UNDONE;
 	const static std::string STATUS_DONE;
@@ -62,7 +84,8 @@ protected:
 
 	const static std::string TYPE_TIMED;
 	const static std::string TYPE_DEADLINE;
-
+    const static std::string TIME_FORMAT_ERROR;
+	
 	const static char NOTATION_COMMA;
 	const static char NOTATION_HASH;
 	const static char NOTATION_SPACE;
