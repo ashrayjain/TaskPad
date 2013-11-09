@@ -1,9 +1,12 @@
 #include "Interpreter_Delete.h"
 
-Command* Interpreter_Delete:: interpretDelete(Command_Del*commandType,std::string commandStr, Messenger &response, bool &flag){
+using namespace TP;
+using namespace std;
 
-	std::stringstream extractContent(commandStr);
-	std::string content;
+Command* Interpreter_Delete:: interpretDelete(Command_Del*commandType,string commandStr, Messenger &response, bool &flag){
+
+	stringstream extractContent(commandStr);
+	string content;
 	getline(extractContent,content,NOTATION_ACCENT_GRAVE);
 	content.clear();
 	getline(extractContent,content,NOTATION_ACCENT_GRAVE);

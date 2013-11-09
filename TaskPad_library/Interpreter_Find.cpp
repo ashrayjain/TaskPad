@@ -1,6 +1,9 @@
 #include "Interpreter_Find.h"
 #include "Natty.h"
 
+using namespace std;
+using namespace TP;
+
 time_t Interpreter_Find::setTime(string commandStr, bool&flag){
 	commandStr = natty::getNatty().parseDateTime(commandStr);
 	int year=UNINITIALIZED_TIME,month=UNINITIALIZED_TIME,day=UNINITIALIZED_TIME,hour=UNINITIALIZED_TIME,min=UNINITIALIZED_TIME,second=UNINITIALIZED_TIME;
@@ -177,12 +180,12 @@ time_t Interpreter_Find::setTime(string commandStr, bool&flag){
 
 
 
-bool Interpreter_Find::getFromDateMessage(std::string command, bool&flag, std::time_t& content){
+bool Interpreter_Find::getFromDateMessage(string command, bool&flag, time_t& content){
 
 	regex extractTemplete(FIELD_FROM);
 	smatch match;
-	std::string commandStr;
-	std::string preContent;
+	string commandStr;
+	string preContent;
 	bool isNotEmpty=true;
 
 	if (regex_search(command, match, extractTemplete)){
@@ -192,7 +195,7 @@ bool Interpreter_Find::getFromDateMessage(std::string command, bool&flag, std::t
 	}
 	if(!commandStr.empty()){
 
-		std::stringstream extract(commandStr);
+		stringstream extract(commandStr);
 		getline(extract,preContent,NOTATION_ACCENT_GRAVE);
 		preContent.clear();
 		getline(extract,preContent,NOTATION_ACCENT_GRAVE);
@@ -216,12 +219,12 @@ bool Interpreter_Find::getFromDateMessage(std::string command, bool&flag, std::t
 	return isNotEmpty;
 }
 
-bool Interpreter_Find::getToDateMessage(std::string command, bool&flag, std::time_t& content){
+bool Interpreter_Find::getToDateMessage(string command, bool&flag, time_t& content){
 
 	regex extractTemplete(FIELD_TO);
 	smatch match;
-	std::string commandStr;
-	std::string preContent;
+	string commandStr;
+	string preContent;
 	bool isNotEmpty=true;
 
 	if (regex_search(command, match, extractTemplete)){
@@ -231,7 +234,7 @@ bool Interpreter_Find::getToDateMessage(std::string command, bool&flag, std::tim
 	}
 	if(!commandStr.empty()){
 
-		std::stringstream extract(commandStr);
+		stringstream extract(commandStr);
 		getline(extract,preContent,NOTATION_ACCENT_GRAVE);
 		preContent.clear();
 		getline(extract,preContent,NOTATION_ACCENT_GRAVE);
@@ -255,11 +258,11 @@ bool Interpreter_Find::getToDateMessage(std::string command, bool&flag, std::tim
 	return isNotEmpty;
 }
 
-Command* Interpreter_Find::interpretFind(Command_Find* commandType, std::string commandStr, Messenger &response, bool &flag){
+Command* Interpreter_Find::interpretFind(Command_Find* commandType, string commandStr, Messenger &response, bool &flag){
 
 	if(flag && commandType->getFlagFrom() ==false){
 
-		std::time_t content;
+		time_t content;
 		if(getFromDateMessage(commandStr,flag,content)){
 			commandType->setFromDate(content);
 		}
@@ -273,7 +276,7 @@ Command* Interpreter_Find::interpretFind(Command_Find* commandType, std::string 
 	}
 
 	if(flag && commandType->getFlagTo() ==false){
-		std::time_t content;
+		time_t content;
 		struct tm timeinfo;
 		struct tm timeinfoForFrom;
 		
@@ -307,7 +310,7 @@ Command* Interpreter_Find::interpretFind(Command_Find* commandType, std::string 
 
 	if(flag && commandType->getFlagParticipants()==false){
 
-		list<std::string>content;
+		list<string>content;
 		if(setParticipantsMessage(commandStr,flag,content,FIELD_PPL)){
 			commandType->setParticipants(content);
 		}
@@ -320,7 +323,7 @@ Command* Interpreter_Find::interpretFind(Command_Find* commandType, std::string 
 
 	if(flag && commandType->getFlagNote()==false){
 
-		std::string content;
+		string content;
 		if(setGeneralMessage(commandStr,flag,content,FIELD_NOTE)){
 			commandType->setNote(content);
 		}
@@ -332,7 +335,7 @@ Command* Interpreter_Find::interpretFind(Command_Find* commandType, std::string 
 	}
 
 	if(flag && commandType->getFlagLocation()==false){
-		std::string content;
+		string content;
 		if(setGeneralMessage(commandStr,flag,content,FIELD_AT)){
 			commandType->setLocation(content);
 		}
@@ -354,7 +357,7 @@ Command* Interpreter_Find::interpretFind(Command_Find* commandType, std::string 
 	}
 
 	if(flag && commandType->getFlagTags()==false){
-		list<std::string>content;
+		list<string>content;
 
 		if(setTagsMessage(commandStr,flag,content,FIELD_TAG)){
 			commandType->setTags(content);
@@ -367,7 +370,7 @@ Command* Interpreter_Find::interpretFind(Command_Find* commandType, std::string 
 
 	if(flag && commandType->getFlagOptName()==false){
 
-		std::string content;
+		string content;
 		if(setGeneralMessage(commandStr,flag,content,FIELD_NAME)){
 			commandType->setOptName(content);
 		}
@@ -401,7 +404,7 @@ Command* Interpreter_Find::interpretFind(Command_Find* commandType, std::string 
 
 	}
 	if(flag && commandType->getFlagRemindTimes()==false){
-		list<std::time_t> content;
+		list<time_t> content;
 		if(setRemindTimesMessage(commandStr,flag,content,FIELD_RT)){
 			commandType->setRemindTimes(content);
 		}

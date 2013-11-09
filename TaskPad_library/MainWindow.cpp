@@ -29,6 +29,9 @@
 #include "QuickAddWindow.h"
 #include "Manager.h"
 
+using namespace std;
+using namespace TP;
+
 const double MainWindow::DESIRED_TRANSPARENT_OPACITY	= 0.4;
 const int   MainWindow::LENGTH_TOO_LONG					= 77;
 const int   MainWindow::STEP							= 1;
