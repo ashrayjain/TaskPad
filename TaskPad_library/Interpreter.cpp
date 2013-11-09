@@ -154,7 +154,7 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 
 	string word;
 	string timeFormatIssue;
-	Command* returnCommand;
+	Command* returnCommand = NULL;
 
 	flag=checkCommand(commandStr,commandType);
 
@@ -188,8 +188,6 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 				
 				}
 				
-				
-		
 				break;
 			}
 
@@ -366,7 +364,6 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 		else{
 
 			response.setErrorMsg(ERROR_MSG);
-			delete returnCommand;
 		}
 		return NULL;
 	}
