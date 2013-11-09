@@ -27,8 +27,7 @@
 #include "Enum.h"
 
 //a singleton for the whole program
-class Logger
-{
+class Logger {
 	public:
 		void setMinLevelToLog	(TP::LOG_TYPE);
 

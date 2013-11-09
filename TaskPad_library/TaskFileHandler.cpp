@@ -48,8 +48,7 @@ string TaskFileHandler::getTaskFilePath	(const Task& task) {
 	return taskFilePath;
 }
 
-string TaskFileHandler::getDeletedTaskFilePath	(const Task& task)
-{
+string TaskFileHandler::getDeletedTaskFilePath	(const Task& task) {
 	string taskFileTitle	= getFileTitle(task);
 	string taskFilePath		= TASK_DIRECTORY + taskFilePath + TASK_DELETED_FILE_EXTENSION;
 

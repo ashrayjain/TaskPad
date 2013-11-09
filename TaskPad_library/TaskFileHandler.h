@@ -24,8 +24,7 @@
 
 class Task;
 
-class TaskFileHandler
-{
+class TaskFileHandler {
 	protected:
 		virtual void		openFile				(const std::string& fileName, std::ios_base::openmode) =0;
 		virtual void		closeFile				() =0;
