@@ -3,7 +3,7 @@
 using namespace std;
 using namespace TP;
 
-Command* Interpreter_Add::interpretAdd(Command_Add* commandType, std::string commandStr, Messenger &response, bool &flag){
+Command* Interpreter_Add::interpretAdd(Command_Add* commandType, string commandStr, Messenger &response, bool &flag){
 
 	PRIORITY		contentPriority;
 	string			contentString;
@@ -15,22 +15,13 @@ Command* Interpreter_Add::interpretAdd(Command_Add* commandType, std::string com
 
 	if(getDueDateMessage(commandStr,flag,contentTime)){		
 		commandType->setDueDate(contentTime);		
-		if(flag==false){
-			throw TIME_FORMAT_ERROR;
-		}
-
+		
 	}		
 	if(getFromDateMessage(commandStr,flag,contentTime)){
 		commandType->setFromDate(contentTime);
-		if(flag==false){
-			throw TIME_FORMAT_ERROR;
-		}
 	}
 	if(getToDateMessage(commandStr,flag,contentTime)){
 		commandType->setToDate(contentTime);
-		if(flag==false){
-			throw TIME_FORMAT_ERROR;
-		}
 	}
 	if(setParticipantsMessage(commandStr,flag,contentStringList,FIELD_PPL)){
 		commandType->setParticipants(contentStringList);
@@ -50,8 +41,6 @@ Command* Interpreter_Add::interpretAdd(Command_Add* commandType, std::string com
 	if(setTagsMessage(commandStr,flag,contentStringList,FIELD_TAG)){
 		commandType->setTags(contentStringList);
 	}
-
-
 	if(commandType->getFlagFrom()==true && commandType->getFlagTo()==true){
 		if(commandType->getFromDate()>commandType->getToDate()){
 			flag=false;

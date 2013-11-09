@@ -28,9 +28,9 @@ public:
 	Interpreter_Redo(){};
 	~Interpreter_Redo(){};
 
-	Command* interpretRedo(Command_Redo*commandType,std::string commandStr, Messenger &response, bool &flag);
+	Command*                interpretRedo            ( Command_Redo*commandType,std::string commandStr, Messenger &response, bool &flag);
 
-
+    
 };
 
 

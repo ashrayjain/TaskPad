@@ -10,9 +10,7 @@ const int PUSHED_UP_HOUR=23;
 const int PUSHED_UP_MIN=59;
 
 
-Command* Interpreter_Find::interpretFind(Command_Find* commandType, std::string commandStr, Messenger &response, bool &flag){
-
-
+Command* Interpreter_Find::interpretFind(Command_Find* commandType, string commandStr, Messenger &response, bool &flag){
 	PRIORITY		contentPriority;
 	string			contentString;
 	list<string>	contentStringList;
@@ -20,8 +18,6 @@ Command* Interpreter_Find::interpretFind(Command_Find* commandType, std::string 
 	TASK_TYPE		contentTaskType;
 	time_t			contentTime;
 	list<time_t>	contentTimeList;
-
-
 	if(getFromDateMessage(commandStr,flag,contentTime)){
 		commandType->setFromDate(contentTime);
 	}
@@ -92,183 +88,59 @@ time_t Interpreter_Find::setTime(string commandStr, bool&flag){
 	for(int i=START_POSITION;i<commandStr.length();i++){
 
 		if(commandStr.at(i)==NOTATION_SLASH){
-
 			countSlash++;
 		}
-
 	}
 	string content;
 	switch(countSlash){
-
-	case EMPTY_ITEM: 
-		{	
-			int countSpace=EMPTY_ITEM;
-			for(int i=START_POSITION;i<commandStr.length();i++){
-
-				if(commandStr.at(i)==NOTATION_SPACE){
-
-					countSpace++;
-				}
-
-			}
-
-			if(countSpace==ONE_ITEM){
-				stringstream extract(commandStr);
-				getline(extract,content,NOTATION_SPACE);
-				if(!content.empty()){
-					flag=integerConverter(content,day);
-				}
-				else{
-					flag=false;
-				}
-				content.clear();
-				getline(extract,content,NOTATION_COLON);
-				if(!content.empty()){
-
-					flag=integerConverter(content,hour);
-				}
-				content.clear();
-				getline(extract,content);
-				if(!content.empty()){
-
-					flag=integerConverter(content,min);
-				}
-			}
-			else if(countSpace==EMPTY_ITEM){
-				stringstream extract(commandStr);
-				getline(extract,content,NOTATION_COLON);
-				if(!content.empty()){
-
-					flag=integerConverter(content,hour);
-				}
-				content.clear();
-				getline(extract,content);
-				if(!content.empty()){
-
-					flag=integerConverter(content,min);
-				}
-
-			}
-			else{
-				flag=false;
-			}
+	case EMPTY_ITEM: {	
+			extractTimeWithNoSlashForFind(commandStr, content, flag, day, hour, min);
 			break;
 		}
-	case ONE_ITEM:
-		{	
-			stringstream extract(commandStr);
-			content.clear();
-			getline(extract,content,NOTATION_SLASH);  
-			flag=integerConverter(content,day);
-			content.clear();
-			getline(extract,content,NOTATION_SPACE); 
-			flag=integerConverter(content,month);
-
-			content.clear();
-			getline(extract,content,NOTATION_COLON);
-			if(!content.empty()){
-
-				flag=integerConverter(content,hour);
-			}
-			content.clear();
-			getline(extract,content);
-			if(!content.empty()){
-
-				flag=integerConverter(content,min);
-			}
-
+	case ONE_ITEM:{	
+			extractTimeWithOneSlashForFind(commandStr, content, flag, day, month, hour, min);
 			break;
 		}
-	case TWO_ITEMS:
-		{	
-			stringstream extract(commandStr);
-			content.clear();
-			getline(extract,content,NOTATION_SLASH);  
-			flag=integerConverter(content,day);
-			content.clear();
-			getline(extract,content,NOTATION_SLASH); 
-			flag=integerConverter(content,month);
-			content.clear();
-			getline(extract,content,NOTATION_SPACE); 
-			flag=integerConverter(content,year);
-			if(year<100)year=year+CURRENT_CENTURY;
-			content.clear();
-			getline(extract,content,NOTATION_COLON);
-			if(!content.empty()){
-
-				flag=integerConverter(content,hour);
-			}
-			content.clear();
-			getline(extract,content);
-			if(!content.empty()){
-
-				flag=integerConverter(content,min);
-			}
+	case TWO_ITEMS:{	
+			extractTimeWithTwoSlashForFind(commandStr, content, flag, day, month, year, hour, min);
 			break;
 		}
 	default:
 		break;
 	}
 	if(flag!=false){
-
-		if(year==UNINITIALIZED_TIME)year=timeinfo.tm_year+DEFAULT_CTIME_BASE_YEAR;
-		if(month==UNINITIALIZED_TIME)month=timeinfo.tm_mon+CHANGE_BY_ONE;
-		if(day==UNINITIALIZED_TIME)day=timeinfo.tm_mday;
-
-
-		if(hour==UNINITIALIZED_TIME && min ==UNINITIALIZED_TIME){
-			second=UPPER_LIMIT_MINUTE;
-		}
-
-		if(hour==UNINITIALIZED_TIME)hour=DEFAULT_TIME;
-		if(min==UNINITIALIZED_TIME) min=DEFAULT_TIME;
-
-
+		setUnitializeTimeForFind(year, timeinfo, month, day, hour, min, second);
 	}
-
 	struct tm  timeMessage={DEFAULT_TIME,DEFAULT_TIME,DEFAULT_TIME,DEFAULT_TIME,DEFAULT_TIME,DEFAULT_TIME};
-
-	if(year>UPPER_LIMIT_YEAR || year<LOWER_LIMIT_YEAR)
-		flag=false;
-	else if(month>UPPER_LIMIT_MONTH)
-		flag=false;
-	else if(day>UPPER_LIMIT_DAY)
-		flag=false;
-	else if(hour>UPPER_LIMIT_HOUR)
-		flag=false;
-	else if(min>UPPER_LIMIT_MINUTE)
-		flag=false;
-
+	checkTimeValidityForFind(year, flag, month, day, hour, min);
 	if(flag!=false){
 		timeMessage.tm_year=year-DEFAULT_CTIME_BASE_YEAR;
 		timeMessage.tm_mon=month-CHANGE_BY_ONE;
 		timeMessage.tm_mday=day;
 		timeMessage.tm_hour=hour;
 		timeMessage.tm_min=min;
-		timeMessage.tm_sec=second;
+		timeMessage.tm_sec=DEFAULT_TIME;
 	}
-
+	else{
+		throw TIME_FORMAT_ERROR;
+	}
 	return mktime(&timeMessage);
 }
 
-
-
-bool Interpreter_Find::getFromDateMessage(std::string command, bool&flag, std::time_t& content){
+bool Interpreter_Find::getFromDateMessage(string command, bool&flag, time_t& content){
 
 	regex extractTemplete(FIELD_FROM);
 	smatch match;
-	std::string commandStr;
-	std::string preContent;
+	string commandStr;
+	string preContent;
 	bool isNotEmpty=true;
 
 	if (regex_search(command, match, extractTemplete)){
-
-		commandStr=match[0];
-
+		commandStr=match[START_POSITION];
 	}
 	if(!commandStr.empty()){
 
-		std::stringstream extract(commandStr);
+		stringstream extract(commandStr);
 		getline(extract,preContent,NOTATION_ACCENT_GRAVE);
 		preContent.clear();
 		getline(extract,preContent,NOTATION_ACCENT_GRAVE);
@@ -278,7 +150,7 @@ bool Interpreter_Find::getFromDateMessage(std::string command, bool&flag, std::t
 
 			content=setTime(preContent,flag);
 		}
-		if(checkDuplicate(command,FIELD_FROM,match.position())==true){
+		if(checkDuplicate(command,FIELD_FROM,match.position(),commandStr.length())==true){
 
 			flag=false;
 		}		
@@ -292,41 +164,31 @@ bool Interpreter_Find::getFromDateMessage(std::string command, bool&flag, std::t
 	return isNotEmpty;
 }
 
-bool Interpreter_Find::getToDateMessage(std::string command, bool&flag, std::time_t& content){
+bool Interpreter_Find::getToDateMessage(string command, bool&flag, time_t& content){
 
 	regex extractTemplete(FIELD_TO);
 	smatch match;
-	std::string commandStr;
-	std::string preContent;
+	string commandStr;
+	string preContent;
 	bool isNotEmpty=true;
-
 	if (regex_search(command, match, extractTemplete)){
-
-		commandStr=match[0];
-
+		commandStr=match[START_POSITION];
 	}
 	if(!commandStr.empty()){
-
-		std::stringstream extract(commandStr);
+		stringstream extract(commandStr);
 		getline(extract,preContent,NOTATION_ACCENT_GRAVE);
 		preContent.clear();
 		getline(extract,preContent,NOTATION_ACCENT_GRAVE);
 		if(preContent.empty())isNotEmpty=false;
-		else
-		{
+		else{
 			content=setTime(preContent,flag);
 		}
-
-
-		if(checkDuplicate(command,FIELD_TO,match.position())==true){
-
+		if(checkDuplicate(command,FIELD_TO,match.position(),commandStr.length())==true){
 			flag=false;
 		}
 	}
 	else{
-
 		isNotEmpty=false;
-
 	}
 	return isNotEmpty;
 }
@@ -340,13 +202,136 @@ time_t Interpreter_Find::pullDownFromDate(time_t givenTime){
 
 	return mktime(&pulledDownTime);
 }
-time_t Interpreter_Find::pushUpToDate(std::time_t givenTime){
+time_t Interpreter_Find::pushUpToDate(time_t givenTime){
 	struct tm pushedUpTime;
 	localtime_s(&pushedUpTime,&givenTime);
 	pushedUpTime.tm_hour=PUSHED_UP_HOUR;
 	pushedUpTime.tm_min=PUSHED_UP_MIN;
 
 	return mktime(&pushedUpTime);
+}
+
+bool Interpreter_Find::extractTimeWithNoSlashForFind( std::string &commandStr, std::string &content, bool& flag, int& day, int& hour, int& min )
+{
+	int countSpace=EMPTY_ITEM;
+	for(int i=START_POSITION;i<commandStr.length();i++){
+		if(commandStr.at(i)==NOTATION_SPACE){
+			countSpace++;
+		}
+	}
+	if(countSpace==ONE_ITEM){
+		stringstream extract(commandStr);
+		getline(extract,content,NOTATION_SPACE);
+		if(!content.empty()){
+			flag=integerConverter(content,day);
+		}
+		else{
+			flag=false;
+		}
+		content.clear();
+		getline(extract,content,NOTATION_COLON);
+		if(!content.empty()){
+
+			flag=integerConverter(content,hour);
+		}
+		content.clear();
+		getline(extract,content);
+		if(!content.empty()){
+
+			flag=integerConverter(content,min);
+		}
+	}
+	else if(countSpace==EMPTY_ITEM){
+		stringstream extract(commandStr);
+		getline(extract,content,NOTATION_COLON);
+		if(!content.empty()){
+
+			flag=integerConverter(content,hour);
+		}
+		content.clear();
+		getline(extract,content);
+		if(!content.empty()){
+
+			flag=integerConverter(content,min);
+		}
+
+	}
+	else{
+		flag=false;
+	}	
+	return flag;
+}
+
+bool Interpreter_Find::extractTimeWithOneSlashForFind( std::string commandStr, std::string &content, bool& flag, int& day, int& month, int& hour, int& min )
+{
+	stringstream extract(commandStr);
+	content.clear();
+	getline(extract,content,NOTATION_SLASH);  
+	flag=integerConverter(content,day);
+	content.clear();
+	getline(extract,content,NOTATION_SPACE); 
+	flag=integerConverter(content,month);
+	content.clear();
+	getline(extract,content,NOTATION_COLON);
+	if(!content.empty()){
+		flag=integerConverter(content,hour);
+	}
+	content.clear();
+	getline(extract,content);
+	if(!content.empty()){
+		flag=integerConverter(content,min);
+	}
+	return flag;
+}
+
+void Interpreter_Find::extractTimeWithTwoSlashForFind( std::string commandStr, std::string &content, bool &flag, int& day, int& month, int &year, int& hour, int& min )
+{
+	stringstream extract(commandStr);
+	content.clear();
+	getline(extract,content,NOTATION_SLASH);  
+	flag=integerConverter(content,day);
+	content.clear();
+	getline(extract,content,NOTATION_SLASH); 
+	flag=integerConverter(content,month);
+	content.clear();
+	getline(extract,content,NOTATION_SPACE); 
+	flag=integerConverter(content,year);
+	if(year<100)year=year+CURRENT_CENTURY;
+	content.clear();
+	getline(extract,content,NOTATION_COLON);
+	if(!content.empty()){
+		flag=integerConverter(content,hour);
+	}
+	content.clear();
+	getline(extract,content);
+	if(!content.empty()){
+		flag=integerConverter(content,min);
+	}
+}
+
+void Interpreter_Find::setUnitializeTimeForFind( int &year, struct tm &timeinfo, int &month, int &day, int &hour, int &min, int &second ){
+	if(year==UNINITIALIZED_TIME)year=timeinfo.tm_year+DEFAULT_CTIME_BASE_YEAR;
+	if(month==UNINITIALIZED_TIME)month=timeinfo.tm_mon+CHANGE_BY_ONE;
+	if(day==UNINITIALIZED_TIME)day=timeinfo.tm_mday;
+	if(hour==UNINITIALIZED_TIME && min ==UNINITIALIZED_TIME){
+		second=UPPER_LIMIT_MINUTE;
+	}
+	if(hour==UNINITIALIZED_TIME)hour=DEFAULT_TIME;
+	if(min==UNINITIALIZED_TIME) min=DEFAULT_TIME;
+}
+
+bool Interpreter_Find::checkTimeValidityForFind( int year, bool& flag, int month, int day, int hour, int min ){
+	if(year>UPPER_LIMIT_YEAR || year<LOWER_LIMIT_YEAR)
+		flag=false;
+	else if(month>UPPER_LIMIT_MONTH)
+		flag=false;
+	else if(day>UPPER_LIMIT_DAY)
+		flag=false;
+	else if(hour>UPPER_LIMIT_HOUR)
+		flag=false;
+	else if(min>UPPER_LIMIT_MINUTE)
+		flag=false;
+	return flag;
 }
 
 

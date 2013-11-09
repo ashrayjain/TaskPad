@@ -26,7 +26,7 @@ public:
 	Interpreter_Undo(){};
 	~Interpreter_Undo(){};
 
-	Command* interpretUndo(Command_Undo*commandType,std::string commandStr, Messenger &response, bool &flag);
+	Command*            interpretUndo               ( Command_Undo*commandType,std::string commandStr, Messenger &response, bool &flag);
 
 
 };
