@@ -57,10 +57,10 @@ void Executor_Mod::modifyByApproxName(Command_Mod* cmd, Messenger &response, Dat
 	list<Task> matchingResults;
 	list<Task> caseInsensitiveResults;
 	list<Task> tasks = ds.getTaskList();
-	string lowerName = getLowerStr(cmd->getName());
+	string lowerName = Datastore::getLowerStr(cmd->getName());
 	for(Datastore::const_iterator i = ds.cbegin(); i != ds.cend(); i++) {
 	//for(list<Task>::iterator i = tasks.begin(); i != tasks.end(); ++i) {
-		string currName = getLowerStr(i->getName());
+		string currName = Datastore::getLowerStr(i->getName());
 		if (currName.find(cmd->getName()) != string::npos)
 			matchingResults.push_back(Task(*i));
 		else if (currName.find(lowerName) != string::npos)

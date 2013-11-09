@@ -17,6 +17,7 @@
 
 #include <list>
 #include <stack>
+#include <algorithm>
 #include <unordered_map>
 #include "Task.h"
 #include "Command.h"
@@ -68,6 +69,10 @@ private:
 public:
 	Datastore()		{ _ds = new Datastore_Type();								}
 	~Datastore()	{ clearRedoStack(); clearUndoStack(); delete _ds; _ds = NULL;	}
+
+	// Utility functions
+	static std::string				getLowerStr		(std::string str);
+	static std::list<std::string>	getLowerStrList	(std::list<std::string> strList);
 
 	class const_iterator: public StorableTaskDatastore::const_iterator {
         public:

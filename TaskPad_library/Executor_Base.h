@@ -18,7 +18,6 @@
 #include <cstring>
 #include <list>
 #include <unordered_set>
-#include <algorithm>
 #include "Task.h"
 #include "Messenger.h"
 #include "Command.h"
@@ -39,10 +38,6 @@ protected:
 	static const std::string	INVALID_TODATE_ERROR;
 	static const std::string	INVALID_FROMDATE_TODATE_ERROR;
 	static const std::string	NAME_NOT_SPECIFIED_ERROR;
-
-	// Utility functions
-	std::string				getLowerStr		(std::string str);
-	std::list<std::string>	getLowerStrList	(std::list<std::string> strList);
 
 	// Setters for Messenger to return
 	void setOpSuccessTask			(const Task &retTask, Messenger &response);

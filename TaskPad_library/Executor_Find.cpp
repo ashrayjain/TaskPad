@@ -66,7 +66,7 @@ void Executor_Find::findGeneral(Command_Find* cmd, Messenger &response, Datastor
 	if (cmd->getFlagRemindTimes())
 		getCustomDataRangeByRT(customDataRange, cmd->getRemindTimes(), ds);
 
-	runSearch(taskToCompare, results, getLowerStr(cmd->getOptName()), customDataRange, 
+	runSearch(taskToCompare, results, Datastore::getLowerStr(cmd->getOptName()), customDataRange, 
 			  cmd->getFlagTags() || cmd->getFlagRemindTimes(), ds);		
 
 	setOpSuccessTaskList(results, response);
@@ -112,7 +112,7 @@ void Executor_Find::findByRemindTimes(Command_Find* cmd, Messenger &response) {
  
 void Executor_Find::getCustomDataRangeByTags(set<Task> &customDataRange, list<string> &tags, Datastore &ds) {
 	for(list<string>::iterator i = tags.begin(); i != tags.end(); ++i) {
-		list<Task> results = ds.getTasksWithHash(*i);
+		list<Task> results = ds.getTasksWithHash(Datastore::getLowerStr(*i));
 		customDataRange.insert(results.begin(), results.end());
 	}
 }
@@ -145,7 +145,7 @@ void Executor_Find::runSearchWithTask(const Task &taskToCompare, list<Task> &res
 	list<Task> tasks = ds.getTaskList();
 	for(Datastore::const_iterator i = ds.cbegin(); i != ds.cend(); i++)
 	//for(list<Task>::iterator i =tasks.begin(); i != tasks.end(); ++i)
-		if (getLowerStr(i->getName()).find(substringName) != string::npos && taskMatch(*i, taskToCompare))
+		if (Datastore::getLowerStr(i->getName()).find(substringName) != string::npos && taskMatch(*i, taskToCompare))
 			results.push_back(Task(*i));
 }
 
@@ -157,7 +157,7 @@ void Executor_Find::runSearchWithTask(const Task &taskToCompare, list<Task> &res
 
 void Executor_Find::runSearchWithTask(const Task &taskToCompare, list<Task> &results, string substringName, set<Task> &customData) {
 	for(set<Task>::iterator i = customData.begin(); i != customData.end(); ++i)
-		if (getLowerStr(i->getName()).find(substringName) != string::npos && taskMatch(*i, taskToCompare))
+		if (Datastore::getLowerStr(i->getName()).find(substringName) != string::npos && taskMatch(*i, taskToCompare))
 			results.push_back(Task(*i));
 }
 
@@ -166,7 +166,9 @@ bool Executor_Find::taskMatch(const Task& lhs, const Task& rhs) {
 		return false;
 	else if (rhs.getFlagLocation() && (!lhs.getFlagLocation() || rhs.getLocation() != lhs.getLocation()))
 		return false;
-	else if (rhs.getFlagParticipants() && (!lhs.getFlagParticipants() || !participantsMatchFound(getLowerStrList(rhs.getParticipants()), getLowerStrList(lhs.getParticipants()))))
+	else if (rhs.getFlagParticipants() && (!lhs.getFlagParticipants() || !participantsMatchFound(
+		Datastore::getLowerStrList(rhs.getParticipants()),
+		Datastore::getLowerStrList(lhs.getParticipants()))))
 		return false;
 	else if (rhs.getFlagNote() && (!lhs.getFlagNote() || rhs.getNote() != lhs.getNote()))
 		return false;
