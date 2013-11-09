@@ -12,27 +12,22 @@
  * =====================================================================================
  */
 
-#include "Task.h"
-#include "Command.h"
-#include "Messenger.h"
 #include "Datastore.h"
-#include "Executor_Base.h"
-#include "Executor_Add.h"
-#include "Executor_Del.h"
-#include "Executor_Mod.h"
-#include "Executor_Find.h"
-#include "Executor_Undo.h"
-#include "Executor_Redo.h"
 
+class Task;
+class Messenger;
+class Executor_Base;
+class Command;
 
 class Executor
 {
 public:
-	Executor(Datastore &ds):_ds(ds)			{ }
+	Executor(Datastore &ds):_ds(ds),_executor(NULL)		{ }
 	void executeCommand	(Command* &cmd, Messenger &response);
 	std::list<Task>	getCurrentReminders	();
 
 protected:
+	Executor_Base* _executor;
 	Datastore	&_ds;
 	void		executeCommandWithoutUndoRedo	(Command* cmd, Messenger &response);
 	bool		isCmdSuccessful					(const Messenger &response) const;	

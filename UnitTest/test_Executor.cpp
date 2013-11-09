@@ -75,7 +75,7 @@ namespace UnitTest
 			Datastore s;
 			Executor testExecutor(ds);
 			Messenger testResponse;
-			/*
+			
 			testAddCmd->setName("Test Task");
 			testAddCmd->setDueDate(now + 864000);
 			testAddCmd->setLocation("Someplace");
@@ -89,17 +89,16 @@ namespace UnitTest
 
 			Datastore::const_iterator i = ds.cend();
 			i--;
-			//string name = i->getName();
-			//Assert::IsTrue(string("Test Task") == i->getName());
-			//Assert::IsTrue((now + 864000) == i->getDueDate());
-			//Assert::IsTrue(string("Someplace") == i->getLocation());
-			//Assert::IsTrue(string("This is a sample note!") == i->getNote());
-			//Assert::IsTrue(list<string>(1, "#testhashtag") == i->getTags());
-			//Assert::IsTrue(list<string>(5, "Participant X") == i->getParticipants());
-			//Assert::IsTrue(TP::PRIORITY::HIGH == i->getPriority());
-			//Assert::IsTrue(list<time_t>(1, now + 432000) == i->getRemindTimes());
+			Assert::IsTrue(string("Test Task") == i->getName());
+			Assert::IsTrue((now + 864000) == i->getDueDate());
+			Assert::IsTrue(string("Someplace") == i->getLocation());
+			Assert::IsTrue(string("This is a sample note!") == i->getNote());
+			Assert::IsTrue(list<string>(1, "#testhashtag") == i->getTags());
+			Assert::IsTrue(list<string>(5, "Participant X") == i->getParticipants());
+			Assert::IsTrue(TP::PRIORITY::HIGH == i->getPriority());
+			Assert::IsTrue(list<time_t>(1, now + 432000) == i->getRemindTimes());
 			delete testCmd;
-			*/
+			
 		}
 
 		TEST_METHOD(Execute_Del_Command_Test)
