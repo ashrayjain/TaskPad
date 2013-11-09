@@ -181,9 +181,15 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 
 					timeFormatIssue=timeFormatError;
 			     
+					if(flag==false){	
+					delete Add_pointer;
+					returnCommand=NULL;
+					}
 				
 				}
 				
+				
+		
 				break;
 			}
 
@@ -199,9 +205,12 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 				getline(extractName,taskName,NOTATION_ACCENT_GRACE);
 				Mod_pointer->setName(taskName);
 
-				
-				
 				returnCommand=interpretMod.interpretModify(Mod_pointer, commandStr, response,flag);
+				
+				if(flag==false){
+				   delete Mod_pointer;
+				   returnCommand=NULL;
+				}
 				break;
 			}
 		
@@ -244,6 +253,12 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 				Mod_pointer->setIndex(index);
 
 				returnCommand=interpretMod.interpretModify(Mod_pointer, commandStr, response,flag);
+				if(flag==false){
+				
+				delete Mod_pointer;
+				returnCommand=NULL;
+				}
+				
 				break;
 			}
 
@@ -351,7 +366,7 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 		else{
 
 			response.setErrorMsg(ERROR_MSG);
-
+			delete returnCommand;
 		}
 		return NULL;
 	}
