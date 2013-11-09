@@ -30,8 +30,7 @@
 using namespace std;
 using namespace TP;
 
-class Messenger
-{
+class Messenger {
 	public:
 
 		// constructor
@@ -66,7 +65,7 @@ class Messenger
 
 	private:
 		string			_errorMsg;
-		STATUS			jvmCreated;
+		STATUS			_status;
 		list<Task>		_resultList;
 		Task			_resultTask;
 		int				_index;
