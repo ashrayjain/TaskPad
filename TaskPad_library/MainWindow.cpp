@@ -46,8 +46,8 @@ const char* MainWindow::DATE_YEAR						= "yyyy";
 const char* MainWindow::EMPTY                           = "";
 const char* MainWindow::DUE_STR							= "Due ";
 const char* MainWindow::FROM_STR						= "From ";
-const char* MainWindow::TO_STR							= " to ";
-const char* MainWindow::FROM_TO_STR						= "To ";
+const char* MainWindow::TO_STR							= "To ";
+const char* MainWindow::FROM_TO_STR						= " to ";
 const char* MainWindow::NEW_LINE                        = "\n";
 const char* MainWindow::DEFAULT_WIN_TITLE               = "TaskPad";
 const char* MainWindow::DEFAULT_STATUS_BAR_TEXT         = "Ready";
@@ -1002,11 +1002,15 @@ void MainWindow::setDetailsViewOpacity100(){
 }
 
 void MainWindow::setNameLabel(Task &task){
+	const char* OVERDUE_SIGN = "!! ";
 	ui.name->setText(task.getName().c_str());
 	QFont nameFont = ui.name->font();
-	if(task.getState() == TP::UNDONE ||
-		task.getState() == TP::OVERDUE){
+	if(task.getState() == TP::UNDONE){
 		nameFont.setStrikeOut(false);
+	}
+	else if(task.getState() == TP::OVERDUE){
+		nameFont.setStrikeOut(false);
+		ui.name->setText(OVERDUE_SIGN + ui.name->text());
 	}
 	else{//DONE already
 		nameFont.setStrikeOut(true);

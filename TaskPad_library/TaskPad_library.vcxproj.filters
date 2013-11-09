@@ -78,6 +78,9 @@
     <Filter Include="Source Files\Logic_Related\Executor_Derived">
       <UniqueIdentifier>{f0c14839-e154-463e-acd1-17dbff5c8c7d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Logic_Related\Interpreter_Derived">
+      <UniqueIdentifier>{d9c7c042-cecb-48e2-95e2-7402bdbe77b1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="mainwindow.ui">
@@ -157,9 +160,6 @@
     <ClInclude Include="Interpreter_Redo.h">
       <Filter>Header Files\Logic_Related\Interpreter_Derived</Filter>
     </ClInclude>
-    <ClInclude Include="Interpreter_Sync.h">
-      <Filter>Header Files\Logic_Related\Interpreter_Derived</Filter>
-    </ClInclude>
     <ClInclude Include="Interpreter_Undo.h">
       <Filter>Header Files\Logic_Related\Interpreter_Derived</Filter>
     </ClInclude>
@@ -173,9 +173,6 @@
       <Filter>Header Files\Logic_Related</Filter>
     </ClInclude>
     <ClInclude Include="Interpreter.h">
-      <Filter>Header Files\Logic_Related</Filter>
-    </ClInclude>
-    <ClInclude Include="Logger.h">
       <Filter>Header Files\Logic_Related</Filter>
     </ClInclude>
     <ClInclude Include="Manager.h">
@@ -247,6 +244,9 @@
     <ClInclude Include="DateTimeParser.h">
       <Filter>Header Files\Logic_Related</Filter>
     </ClInclude>
+    <ClInclude Include="Logger.h">
+      <Filter>Header Files\Commons</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GeneratedFiles\Debug\moc_CommandBar.cpp">
@@ -294,14 +294,8 @@
     <ClCompile Include="Interpreter.cpp">
       <Filter>Source Files\Logic_Related</Filter>
     </ClCompile>
-    <ClCompile Include="Interpreter_base.cpp">
-      <Filter>Source Files\Logic_Related</Filter>
-    </ClCompile>
     <ClCompile Include="ListItemDelegate.cpp">
       <Filter>Source Files\UI_Related</Filter>
-    </ClCompile>
-    <ClCompile Include="Logger.cpp">
-      <Filter>Source Files\Logic_Related</Filter>
     </ClCompile>
     <ClCompile Include="Manager.cpp">
       <Filter>Source Files\Logic_Related</Filter>
@@ -348,9 +342,6 @@
     <ClCompile Include="Datastore.cpp">
       <Filter>Source Files\Commons</Filter>
     </ClCompile>
-    <ClCompile Include="Executor_Base.cpp">
-      <Filter>Source Files\Logic_Related</Filter>
-    </ClCompile>
     <ClCompile Include="Executor_Add.cpp">
       <Filter>Source Files\Logic_Related\Executor_Derived</Filter>
     </ClCompile>
@@ -373,7 +364,34 @@
       <Filter>Source Files\Logic_Related</Filter>
     </ClCompile>
     <ClCompile Include="Highlighter.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\UI_Related</Filter>
+    </ClCompile>
+    <ClCompile Include="Logger.cpp">
+      <Filter>Source Files\Commons</Filter>
+    </ClCompile>
+    <ClCompile Include="Interpreter_Add.cpp">
+      <Filter>Source Files\Logic_Related\Interpreter_Derived</Filter>
+    </ClCompile>
+    <ClCompile Include="Interpreter_Delete.cpp">
+      <Filter>Source Files\Logic_Related\Interpreter_Derived</Filter>
+    </ClCompile>
+    <ClCompile Include="Interpreter_Find.cpp">
+      <Filter>Source Files\Logic_Related\Interpreter_Derived</Filter>
+    </ClCompile>
+    <ClCompile Include="Interpreter_Mod.cpp">
+      <Filter>Source Files\Logic_Related\Interpreter_Derived</Filter>
+    </ClCompile>
+    <ClCompile Include="Interpreter_Redo.cpp">
+      <Filter>Source Files\Logic_Related\Interpreter_Derived</Filter>
+    </ClCompile>
+    <ClCompile Include="Interpreter_Undo.cpp">
+      <Filter>Source Files\Logic_Related\Interpreter_Derived</Filter>
+    </ClCompile>
+    <ClCompile Include="Executor_Base.cpp">
+      <Filter>Source Files\Logic_Related</Filter>
+    </ClCompile>
+    <ClCompile Include="Interpreter_base.cpp">
+      <Filter>Source Files\Logic_Related</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
