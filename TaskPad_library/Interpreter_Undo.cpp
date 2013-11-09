@@ -9,5 +9,4 @@ Command* Interpreter_Undo::interpretUndo(Command_Undo*commandType,string command
 	response.setStatus(SUCCESS);
 	return (Command*)commandType;
 
-
 }

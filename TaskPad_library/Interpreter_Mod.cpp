@@ -17,20 +17,20 @@ Command* Interpreter_Mod ::interpretModify(Command_Mod* commandType, std::string
 		commandType->setDueDate(contentTime);		
 
 		if(flag==false){
-			throw TIME_ERROR_MESSAGE;
+			throw TIME_FORMAT_ERROR;
 		}
 	}		
 	if(getFromDateMessage(commandStr,flag,contentTime)){
 		commandType->setFromDate(contentTime);
 		if(flag==false){
-			throw TIME_ERROR_MESSAGE;
+			throw TIME_FORMAT_ERROR;
 		}
 
 	}
 	if(getToDateMessage(commandStr,flag,contentTime)){
 		commandType->setToDate(contentTime);
 		if(flag==false){
-			throw TIME_ERROR_MESSAGE;
+			throw TIME_FORMAT_ERROR;
 		}
 
 	}
@@ -46,7 +46,7 @@ Command* Interpreter_Mod ::interpretModify(Command_Mod* commandType, std::string
 	if(setRemindTimesMessage(commandStr,flag,contentTimeList,FIELD_RT)){
 		commandType->setRemindTimes(contentTimeList);
 		if(flag==false){
-			throw TIME_ERROR_MESSAGE;
+			throw TIME_FORMAT_ERROR;
 		}
 
 	}
@@ -83,7 +83,7 @@ Command* Interpreter_Mod ::interpretModify(Command_Mod* commandType, std::string
 	if(setRemindTimesMessage(commandStr,flag, contentTimeList,FIELD_RT_REMOVE)){
 		commandType->setRemoveRemindTimes(contentTimeList);
 		if(flag==false){
-			throw TIME_ERROR_MESSAGE;
+			throw TIME_FORMAT_ERROR;
 		}
 	}
 	if(setParticipantsMessage(commandStr,flag, contentStringList,FIELD_PPL_REMOVE)){
@@ -95,7 +95,7 @@ Command* Interpreter_Mod ::interpretModify(Command_Mod* commandType, std::string
 	if(setRemindTimesMessage(commandStr,flag, contentTimeList,FIELD_RT_ADD)){
 		commandType->setAddRemindTimes(contentTimeList);
 		if(flag==false){
-			throw TIME_ERROR_MESSAGE;
+			throw TIME_FORMAT_ERROR;
 		}
 
 	}
@@ -103,7 +103,7 @@ Command* Interpreter_Mod ::interpretModify(Command_Mod* commandType, std::string
 		commandType->setAddParticipants(contentStringList);
 	}
 	if(setTagsMessage(commandStr,flag, contentStringList,FIELD_TAG_ADD)){
-		commandType->setAddParticipants(contentStringList);
+		commandType->setAddTags(contentStringList);
 	}
 
 
