@@ -84,5 +84,25 @@ namespace TP{
 		public:
 			FatalLogException (std::string errorStr)	{ _errorStr = errorStr; }
 	};
+
+	class ClassNotFoundException : public TP::BaseException {
+		public:
+			ClassNotFoundException (std::string errorStr)	{ _errorStr = errorStr; }
+	};
+
+	class DllNotFoundException : public TP::BaseException {
+		public:
+			DllNotFoundException (std::string errorStr)	{ _errorStr = errorStr; }
+	};
+
+	class StackUnderflowException : public TP::BaseException {
+		public:
+			StackUnderflowException (std::string errorStr)	{ _errorStr = errorStr; }
+	};
+
+	class JvmLoadException : public TP::BaseException {
+		public:
+			JvmLoadException (std::string errorStr)	{ _errorStr = errorStr; }
+	};
 }
 #endif
