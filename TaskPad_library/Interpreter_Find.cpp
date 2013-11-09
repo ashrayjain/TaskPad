@@ -428,6 +428,7 @@ Command* Interpreter_Find::interpretFind(Command_Find* commandType, std::string 
 
 	else{ 
 		
+		delete commandType;
 		response.setStatus(ERR);
 		commandType=NULL;
 	}
