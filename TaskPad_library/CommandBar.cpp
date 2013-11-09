@@ -91,6 +91,7 @@ void CommandBar::initWidgets(){
 void CommandBar::initState(){
 	autoCompleteToggle(true);
 	hotkeyTemplateMode = false;
+	autoCompleteMode = false;
 	(void) new Highlighter(document());
 }
 
@@ -177,13 +178,19 @@ void CommandBar::performCompletion(){
 	if(getCurrentLine().length() > TOO_LONG){
 		handleTextTooLong();
 	}
-	else if(autoCompleteFlag){
-		QString completionPrefix = getWordUnderCursor();
-		if (!completionPrefix.isEmpty() &&
-			isLastCharLetter(completionPrefix)){
-			performCompletion(completionPrefix);
-		}
+	else if(autoCompleteFlag && isRHSEmpty()){
+			QString completionPrefix = getWordUnderCursor();
+			if (!completionPrefix.isEmpty() &&
+				isLastCharLetter(completionPrefix)){
+					performCompletion(completionPrefix);
+			}
 	}
+}
+
+bool CommandBar::isRHSEmpty(){
+	bool isRHSaSpace = hasKeywordNearby(SPACE, QTextCursor::Right);
+	bool isAtTheEndOfLine = textCursor().position() == getCurrentLine().length();
+	return isRHSaSpace || isAtTheEndOfLine;
 }
 
 void CommandBar::produceModel(){
@@ -266,6 +273,7 @@ void CommandBar::insertCompletion(const QString &completion){
 		//move cursor to end of completion
 		cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, numberOfCharsToComplete);
 		setTextCursor(cursor);
+		autoCompleteMode = true;
 	}
 }
 
@@ -466,6 +474,11 @@ bool CommandBar::handleKeyPress(QKeyEvent*event){
 	case Qt::Key_Backspace:
 			handleKeyBackspace(&isHandled);
 		break;
+	case Qt::Key_Left:
+	case Qt::Key_Right:
+		if(event->modifiers() == Qt::ShiftModifier)
+			handleKeyLeftOrRight();
+		break;
 	case Qt::Key_Up:
 			handleKeyUp();
 		break;
@@ -480,18 +493,24 @@ bool CommandBar::handleKeyPress(QKeyEvent*event){
 }
 
 void CommandBar::handleKeyQuoteLeft(bool *isHandled){
+	TURN_OFF_AC
 	QTextCursor cursor = textCursor();
 	//in auto-completion, press QL will move the cursor between ``, if 
 	//the model has `` pair
-	if(containsQuoteLeftPair(cursor.selectedText())){
-		TEXT_EDIT_BEGIN
+	if(autoCompleteMode && containsQuoteLeftPair(cursor.selectedText())){
 		cursor.clearSelection();
 		cursor.movePosition(QTextCursor::Left);
-		TEXT_EDIT_END
+		autoCompleteMode = false;
 	}//if the model does not have `` pair, insert `` at the back of it
-	else if(cursor.selectedText() != EMPTY){
+	else if(autoCompleteMode && cursor.selectedText() != EMPTY){
 		cursor.clearSelection();
 		cursor.insertText(SPACE + QUOTE_LEFT + QUOTE_LEFT);
+		cursor.movePosition(QTextCursor::Left, QTextCursor::MoveAnchor);
+		autoCompleteMode = false;
+	}//normal processing
+	else if(!autoCompleteMode && cursor.selectedText() != EMPTY){
+		cursor.removeSelectedText();
+		cursor.insertText(QUOTE_LEFT + QUOTE_LEFT);
 		cursor.movePosition(QTextCursor::Left, QTextCursor::MoveAnchor);
 	}//if within ``, and has a ` next to the cursor (RHS), then go across it
 	else if(isWithinPairOfQuoteLeft() && hasQuoteLeft_RHS()){
@@ -562,6 +581,7 @@ void CommandBar::handleHotKeyGoForwards(){
 }
 
 void CommandBar::handleKeyTab(bool *isHandled){
+	TURN_OFF_AC
 	QTextCursor cursor = textCursor();
 	if(isHotkeyTemplateMode()){
 		handleHotKeyGoForwards();
@@ -569,23 +589,22 @@ void CommandBar::handleKeyTab(bool *isHandled){
 	}
 	else{
 		//auto complete the keyword model in auto-complete mode
-		if(containsQuoteLeftPair(cursor.selectedText())){
-			TEXT_EDIT_BEGIN
+		if(autoCompleteMode && containsQuoteLeftPair(cursor.selectedText())){
 			cursor.clearSelection();
 			cursor.movePosition(QTextCursor::Left);
-			TEXT_EDIT_END
+			autoCompleteMode = false;
+		}//normal processing
+		else if(!autoCompleteMode && cursor.selectedText() != EMPTY){
+			cursor.removeSelectedText();
+			cursor.insertText(SPACE);
 		}//move across the quote left `
 		else if(hasQuoteLeft_RHS()){
-			TEXT_EDIT_BEGIN
 			cursor.movePosition(QTextCursor::Right);
 			cursor.insertText(SPACE);
-			TEXT_EDIT_END
 		}//just insert a space
 		else{
-			TEXT_EDIT_BEGIN
 			cursor.clearSelection();
 			cursor.insertText(SPACE);
-			TEXT_EDIT_END
 		}
 		*isHandled = true;
 		setTextCursor(cursor);
@@ -593,21 +612,19 @@ void CommandBar::handleKeyTab(bool *isHandled){
 }
 
 void CommandBar::handleKeySpace(bool *isHandled){
+	TURN_OFF_AC
 	QTextCursor cursor = textCursor();
-	if(cursor.hasSelection()){
-		//auto complete the keyword model in auto-complete mode
+	if(cursor.hasSelection() && autoCompleteMode){
+		//auto complete the keyword model in auto-complete mode, if it has ``
 		if(containsQuoteLeftPair(cursor.selectedText())){
-			TEXT_EDIT_BEGIN
 			cursor.clearSelection();
 			cursor.movePosition(QTextCursor::Left);
-			TEXT_EDIT_END
-		}
-		else{//just insert a space
-			TEXT_EDIT_BEGIN
+		}//otherwise just insert a space
+		else{
 			cursor.clearSelection();
 			cursor.insertText(SPACE);
-			TEXT_EDIT_END
 		}
+		autoCompleteMode = false;
 		*isHandled = true;
 		setTextCursor(cursor);
 	}
@@ -625,6 +642,10 @@ void CommandBar::handleKeyBackspace(bool *isHandled){
 	//if cursor is within ``, like `<cursor>`, delete both ``
 	if(isWithinPairOfQuoteLeft() && hasQuoteLeft_RHS() && hasQuoteLeft_LHS())
 		clearCharRHS();
+}
+
+void CommandBar::handleKeyLeftOrRight(){
+	autoCompleteMode = false;
 }
 
 //handle user input history
@@ -662,6 +683,10 @@ void CommandBar::handleKeyDown(){
 
 void CommandBar::handleKeyDefault(){
 	TURN_ON_AC
+}
+
+void CommandBar::mousePressEvent(QMouseEvent *event){
+	autoCompleteMode = false;
 }
 
 //create a hotkey template according to templateStr

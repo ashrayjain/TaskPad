@@ -92,6 +92,7 @@ private:
 	void initConnections();
 	//AUTO COMPLETION RELATED
 	void autoCompleteToggle(bool flag);
+	bool isRHSEmpty();
 	void performCompletion(const QString&);
 	void handleTextTooLong();
 	QString getWordUnderCursor();
@@ -133,16 +134,19 @@ private:
 	void handleKeySpace(bool *isHandled);
 	void handleKeyDelete(bool *isHandled);
 	void handleKeyBackspace(bool *isHandled);
+	void handleKeyLeftOrRight();
 	void handleKeyUp();
 	void handleKeyDown();
 	void handleKeyDefault();
+	void mousePressEvent(QMouseEvent *event);
 	//FIELDS
 	bool autoCompleteFlag;
 	bool hotkeyTemplateMode;
+	bool autoCompleteMode;
 	QTextCursor lastTimeCursor;
 	QStringListModel* model;
 	QCompleter* completer;
-	QRegExp hotkeyTemplate;//TODO: rename it
+	QRegExp hotkeyTemplate;
 	QRegExp REGEXP_quoteLeftPairs;
 	QStack<QString> inputHistory_undo;
 	QStack<QString> inputHistory_redo;
