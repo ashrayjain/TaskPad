@@ -24,15 +24,18 @@
 
 class Task;
 
-class TaskFileHandler
-{
+class TaskFileHandler {
 	protected:
 		virtual void		openFile				(const std::string& fileName, std::ios_base::openmode) =0;
 		virtual void		closeFile				() =0;
-				std::string getTaskFilePath			(const Task& task);
-				std::string getDeletedTaskFilePath	(const Task& task);
+		virtual std::string getTaskFilePath			(const Task& task);
+		virtual std::string getDeletedTaskFilePath	(const Task& task);
 
-		const static std::string TASK_DIRECTORY;
+		std::string getFileTitle					(const Task& task);
+
+		static const std::string TASK_DIRECTORY;
+		static const std::string TASK_FILE_EXTENSION;
+		static const std::string TASK_DELETED_FILE_EXTENSION;
 
 		static const std::string LABEL_START_OF_TASK;
 		static const std::string LABEL_NAME;

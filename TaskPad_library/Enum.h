@@ -2,6 +2,7 @@
 #define _ENUM_H
 
 #include <string>
+#include <exception>
 
 namespace TP{
 
@@ -29,5 +30,59 @@ namespace TP{
 	static const std::string TASK_STATE_STRING[TASK_STATE_COUNT]	=		{"UNDONE","OVERDUE","DONE"};
 	static const std::string TASK_TYPE_STRING[TASK_TYPE_COUNT]		=		{"TIMED","DEADLINE","FLOATING"};
 	static const std::string LOG_TYPE_STRING[LOG_TYPE_COUNT]		=		{"INFOLOG","NOTICELOG","WARNINGLOG","ERRORLOG","FATALLOG"};
+
+	//exceptions for the classes
+	class BaseException : public std::exception {
+	protected:
+		std::string _errorStr;
+	public:
+		virtual const char* what() const throw() {
+			return _errorStr.c_str();
+		}
+		
+	};
+
+	// for datastore and task
+
+	class InvalidIndexException : public TP::BaseException {
+	public:
+		InvalidIndexException (std::string errorStr)	{ _errorStr = errorStr; }
+	};
+
+	class EmptyStackException : public TP::BaseException {
+	public:
+		EmptyStackException (std::string errorStr)	{ _errorStr = errorStr; }
+	};
+
+	// for natty:
+
+	class FileNotFoundException : public TP::BaseException {
+	public:
+		FileNotFoundException (std::string errorStr)	{ _errorStr = errorStr; }
+	};
+
+	//For interpreter:
+
+	class DuplicateKeyWordException : public TP::BaseException {
+	public:
+		DuplicateKeyWordException (std::string errorStr)	{ _errorStr = errorStr; }
+	};
+
+	class TimeFormatException : public TP::BaseException {
+	public:
+		TimeFormatException (std::string errorStr)	{ _errorStr = errorStr; }
+	};
+
+	class GeneralCommandFormatException : public TP::BaseException {
+	public:
+		GeneralCommandFormatException (std::string errorStr)	{ _errorStr = errorStr; }
+	};
+
+	//for logger:
+
+	class FatalLogException : public TP::BaseException {
+		public:
+			FatalLogException (std::string errorStr)	{ _errorStr = errorStr; }
+	};
 }
 #endif
