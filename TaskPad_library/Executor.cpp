@@ -13,7 +13,7 @@
  */
 
 #include "Executor.h"
-
+#include "Executor_Base.h"
 #include "Executor_Add.h"
 #include "Executor_Del.h"
 #include "Executor_Mod.h"
@@ -71,7 +71,10 @@ void Executor::executeCommand(Command* &cmd, Messenger &response) {
 	default:
 		break;
 	}
-	delete _executor;
+	if (_executor != NULL) {
+		delete _executor;
+		_executor = NULL;
+	}
 }
 
 void Executor::executeCommandWithoutUndoRedo(Command* cmd, Messenger &response) {
@@ -85,6 +88,7 @@ void Executor::executeCommandWithoutUndoRedo(Command* cmd, Messenger &response) 
 	}
 	_executor->executeCommand(cmd, response, _ds);
 	delete _executor;
+	_executor = NULL;
 }
 
 bool Executor::isCmdSuccessful(const Messenger &response) const {
