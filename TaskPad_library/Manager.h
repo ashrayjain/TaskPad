@@ -77,6 +77,7 @@ class Manager {
 		void insertActualIndexIntoDeleteCommand		();
 		void removePreviousCommand					();
 		void removeLastSuccessfulFindCommand		();
+		void updateLastSuccessfulFindCommand		();
 		void storeIndexFromCommandToClassAttribute	();
 
 		void editTaskListInResponse					();

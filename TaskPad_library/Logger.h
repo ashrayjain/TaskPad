@@ -38,15 +38,14 @@ class Logger
 		std::ofstream _logWriter;
 		static		 std::string _configDetailList[];
 
-
 		static const std::string CONFIG_LABEL_LIST[];
 		static const std::string CONFIG_DEFAULT_VALUES_LIST[];
 		static const std::string CONFIG_FILE_NAME;
 
+		static const std::string DEFAULT_UNCONFIGURED_VALUE;
 		static const std::string DEFAULT_LOG_FILE_NAME;
 		static const std::string DEFAULT_CLASS_TO_MONITOR;
 		static const std::string DEFAULT_LEVEL_TO_LOG;
-		static const std::string DEFAULT_CONFIG_VALUE;
 		static const std::string DEFAULT_LOG_MESSAGE_LINKER;
 		static const std::string DEFAULT_KEY_VALUE_DELIMITER;
 		static const std::string DEFAULT_INFO_LOG_IDENTIFIER;
@@ -67,19 +66,26 @@ class Logger
 
 		//the single object
 		static Logger* logger;
+
+		// initialisation functions
+		static void initialiseLogger	();
+		static void createLogger		();
 		
 		//log functions
-		void logInfo	(std::string message);
-		void logNotice	(std::string message);
-		void logWarning	(std::string message);
-		void logError	(std::string message);
-		void logFatal	(std::string message);
+		void logTheMessage				(std::string message, TP::LOG_TYPE logType);
+		void logInfo					(std::string message);
+		void logNotice					(std::string message);
+		void logWarning					(std::string message);
+		void logError					(std::string message);
+		void logFatal					(std::string message);
 
 		//helper functions
 		void configureLogger			();
+		void openLogFileToWrite			();
 		void loadConfigData				();
 		void setDefaultValues			();
 		void extractMinLevelToMonitor	();
+		void printStartMessage			();
 		std::string getNewData			(std::string newLine);
 		std::string getNewLabel			(std::string newLine);
 
@@ -87,6 +93,10 @@ class Logger
 
 		std::string getCurTime			();
 
+		//configuration functions
+
+		void extractInfo		(const std::string& configLine,std::string& configLabel,std::string& configData);
+		void saveExtractedInfo	(const std::string& configLabel, const std::string& configData);
 
 		//constructor
 		Logger	();

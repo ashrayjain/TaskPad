@@ -133,17 +133,12 @@ void Manager::saveChanges()
 			case MOD:
 				/* empty and falls through*/
 			case DEL:
-			//	/* empty and falls through*/
-			//case UNDO:
-			//	/* empty and falls through*/
-			//case REDO:
+				/* empty and falls through*/
 				_logger->log("Manager","saving changes");
 				this->_storage->save(this->_response.getTask(),this->_response.getCommandType());
 				break;
 			case FIND:
-				removeLastSuccessfulFindCommand();
-				 this->_lastSuccessfulFindCmd = new Command_Find;
-				*this->_lastSuccessfulFindCmd = *this->_cmd;
+				 updateLastSuccessfulFindCommand();
 				break;
 			default:
 				break;
@@ -161,6 +156,14 @@ void Manager::removePreviousCommand() {
 		this->_cmd = NULL;
 	}
 	return;
+}
+
+void Manager::updateLastSuccessfulFindCommand	() {
+	 removeLastSuccessfulFindCommand();
+
+	 this->_lastSuccessfulFindCmd	= new Command_Find;
+	*(this->_lastSuccessfulFindCmd) = *(this->_cmd);
+
 }
 
 void Manager::removeLastSuccessfulFindCommand() {
