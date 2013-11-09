@@ -21,9 +21,9 @@ public:
 	void executeCommand						(Command* cmd, Messenger &response, Datastore &ds);
 private:
 	void deleteTaskByIndex					(const unsigned long long &index, Messenger &reponse, Datastore &ds);	
-	void deleteTaskByName					(const string &name, Messenger &reponse, const bool &exactFlag, Datastore &ds);
-	void deleteByExactName					(const string &name, Messenger &response, Datastore &ds);
-	void deleteByApproxName					(const string &name, Messenger &response, Datastore &ds);
-	void selectAppropriateDeleteResponse	(const list<Task> &matchingResults, const list<Task> &caseInsensitiveResults, 
-											 const string &name, Messenger &response, Datastore &ds);
+	void deleteTaskByName					(const std::string &name, Messenger &reponse, const bool &exactFlag, Datastore &ds);
+	void deleteByExactName					(const std::string &name, Messenger &response, Datastore &ds);
+	void deleteByApproxName					(const std::string &name, Messenger &response, Datastore &ds);
+	void selectAppropriateDeleteResponse	(const std::list<Task> &matchingResults, const std::list<Task> &caseInsensitiveResults, 
+											 const std::string &name, Messenger &response, Datastore &ds);
 };

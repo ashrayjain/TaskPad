@@ -156,7 +156,6 @@ Task Datastore::modifyTask(Datastore::const_iterator k, Command_Mod* cmd) {
 	Datastore::const_iterator j = dynamic_cast<Datastore_Type::const_iterator*>(_ds->cbegin());
 	Datastore_Base::iterator* i = _ds->begin();
 	advance(*i, distance(j, k));
-	//advance(*i, pos);
 	_interimTask = Task(**i);
 	modifyTaskWithPtr(**i, cmd);
 	return Task(**i);
@@ -281,6 +280,7 @@ void Datastore::stackDelCmdForUndo(Command* cmd, Messenger &response) {
 	*newCmd = *cmd;
 	_undoStack.push(pair<Command*, Task>(newCmd, response.getTask()));
 }
+
 void Datastore::popTopRedoStackToUndoStack() {
 	if (!_redoStack.empty()) {
 		_undoStack.push(_redoStack.top());
@@ -297,6 +297,22 @@ void Datastore::popTopUndoStackToRedoStack() {
 	}
 	else
 		throw exception("Nothing to pop");
+}
+
+Datastore::const_iterator* Datastore::cbeginPtr() { 
+	return new Datastore::const_iterator(dynamic_cast<Datastore_Type::const_iterator*>(_ds->cbegin()));
+}
+
+Datastore::const_iterator* Datastore::cendPtr() { 
+	return new Datastore::const_iterator(dynamic_cast<Datastore_Type::const_iterator*>(_ds->cend()));
+}
+
+Datastore::const_iterator  Datastore::cbegin() { 
+	return dynamic_cast<Datastore_Type::const_iterator*>(_ds->cbegin());
+}
+
+Datastore::const_iterator  Datastore::cend() {
+	return dynamic_cast<Datastore_Type::const_iterator*>(_ds->cend());
 }
 
 // Utility functions
