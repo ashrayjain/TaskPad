@@ -22,11 +22,9 @@ void Executor_Find::executeCommand(Command* cmd, Messenger &response, Datastore 
 		findGeneral(findCmd, response, ds);
 	if(findCmd->getFlagTaskType())
 		filterResponseListByType(response, list<TP::TASK_TYPE>(1, findCmd->getTaskType()));
-	response.setList(getSortListByPriority(response.getList()));
 	if(findCmd->getFlagFrom())
 		response.setList(getSortListByFromTime(response.getList()));
-
-
+	response.setList(getSortListByPriority(response.getList()));
 }
 
 
@@ -198,7 +196,7 @@ bool Executor_Find::invalidDateChk(const Task &lhs, const Task &rhs) const {
 	if (!rhs.getFlagFromDate() && !rhs.getFlagToDate())
 		retVal = false;
 	else if (rhs.getFlagFromDate() && rhs.getFlagToDate()) {
-		if (chkDateBound(rhs.getFromDate(), rhs.getToDate(), lhs))
+		if (validDateBound(rhs.getFromDate(), rhs.getToDate(), lhs))
 			retVal = false;
 	}
 	else if (rhs.getFlagFromDate()) {
@@ -210,7 +208,7 @@ bool Executor_Find::invalidDateChk(const Task &lhs, const Task &rhs) const {
 	return retVal;
 }
 
-bool Executor_Find::chkDateBound(const time_t &fromTime, const time_t &toTime, const Task &lhs) const {
+bool Executor_Find::validDateBound(const time_t &fromTime, const time_t &toTime, const Task &lhs) const {
 	return !((!lhs.getFlagToDate() && !lhs.getFlagFromDate()) || 
 		(lhs.getFlagToDate() && fromTime > lhs.getToDate()) || 
 		(lhs.getFlagFromDate() && toTime < lhs.getFromDate()));
