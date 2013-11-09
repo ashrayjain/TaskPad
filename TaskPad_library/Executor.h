@@ -44,7 +44,7 @@ public:
 	//~Executor()							{ clearRedoStack(); clearUndoStack(); }
 
 	void executeCommand	(Command* &cmd, Messenger &response);
-	list<Task>	getCurrentReminders	();
+	std::list<Task>	getCurrentReminders	();
 
 protected:
 	Datastore &_ds;
