@@ -4,9 +4,14 @@
 using namespace std;
 using namespace TP;
 
+const int PULLED_DOWN_HOUR=0;
+const int PULLED_DOWN_MIN=0;
+const int PUSHED_UP_HOUR=23;
+const int PUSHED_UP_MIN=59;
+
 time_t Interpreter_Find::setTime(string commandStr, bool&flag){
 	commandStr = natty::getNatty().parseDateTime(commandStr);
-	int year=UNINITIALIZED_TIME,month=UNINITIALIZED_TIME,day=UNINITIALIZED_TIME,hour=UNINITIALIZED_TIME,min=UNINITIALIZED_TIME,second=UNINITIALIZED_TIME;
+	int year=UNINITIALIZED_TIME,month=UNINITIALIZED_TIME,day=UNINITIALIZED_TIME,hour=UNINITIALIZED_TIME,min=UNINITIALIZED_TIME,second=CHANGE_BY_ONE;
 	time_t rawtime;
 	string inputInfo=commandStr;
 	struct tm  timeinfo={DEFAULT_TIME,DEFAULT_TIME,DEFAULT_TIME,DEFAULT_TIME,DEFAULT_TIME,DEFAULT_TIME};
@@ -172,7 +177,7 @@ time_t Interpreter_Find::setTime(string commandStr, bool&flag){
 		timeMessage.tm_mday=day;
 		timeMessage.tm_hour=hour;
 		timeMessage.tm_min=min;
-		timeMessage.tm_sec=DEFAULT_TIME;
+		timeMessage.tm_sec=second;
 	}
 
 	return mktime(&timeMessage);
@@ -180,12 +185,12 @@ time_t Interpreter_Find::setTime(string commandStr, bool&flag){
 
 
 
-bool Interpreter_Find::getFromDateMessage(string command, bool&flag, time_t& content){
+bool Interpreter_Find::getFromDateMessage(std::string command, bool&flag, std::time_t& content){
 
 	regex extractTemplete(FIELD_FROM);
 	smatch match;
-	string commandStr;
-	string preContent;
+	std::string commandStr;
+	std::string preContent;
 	bool isNotEmpty=true;
 
 	if (regex_search(command, match, extractTemplete)){
@@ -195,7 +200,7 @@ bool Interpreter_Find::getFromDateMessage(string command, bool&flag, time_t& con
 	}
 	if(!commandStr.empty()){
 
-		stringstream extract(commandStr);
+		std::stringstream extract(commandStr);
 		getline(extract,preContent,NOTATION_ACCENT_GRAVE);
 		preContent.clear();
 		getline(extract,preContent,NOTATION_ACCENT_GRAVE);
@@ -219,12 +224,12 @@ bool Interpreter_Find::getFromDateMessage(string command, bool&flag, time_t& con
 	return isNotEmpty;
 }
 
-bool Interpreter_Find::getToDateMessage(string command, bool&flag, time_t& content){
+bool Interpreter_Find::getToDateMessage(std::string command, bool&flag, std::time_t& content){
 
 	regex extractTemplete(FIELD_TO);
 	smatch match;
-	string commandStr;
-	string preContent;
+	std::string commandStr;
+	std::string preContent;
 	bool isNotEmpty=true;
 
 	if (regex_search(command, match, extractTemplete)){
@@ -234,7 +239,7 @@ bool Interpreter_Find::getToDateMessage(string command, bool&flag, time_t& conte
 	}
 	if(!commandStr.empty()){
 
-		stringstream extract(commandStr);
+		std::stringstream extract(commandStr);
 		getline(extract,preContent,NOTATION_ACCENT_GRAVE);
 		preContent.clear();
 		getline(extract,preContent,NOTATION_ACCENT_GRAVE);
@@ -258,184 +263,97 @@ bool Interpreter_Find::getToDateMessage(string command, bool&flag, time_t& conte
 	return isNotEmpty;
 }
 
-Command* Interpreter_Find::interpretFind(Command_Find* commandType, string commandStr, Messenger &response, bool &flag){
 
-	if(flag && commandType->getFlagFrom() ==false){
+time_t Interpreter_Find::pullDownFromDate(time_t givenTime){
+	struct tm pulledDownTime;
+	localtime_s(&pulledDownTime,&givenTime);
+	pulledDownTime.tm_hour=PULLED_DOWN_HOUR;
+	pulledDownTime.tm_min=PULLED_DOWN_MIN;
 
-		time_t content;
-		if(getFromDateMessage(commandStr,flag,content)){
-			commandType->setFromDate(content);
-		}
-	    if (flag==false){
-			throw (string)"Sorry, this is invalid time format!";
+	return mktime(&pulledDownTime);
+}
+time_t Interpreter_Find::pushUpToDate(std::time_t givenTime){
+	struct tm pushedUpTime;
+	localtime_s(&pushedUpTime,&givenTime);
+	pushedUpTime.tm_hour=PUSHED_UP_HOUR;
+	pushedUpTime.tm_min=PUSHED_UP_MIN;
+
+	return mktime(&pushedUpTime);
+}
+
+Command* Interpreter_Find::interpretFind(Command_Find* commandType, std::string commandStr, Messenger &response, bool &flag){
+
+
+	PRIORITY		contentPriority;
+	string			contentString;
+	list<string>	contentStringList;
+	TASK_STATE		contentTaskState;
+	TASK_TYPE		contentTaskType;
+	time_t			contentTime;
+	list<time_t>	contentTimeList;
+
+
+	if(getFromDateMessage(commandStr,flag,contentTime)){
+		commandType->setFromDate(contentTime);
+		if(flag==false){
+			throw TIME_ERROR_MESSAGE;
 		}	
 	}
-	else {
-		flag=false;
-
-	}
-
-	if(flag && commandType->getFlagTo() ==false){
-		time_t content;
-		struct tm timeinfo;
-		struct tm timeinfoForFrom;
-		
-		if(getToDateMessage(commandStr,flag,content)){
-			localtime_s(&timeinfo, &content); 
-
-			if(commandType->getFlagFrom() ==true && content==commandType->getFromDate()){
-				
-				time_t contentForFrom=commandType->getFromDate();
-				localtime_s(&timeinfoForFrom, &contentForFrom);
-				timeinfo.tm_hour=23;
-				timeinfo.tm_min=59;
-			    timeinfoForFrom.tm_hour=0;
-			    timeinfoForFrom.tm_min=0;
-			    commandType->setFromDate(mktime(&timeinfoForFrom));
-				
-			
-			}
-			commandType->setToDate(mktime(&timeinfo));
-		}
-	
-	      if (flag==false){
-			throw (string)"Sorry, this is invalid time format!";
-		}          
-	}
-	else{
-
-		flag=false;
-	}
-
-
-	if(flag && commandType->getFlagParticipants()==false){
-
-		list<string>content;
-		if(setParticipantsMessage(commandStr,flag,content,FIELD_PPL)){
-			commandType->setParticipants(content);
-		}
-
-	}
-	else{
-
-		flag=false;
-	}
-
-	if(flag && commandType->getFlagNote()==false){
-
-		string content;
-		if(setGeneralMessage(commandStr,flag,content,FIELD_NOTE)){
-			commandType->setNote(content);
+	if(getToDateMessage(commandStr,flag,contentTime)){
+		commandType->setToDate(contentTime);
+		if(flag==false){
+			throw TIME_ERROR_MESSAGE;
 		}
 	}
-	else{
-
-		flag=false;
-
+	if(setParticipantsMessage(commandStr,flag,contentStringList,FIELD_PPL)){
+		commandType->setParticipants(contentStringList);
 	}
-
-	if(flag && commandType->getFlagLocation()==false){
-		string content;
-		if(setGeneralMessage(commandStr,flag,content,FIELD_AT)){
-			commandType->setLocation(content);
+	if(setGeneralMessage(commandStr,flag,contentString,FIELD_NOTE)){
+		commandType->setNote(contentString);
+	}
+	if(setGeneralMessage(commandStr,flag,contentString,FIELD_AT)){
+		commandType->setLocation(contentString);
+	}
+	if(setRemindTimesMessage(commandStr,flag,contentTimeList,FIELD_RT)){
+		commandType->setRemindTimes(contentTimeList);
+		if(flag==false){
+			throw TIME_ERROR_MESSAGE;
 		}
 	}
-	else{
-
-		flag=false;
+	if(setTagsMessage(commandStr,flag,contentStringList,FIELD_TAG)){
+		commandType->setTags(contentStringList);
+	}
+	if(setGeneralMessage(commandStr,flag,contentString,FIELD_NAME)){
+		commandType->setOptName(contentString);
+	}
+	if(getTaskStateMessage(commandStr,flag,contentTaskState)){
+		commandType->setTaskState(contentTaskState);
+	}
+	if(getTaskTypeMessage(commandStr,flag,contentTaskType)){
+		commandType->setTaskState(contentTaskState);
+	}	
+	if(getPriorityMessage(commandStr,flag,contentPriority)){
+		commandType->setPriority(contentPriority);
 	}
 
-	if(flag && commandType->getFlagPriority()==false){
-		PRIORITY content;
-		if(getPriorityMessage(commandStr,flag,content)){
-			commandType->setPriority(content);
-		}
-	}
-	else {
-		flag=false;
-
-	}
-
-	if(flag && commandType->getFlagTags()==false){
-		list<string>content;
-
-		if(setTagsMessage(commandStr,flag,content,FIELD_TAG)){
-			commandType->setTags(content);
-		}
-	}
-	else {
-
-		flag=false;
-	}
-
-	if(flag && commandType->getFlagOptName()==false){
-
-		string content;
-		if(setGeneralMessage(commandStr,flag,content,FIELD_NAME)){
-			commandType->setOptName(content);
-		}
-	}
-	else {
-		flag=false;
-	}
-
-
-	if(flag && commandType->getFlagTaskState()==false){
-
-		TASK_STATE content;
-		if(getTaskStateMessage(commandStr,flag,content)){
-			commandType->setTaskState(content);
-		}
-	}
-	else {
-
-		flag=false;
-	}
-
-	if(flag && commandType->getFlagTaskType()==false){
-		TASK_TYPE content;
-		if(getTaskTypeMessage(commandStr,flag,content)){
-			commandType->setTaskType(content);
-		}
-	}
-	else{
-
-		flag=false;
-
-	}
-	if(flag && commandType->getFlagRemindTimes()==false){
-		list<time_t> content;
-		if(setRemindTimesMessage(commandStr,flag,content,FIELD_RT)){
-			commandType->setRemindTimes(content);
-		}
-          if (flag==false){
-			throw (string)"Sorry, this is invalid time format!";
-		}
-	}
-	else{
-
-		flag=false;
-
-	}
 	if(commandType->getFlagFrom()==true && commandType->getFlagTo()==true){
-
-		if(commandType->getFromDate()>commandType->getToDate())flag=false;
+		if(commandType->getFromDate()>commandType->getToDate()){
+			flag=false;
+		}
+		if(commandType->getFromDate()==commandType->getToDate()){
+			commandType->setFromDate(pullDownFromDate(commandType->getFromDate()));
+			commandType->setToDate(pushUpToDate(commandType->getToDate()));
+		}
 	}
 
-    if(flag==true){
-
+	if(flag==true){
 		response.setStatus(SUCCESS);
 		response.setCommandType(FIND);
-		
 	}
-
 	else{ 
-		
 		delete commandType;
-		response.setStatus(ERR);
 		commandType=NULL;
 	}
-    return (Command*)commandType;
-
+	return (Command*)commandType;
 }
 
