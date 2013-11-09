@@ -43,7 +43,7 @@ public:
 	//Executor(std::list<Task>* data)		{ _data = data; rebuildHashes(); }
 	//~Executor()							{ clearRedoStack(); clearUndoStack(); }
 
-	void executeCommand	(Command* cmd, Messenger &response);
+	void executeCommand	(Command* &cmd, Messenger &response);
 	list<Task>	getCurrentReminders	();
 
 protected:
