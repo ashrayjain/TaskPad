@@ -14,7 +14,7 @@ public:
 
 	Command* interpretFind(Command_Find* commandType, std::string commandStr, Messenger &response, bool &flag);
 
-	std::time_t            setTime(std::string commandStr, bool& flag);                       
+	std::time_t       setTime                             (std::string commandStr, bool& flag);                       
 	bool              integerConverter(std::string& required, int& number)               { return Interpreter_base::integerConverter(required,number);}
 	std::string            toUpper(std::string str)                                                 { return Interpreter_base::toUpper(str);}
 	
