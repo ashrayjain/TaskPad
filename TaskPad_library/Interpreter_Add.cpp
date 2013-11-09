@@ -5,147 +5,66 @@ using namespace TP;
 
 Command* Interpreter_Add::interpretAdd(Command_Add* commandType, std::string commandStr, Messenger &response, bool &flag){
 
+	PRIORITY		contentPriority;
+	string			contentString;
+	list<string>	contentStringList;
+	TASK_STATE		contentTaskState;
+	TASK_TYPE		contentTaskType;
+	time_t			contentTime;
+	list<time_t>	contentTimeList;
 
-	if(flag && commandType->getFlagDue()==false){		
-
-		std::time_t content;
-
-		if(getDueDateMessage(commandStr,flag,content)){		
-			commandType->setDueDate(content);		
-		}		
-		if (flag==false){
-			throw (string)"Sorry, this is invalid time format!";
-		}
-	}
-	else {
-
-		flag=false;
-	}
-
-	if(flag && commandType->getFlagFrom() ==false){
-
-		std::time_t content;
-		if(getFromDateMessage(commandStr,flag,content)){
-			commandType->setFromDate(content);
-		}
-		if (flag==false){
-			throw (string)"Sorry, this is invalid time format!";
-		}	
-	}
-	else {
-		flag=false;
-
-	}
-
-	if(flag && commandType->getFlagTo() ==false){
-		std::time_t content;
-
-		if(getToDateMessage(commandStr,flag,content)){
-			commandType->setToDate(content);
-		}
-		if (flag==false){
-			throw (string)"Sorry, this is invalid time format!";
-		}
-	}
-	else{
-
-		flag=false;
-	}
-
-	if(flag && commandType->getFlagParticipants()==false){
-
-		std::list<std::string>content;
-		if(setParticipantsMessage(commandStr,flag,content,FIELD_PPL)){
-			commandType->setParticipants(content);
+	if(getDueDateMessage(commandStr,flag,contentTime)){		
+		commandType->setDueDate(contentTime);		
+		if(flag==false){
+			throw TIME_ERROR_MESSAGE;
 		}
 
-	}
-	else{
-
-		flag=false;
-	}
-
-	if(flag && commandType->getFlagNote()==false){
-
-		std::string content;
-		if(setGeneralMessage(commandStr,flag,content,FIELD_NOTE)){
-			commandType->setNote(content);
+	}		
+	if(getFromDateMessage(commandStr,flag,contentTime)){
+		commandType->setFromDate(contentTime);
+		if(flag==false){
+			throw TIME_ERROR_MESSAGE;
 		}
 	}
-	else{
-
-		flag=false;
-
-	}
-
-	if(flag && commandType->getFlagLocation()==false){
-		std::string content;
-		if(setGeneralMessage(commandStr,flag,content,FIELD_AT)){
-			commandType->setLocation(content);
+	if(getToDateMessage(commandStr,flag,contentTime)){
+		commandType->setToDate(contentTime);
+		if(flag==false){
+			throw TIME_ERROR_MESSAGE;
 		}
 	}
-	else{
-
-		flag=false;
+	if(setParticipantsMessage(commandStr,flag,contentStringList,FIELD_PPL)){
+		commandType->setParticipants(contentStringList);
 	}
-
-	if(flag && commandType->getFlagRemindTimes()==false){
-		std::list<std::time_t>content;
-		if(setRemindTimesMessage(commandStr,flag,content,FIELD_RT)){
-			commandType->setRemindTimes(content);
-		}
-		if (flag==false){
-			throw (string)"Sorry, this is invalid time format!";
-		}
+	if(setGeneralMessage(commandStr,flag,contentString,FIELD_NOTE)){
+		commandType->setNote(contentString);
 	}
-	else{
-
-		flag=false;
-
+	if(setGeneralMessage(commandStr,flag,contentString,FIELD_AT)){
+		commandType->setLocation(contentString);
 	}
-
-	if(flag && commandType->getFlagPriority()==false){
-		PRIORITY content;
-		if(getPriorityMessage(commandStr,flag,content)){
-			commandType->setPriority(content);
-		}
+	if(setRemindTimesMessage(commandStr,flag,contentTimeList,FIELD_RT)){
+		commandType->setRemindTimes(contentTimeList);
 	}
-	else {
-		flag=false;
-
+	if(getPriorityMessage(commandStr,flag,contentPriority)){
+		commandType->setPriority(contentPriority);
 	}
-
-	if(flag && commandType->getFlagTags()==false){
-		std::list<std::string>content;
-
-		if(setTagsMessage(commandStr,flag,content,FIELD_TAG)){
-			commandType->setTags(content);
-		}
-	}
-	else {
-
-		flag=false;
+	if(setTagsMessage(commandStr,flag,contentStringList,FIELD_TAG)){
+		commandType->setTags(contentStringList);
 	}
 
 
 	if(commandType->getFlagFrom()==true && commandType->getFlagTo()==true){
-
-		if(commandType->getFromDate()>commandType->getToDate())flag=false;
+		if(commandType->getFromDate()>commandType->getToDate()){
+			flag=false;
+		}
 	}
-	
-	
-	if(flag==true){
 
+	if(flag==true){
 		response.setStatus(SUCCESS);
 		response.setCommandType(ADD);
-		
 	}
-
-	else{ 
-		
-		response.setStatus(ERR);
-		
+	else{
+		delete commandType;
 		commandType=NULL;
 	}
-    return (Command*)commandType;
+	return (Command*)commandType;
 }
