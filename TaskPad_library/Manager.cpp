@@ -550,6 +550,7 @@ Messenger Manager::getPrevPeriodTasks(PERIOD_TYPE pType) {
 
 void Manager::setResponseToError(const string& message) {
 	this->_response.setStatus(ERR);
+	this->_response.setErrorMsg(message);
 	return;
 }
 
