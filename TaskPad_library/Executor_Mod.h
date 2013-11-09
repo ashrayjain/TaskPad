@@ -24,7 +24,8 @@ private:
 	void modifyByName					(Command_Mod* cmd, Messenger &response, Datastore &ds);
 	void modifyByExactName				(Command_Mod* cmd, Messenger &response, Datastore &ds);
 	void modifyByApproxName				(Command_Mod* cmd, Messenger &response, Datastore &ds);
-	void selectAppropriateModifyResponse(const list<Task> &matchingResults, const list<Task> &caseInsensitiveResults,
+	void selectAppropriateModifyResponse(const std::list<Task> &matchingResults, 
+										 const std::list<Task> &caseInsensitiveResults,
 										 Command_Mod* cmd, Messenger &response, Datastore &ds);
 	bool isModCmdValid					(Command_Mod* cmd, const Task& task, Messenger &response);
 };
