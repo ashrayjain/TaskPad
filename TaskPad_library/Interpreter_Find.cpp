@@ -1,6 +1,13 @@
 #include "Interpreter_Find.h"
 #include "Natty.h"
 
+using namespace std;
+
+const int PULLED_DOWN_HOUR=0;
+const int PULLED_DOWN_MIN=0;
+const int PUSHED_UP_HOUR=23;
+const int PUSHED_UP_MIN=59;
+
 time_t Interpreter_Find::setTime(string commandStr, bool&flag){
 	commandStr = natty::getNatty().parseDateTime(commandStr);
 	int year=UNINITIALIZED_TIME,month=UNINITIALIZED_TIME,day=UNINITIALIZED_TIME,hour=UNINITIALIZED_TIME,min=UNINITIALIZED_TIME,second=CHANGE_BY_ONE;
@@ -255,167 +262,88 @@ bool Interpreter_Find::getToDateMessage(std::string command, bool&flag, std::tim
 	return isNotEmpty;
 }
 
+
+time_t Interpreter_Find::pullDownFromDate(time_t givenTime){
+	struct tm pulledDownTime;
+	localtime_s(&pulledDownTime,&givenTime);
+	pulledDownTime.tm_hour=PULLED_DOWN_HOUR;
+	pulledDownTime.tm_min=PULLED_DOWN_MIN;
+
+	return mktime(&pulledDownTime);
+}
+time_t Interpreter_Find::pushUpToDate(std::time_t givenTime){
+	struct tm pushedUpTime;
+	localtime_s(&pushedUpTime,&givenTime);
+	pushedUpTime.tm_hour=PUSHED_UP_HOUR;
+	pushedUpTime.tm_min=PUSHED_UP_MIN;
+
+	return mktime(&pushedUpTime);
+}
+
 Command* Interpreter_Find::interpretFind(Command_Find* commandType, std::string commandStr, Messenger &response, bool &flag){
 
-	if(flag && commandType->getFlagFrom() ==false){
 
-		std::time_t content;
-		if(getFromDateMessage(commandStr,flag,content)){
-			commandType->setFromDate(content);
-		}
+	PRIORITY		contentPriority;
+	string			contentString;
+	list<string>	contentStringList;
+	TASK_STATE		contentTaskState;
+	TASK_TYPE		contentTaskType;
+	time_t			contentTime;
+	list<time_t>	contentTimeList;
+
+
+	if(getFromDateMessage(commandStr,flag,contentTime)){
+		commandType->setFromDate(contentTime);
 	}
-	else {
-		flag=false;
-
+	if(getToDateMessage(commandStr,flag,contentTime)){
+		commandType->setToDate(contentTime);
 	}
-
-	if(flag && commandType->getFlagTo() ==false){
-		std::time_t content;
-		struct tm timeinfo;
-		struct tm timeinfoForFrom;
-		
-		if(getToDateMessage(commandStr,flag,content)){
-			localtime_s(&timeinfo, &content); 
-
-			if(commandType->getFlagFrom() ==true && content==commandType->getFromDate()){
-				
-				time_t contentForFrom=commandType->getFromDate();
-				localtime_s(&timeinfoForFrom, &contentForFrom);
-				timeinfo.tm_hour=23;
-				timeinfo.tm_min=59;
-			    timeinfoForFrom.tm_hour=0;
-			    timeinfoForFrom.tm_min=0;
-			    commandType->setFromDate(mktime(&timeinfoForFrom));
-				
-			
-			}
-			commandType->setToDate(mktime(&timeinfo));
-		}
+	if(setParticipantsMessage(commandStr,flag,contentStringList,FIELD_PPL)){
+		commandType->setParticipants(contentStringList);
 	}
-	else{
-
-		flag=false;
+	if(setGeneralMessage(commandStr,flag,contentString,FIELD_NOTE)){
+		commandType->setNote(contentString);
 	}
-
-
-	if(flag && commandType->getFlagParticipants()==false){
-
-		list<std::string>content;
-		if(setParticipantsMessage(commandStr,flag,content,FIELD_PPL)){
-			commandType->setParticipants(content);
-		}
-
+	if(setGeneralMessage(commandStr,flag,contentString,FIELD_AT)){
+		commandType->setLocation(contentString);
 	}
-	else{
-
-		flag=false;
+	if(setRemindTimesMessage(commandStr,flag,contentTimeList,FIELD_RT)){
+		commandType->setRemindTimes(contentTimeList);
 	}
-
-	if(flag && commandType->getFlagNote()==false){
-
-		std::string content;
-		if(setGeneralMessage(commandStr,flag,content,FIELD_NOTE)){
-			commandType->setNote(content);
-		}
+	if(setTagsMessage(commandStr,flag,contentStringList,FIELD_TAG)){
+		commandType->setTags(contentStringList);
 	}
-	else{
-
-		flag=false;
-
+	if(setGeneralMessage(commandStr,flag,contentString,FIELD_NAME)){
+		commandType->setOptName(contentString);
 	}
-
-	if(flag && commandType->getFlagLocation()==false){
-		std::string content;
-		if(setGeneralMessage(commandStr,flag,content,FIELD_AT)){
-			commandType->setLocation(content);
-		}
+	if(getTaskStateMessage(commandStr,flag,contentTaskState)){
+		commandType->setTaskState(contentTaskState);
 	}
-	else{
-
-		flag=false;
+	if(getTaskTypeMessage(commandStr,flag,contentTaskType)){
+		commandType->setTaskState(contentTaskState);
+	}	
+	if(getPriorityMessage(commandStr,flag,contentPriority)){
+		commandType->setPriority(contentPriority);
 	}
-
-	if(flag && commandType->getFlagPriority()==false){
-		PRIORITY content;
-		if(getPriorityMessage(commandStr,flag,content)){
-			commandType->setPriority(content);
-		}
-	}
-	else {
-		flag=false;
-
-	}
-
-	if(flag && commandType->getFlagTags()==false){
-		list<std::string>content;
-
-		if(setTagsMessage(commandStr,flag,content,FIELD_TAG)){
-			commandType->setTags(content);
-		}
-	}
-	else {
-
-		flag=false;
-	}
-
-	if(flag && commandType->getFlagOptName()==false){
-
-		std::string content;
-		if(setGeneralMessage(commandStr,flag,content,FIELD_NAME)){
-			commandType->setOptName(content);
-		}
-	}
-	else {
-		flag=false;
-	}
-
-
-	if(flag && commandType->getFlagTaskState()==false){
-
-		TASK_STATE content;
-		if(getTaskStateMessage(commandStr,flag,content)){
-			commandType->setTaskState(content);
-		}
-	}
-	else {
-
-		flag=false;
-	}
-
-	if(flag && commandType->getFlagTaskType()==false){
-		TASK_TYPE content;
-		if(getTaskTypeMessage(commandStr,flag,content)){
-			commandType->setTaskType(content);
-		}
-	}
-	else{
-
-		flag=false;
-
-	}
-	if(flag && commandType->getFlagRemindTimes()==false){
-		list<std::time_t> content;
-		if(setRemindTimesMessage(commandStr,flag,content,FIELD_RT)){
-			commandType->setRemindTimes(content);
-		}
-	}
-	else{
-
-		flag=false;
-
-	}
+	
 	if(commandType->getFlagFrom()==true && commandType->getFlagTo()==true){
-
-		if(commandType->getFromDate()>commandType->getToDate())flag=false;
+		if(commandType->getFromDate()>commandType->getToDate()){
+			flag=false;
+		}
+		if(commandType->getFromDate()==commandType->getToDate()){
+			commandType->setFromDate(pullDownFromDate(commandType->getFromDate()));
+			commandType->setToDate(pushUpToDate(commandType->getToDate()));
+		}
 	}
-
 
 	if(flag==true){
 		response.setStatus(SUCCESS);
 		response.setCommandType(FIND);
-		return (Command*)commandType;
 	}
-	else return NULL;
-
+	else{ 
+		delete commandType;
+		commandType=NULL;
+	}
+	return (Command*)commandType;
 }
 
