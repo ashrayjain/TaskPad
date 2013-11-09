@@ -4,6 +4,7 @@
 #include "../TaskPad_library//Datastore.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
+using namespace std;
 
 namespace UnitTest
 {

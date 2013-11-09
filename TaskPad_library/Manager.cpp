@@ -30,9 +30,11 @@
 #include "Datastore.h"
 
 using namespace TP;
+using namespace std;
 
 const string Manager::MESSAGE_INDEX_OUT_OF_RANGE = "Given index is out of range!";
 const string Manager::MESSAGE_ERROR_UNEXPECTED_COMMAND_TYPE_WITH_INDEX = "Unexpected Command with index!!";
+const string Manager::MESSAGE_DATE_LIMIT_REACHED	= "Reached date boundary!";
 
 Manager::Manager() {
 	this->_taskDS					= new Datastore;
@@ -135,7 +137,7 @@ void Manager::saveChanges()
 			case DEL:
 				/* empty and falls through*/
 				_logger->log("Manager","saving changes");
-				this->_storage->save(this->_response.getTask(),this->_response.getCommandType());
+				this->_storage->save(this->_response.getTask(), this->_response.getCommandType());
 				break;
 			case FIND:
 				 updateLastSuccessfulFindCommand();
@@ -537,12 +539,12 @@ Messenger Manager::getPrevPeriodTasks(PERIOD_TYPE pType) {
 		return this->processCommand(command);
 	}
 	else {
-		setResponseToError();
+		setResponseToError(MESSAGE_DATE_LIMIT_REACHED);
 		return _response;
 	}
 }
 
-void Manager::setResponseToError() {
+void Manager::setResponseToError(string& message) {
 	this->_response.setStatus(ERR);
 	return;
 }

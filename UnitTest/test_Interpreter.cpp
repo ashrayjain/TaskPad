@@ -4,7 +4,9 @@
 #include "../TaskPad_library/Interpreter.h"
 #include "../TaskPad_library/Messenger.h"
 #include "../TaskPad_library/Command.h"
+
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
+using namespace std;
 
 namespace UnitTest
 {
