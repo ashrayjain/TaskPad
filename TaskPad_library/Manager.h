@@ -52,7 +52,7 @@ class Manager {
 		void saveChanges							();
 
 		//helper functions
-		void setResponseToError						();
+		void setResponseToError						(const std::string& newCommand);
 		bool hasNoError								();
 		bool isSuccessfulCommand					();
 		bool hasInterpretationError					();

@@ -128,8 +128,7 @@ Messenger Manager::processCommand(const string& newCommand) {
 void Manager::saveChanges()
 {
 	if(this->isSuccessfulCommand()){
-		switch(this->_cmd->getCommandType())
-		{
+		switch(this->_cmd->getCommandType()) {
 			case ADD:
 				/* empty and falls through*/
 			case MOD:
@@ -137,7 +136,12 @@ void Manager::saveChanges()
 			case DEL:
 				/* empty and falls through*/
 				_logger->log("Manager","saving changes");
-				this->_storage->save(this->_response.getTask(), this->_response.getCommandType());
+				if (_response.getCommandType() == UNDO || _response.getCommandType() == REDO) {
+					this->_storage->save(this->_response.getTask(), this->_cmd->getCommandType());
+				}
+				else {
+					this->_storage->save(this->_response.getTask(), this->_response.getCommandType());
+				}
 				break;
 			case FIND:
 				 updateLastSuccessfulFindCommand();
@@ -510,7 +514,7 @@ Messenger Manager::getNextPeriodTasks(PERIOD_TYPE pType) {
 		return this->processCommand(command);
 	}
 	else {
-		setResponseToError();
+		setResponseToError(MESSAGE_DATE_LIMIT_REACHED);
 		return _response;
 	}
 }
@@ -544,7 +548,7 @@ Messenger Manager::getPrevPeriodTasks(PERIOD_TYPE pType) {
 	}
 }
 
-void Manager::setResponseToError(string& message) {
+void Manager::setResponseToError(const string& message) {
 	this->_response.setStatus(ERR);
 	return;
 }
