@@ -3,7 +3,7 @@
  *
  *		Filename:  Manager.cpp
  *
- *      Version:  1.0
+ *      Version:  2.0
  *
  *      Author:  Thyaegsh Manikandan (A0100124J)
  *		Organization:  NUS, SoC
@@ -35,34 +35,30 @@ const string Manager::MESSAGE_INDEX_OUT_OF_RANGE = "Given index is out of range!
 const string Manager::MESSAGE_ERROR_UNEXPECTED_COMMAND_TYPE_WITH_INDEX = "Unexpected Command with index!!";
 
 Manager::Manager() {
-	this->_taskDB					= new Datastore;
+	this->_taskDS					= new Datastore;
 	this->_logger					= Logger::getLogger();
-	this->_storage					= new Storage(_taskDB);
-	this->_executor					= new Executor(*_taskDB);
+	this->_storage					= new Storage(_taskDS);
+	this->_executor					= new Executor(*_taskDS);
 	this->_interpreter				= new Interpreter;
 	this->_response					= Messenger();
 	this->_cmd						= NULL;
 	this->_lastSuccessfulFindCmd	= NULL;
 }
 
-Messenger Manager::refreshList()
-{
+Messenger Manager::refreshList() {
 	this->_executor->executeCommand(this->_lastSuccessfulFindCmd,this->_response);
 	return this->_response;
 }
 
-list<Task> Manager::getCurrentReminders	()
-{
+list<Task> Manager::getCurrentReminders	() {
 	return this->_executor->getCurrentReminders();
 }
 
-void Manager::syncTaskList (const list<Task>& taskList)
-{
+void Manager::syncTaskList (const list<Task>& taskList) {
 	this->_response.setList(taskList);
 }
 
-void Manager::syncTask (const Task& task)
-{
+void Manager::syncTask (const Task& task) {
 	this->_response.setTask(task);
 }
 
@@ -77,11 +73,11 @@ void Manager::resetStatus() {
 }
 
 Manager::~Manager() {
-	this->_storage->save(this->_taskDB);
+	this->_storage->save(this->_taskDS);
 
-	if(this->_taskDB != NULL) {
-		delete this->_taskDB;
-		_taskDB = NULL;
+	if(this->_taskDS != NULL) {
+		delete this->_taskDS;
+		_taskDS = NULL;
 	}
 
 	if(this->_interpreter != NULL) {
@@ -132,18 +128,17 @@ void Manager::saveChanges()
 	if(this->isSuccessfulCommand()){
 		switch(this->_cmd->getCommandType())
 		{
+			case ADD:
+				/* empty and falls through*/
 			case MOD:
 				/* empty and falls through*/
 			case DEL:
 				/* empty and falls through*/
-			case ADD:
 				_logger->log("Manager","saving changes");
 				this->_storage->save(this->_response.getTask(),this->_response.getCommandType());
 				break;
 			case FIND:
-				removeLastSuccessfulFindCommand();
-				 this->_lastSuccessfulFindCmd = new Command_Find;
-				*this->_lastSuccessfulFindCmd = *this->_cmd;
+				 updateLastSuccessfulFindCommand();
 				break;
 			default:
 				break;
@@ -161,6 +156,14 @@ void Manager::removePreviousCommand() {
 		this->_cmd = NULL;
 	}
 	return;
+}
+
+void Manager::updateLastSuccessfulFindCommand	() {
+	 removeLastSuccessfulFindCommand();
+
+	 this->_lastSuccessfulFindCmd	= new Command_Find;
+	*(this->_lastSuccessfulFindCmd) = *(this->_cmd);
+
 }
 
 void Manager::removeLastSuccessfulFindCommand() {
@@ -459,8 +462,7 @@ bool Manager::hasNoInterpretationError() {
 	}
 }
 
-bool Manager::hasNoError()
-{
+bool Manager::hasNoError() {
 	if(this->_response.getStatus() == ERR || this->_response.getStatus() == ERR_INTER) {
 		return false;
 	}
@@ -470,8 +472,7 @@ bool Manager::hasNoError()
 	}
 }
 
-bool Manager::isSuccessfulCommand()
-{
+bool Manager::isSuccessfulCommand() {
 	if(this->_response.getStatus() == SUCCESS || this->_response.getStatus() == SUCCESS_INDEXED_COMMAND)
 	{
 		return true;
@@ -483,8 +484,7 @@ bool Manager::isSuccessfulCommand()
 /************* NAVIGATION RELATED METHODS ****************/
 /*********************************************************/
 
-Messenger Manager::getNextPeriodTasks(PERIOD_TYPE pType)
-{
+Messenger Manager::getNextPeriodTasks(PERIOD_TYPE pType) {
 	std::tm currTm = _currentPeriod.second;
 	std::tm nextTm;
 
@@ -513,12 +513,7 @@ Messenger Manager::getNextPeriodTasks(PERIOD_TYPE pType)
 	}
 }
 
-void Manager::setResponseToError() {
-	this->_response.setStatus(ERR);
-	return;
-}
-Messenger Manager::getPrevPeriodTasks(PERIOD_TYPE pType)
-{
+Messenger Manager::getPrevPeriodTasks(PERIOD_TYPE pType) {
 	std::tm currTm = this->_currentPeriod.first;
 	std::tm prevTm;
 
@@ -545,6 +540,11 @@ Messenger Manager::getPrevPeriodTasks(PERIOD_TYPE pType)
 		setResponseToError();
 		return _response;
 	}
+}
+
+void Manager::setResponseToError() {
+	this->_response.setStatus(ERR);
+	return;
 }
 
 pair<tm,tm> Manager::getCurrentPeriod(){

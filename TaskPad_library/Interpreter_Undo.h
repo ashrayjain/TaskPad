@@ -1,3 +1,5 @@
+#ifndef _INTERPRETER_UNDO_H_
+#define _INTERPRETER_UNDO_H_
 #include "Interpreter_base.h"
 
 
@@ -13,11 +15,6 @@ public:
 
 };
 
-Command* Interpreter_Undo::interpretUndo(Command_Undo*commandType,std::string commandStr, Messenger &response, bool &flag){
-
-	response.setCommandType(UNDO);
-	response.setStatus(SUCCESS);
-	return (Command*)commandType;
 
 
-}
+#endif

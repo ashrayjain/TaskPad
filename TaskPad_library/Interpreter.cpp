@@ -5,30 +5,40 @@
 #include "Interpreter_Delete.h"
 #include "Interpreter_Redo.h"
 #include "Interpreter_Undo.h"
-#include "Interpreter_Sync.h"
+
 #include <regex>
 
-const string GENERAL_ADD_CASE="((( (due|by)| from| to| (impt|priority)| (at|place|location)| (ppl|with)| note| (rt|remind)) `[^`]*`)|( #[^( |`)]*))*(\\s*)";
-const string GENERAL_MOD_CASE="((( (due|by)| from| name| to| (impt|priority)| (at|place|location)| (ppl|with)| note| (rt|remind)| -(rt|remind)| -(ppl|with)| \\+(rt|remind)| \\+(ppl|with)) `[^`]*`)|( done| undone)|( -(due|by)| -from| -to)|( -rtall| -pplall| -#)|( (#|-#|\\+#)[^( |`)]*))*(\\s*)";
-const string GENERAL_FIND_CASE="((( from| name| to| (impt|priority)| (at|place|location)| (ppl|with)| note| (rt|remind)) `[^`]*`)|( #[^( |`)]*)|( done| undone| overdue)|(( timed| deadline| floating)))*(\\s*)";
-const string COMMAND_ADD="^add `([^`]+)`";
-const string COMMAND_MOD="^mod `([^`]+)`";
-const string COMMAND_MOD_EXACT="^mod exact `([^`]+)`";
-const string COMMAND_MOD_INDEX="^mod ([0-9]+)";
-const string COMMAND_FIND="^find";
-const string COMMAND_FIND_EXACT="^find exact";
-const string COMMAND_DEL="^del `([^`]+)`(\\s*)";
-const string COMMAND_DEL_EXACT="^del exact `([^`]+)`(\\s*)";
-const string COMMAND_DEL_INDEX="^del ([0-9]+)(\\s*)";
+using namespace std;
+const string GENERAL_ADD_CASE="((((\\s+)(due|by)|(\\s+)from|(\\s+)to|(\\s+)(impt|priority)|(\\s+)(at|place|location)|(\\s+)(ppl|with)|(\\s+)note|(\\s+)(rt|remind))(\\s+)`[^`]*`)|((\\s+)#[^( |`)]*))*(\\s*)";
+const string GENERAL_MOD_CASE="((((\\s+)(due|by)|(\\s+)from|(\\s+)name|(\\s+)to|(\\s+)(impt|priority)|(\\s+)(at|place|location)|(\\s+)(ppl|with)|(\\s+)note|(\\s+)(rt|remind)|(\\s+)-(rt|remind)|(\\s+)-(ppl|with)|(\\s+)\\+(rt|remind)|(\\s+)\\+(ppl|with))(\\s+)`[^`]*`)|((\\s+)done|(\\s+)undone)|((\\s+)-(due|by)|(\\s+)-from|(\\s+)-to)|((\\s+)-rtall|(\\s+)-pplall|(\\s+)-#)|((\\s+)(#|-#|\\+#)[^( |`)]*))*(\\s*)";
+const string GENERAL_FIND_CASE="((((\\s+)from|(\\s+)name|(\\s+)to|(\\s+)(impt|priority)|(\\s+)(at|place|location)|(\\s+)(ppl|with)|(\\s+)note|(\\s+)(rt|remind))(\\s+)`[^`]*`)|((\\s+)#[^( |`)]*)|((\\s+)done|(\\s+)undone|(\\s+)overdue)|(((\\s+)timed|(\\s+)deadline|(\\s+)floating)))*(\\s*)";
+const string COMMAND_ADD="^add(\\s+)`([^`]+)`(\\s*)";
+const string COMMAND_MOD="^mod(\\s+)`([^`]+)`(\\s*)";
+const string COMMAND_MOD_EXACT="^mod(\\s+)exact(\\s+)`([^`]+)`(\\s*)";
+const string COMMAND_MOD_INDEX="^mod(\\s+)([0-9]+)(\\s*)";
+const string COMMAND_FIND="^find(\\s*)";
+const string COMMAND_FIND_EXACT="^find(\\s+)exact(\\s*)";
+const string COMMAND_DEL="^del(\\s+)`([^`]+)`(\\s*)";
+const string COMMAND_DEL_EXACT="^del(\\s+)exact(\\s+)`([^`]+)`(\\s*)";
+const string COMMAND_DEL_INDEX="^del(\\s+)([0-9]+)(\\s*)";
 const string COMMAND_UNDO="^undo(\\s*)";
 const string COMMAND_REDO="^redo(\\s*)";
 const string ERROR_MSG="invalid command";
+const char NOTATION_ACCENT_GRACE='`';
+const int TOTAL_TEST_CASE=12;
+const int DUMMY_VALUE=-1;
+const int START_POSITION_VALUE=0;
+
+enum COMMAND_CATEGORY{ADD_COMMAND,MOD_COMMAND,MOD_EXACT_COMMAND,MOD_INDEX_COMMAND,FIND_COMMAND,FIND_EXACT_COMMAND,DEL_COMMAND, 
+	DEL_EXACT_COMMAND, DEL_INDEX_COMMAND, UNDO_COMMAND,REDO_COMMAND,SYNC_COMMAND};
+
+
 
 bool Interpreter::checkCommand(string command, int& commandType){
 
 	bool flag=false;
-	bool testlist[12]={false};
-	int num=-1;
+	bool testlist[TOTAL_TEST_CASE]={false};
+	int num=DUMMY_VALUE;
 
 	regex test_add_command(COMMAND_ADD+GENERAL_ADD_CASE); 
 
@@ -50,20 +60,20 @@ bool Interpreter::checkCommand(string command, int& commandType){
 	regex test_sync_command("^sync `([^`]+)`(\\s*)");
 
 
-	testlist[0]=regex_match(command,test_add_command);
-	testlist[1]=regex_match(command,test_mod_command);
-	testlist[2]=regex_match(command,test_mod_exact_command);
-	testlist[3]=regex_match(command,test_mod_index_command);
-	testlist[4]=regex_match(command,test_find_command);
-	testlist[5]=regex_match(command,test_find_exact_command);
-	testlist[6]=regex_match(command,test_del_command);
-	testlist[7]=regex_match(command,test_del_exact_command);
-	testlist[8]=regex_match(command,test_del_index_command);
-	testlist[9]=regex_match(command,test_undo_command);
-	testlist[10]=regex_match(command,test_redo_command);
-	testlist[11]=regex_match(command,test_sync_command);
+	testlist[ADD_COMMAND]=regex_match(command,test_add_command);
+	testlist[MOD_COMMAND]=regex_match(command,test_mod_command);
+	testlist[MOD_EXACT_COMMAND]=regex_match(command,test_mod_exact_command);
+	testlist[MOD_INDEX_COMMAND]=regex_match(command,test_mod_index_command);
+	testlist[FIND_COMMAND]=regex_match(command,test_find_command);
+	testlist[FIND_EXACT_COMMAND]=regex_match(command,test_find_exact_command);
+	testlist[DEL_COMMAND]=regex_match(command,test_del_command);
+	testlist[DEL_EXACT_COMMAND]=regex_match(command,test_del_exact_command);
+	testlist[DEL_INDEX_COMMAND]=regex_match(command,test_del_index_command);
+	testlist[UNDO_COMMAND]=regex_match(command,test_undo_command);
+	testlist[REDO_COMMAND]=regex_match(command,test_redo_command);
+	testlist[SYNC_COMMAND]=regex_match(command,test_sync_command);
 
-	for(int i=0;i<12 && flag!=true;i++){
+	for(int i=START_POSITION_VALUE;i<TOTAL_TEST_CASE && flag!=true;i++){
 		if(testlist[i]==true){
 			num=i;
 			flag=true;
@@ -83,7 +93,7 @@ bool Interpreter::integerConvert(string& requiredString, int& number){
 		flag=false;
 	}
 	else{
-		for(unsigned i=0;i<requiredString.length();i++){
+		for(unsigned i=START_POSITION_VALUE;i<requiredString.length();i++){
 			if(isdigit(requiredString[i])==false){
 				flag=false;
 			}
@@ -143,6 +153,7 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 	int commandType;
 
 	string word;
+	string timeFormatIssue;
 	Command* returnCommand;
 
 	flag=checkCommand(commandStr,commandType);
@@ -158,28 +169,34 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 				
 				stringstream extractName(commandStr);
 				string taskName;
-				getline(extractName,taskName,'`');
+				getline(extractName,taskName,NOTATION_ACCENT_GRACE);
 				taskName.clear();
-				getline(extractName,taskName,'`');
+				getline(extractName,taskName,NOTATION_ACCENT_GRACE);
 				Add_pointer->setName(taskName);
 
 				
-
+				try{
 				returnCommand=interpretAdd.interpretAdd(Add_pointer, commandStr, response,flag);
+				}catch(string timeFormatError){
 
+					timeFormatIssue=timeFormatError;
+			     
+				
+				}
+				
 				break;
 			}
 
-		case 1:
+		case MOD_COMMAND:
 			{
 				Command_Mod* Mod_pointer=new Command_Mod();
 				Interpreter_Mod interpretMod;
 
 				stringstream extractName(commandStr);
 				string taskName;
-				getline(extractName,taskName,'`');
+				getline(extractName,taskName,NOTATION_ACCENT_GRACE);
 				taskName.clear();
-				getline(extractName,taskName,'`');
+				getline(extractName,taskName,NOTATION_ACCENT_GRACE);
 				Mod_pointer->setName(taskName);
 
 				
@@ -187,8 +204,8 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 				returnCommand=interpretMod.interpretModify(Mod_pointer, commandStr, response,flag);
 				break;
 			}
-
-		case 2:
+		
+		case MOD_EXACT_COMMAND:
 			{
 				Command_Mod* Mod_pointer=new Command_Mod();
 				Interpreter_Mod interpretMod;
@@ -197,9 +214,9 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 
 				stringstream extractName(commandStr);
 				string taskName;
-				getline(extractName,taskName,'`');
+				getline(extractName,taskName,NOTATION_ACCENT_GRACE);
 				taskName.clear();
-				getline(extractName,taskName,'`');
+				getline(extractName,taskName,NOTATION_ACCENT_GRACE);
 				Mod_pointer->setName(taskName);
 
 
@@ -209,7 +226,7 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 				break;
 			}
 
-		case 3:
+		case MOD_INDEX_COMMAND:
 			{
 				Command_Mod* Mod_pointer=new Command_Mod();
 				Interpreter_Mod interpretMod;
@@ -231,7 +248,7 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 			}
 
 
-		case 4:
+		case FIND_COMMAND:
 			{
 
 				Command_Find* Find_pointer=new Command_Find();
@@ -242,7 +259,7 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 				break;
 			}
 
-		case 5:
+		case FIND_EXACT_COMMAND:
 			{
 
 				Command_Find* Find_pointer=new Command_Find();
@@ -254,7 +271,7 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 				break;
 			}
 
-		case 6:
+		case DEL_COMMAND:
 			{
 
 				Command_Del* Del_pointer=new Command_Del();
@@ -265,7 +282,7 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 				break;
 
 			}
-		case 7:
+		case DEL_EXACT_COMMAND:
 			{
 				Command_Del* Del_pointer=new Command_Del();
                Interpreter_Delete interpretDel;
@@ -276,7 +293,7 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 				returnCommand=interpretDel.interpretDelete(Del_pointer,commandStr, response,flag);
 				break;
 			}
-		case 8:
+		case DEL_INDEX_COMMAND:
 			{
 				Command_Del* Del_pointer=new Command_Del();
 				Interpreter_Delete interpretDel;
@@ -298,7 +315,7 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 
 
 			}
-		case 9:
+		case UNDO_COMMAND:
 			{
 				Command_Undo* Undo_pointer=new Command_Undo();
 				Interpreter_Undo interpretUndo;
@@ -306,7 +323,7 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 				returnCommand=interpretUndo.interpretUndo(Undo_pointer,commandStr, response,flag);
 				break;
 			}
-		case 10:
+		case REDO_COMMAND:
 			{
 				Command_Redo* Redo_pointer=new Command_Redo();
 				Interpreter_Redo interpretRedo;
@@ -316,17 +333,6 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 
 
 			}
-		case 11:
-			{
-				Command_Sync *Sync_pointer=new Command_Sync();
-				Interpreter_Sync interpretSync;
-				
-				
-				returnCommand=interpretSync.interpretSync(Sync_pointer,commandStr, response,flag);
-
-				break;
-			}
-
 		default: flag=false;
 			break;
 		}
@@ -335,7 +341,18 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 	if(flag==false){
 
 		response.setStatus(ERR);
-		response.setErrorMsg(ERROR_MSG);
+		
+		if(!timeFormatIssue.empty()){
+		
+			response.setErrorMsg(timeFormatIssue);
+		
+		}
+		
+		else{
+
+			response.setErrorMsg(ERROR_MSG);
+
+		}
 		return NULL;
 	}
 

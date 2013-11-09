@@ -374,7 +374,7 @@ time_t TaskLoaderText::getTimeFromString (string attribute) {
 
 PRIORITY TaskLoaderText::getPriorityFromString	(string attribute) {
 	PRIORITY returnValue;
-	for (PRIORITY prio = HIGH; prio <= LOW; prio = static_cast<PRIORITY>(prio + 1)) {
+	for (PRIORITY prio = HIGH; prio < PRIORITY_COUNT; prio = static_cast<PRIORITY>(prio + 1)) {
 		if(attribute == PRIORITY_STRING[prio]) {
 			returnValue = prio;
 			break;
@@ -385,7 +385,7 @@ PRIORITY TaskLoaderText::getPriorityFromString	(string attribute) {
 
 TASK_STATE TaskLoaderText::getTaskStateFromString	(string attribute) {
 	TASK_STATE returnValue;
-	for (TASK_STATE state = UNDONE; state <= DONE; state = static_cast<TASK_STATE>(state + 1)) {
+	for (TASK_STATE state = UNDONE; state < TASK_STATE_COUNT; state = static_cast<TASK_STATE>(state + 1)) {
 		if(attribute == TASK_STATE_STRING[state]) {
 			returnValue = state;
 			break;
