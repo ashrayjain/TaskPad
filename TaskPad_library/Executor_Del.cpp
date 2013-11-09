@@ -65,10 +65,10 @@ void Executor_Del::deleteByApproxName(const string &name, Messenger &response, D
 	list<Task> matchingResults;
 	list<Task> caseInsensitiveResults;
 	list<Task> tasks = ds.getTaskList();
-	string lowerName = getLowerStr(name);
+	string lowerName = Datastore::getLowerStr(name);
 	for(Datastore::const_iterator i = ds.cbegin(); i != ds.cend(); i++) {
 	//for(list<Task>::iterator i = tasks.begin(); i != tasks.end(); ++i) {
-		string currName = getLowerStr(i->getName());
+		string currName = Datastore::getLowerStr(i->getName());
 		if (currName.find(name) != string::npos)
 			matchingResults.push_back(Task(*i));
 		else if (currName.find(lowerName) != string::npos)
