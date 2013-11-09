@@ -1,5 +1,7 @@
 #include"Interpreter_Add.h"
 
+using namespace std;
+using namespace TP;
 
 Command* Interpreter_Add::interpretAdd(Command_Add* commandType, std::string commandStr, Messenger &response, bool &flag){
 
