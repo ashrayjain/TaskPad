@@ -14,6 +14,7 @@
 
 #include "Command.h"
 
+//@XIE KAI A0102016E
 using namespace std;
 using namespace TP;
 
@@ -60,7 +61,6 @@ void Command::init()
 	FLAG_taskState		                            = DEFAULT_FLAG;
 	FLAG_createdTime	                            = DEFAULT_FLAG;
 	FLAG_taskType		                            = DEFAULT_FLAG;
-	FLAG_syncProviderName                           = DEFAULT_FLAG;
 
 	//fields init
 	_type				                            = DEFAULT_COMMAND_TYPE;
@@ -82,7 +82,6 @@ void Command::init()
 	_remindTime			                            = DEFAULT_REMIND_TIME;
 	_removeRemindTime								= DEFAULT_REMIND_TIME;
 	_addRemindTime									= DEFAULT_REMIND_TIME;
-	_syncProviderName	                            = DEFAULT_STRING;
 	_taskState			                            = DEFAULT_TASK_STATE;
 	_createdTime		                            = DEFAULT_CREATED_TIME;
 	_taskType			                            = DEFAULT_TASK_TYPE;

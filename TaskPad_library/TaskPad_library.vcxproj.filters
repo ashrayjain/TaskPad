@@ -139,9 +139,6 @@
     <ClInclude Include="Command_Redo.h">
       <Filter>Header Files\Commons\Command_Derived</Filter>
     </ClInclude>
-    <ClInclude Include="Command_Sync.h">
-      <Filter>Header Files\Commons\Command_Derived</Filter>
-    </ClInclude>
     <ClInclude Include="Command_Undo.h">
       <Filter>Header Files\Commons\Command_Derived</Filter>
     </ClInclude>

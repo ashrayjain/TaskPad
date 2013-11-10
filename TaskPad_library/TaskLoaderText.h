@@ -29,8 +29,7 @@
 
 class Logger;
 
-class TaskLoaderText :public TaskLoader
-{
+class TaskLoaderText :public TaskLoader {
 	public:
 		void load (const std::string& fileName);
 		TaskLoaderText(StorableTaskDatastore* taskDS);

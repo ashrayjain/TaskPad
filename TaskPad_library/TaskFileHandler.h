@@ -30,8 +30,7 @@ class TaskFileHandler {
 		virtual void		closeFile				() =0;
 		virtual std::string getTaskFilePath			(const Task& task);
 		virtual std::string getDeletedTaskFilePath	(const Task& task);
-
-		std::string getFileTitle					(const Task& task);
+				std::string getFileTitle			(const Task& task);
 
 		static const std::string TASK_DIRECTORY;
 		static const std::string TASK_FILE_EXTENSION;
