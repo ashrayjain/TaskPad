@@ -62,6 +62,8 @@ private:
 	static        const double DESIRED_TRANSPARENT_OPACITY;
 	static        const int	  LENGTH_TOO_LONG;
 	static        const int   STEP;
+	static        const char* MIDNIGHT;
+	static        const char* DELIMITTER;
 	static        const char* NEGLECTED;
 	static        const char* TODAY_VIEW;
 	static        const char* INBOX_VIEW;
@@ -169,6 +171,10 @@ private:
 	void          setDueDateLabel              (Task &task);
 	void          setPriorityLabel             (Task &task);
 	void          setNameLabel                 (Task &task);
+	void          setLabelText                 (QLineEdit *label, QString text);
+	void          setLabelEmpty                (QLineEdit *label);
+	void          setLabelText                 (QPlainTextEdit *label, QString text);
+	void          setLabelEmpty                (QPlainTextEdit *label);
 	//Msg Handling*******************************
 	void          handleGetToday               (Messenger msg);
 	void          handleGetInbox               (Messenger msg);
@@ -190,7 +196,7 @@ private:
 	void          setIsQuickAddOpen            (bool toggle);
 	void          setFromReminder              (bool toggle);
 	void          setCurrRemindTime            ();
-	std::string        getFindRtCmd            ();
+	std::string   getFindRtCmd                 ();
 	void          disposeQuickAddWindow        ();
 	void          disposeQuickAddConnection    ();
 	void          handleQA_DISPLAY             (Messenger msg);

@@ -182,7 +182,7 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 	int commandType;
 
 	string word;
-	string timeFormatIssue;
+	string issueCollector;
 	Command* returnCommand;
 
 	flag=checkCommand(commandStr,commandType);
@@ -206,12 +206,10 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 				
 				try{
 				returnCommand=interpretAdd.interpretAdd(Add_pointer, commandStr, response,flag);
-				}catch(string timeFormatError){
-
-					timeFormatIssue=timeFormatError;
-			     
-					
-					if(Add_pointer!=NULL){
+				}catch(string errorMessage){
+	                 flag=false;					
+					 issueCollector=errorMessage;
+					 if(Add_pointer!=NULL){
 						delete Add_pointer;
 					}
 					returnCommand=NULL;
@@ -236,11 +234,11 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 
 				try{
 				returnCommand=interpretMod.interpretModify(Mod_pointer, commandStr, response,flag);
-				}catch(string timeFormatError){
+				}catch(string errorMessage){
 
-					timeFormatIssue=timeFormatError;
-			     
-					
+					flag=false;					
+					issueCollector=errorMessage;
+			     					
 					if(Mod_pointer!=NULL){
 						delete Mod_pointer;
 					}
@@ -269,11 +267,9 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 
 				try{
 				returnCommand=interpretMod.interpretModify(Mod_pointer, commandStr, response,flag);
-				}catch(string timeFormatError){
-
-					timeFormatIssue=timeFormatError;
-			     
-					
+				}catch(string errorMessage){
+					flag=false;					
+					issueCollector=errorMessage;
 					if(Mod_pointer!=NULL){
 						delete Mod_pointer;
 					}
@@ -303,20 +299,14 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 
 				try{
 				returnCommand=interpretMod.interpretModify(Mod_pointer, commandStr, response,flag);
-				}catch(string timeFormatError){
-
-					timeFormatIssue=timeFormatError;
-			     
-					
+				}catch(string errorMessage){
+					flag=false;					
+					issueCollector=errorMessage;	
 					if(Mod_pointer!=NULL){
 						delete Mod_pointer;
 					}
-					returnCommand=NULL;
-				
-				
-				}				
-				
-				
+					returnCommand=NULL;				
+				}							
 				break;
 			}
 
@@ -329,11 +319,9 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 
 				try{
 				returnCommand=interpretFind.interpretFind(Find_pointer,commandStr, response,flag);
-				}catch(string timeFormatError){
-
-					timeFormatIssue=timeFormatError;
-			     
-					
+				}catch(string errorMessage){
+					flag=false;					
+					issueCollector=errorMessage;					
 					if(Find_pointer!=NULL){
 						delete Find_pointer;
 					}
@@ -349,22 +337,17 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 
 				Command_Find* Find_pointer=new Command_Find();
 				Interpreter_Find interpretFind;
-
-
 				Find_pointer->setFlagExact();
 				
 				try{
 				returnCommand=interpretFind.interpretFind(Find_pointer,commandStr, response,flag);
-				}catch(string timeFormatError){
-
-					timeFormatIssue=timeFormatError;
-			     
-					
+				}catch(string errorMessage){
+					flag=false;					
+					issueCollector=errorMessage;			    				
 					if(Find_pointer!=NULL){
 						delete Find_pointer;
 					}
-					returnCommand=NULL;
-						
+					returnCommand=NULL;						
 				}
 				
 				break;
@@ -375,8 +358,7 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 
 				Command_Del* Del_pointer=new Command_Del();
 				Interpreter_Delete interpretDel;
-				
-				
+								
 				returnCommand=interpretDel.interpretDelete(Del_pointer,commandStr, response,flag);
 				break;
 
@@ -384,7 +366,7 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 		case DEL_EXACT_COMMAND:
 			{
 				Command_Del* Del_pointer=new Command_Del();
-               Interpreter_Delete interpretDel;
+                Interpreter_Delete interpretDel;
 				
 				
 				Del_pointer->setFlagExact();
@@ -418,19 +400,14 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 			{
 				Command_Undo* Undo_pointer=new Command_Undo();
 				Interpreter_Undo interpretUndo;
-
 				returnCommand=interpretUndo.interpretUndo(Undo_pointer,commandStr, response,flag);
 				break;
 			}
-		case REDO_COMMAND:
-			{
+		case REDO_COMMAND:{
 				Command_Redo* Redo_pointer=new Command_Redo();
 				Interpreter_Redo interpretRedo;
-
 				returnCommand=interpretRedo.interpretRedo(Redo_pointer,commandStr, response,flag);
 				break;
-
-
 			}
 		default: flag=false;
 			break;
@@ -438,26 +415,18 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 
 	}
 	if(flag==false){
-
-		response.setStatus(ERR);
-		
-		if(!timeFormatIssue.empty()){
-		
-			response.setErrorMsg(timeFormatIssue);
-		
-		}
-		
+		response.setStatus(ERR);	
+		if(!issueCollector.empty()){	
+			response.setErrorMsg(issueCollector);	
+		}		
 		else{
-
 			response.setErrorMsg(ERROR_MSG);
 		}
 	   returnCommand=NULL;
 	}
 
 	else{
-
 		response.setStatus(SUCCESS);
-
 	}
    return returnCommand;
 }

@@ -77,6 +77,10 @@ void Executor::executeCommand(Command* &cmd, Messenger &response) {
 }
 
 void Executor::executeCommandWithoutUndoRedo(Command* cmd, Messenger &response) {
+	if (_executor != NULL) {
+		delete _executor;
+		_executor = NULL;
+	}
 	switch (cmd->getCommandType()) {
 	case COMMAND_TYPE::ADD:	_executor = new Executor_Add();
 							break;
