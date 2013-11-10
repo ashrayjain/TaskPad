@@ -21,6 +21,7 @@
 
 #include <fstream>
 #include <sstream>
+#include <assert.h>
 #include <QDir>
 #include <QString>
 #include "TaskSaverText.h"
@@ -53,7 +54,7 @@ void TaskSaverText::save(StorableTaskDatastore* taskDS, const std::string& fileN
 // quick save that creates a new .task file for each task that was edited/added
 // deleted tasks' IDs are recorded in a delete record
 void TaskSaverText::save(const Task& task, const COMMAND_TYPE& cType) {
-	
+	assert(isSaveableCommandType(cType));
 	switch(cType)
 	{
 		case DEL:
@@ -335,6 +336,15 @@ void TaskSaverText::writeLineToFile(string line, bool newLine) {
 		_fileWriter << line << endl;
 	else
 		_fileWriter << line << " ";
+}
+
+/****************************************************/
+/***************** Helper functions *****************/
+/****************************************************/
+
+
+bool TaskSaverText::isSaveableCommandType(COMMAND_TYPE cType) {
+	return (cType == DEL || cType == MOD || cType == ADD);
 }
 
 #endif

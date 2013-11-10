@@ -102,28 +102,22 @@ Messenger Manager::processCommand(const string& newCommand) {
 
 void Manager::saveChanges()
 {
-	if(this->isSuccessfulCommand()){
-		switch(this->_cmd->getCommandType()) {
-			case ADD:
-				/* empty and falls through*/
-			case MOD:
-				/* empty and falls through*/
-			case DEL:
-				/* empty and falls through*/
-				_logger->log("Manager","saving changes");
-				if (_response.getCommandType() == UNDO || _response.getCommandType() == REDO) {
-					this->_storage->save(this->_response.getTask(), this->_cmd->getCommandType());
-				}
-				else {
-					this->_storage->save(this->_response.getTask(), this->_response.getCommandType());
-				}
-				break;
-			case FIND:
-				 updateLastSuccessfulFindCommand();
-				break;
-			default:
-				break;
-		}
+	if(this->isNotSuccessfulCommand()) return;
+
+	switch(this->_cmd->getCommandType()) {
+		case ADD:
+			/* empty and falls through*/
+		case MOD:
+			/* empty and falls through*/
+		case DEL:
+			_logger->log("Manager","saving changes");
+			this->_storage->save(this->_response.getTask(), this->_cmd->getCommandType());
+			break;
+		case FIND:
+				updateLastSuccessfulFindCommand();
+			break;
+		default:
+			break;
 	}
 }
 
@@ -201,6 +195,7 @@ void Manager::handleIntermediateScenarioCommands(string newCommand) {
 	}
 	else {
 		this->_response.setStatus(ERR_INTER);
+		this->_response.setErrorMsg(MESSAGE_INDEX_OUT_OF_RANGE);
 	}
 	return;
 }
@@ -433,14 +428,7 @@ bool Manager::hasInterpretationError() {
 }
 
 bool Manager::hasNoInterpretationError() {
-	if(this->hasNoError())
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	 return this->hasNoError();
 }
 
 bool Manager::hasNoError() {
@@ -453,12 +441,12 @@ bool Manager::hasNoError() {
 	}
 }
 
-bool Manager::isSuccessfulCommand() {
+bool Manager::isNotSuccessfulCommand() {
 	if(this->_response.getStatus() == SUCCESS || this->_response.getStatus() == SUCCESS_INDEXED_COMMAND)
 	{
-		return true;
+		return false;
 	}
-	return false;
+	return true;
 }
 
 /*********************************************************/
