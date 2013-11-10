@@ -54,7 +54,7 @@ class Manager {
 		//helper functions
 		void setResponseToError						(const std::string& newCommand);
 		bool hasNoError								();
-		bool isSuccessfulCommand					();
+		bool isNotSuccessfulCommand					();
 		bool hasInterpretationError					();
 		bool hasNoInterpretationError				();
 		bool isIndexGiven							(std::string newCommand);
@@ -106,10 +106,10 @@ class Manager {
 		Messenger			getTodayTasks		();
 		Messenger			getNextPeriodTasks	(TP::PERIOD_TYPE);
 		Messenger			getPrevPeriodTasks	(TP::PERIOD_TYPE);
-		std::pair<tm,tm>	getCurrentPeriod	();
 		void				resetStatus			();
 		Messenger			refreshList			();
 		std::list<Task>		getCurrentReminders	();
+		std::pair<tm,tm>	getCurrentPeriod	();
 		void				syncTaskList		(const std::list<Task>&);
 		void				syncTask			(const Task&);
 

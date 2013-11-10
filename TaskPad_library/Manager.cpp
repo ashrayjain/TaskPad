@@ -32,9 +32,9 @@
 using namespace TP;
 using namespace std;
 
-const string Manager::MESSAGE_INDEX_OUT_OF_RANGE = "Given index is out of range!";
-const string Manager::MESSAGE_ERROR_UNEXPECTED_COMMAND_TYPE_WITH_INDEX = "Unexpected Command with index!!";
-const string Manager::MESSAGE_DATE_LIMIT_REACHED	= "Reached date boundary!";
+const string Manager::MESSAGE_INDEX_OUT_OF_RANGE						= "Given index is out of range!";
+const string Manager::MESSAGE_ERROR_UNEXPECTED_COMMAND_TYPE_WITH_INDEX	= "Unexpected Command with index!!";
+const string Manager::MESSAGE_DATE_LIMIT_REACHED						= "Reached date boundary!";
 
 Manager::Manager() {
 	this->_taskDS					= new Datastore;
@@ -48,11 +48,13 @@ Manager::Manager() {
 }
 
 Messenger Manager::refreshList() {
+	_logger->log("Manager", "entering refreshList()");
 	this->_executor->executeCommand(this->_lastSuccessfulFindCmd,this->_response);
 	return this->_response;
 }
 
 list<Task> Manager::getCurrentReminders	() {
+	_logger->log("Manager", "entering getCurrentReminders()");
 	return this->_executor->getCurrentReminders();
 }
 
@@ -74,36 +76,9 @@ void Manager::resetStatus() {
 	this->setCurrPeriod(todayTm,nextDayTm);
 }
 
-Manager::~Manager() {
-	this->_storage->save(this->_taskDS);
-
-	if(this->_taskDS != NULL) {
-		delete this->_taskDS;
-		_taskDS = NULL;
-	}
-
-	if(this->_interpreter != NULL) {
-		delete this->_interpreter;
-		_interpreter = NULL;
-	}
-
-	if(this->_executor != NULL) {
-		delete this->_executor;
-		_executor = NULL;
-	}
-
-	if(this->_storage != NULL) {
-		delete this->_storage;
-		_storage = NULL;
-	}
-
-	this->removePreviousCommand				();
-	this->removeLastSuccessfulFindCommand	();
-	this->_response.resetMessenger			();
-}
-
 Messenger Manager::processCommand(const string& newCommand) {
 	_logger->log("Manager", "processing Command");
+
 	switch(this->_response.getStatus()) {
 		case INTERMEDIATE:
 			/* empty and falls through*/
@@ -127,28 +102,22 @@ Messenger Manager::processCommand(const string& newCommand) {
 
 void Manager::saveChanges()
 {
-	if(this->isSuccessfulCommand()){
-		switch(this->_cmd->getCommandType()) {
-			case ADD:
-				/* empty and falls through*/
-			case MOD:
-				/* empty and falls through*/
-			case DEL:
-				/* empty and falls through*/
-				_logger->log("Manager","saving changes");
-				if (_response.getCommandType() == UNDO || _response.getCommandType() == REDO) {
-					this->_storage->save(this->_response.getTask(), this->_cmd->getCommandType());
-				}
-				else {
-					this->_storage->save(this->_response.getTask(), this->_response.getCommandType());
-				}
-				break;
-			case FIND:
-				 updateLastSuccessfulFindCommand();
-				break;
-			default:
-				break;
-		}
+	if(this->isNotSuccessfulCommand()) return;
+
+	switch(this->_cmd->getCommandType()) {
+		case ADD:
+			/* empty and falls through*/
+		case MOD:
+			/* empty and falls through*/
+		case DEL:
+			_logger->log("Manager","saving changes");
+			this->_storage->save(this->_response.getTask(), this->_cmd->getCommandType());
+			break;
+		case FIND:
+				updateLastSuccessfulFindCommand();
+			break;
+		default:
+			break;
 	}
 }
 
@@ -226,6 +195,7 @@ void Manager::handleIntermediateScenarioCommands(string newCommand) {
 	}
 	else {
 		this->_response.setStatus(ERR_INTER);
+		this->_response.setErrorMsg(MESSAGE_INDEX_OUT_OF_RANGE);
 	}
 	return;
 }
@@ -458,14 +428,7 @@ bool Manager::hasInterpretationError() {
 }
 
 bool Manager::hasNoInterpretationError() {
-	if(this->hasNoError())
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	 return this->hasNoError();
 }
 
 bool Manager::hasNoError() {
@@ -478,12 +441,12 @@ bool Manager::hasNoError() {
 	}
 }
 
-bool Manager::isSuccessfulCommand() {
+bool Manager::isNotSuccessfulCommand() {
 	if(this->_response.getStatus() == SUCCESS || this->_response.getStatus() == SUCCESS_INDEXED_COMMAND)
 	{
-		return true;
+		return false;
 	}
-	return false;
+	return true;
 }
 
 /*********************************************************/
@@ -554,7 +517,7 @@ void Manager::setResponseToError(const string& message) {
 	return;
 }
 
-pair<tm,tm> Manager::getCurrentPeriod(){
+pair<tm,tm> Manager::getCurrentPeriod() {
 	return _currentPeriod;
 }
 
@@ -654,4 +617,34 @@ std::tm Manager::getPrevMonthTm(std::tm currTm)
 void Manager::setCurrPeriod(std::tm startTm, std::tm endTm)
 {
 	this->_currentPeriod = pair<tm,tm>(startTm,endTm);
+}
+
+
+
+Manager::~Manager() {
+	this->_storage->save(this->_taskDS);
+
+	if(this->_taskDS != NULL) {
+		delete this->_taskDS;
+		_taskDS = NULL;
+	}
+
+	if(this->_interpreter != NULL) {
+		delete this->_interpreter;
+		_interpreter = NULL;
+	}
+
+	if(this->_executor != NULL) {
+		delete this->_executor;
+		_executor = NULL;
+	}
+
+	if(this->_storage != NULL) {
+		delete this->_storage;
+		_storage = NULL;
+	}
+
+	this->removePreviousCommand				();
+	this->removeLastSuccessfulFindCommand	();
+	this->_response.resetMessenger			();
 }

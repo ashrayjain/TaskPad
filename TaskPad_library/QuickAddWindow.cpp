@@ -17,6 +17,7 @@
 
 #include "QuickAddWindow.h"
 
+//@XIE KAI A0102016E
 QuickAddWindow::QuickAddWindow(QWidget *parent):QDialog(parent){
 	setupUi();
 	customisedUi();
@@ -54,10 +55,12 @@ void QuickAddWindow::mouseMoveEvent(QMouseEvent *event){
 }
 
 void QuickAddWindow::emitRequest(QString requestStr){
+	//notify the parent, there is a request submitted by user
 	emit requestSubmitted(requestStr);
 }
 
 void QuickAddWindow::emitWindowClosed(){
+	//notify the parent, to close the quick add window
 	emit windowClosed();
 }
 

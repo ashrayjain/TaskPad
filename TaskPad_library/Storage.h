@@ -32,8 +32,7 @@ class TaskLoader;
 class TaskSaver;
 class StorableTaskDatastore;
 
-class Storage
-{
+class Storage {
 	private:
 		Logger* _logger;
 		TaskLoader* _loader;
