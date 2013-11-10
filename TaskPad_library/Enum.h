@@ -25,7 +25,7 @@ namespace TP{
 
 	//String representations of the Enums above
 	static const std::string COMMAND_TYPE_STRING[COMMAND_TYPE_COUNT] =	
-                    { "ADD","MOD","DEL","FIND","UNDO","REDO","SYNC","UNDEFINED"	};
+                    { "ADD","MOD","DEL","FIND","UNDO","REDO","UNDEFINED"	};
 	static const std::string PRIORITY_STRING[PRIORITY_COUNT]		=		{"HIGH","MEDIUM","LOW"};
 	static const std::string TASK_STATE_STRING[TASK_STATE_COUNT]	=		{"UNDONE","OVERDUE","DONE"};
 	static const std::string TASK_TYPE_STRING[TASK_TYPE_COUNT]		=		{"TIMED","DEADLINE","FLOATING"};
