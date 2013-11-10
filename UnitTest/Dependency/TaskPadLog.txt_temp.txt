@@ -1,0 +1,7 @@
+Logging Started at: 10-11-2013
+			tClass0: Info Msg
+		tClass1: Notice Msg
+	tClass2: Warning Msg
+tClass3: Error Msg
+FATALLOG: tClass4: Fatal Msg
+FATALLOG: tClass4: Fatal Msg
