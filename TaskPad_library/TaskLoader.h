@@ -40,6 +40,7 @@ class TaskLoader: public TaskFileHandler {
 
 		void closeFile()	{ _fileReader.close(); }
 
+
 		std::ifstream _fileReader;
 };
 
