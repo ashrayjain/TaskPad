@@ -33,6 +33,11 @@
 using namespace TP;
 using namespace std;
 
+const string TaskLoaderText::FILTER_FOR_TASK_FILES				= "*.task";
+const string TaskLoaderText::FILTER_FOR_DELETED_TASK_FILES		= "*.deltask";
+const string TaskLoaderText::DEFAULT_KEY_VALUE_DELIMITER		= " ";
+const string TaskLoaderText::DEFAULT_DATA_VALUE					= "";
+
 TaskLoaderText::TaskLoaderText(StorableTaskDatastore* taskDB) {
 	this->_logger = Logger::getLogger();
 	this->_taskDB = taskDB;
@@ -62,33 +67,33 @@ void TaskLoaderText::recoverUnsavedChanges() {
 
 void TaskLoaderText::loadDeletedIndices() {
 	_logger->log("TaskLoaderText","entering loadDeletedIndices");
-	std::string nextTaskIndex;
-	std::string nextTaskFile;
-	Task nextTask;
 
+	//initialise file iterators
 	QDir temp(QString::fromStdString(TASK_DIRECTORY));
 	QStringList filters;
-	filters << "*.deltask";
+	filters << FILTER_FOR_DELETED_TASK_FILES.c_str();
 	temp.setNameFilters(filters);
 	QStringList taskFiles = temp.entryList();
 	QStringList::iterator taskFilesIt= taskFiles.begin();
 
-	ifstream deletedFile;
+	string nextTaskIndexStr;
+	string nextTaskFile;
+	Task nextTask;
+
+	//iterate through the files and amass deleted indices
 	while(taskFilesIt != taskFiles.end()) {
 		std::string nextTaskFile = temp.filePath(*taskFilesIt).toUtf8().constData();
 		_logger->log("TaskLoaderText","found deleted task file: "+nextTaskFile,NOTICELOG);
 
-		deletedFile.open(nextTaskFile);
-		getline(deletedFile, nextTaskIndex);
+		openFile(nextTaskFile);
+		nextTaskIndexStr = getNextLineFromFile();
+		closeFile();
 
-		if(nextTaskIndex!= "") {
-			this->recoveredDeletedIndices.insert(nextTaskIndex);
-			_logger->log("TaskLoaderText","reading deleted tasks file: " + nextTaskIndex,NOTICELOG);
-			nextTaskIndex = "";
-		}
+		this->recoveredDeletedIndices.insert(nextTaskIndexStr);
+		_logger->log("TaskLoaderText","reading deleted tasks file: " + nextTaskIndexStr,NOTICELOG);
 
-		deletedFile.close();
 		taskFilesIt++;
+		nextTaskIndexStr = "";
 	}	
 }
 
@@ -98,25 +103,26 @@ void TaskLoaderText::loadModifiedTasks() {
 	std::string nextTaskFile;
 	Task nextTask;
 
+	//initialise file iterators
 	QDir temp(QString::fromStdString(TASK_DIRECTORY));
 	QStringList filters;
-	filters << "*.task";
+	filters << FILTER_FOR_TASK_FILES.c_str();
 	temp.setNameFilters(filters);
 	QStringList taskFiles = temp.entryList();
 	QStringList::iterator taskFilesIt= taskFiles.begin();
 
+	//iterate through files and add Tasks
 	while(taskFilesIt != taskFiles.end()) {
 		nextTaskFile = temp.filePath(*taskFilesIt).toUtf8().constData();
 		_logger->log("TaskLoaderText","found task file: "+nextTaskFile,NOTICELOG);
 
-		if(nextTaskFile != "Tasks/." && nextTaskFile != "Tasks/..") {
-			this->openFile(nextTaskFile);
+		this->openFile(nextTaskFile);
 
-			nextTask = this->getNextTask();
-			validateAndAddTaskToList(nextTask);
+		nextTask = this->getNextTask();
+		validateAndAddTaskToList(nextTask);
 
-			this->closeFile();
-		}
+		this->closeFile();
+
 		taskFilesIt++;
 	}
 	return;
@@ -128,6 +134,7 @@ void TaskLoaderText::loadModifiedTasks() {
 
 void TaskLoaderText::loadTaskDB() {
 	_logger->log("TaskLoaderText","entering loadTaskList");
+
 	while(_fileReader.good() && hasNextTask()) {
 		Task nextTask = this->getNextTask();
 		validateAndAddTaskToList(nextTask);
@@ -328,12 +335,12 @@ string TaskLoaderText::getNewLabel(string newLine) {
 }
 
 string TaskLoaderText::getNewData(string newLine) {
-	int pos = newLine.find_first_of(" ");
+	int pos = newLine.find_first_of(DEFAULT_KEY_VALUE_DELIMITER);
 	if(pos != string::npos) {
 		return newLine.substr(pos+1);
 	}
 	else {
-		return "";
+		return DEFAULT_DATA_VALUE;
 	}
 }
 
@@ -399,8 +406,7 @@ TASK_STATE TaskLoaderText::getTaskStateFromString	(string attribute) {
 /***************** Actual Reader *******************/
 /***************************************************/
 
-string TaskLoaderText::getNextLineFromFile()
-{
+string TaskLoaderText::getNextLineFromFile() {
 	string nextLine;
 	getline(_fileReader,nextLine);
 

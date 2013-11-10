@@ -52,7 +52,7 @@ class Manager {
 		void saveChanges							();
 
 		//helper functions
-		void setResponseToError						(const std::string& newCommand);
+		void setResponseToError						(const TP::STATUS& status, const std::string& message);
 		bool hasNoError								();
 		bool isNotSuccessfulCommand					();
 		bool hasInterpretationError					();
@@ -66,15 +66,16 @@ class Manager {
 		bool isDeleteCommand						();
 		bool isModifyCommand						();
 
-		void handleIndexCommand						();
+		void handleShowCommand						();
 		void handleCommandWithIndex					();
 		void handleGenericCommand					();
+		void handleIntermediateIndexCommand			();
 
 		void handleNormalScenarioCommands			(std::string newCommand);
 		void handleIntermediateScenarioCommands		(std::string newCommand);
 		void insertActualIndexIntoCommand			();
-		void insertActualIndexIntoModifyCommand		();
-		void insertActualIndexIntoDeleteCommand		();
+		void insertActualIndexIntoModifyCommand		(unsigned long long& actualIndex);
+		void insertActualIndexIntoDeleteCommand		(unsigned long long& actualIndex);
 		void removePreviousCommand					();
 		void removeLastSuccessfulFindCommand		();
 		void updateLastSuccessfulFindCommand		();
@@ -86,17 +87,21 @@ class Manager {
 		void setCurrPeriod	(std::tm, std::tm);
 
 		// helpers for getting list of tasks in a specified period
-		Task				getPointerToChosenTask		()							const;
-		unsigned long long	getCreatedTimeOfTask		(Task baseTask)				const;
-		std::tm				getTodayTm					();
-		std::tm				getNextDayTm				(std::tm currTm);
-		std::tm				getNextWeekTm				(std::tm currTm);
-		std::tm				getNextMonthTm				(std::tm currTm);
-		std::tm				getPrevDayTm				(std::tm currTm);
-		std::tm				getPrevWeekTm				(std::tm currTm);
-		std::tm				getPrevMonthTm				(std::tm currTm);
-		std::string			getStrFromTm				(std::tm timeInfo);
-		std::string			createFindCommand			(std::tm startTm, std::tm endTm);
+		Task				getAffectedTask		()					const;
+		unsigned long long	getActualIndexOfTask()					const;
+		std::tm				getTodayTm			();
+		std::tm				getNextTm			(const TP::PERIOD_TYPE& pType, 
+												 tm currTm);
+		std::tm				getPrevTm			(const TP::PERIOD_TYPE& pType, 
+												 tm currTm);
+		std::tm				getNextDayTm		(std::tm currTm);
+		std::tm				getNextWeekTm		(std::tm currTm);
+		std::tm				getNextMonthTm		(std::tm currTm);
+		std::tm				getPrevDayTm		(std::tm currTm);
+		std::tm				getPrevWeekTm		(std::tm currTm);
+		std::tm				getPrevMonthTm		(std::tm currTm);
+		std::string			getStrFromTm		(std::tm timeInfo);
+		std::string			createFindCommand	(std::tm startTm, std::tm endTm);
 
 	public:
 		//constructor
@@ -120,6 +125,12 @@ class Manager {
 		static const std::string MESSAGE_INDEX_OUT_OF_RANGE;
 		static const std::string MESSAGE_ERROR_UNEXPECTED_COMMAND_TYPE_WITH_INDEX;
 		static const std::string MESSAGE_DATE_LIMIT_REACHED;
+		static const std::string MESSAGE_INDEX_NOT_GIVEN;
+		static const int		 LOWER_END_OF_TIME;
+		static const int		 UPPER_END_OF_TIME;
+		static const int		 DAY_UNIT_OF_TIME;
+		static const int		 WEEK_UNIT_OF_TIME;
+		static const int		 MONTH_UNIT_OF_TIME;
 };
 
 #endif
