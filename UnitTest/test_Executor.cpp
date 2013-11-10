@@ -57,14 +57,12 @@ namespace UnitTest
 			ds.addTask(testTask_3);
 			//data.push_back(testTask_3);
 		}
-		/*
+		
 		TEST_METHOD_CLEANUP(Clean_Up)
 		{
-			ds.deleteTask(0);
-			ds.deleteTask(0);
-			ds.deleteTask(0);
+			while(ds.size()!=0)
+				ds.deleteTask(0);
 		}
-		*/
 
 		TEST_METHOD(Execute_Add_Command_Test)
 		{

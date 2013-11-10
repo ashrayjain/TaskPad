@@ -58,7 +58,7 @@ public:
 	
 	std::list<Task>					getAllTasks();
 	void							addTask(Task newTask)					{ _db.push_back(newTask); }
-	void							deleteTask(Datastore_Base::iterator* i)	{ _db.erase(dynamic_cast<Datastore_List::iterator*>(i)->getIterator()); }
+	void							deleteTask(Datastore_Base::iterator* i)	{ (*i)->freeIndex(); _db.erase(dynamic_cast<Datastore_List::iterator*>(i)->getIterator()); }
 	Task&							front()									{ return _db.front(); }
 	Task&							back()									{ return _db.back(); }
 	Datastore_List::iterator*		begin()									{ return new Datastore_List::iterator(_db.begin()); }

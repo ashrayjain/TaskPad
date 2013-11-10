@@ -47,7 +47,6 @@ public:
     // Constructor that takes in the index for the task
     // Note: Throws Exception on invalid index
     Task(unsigned long long indexToPut)	{ defaultTaskInit(indexToPut); }
-	~Task()								{ listOfAllIndices.erase(_taskIndex); }
 	
 	// Overloaded Operators
 	bool operator<	(const Task& a) const { return this->getIndex() < a.getIndex();  }
@@ -90,8 +89,10 @@ public:
 	
 	std::list<std::list<Task*>::iterator>	getHashTagPtrs()		{ return _hashTagPtrs;			}
 	std::list<std::list<Task*>::iterator>	getRemindTimesPtrs()	{ return _remindTimesPtrs;		}
-
-    // Setter Functions common to all Tasks
+	
+	void freeIndex()												{ listOfAllIndices.erase(_taskIndex); }	
+    
+	// Setter Functions common to all Tasks
 	void setName(std::string newName)								{ _taskName			= newName;			flagName			= _taskName	!= DEFAULT_NAME;				}		
     void setLocation(std::string newLocation)						{ _taskLocation		= newLocation;		flagLocation		= _taskLocation	!= DEFAULT_LOCATION;		}
 	void setNote(std::string newNote)								{ _taskNote			= newNote;			flagNote			= _taskNote	!= DEFAULT_NOTE;				}
