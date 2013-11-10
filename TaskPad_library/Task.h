@@ -90,7 +90,8 @@ public:
 	std::list<std::list<Task*>::iterator>	getHashTagPtrs()		{ return _hashTagPtrs;			}
 	std::list<std::list<Task*>::iterator>	getRemindTimesPtrs()	{ return _remindTimesPtrs;		}
 	
-	void freeIndex()												{ listOfAllIndices.erase(_taskIndex); }	
+	void freeIndex()												{ listOfAllIndices.erase(_taskIndex);	}	
+	static void flushAllIndices()									{ listOfAllIndices.clear();				}
     
 	// Setter Functions common to all Tasks
 	void setName(std::string newName)								{ _taskName			= newName;			flagName			= _taskName	!= DEFAULT_NAME;				}		

@@ -18,7 +18,7 @@ namespace UnitTest
 	public:
 		TEST_METHOD_INITIALIZE(Generate_Test_Data)
 		{
-			//data.clear();
+			Task::flushAllIndices();
 			
 			time_t now = time(NULL);
 
