@@ -82,13 +82,13 @@ namespace UnitTest
 			delete cmd;
 		}
 
-		TEST_METHOD(cmd_Sync)
-		{
-			//TC0
-			Command* cmd = new Command_Sync();
-			Assert::AreEqual(static_cast<int>(TP::SYNC), static_cast<int>(cmd->getCommandType()));
+		//TEST_METHOD(cmd_Sync)
+		//{
+		//	//TC0
+		//	Command* cmd = new Command_Sync();
+		//	Assert::AreEqual(static_cast<int>(TP::SYNC), static_cast<int>(cmd->getCommandType()));
 
-			delete cmd;
-		}
+		//	delete cmd;
+		//}
 	};
 }

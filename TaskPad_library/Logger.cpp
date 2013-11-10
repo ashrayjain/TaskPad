@@ -25,27 +25,28 @@
 using namespace std;
 using namespace TP;
 
-const int	 Logger::CONFIG_DETAILS_SIZE						= 3;
-const int	 Logger::FILENAME									= 0;
-const int	 Logger::CLASS_TO_MONITOR							= 1;
-const int	 Logger::MIN_LEVEL_TO_LOG							= 2;
+const int	 Logger::CONFIG_DETAILS_SIZE					= 3;
+const int	 Logger::FILENAME								= 0;
+const int	 Logger::CLASS_TO_MONITOR						= 1;
+const int	 Logger::MIN_LEVEL_TO_LOG						= 2;
 	
-const string Logger::CONFIG_FILE_NAME							= "../configLogger.txt";
+const string Logger::CONFIG_FILE_NAME						= "../configLogger.txt";
 
-const string Logger::DEFAULT_UNCONFIGURED_VALUE					= "";
-const string Logger::DEFAULT_LOG_FILE_NAME						= "TaskPadLog.txt";
-const string Logger::DEFAULT_CLASS_TO_MONITOR					= "";
-const string Logger::DEFAULT_LEVEL_TO_LOG						= "INFOLOG";
-const string Logger::DEFAULT_LOG_MESSAGE_LINKER					= ": ";
-const string Logger::DEFAULT_KEY_VALUE_DELIMITER				= " ";
-const string Logger::DEFAULT_INFO_LOG_IDENTIFIER				= "\t\t\t";
-const string Logger::DEFAULT_NOTICE_LOG_IDENTIFIER				= "\t\t";
-const string Logger::DEFAULT_WARNING_LOG_IDENTIFIER				= "\t";
-const string Logger::DEFAULT_ERROR_LOG_IDENTIFIER				= "";
-const string Logger::DEFAULT_FATAL_LOG_IDENTIFIER				= LOG_TYPE_STRING[FATALLOG] + DEFAULT_LOG_MESSAGE_LINKER;
+const string	Logger::DEFAULT_UNCONFIGURED_VALUE			= "";
+const string	Logger::DEFAULT_LOG_FILE_NAME				= "TaskPadLog.txt";
+const string	Logger::DEFAULT_CLASS_TO_MONITOR			= "";
+const string	Logger::DEFAULT_LEVEL_TO_LOG				= "INFOLOG";
+const string	Logger::DEFAULT_LOG_MESSAGE_LINKER			= ": ";
+const string	Logger::DEFAULT_KEY_VALUE_DELIMITER			= " ";
+const string	Logger::DEFAULT_INFO_LOG_IDENTIFIER			= "\t\t\t";
+const string	Logger::DEFAULT_NOTICE_LOG_IDENTIFIER		= "\t\t";
+const string	Logger::DEFAULT_WARNING_LOG_IDENTIFIER		= "\t";
+const string	Logger::DEFAULT_ERROR_LOG_IDENTIFIER		= "";
+const string	Logger::DEFAULT_FATAL_LOG_IDENTIFIER		= LOG_TYPE_STRING[FATALLOG] + DEFAULT_LOG_MESSAGE_LINKER;
+const LOG_TYPE	Logger::DEFAULT_LOGTYPE_TO_USE				= INFOLOG;
 
-const string Logger::MESSAGE_ERROR_FATAL_LOG					= "Fatal log occurred!";
-const string Logger::MESSAGE_START_LOG							= "Logging Started at: ";
+const string	Logger::MESSAGE_ERROR_FATAL_LOG				= "Fatal log occurred!";
+const string	Logger::MESSAGE_START_LOG					= "Logging Started at: ";
 
 
 

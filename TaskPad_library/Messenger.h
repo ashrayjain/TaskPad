@@ -32,24 +32,24 @@ class Messenger {
 
 		// constructor
 		Messenger(
-			TP::COMMAND_TYPE commandType=TP::UNDEFINED, 
-			TP::STATUS status=TP::SUCCESS, 
-			std::list<Task> resultList= std::list<Task>(), 
-			Task resultTask=Task(), 
-			int index =-1, 
-			std::string errorMsg="");
+			TP::COMMAND_TYPE commandType	= DEFAULT_COMMAND_TYPE_VALUE, 
+			TP::STATUS status				= DEFAULT_STATUS_VALUE, 
+			std::list<Task> resultList		= DEFAULT_TASK_LIST_VALUE, 
+			Task resultTask					= DEFAULT_TASK_VALUE, 
+			int index						= DEFAULT_INDEX_VALUE, 
+			std::string errorMsg			= DEFAULT_ERROR_MESSAGE_VALUE);
 
 		//getter methods
 		
-		std::string			getErrorMsg()		const;
-		TP::STATUS				getStatus()			const;
-		std::list<Task>		getList()			const;
-		int					getIndex()			const;
-		TP::COMMAND_TYPE		getCommandType()	const;
-		Task				getTask()			const;
+		std::string			getErrorMsg		()	const;
+		TP::STATUS			getStatus		()	const;
+		std::list<Task>		getList			()	const;
+		int					getIndex		()	const;
+		TP::COMMAND_TYPE	getCommandType	()	const;
+		Task				getTask			()	const;
 
 		// state resetter
-		void resetMessenger();
+		void resetMessenger ();
 
 		//setter functions
 		void setErrorMsg	(const std::string&			errorMsg);
@@ -59,20 +59,19 @@ class Messenger {
 		void setCommandType	(const TP::COMMAND_TYPE&		commandType);
 		void setTask		(const Task&				task);
 
-		const static int DEFAULT_INDEX_VALUE;
-		const static TP::STATUS DEFAULT_STATUS_VALUE;
-		const static TP::COMMAND_TYPE DEFAULT_COMMAND_TYPE_VALUE;
-		const static Task DEFAULT_TASK_VALUE;
-		const static std::list<Task> DEFAULT_TASK_LIST_VALUE;
-		const static std::string DEFAULT_ERROR_MESSAGE_VALUE;
+		const static int				DEFAULT_INDEX_VALUE;
+		const static TP::STATUS			DEFAULT_STATUS_VALUE;
+		const static TP::COMMAND_TYPE	DEFAULT_COMMAND_TYPE_VALUE;
+		const static Task				DEFAULT_TASK_VALUE;
+		const static std::list<Task>	DEFAULT_TASK_LIST_VALUE;
+		const static std::string		DEFAULT_ERROR_MESSAGE_VALUE;
 
 	private:
 		std::string			_errorMsg;
-		TP::STATUS				_status;
+		TP::STATUS			_status;
 		std::list<Task>		_resultList;
 		Task				_resultTask;
 		int					_index;
-		TP::COMMAND_TYPE		_commandType;
+		TP::COMMAND_TYPE	_commandType;
 };
-
 #endif

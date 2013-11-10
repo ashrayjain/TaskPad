@@ -28,8 +28,7 @@
 class Task;
 class StorableTaskDatastore;
 
-class TaskLoader: public TaskFileHandler
-{
+class TaskLoader: public TaskFileHandler {
 	public:
 		virtual void load (const std::string& fileName) =0;
 

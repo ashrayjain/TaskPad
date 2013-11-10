@@ -32,9 +32,9 @@
 using namespace TP;
 using namespace std;
 
-const string Manager::MESSAGE_INDEX_OUT_OF_RANGE = "Given index is out of range!";
-const string Manager::MESSAGE_ERROR_UNEXPECTED_COMMAND_TYPE_WITH_INDEX = "Unexpected Command with index!!";
-const string Manager::MESSAGE_DATE_LIMIT_REACHED	= "Reached date boundary!";
+const string Manager::MESSAGE_INDEX_OUT_OF_RANGE						= "Given index is out of range!";
+const string Manager::MESSAGE_ERROR_UNEXPECTED_COMMAND_TYPE_WITH_INDEX	= "Unexpected Command with index!!";
+const string Manager::MESSAGE_DATE_LIMIT_REACHED						= "Reached date boundary!";
 
 Manager::Manager() {
 	this->_taskDS					= new Datastore;
@@ -104,6 +104,7 @@ Manager::~Manager() {
 
 Messenger Manager::processCommand(const string& newCommand) {
 	_logger->log("Manager", "processing Command");
+
 	switch(this->_response.getStatus()) {
 		case INTERMEDIATE:
 			/* empty and falls through*/
@@ -554,7 +555,7 @@ void Manager::setResponseToError(const string& message) {
 	return;
 }
 
-pair<tm,tm> Manager::getCurrentPeriod(){
+pair<tm,tm> Manager::getCurrentPeriod() {
 	return _currentPeriod;
 }
 
