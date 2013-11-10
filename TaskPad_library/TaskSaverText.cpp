@@ -110,7 +110,9 @@ void TaskSaverText::saveTaskDS(StorableTaskDatastore* taskDS) {
 	while(it != taskDS->cendPtr()) {
 		saveTask(**it);
 		it++;
-	}*/
+	}
+	delete it;
+	*/
 }
 
 void TaskSaverText::saveTaskList(const list<Task>& taskList) {
