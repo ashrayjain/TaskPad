@@ -11,7 +11,7 @@ namespace TP{
 	static const int TASK_STATE_COUNT		= 3;
 	static const int TASK_TYPE_COUNT		= 3;
 	static const int LOG_TYPE_COUNT			= 5;
-    enum COMMAND_TYPE	{ ADD, MOD, DEL, FIND, INDEX, UNDO, REDO, UNDEFINED};
+    enum COMMAND_TYPE	{ ADD, MOD, DEL, FIND, INDEX, UNDO, REDO, SYNC, UNDEFINED};
     enum PRIORITY		{ HIGH, MEDIUM, LOW, NON_HIGH };
     enum TASK_STATE		{ UNDONE, OVERDUE, DONE };
     enum TASK_TYPE		{ TIMED, DEADLINE, FLOATING };
@@ -83,6 +83,26 @@ namespace TP{
 	class FatalLogException : public TP::BaseException {
 		public:
 			FatalLogException (std::string errorStr)	{ _errorStr = errorStr; }
+	};
+
+	class ClassNotFoundException : public TP::BaseException {
+		public:
+			ClassNotFoundException (std::string errorStr)	{ _errorStr = errorStr; }
+	};
+
+	class DllNotFoundException : public TP::BaseException {
+		public:
+			DllNotFoundException (std::string errorStr)	{ _errorStr = errorStr; }
+	};
+
+	class StackUnderflowException : public TP::BaseException {
+		public:
+			StackUnderflowException (std::string errorStr)	{ _errorStr = errorStr; }
+	};
+
+	class JvmLoadException : public TP::BaseException {
+		public:
+			JvmLoadException (std::string errorStr)	{ _errorStr = errorStr; }
 	};
 }
 #endif
