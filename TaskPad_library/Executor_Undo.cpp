@@ -18,11 +18,11 @@ using namespace std;
 using namespace TP;
 
 void Executor_Undo::executeCommand(Command* cmd, Messenger &response, Datastore &ds) {
-	if (ds.isUndoStackEmpty())
+	if (ds.nothingToUndo())
 		setErrorWithErrMsg(response, UNDOSTACK_EMPTY_MSG);
 	else {
-		_undoCommandToExecute = getTransposeCommand(ds.undoStackTop().first, ds.undoStackTop().second);
-		ds.popTopUndoStackToRedoStack();
+		_undoCommandToExecute = getTransposeCommand(ds.getNextUndoCmd().first, ds.getNextUndoCmd().second);
+		ds.transferUndoCmdToRedo();
 	}
 }
 

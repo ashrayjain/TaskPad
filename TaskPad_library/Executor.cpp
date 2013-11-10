@@ -36,17 +36,17 @@ void Executor::executeCommand(Command* &cmd, Messenger &response) {
 	case COMMAND_TYPE::ADD:	_executor = new Executor_Add();
 							_executor->executeCommand(cmd, response, _ds);
 							if (isCmdSuccessful(response))
-								_ds.stackCmdForUndo(cmd, response);
+								_ds.addCmdForUndo(cmd, response);
 							break;
 	case COMMAND_TYPE::DEL:	_executor = new Executor_Del();
 							_executor->executeCommand(cmd, response, _ds);
 							if (isCmdSuccessful(response))
-								_ds.stackCmdForUndo(cmd, response);
+								_ds.addCmdForUndo(cmd, response);
 							break;
 	case COMMAND_TYPE::MOD:	_executor = new Executor_Mod();
 							_executor->executeCommand(cmd, response, _ds);
 							if (isCmdSuccessful(response))
-								_ds.stackCmdForUndo(cmd, response);
+								_ds.addCmdForUndo(cmd, response);
 							break;
 	case COMMAND_TYPE::FIND:_executor = new Executor_Find();
 							_executor->executeCommand(cmd, response, _ds);
