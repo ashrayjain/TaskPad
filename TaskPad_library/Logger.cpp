@@ -179,12 +179,12 @@ string Logger::getNewData(string newLine) {
 	return newData;
 }
 
-string Logger::getCurTime() {
+string Logger::getCurTime()	{
 	char logTime[40];
 	time_t rawTime = time(0);
 	tm curTimeTm;
-	localtime_s(&curTimeTm,&rawTime);
-	strftime(logTime, 10, "%A %d-%m-%Y, %T",&curTimeTm);
+	localtime_s(&curTimeTm, &rawTime);
+	strftime(logTime, 40, "%d-%m-%Y",&curTimeTm);
 
 	return logTime;
 }

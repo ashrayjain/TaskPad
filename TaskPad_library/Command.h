@@ -58,7 +58,6 @@
 #include "Command_Find.h"
 #include "Command_Undo.h"
 #include "Command_Redo.h"
-//#include "Command_Sync.h"
 
 #ifndef TASKPAD_COMMAND_H
 #define TASKPAD_COMMAND_H
@@ -104,7 +103,6 @@ protected:
 	TP::TASK_STATE			getTaskState()			{ return _taskState;		 }
 	TP::TASK_TYPE			getTaskType()			{ return _taskType;			 }
 	unsigned long long		getCreatedTime()		{ return _createdTime;		 }
-	std::string				getSyncProviderName()	{ return _syncProviderName;  }
 	
 	//setter for fields
 	void setIndex(int idx)							     { _index		      = idx;		FLAG_index		= TP::EDITED;       }
@@ -128,7 +126,6 @@ protected:
 	void setTaskState(TP::TASK_STATE state)			     { _taskState	      = state;	    FLAG_taskState	= TP::EDITED;       }
 	void setTaskType(TP::TASK_TYPE type)			     { _taskType		  = type;		FLAG_taskType	= TP::EDITED;       }
 	void setCreatedTime(unsigned long long ctime)	     { _createdTime	      = ctime;	    FLAG_createdTime= TP::EDITED;       }
-	void setSyncProviderName(std::string syncName)		 { _syncProviderName  = syncName;   FLAG_syncProviderName = TP::EDITED;	}
 
 	//getter for flags
 	bool getFlagIndex()								{ return FLAG_index;			    }
@@ -159,7 +156,6 @@ protected:
 	bool getFlagTaskState()							{ return FLAG_taskState;		    }
 	bool getFlagTaskType()							{ return FLAG_taskType;			    }
 	bool getFlagCreatedTime()						{ return FLAG_createdTime;		    }
-	bool getFlagSyncProviderName()					{ return FLAG_syncProviderName;     }
 
 	//setter for flags
 	void setFlagExact()								{ FLAG_exact = TP::EDITED;		          }
@@ -213,7 +209,6 @@ private:
 	bool FLAG_taskState;
 	bool FLAG_createdTime;
 	bool FLAG_taskType;
-	bool FLAG_syncProviderName;
 
 	//fields
 	TP::COMMAND_TYPE								_type;
@@ -235,7 +230,6 @@ private:
 	std::list<std::time_t>							_remindTime;
 	std::list<std::time_t>							_removeRemindTime;
 	std::list<std::time_t>							_addRemindTime;
-	std::string										_syncProviderName;
 	TP::TASK_STATE									_taskState;//done | undone
 	unsigned long long								_createdTime;
 	TP::TASK_TYPE									_taskType;//timed | deadline | floating

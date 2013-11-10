@@ -48,11 +48,13 @@ Manager::Manager() {
 }
 
 Messenger Manager::refreshList() {
+	_logger->log("Manager", "entering refreshList()");
 	this->_executor->executeCommand(this->_lastSuccessfulFindCmd,this->_response);
 	return this->_response;
 }
 
 list<Task> Manager::getCurrentReminders	() {
+	_logger->log("Manager", "entering getCurrentReminders()");
 	return this->_executor->getCurrentReminders();
 }
 
@@ -72,34 +74,6 @@ void Manager::resetStatus() {
 	std::tm todayTm = getTodayTm();
 	std::tm nextDayTm = getNextDayTm(todayTm);
 	this->setCurrPeriod(todayTm,nextDayTm);
-}
-
-Manager::~Manager() {
-	this->_storage->save(this->_taskDS);
-
-	if(this->_taskDS != NULL) {
-		delete this->_taskDS;
-		_taskDS = NULL;
-	}
-
-	if(this->_interpreter != NULL) {
-		delete this->_interpreter;
-		_interpreter = NULL;
-	}
-
-	if(this->_executor != NULL) {
-		delete this->_executor;
-		_executor = NULL;
-	}
-
-	if(this->_storage != NULL) {
-		delete this->_storage;
-		_storage = NULL;
-	}
-
-	this->removePreviousCommand				();
-	this->removeLastSuccessfulFindCommand	();
-	this->_response.resetMessenger			();
 }
 
 Messenger Manager::processCommand(const string& newCommand) {
@@ -655,4 +629,34 @@ std::tm Manager::getPrevMonthTm(std::tm currTm)
 void Manager::setCurrPeriod(std::tm startTm, std::tm endTm)
 {
 	this->_currentPeriod = pair<tm,tm>(startTm,endTm);
+}
+
+
+
+Manager::~Manager() {
+	this->_storage->save(this->_taskDS);
+
+	if(this->_taskDS != NULL) {
+		delete this->_taskDS;
+		_taskDS = NULL;
+	}
+
+	if(this->_interpreter != NULL) {
+		delete this->_interpreter;
+		_interpreter = NULL;
+	}
+
+	if(this->_executor != NULL) {
+		delete this->_executor;
+		_executor = NULL;
+	}
+
+	if(this->_storage != NULL) {
+		delete this->_storage;
+		_storage = NULL;
+	}
+
+	this->removePreviousCommand				();
+	this->removeLastSuccessfulFindCommand	();
+	this->_response.resetMessenger			();
 }

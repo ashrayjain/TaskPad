@@ -32,7 +32,7 @@ const int DUMMY_VALUE=-1;
 const int START_POSITION_VALUE=0;
 const int START_POSITION=0;
 enum COMMAND_CATEGORY{ADD_COMMAND,MOD_COMMAND,MOD_EXACT_COMMAND,MOD_INDEX_COMMAND,FIND_COMMAND,FIND_EXACT_COMMAND,DEL_COMMAND, 
-	DEL_EXACT_COMMAND, DEL_INDEX_COMMAND, UNDO_COMMAND,REDO_COMMAND,SYNC_COMMAND};
+	DEL_EXACT_COMMAND, DEL_INDEX_COMMAND, UNDO_COMMAND,REDO_COMMAND};
 
 
 
@@ -59,8 +59,6 @@ bool Interpreter::checkCommand(string command, int& commandType){
 
 	regex test_redo_command(COMMAND_REDO);
 
-	regex test_sync_command("^sync `([^`]+)`(\\s*)");
-
 
 	testlist[ADD_COMMAND]=regex_match(command,test_add_command);
 	testlist[MOD_COMMAND]=regex_match(command,test_mod_command);
@@ -73,7 +71,6 @@ bool Interpreter::checkCommand(string command, int& commandType){
 	testlist[DEL_INDEX_COMMAND]=regex_match(command,test_del_index_command);
 	testlist[UNDO_COMMAND]=regex_match(command,test_undo_command);
 	testlist[REDO_COMMAND]=regex_match(command,test_redo_command);
-	testlist[SYNC_COMMAND]=regex_match(command,test_sync_command);
 
 	for(int i=START_POSITION_VALUE;i<TOTAL_TEST_CASE && flag!=true;i++){
 		if(testlist[i]==true){
