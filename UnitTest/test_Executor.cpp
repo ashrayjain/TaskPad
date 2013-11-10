@@ -70,7 +70,6 @@ namespace UnitTest
 			Command* testCmd = new Command_Add();
 			Command_Add* testAddCmd = dynamic_cast<Command_Add*>(testCmd);
 			time_t now = time(NULL);
-			Datastore s;
 			Executor testExecutor(ds);
 			Messenger testResponse;
 			
@@ -229,6 +228,64 @@ namespace UnitTest
 			delete testCmd_2;
 			delete testCmd_3;
 			delete testCmd_4;
+		}
+		
+		TEST_METHOD(Execute_Undo_Redo_Command_Test)
+		{
+			Command* testCmd = new Command_Add();
+			Command_Add* testAddCmd = dynamic_cast<Command_Add*>(testCmd);
+			time_t now = time(NULL);
+			Executor testExecutor(ds);
+			Messenger testResponse;
+			
+			testAddCmd->setName("Test Task");
+			testAddCmd->setDueDate(now + 864000);
+			testAddCmd->setLocation("Someplace");
+			testAddCmd->setNote("This is a sample note!");
+			testAddCmd->setTags(list<string>(1, "#testhashtag"));
+			testAddCmd->setParticipants(list<string>(5, "Participant X"));
+			testAddCmd->setPriority(TP::PRIORITY::HIGH);
+			testAddCmd->setRemindTimes(list<time_t>(1, now + 432000));
+			
+			testExecutor.executeCommand(testCmd, testResponse);
+			delete testCmd;
+			
+			testCmd = new Command_Undo();
+			Command_Undo* testUndoCmd = dynamic_cast<Command_Undo*>(testCmd);
+			testExecutor.executeCommand(testCmd, testResponse);
+			delete testCmd;
+
+			testCmd = new Command_Find();
+			Command_Find* testFindCmd = dynamic_cast<Command_Find*>(testCmd);
+
+			testFindCmd->setOptName("Test Task");
+			testFindCmd->setFlagExact();
+
+			testExecutor.executeCommand(testCmd, testResponse);
+			Assert::IsTrue(0 == testResponse.getList().size());
+			delete testCmd;
+
+			testCmd = new Command_Redo();
+			Command_Redo* testRedoCmd = dynamic_cast<Command_Redo*>(testCmd);
+			testExecutor.executeCommand(testCmd, testResponse);
+			delete testCmd;
+
+			testCmd = new Command_Find();
+			testFindCmd = dynamic_cast<Command_Find*>(testCmd);
+
+			testFindCmd->setOptName("Test Task");
+			testFindCmd->setFlagExact();
+
+			testExecutor.executeCommand(testCmd, testResponse);
+			Assert::IsTrue(1 == testResponse.getList().size());
+			delete testCmd;
+
+			Command* testCmd_2 = new Command_Del();
+			Command_Del* testDelCmd_2 = dynamic_cast<Command_Del*>(testCmd_2);
+			testDelCmd_2->setName("Test Task 1");
+			testExecutor.executeCommand(testCmd_2, testResponse);
+			
+			delete testCmd_2;
 		}
 	};
 }
