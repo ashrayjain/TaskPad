@@ -32,12 +32,12 @@ class Messenger {
 
 		// constructor
 		Messenger(
-			TP::COMMAND_TYPE commandType	= TP::UNDEFINED,// DEFAULT_COMMAND_TYPE_VALUE, 
-			TP::STATUS status				= TP::SUCCESS,// DEFAULT_STATUS_VALUE, 
-			std::list<Task> resultList		= std::list<Task>(),// DEFAULT_TASK_LIST_VALUE, 
-			Task resultTask					= Task(), //DEFAULT_TASK_VALUE, 
-			int index						= -1, //DEFAULT_INDEX_VALUE, 
-			std::string errorMsg			= "");//DEFAULT_ERROR_MESSAGE_VALUE);
+			TP::COMMAND_TYPE commandType	= TP::UNDEFINED,
+			TP::STATUS status				= TP::SUCCESS,
+			std::list<Task> resultList		= std::list<Task>(),
+			Task resultTask					= Task(),
+			int index						= -1,
+			std::string errorMsg			= "");
 
 		//getter methods
 		
@@ -53,10 +53,10 @@ class Messenger {
 
 		//setter functions
 		void setErrorMsg	(const std::string&			errorMsg);
-		void setStatus		(const TP::STATUS&				status);
+		void setStatus		(const TP::STATUS&			status);
 		void setList		(const std::list<Task>&		result);
 		void setInt			(const int&					index);
-		void setCommandType	(const TP::COMMAND_TYPE&		commandType);
+		void setCommandType	(const TP::COMMAND_TYPE&	commandType);
 		void setTask		(const Task&				task);
 
 		const static int				DEFAULT_INDEX_VALUE;
