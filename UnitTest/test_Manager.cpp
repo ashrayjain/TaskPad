@@ -24,18 +24,18 @@ namespace UnitTest
 			//////2. user delete the added task
 			//////
 			//////TC0: WORK FLOW ADD
-			//Manager scheduler;
-			//Messenger msg = scheduler.processCommand("add `Simple Add Testing`");
-			//Assert::AreEqual((int)msg.getStatus(), (int) SUCCESS);
-			//Assert::AreEqual((int)msg.getCommandType(), (int)ADD);
-			//Assert::AreEqual(msg.getTask().getName(), (string)"Simple Add Testing");
+			Manager scheduler;
+			Messenger msg = scheduler.processCommand("add `Project Kai Testing`");
+			Assert::AreEqual((int)msg.getStatus(), (int) SUCCESS);
+			Assert::AreEqual((int)msg.getCommandType(), (int)ADD);
+			Assert::AreEqual(msg.getTask().getName(), (string)"Project Kai Testing");
 
 
 			//////TC1: WORK FLOW DEL
-			//msg = scheduler.processCommand("del exact `Project Kai Testing`");
-			//Assert::AreEqual((int)msg.getStatus(), (int)SUCCESS);
-			//Assert::AreEqual((int)msg.getCommandType(), (int)DEL);
-			//Assert::AreEqual(msg.getTask().getName(), (string)"Project Kai Testing");
+			msg = scheduler.processCommand("del exact `Project Kai Testing`");
+			Assert::AreEqual((int)msg.getStatus(), (int)SUCCESS);
+			Assert::AreEqual((int)msg.getCommandType(), (int)DEL);
+			Assert::AreEqual(msg.getTask().getName(), (string)"Project Kai Testing");
 
 			//////***************************************
 			//////use case:
@@ -47,44 +47,44 @@ namespace UnitTest
 			//////6. user deleted the task
 			//////
 			//////TC2: WORK FLOW ADD 2
-			//msg = scheduler.processCommand("add `Project22 Kai Testing` note `TEST NOTE` #KaiTesting");
-			//Assert::AreEqual((int)msg.getStatus(), (int)SUCCESS);
-			//Assert::AreEqual((int)msg.getCommandType(), (int)ADD);
-			//Assert::AreEqual(msg.getTask().getName(), (string)"Project22 Kai Testing");
-			//Assert::AreEqual(msg.getTask().getNote(), (string)"TEST NOTE");
+			msg = scheduler.processCommand("add `Project22 Kai Testing` note `TEST NOTE` #KaiTesting");
+			Assert::AreEqual((int)msg.getStatus(), (int)SUCCESS);
+			Assert::AreEqual((int)msg.getCommandType(), (int)ADD);
+			Assert::AreEqual(msg.getTask().getName(), (string)"Project22 Kai Testing");
+			Assert::AreEqual(msg.getTask().getNote(), (string)"TEST NOTE");
 
 			//////TC3: WORK FLOW MOD
-			//msg = scheduler.processCommand("mod exact `Project22 Kai Testing` note `TEST NOTE2`");
-			//Assert::AreEqual((int)msg.getStatus(), (int)SUCCESS);
-			//Assert::AreEqual((int)msg.getCommandType(), (int)MOD);
-			//Assert::AreEqual(msg.getTask().getNote(), (string)"TEST NOTE2");
+			msg = scheduler.processCommand("mod exact `Project22 Kai Testing` note `TEST NOTE2`");
+			Assert::AreEqual((int)msg.getStatus(), (int)SUCCESS);
+			Assert::AreEqual((int)msg.getCommandType(), (int)MOD);
+			Assert::AreEqual(msg.getTask().getNote(), (string)"TEST NOTE2");
 
 			//////TC4: UNDO
-			//msg = scheduler.processCommand("undo");
-			//Assert::AreEqual((int)msg.getStatus(), (int)SUCCESS);
-			//Assert::AreEqual((int)msg.getCommandType(), (int)UNDO);
-			//Assert::AreEqual(msg.getTask().getNote(), (string)"TEST NOTE");
+			msg = scheduler.processCommand("undo");
+			Assert::AreEqual((int)msg.getStatus(), (int)SUCCESS);
+			Assert::AreEqual((int)msg.getCommandType(), (int)UNDO);
+			Assert::AreEqual(msg.getTask().getNote(), (string)"TEST NOTE");
 
 			//////TC5: REDO
-			//msg = scheduler.processCommand("redo");
-			//Assert::AreEqual((int)msg.getStatus(), (int)SUCCESS);
-			//Assert::AreEqual((int)msg.getCommandType(), (int)REDO);
-			//Assert::AreEqual(msg.getTask().getNote(), (string)"TEST NOTE2");
+			msg = scheduler.processCommand("redo");
+			Assert::AreEqual((int)msg.getStatus(), (int)SUCCESS);
+			Assert::AreEqual((int)msg.getCommandType(), (int)REDO);
+			Assert::AreEqual(msg.getTask().getNote(), (string)"TEST NOTE2");
 
 			//////TC6: FIND
-			//msg = scheduler.processCommand("find #KaiTesting");
-			//Assert::AreEqual((int)msg.getStatus(), (int)SUCCESS);
-			//Assert::AreEqual((int)msg.getCommandType(), (int)FIND);
-			//Assert::AreEqual(msg.getList().front().getName(), (string)"Project22 Kai Testing");
+			msg = scheduler.processCommand("find #KaiTesting");
+			Assert::AreEqual((int)msg.getStatus(), (int)SUCCESS);
+			Assert::AreEqual((int)msg.getCommandType(), (int)FIND);
+			Assert::AreEqual(msg.getList().front().getName(), (string)"Project22 Kai Testing");
 
 			//////reset
-			//scheduler.resetStatus();
+			scheduler.resetStatus();
 
 			//////TC7: DEL 2
-			//msg = scheduler.processCommand("del exact `Project22 Kai Testing`");
-			//Assert::AreEqual((int)msg.getStatus(), (int)SUCCESS);
-			//Assert::AreEqual((int)msg.getCommandType(),(int) DEL);
-			//Assert::AreEqual(msg.getTask().getName(), (string)"Project22 Kai Testing");
+			msg = scheduler.processCommand("del exact `Project22 Kai Testing`");
+			Assert::AreEqual((int)msg.getStatus(), (int)SUCCESS);
+			Assert::AreEqual((int)msg.getCommandType(),(int) DEL);
+			Assert::AreEqual(msg.getTask().getName(), (string)"Project22 Kai Testing");
 		}
 	};
 }
