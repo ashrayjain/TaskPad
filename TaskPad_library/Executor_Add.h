@@ -18,13 +18,13 @@
 
 class Executor_Add: public Executor_Base {
 public:
-	void			executeCommand					(Command* cmd, Messenger &response, Datastore &ds);
+	void executeCommand	(Command* cmd, Messenger &response, Datastore &ds);
 private:
 	static const unsigned RT_MIN_H_ARR[];
 	static const unsigned RT_MIN_M_ARR[];
 	static const unsigned RT_MIN_L_ARR[];
 
-	bool					validAddCmd						(Command_Add* cmd, Messenger &response);
+	bool					isValidAddCmd					(Command_Add* cmd, Messenger &response);
 	Task					formTaskFromAddCmd				(Command_Add* cmd);
 	void					setDefaultRemindTimes			(Task &task);
 	void					setDefaultRemindTimesPriorityH	(Task &task);

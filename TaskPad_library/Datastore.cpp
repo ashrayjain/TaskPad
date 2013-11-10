@@ -254,7 +254,7 @@ list<string> Datastore::getTagsListDifference(const list<string> &taskTags, cons
 	return newTagsList;
 }
 
-void Datastore::stackCmdForUndo(Command* cmd, Messenger &response) {
+void Datastore::addCmdForUndo(Command* cmd, Messenger &response) {
 	switch(cmd->getCommandType()) {
 	case TP::COMMAND_TYPE::MOD: stackModCmdForUndo(cmd, response); break;
 	case TP::COMMAND_TYPE::ADD: stackAddCmdForUndo(cmd, response); break;
@@ -282,7 +282,7 @@ void Datastore::stackDelCmdForUndo(Command* cmd, Messenger &response) {
 	_undoStack.push(pair<Command*, Task>(newCmd, response.getTask()));
 }
 
-void Datastore::popTopRedoStackToUndoStack() {
+void Datastore::transferRedoCmdToUndo() {
 	if (!_redoStack.empty()) {
 		_undoStack.push(_redoStack.top());
 		_redoStack.pop(); 
@@ -291,7 +291,7 @@ void Datastore::popTopRedoStackToUndoStack() {
 		throw exception("Nothing to pop");
 }
 
-void Datastore::popTopUndoStackToRedoStack() {
+void Datastore::transferUndoCmdToRedo() {
 	if (!_undoStack.empty()) {
 		_redoStack.push(_undoStack.top());
 		_undoStack.pop(); 
