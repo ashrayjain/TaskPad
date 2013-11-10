@@ -58,7 +58,7 @@
 #include "Command_Find.h"
 #include "Command_Undo.h"
 #include "Command_Redo.h"
-#include "Command_Sync.h"
+//#include "Command_Sync.h"
 
 #ifndef TASKPAD_COMMAND_H
 #define TASKPAD_COMMAND_H
