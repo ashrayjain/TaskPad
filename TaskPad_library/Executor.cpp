@@ -13,6 +13,12 @@
  */
 
 #include "Executor.h"
+#include "Executor_Add.h"
+#include "Executor_Del.h"
+#include "Executor_Mod.h"
+#include "Executor_Find.h"
+#include "Executor_Undo.h"
+#include "Executor_Redo.h"
 
 using namespace std;
 using namespace TP;
@@ -26,60 +32,66 @@ list<Task> Executor::getCurrentReminders() {
 }
 
 void Executor::executeCommand(Command* &cmd, Messenger &response) {
-	Executor_Base* executor;
 	switch (cmd->getCommandType()) {
-	case COMMAND_TYPE::ADD:	executor = new Executor_Add();
-							executor->executeCommand(cmd, response, _ds);
+	case COMMAND_TYPE::ADD:	_executor = new Executor_Add();
+							_executor->executeCommand(cmd, response, _ds);
 							if (isCmdSuccessful(response))
-								_ds.stackCmdForUndo(cmd, response);
+								_ds.addCmdForUndo(cmd, response);
 							break;
-	case COMMAND_TYPE::DEL:	executor = new Executor_Del();
-							executor->executeCommand(cmd, response, _ds);
+	case COMMAND_TYPE::DEL:	_executor = new Executor_Del();
+							_executor->executeCommand(cmd, response, _ds);
 							if (isCmdSuccessful(response))
-								_ds.stackCmdForUndo(cmd, response);
+								_ds.addCmdForUndo(cmd, response);
 							break;
-	case COMMAND_TYPE::MOD:	executor = new Executor_Mod();
-							executor->executeCommand(cmd, response, _ds);
+	case COMMAND_TYPE::MOD:	_executor = new Executor_Mod();
+							_executor->executeCommand(cmd, response, _ds);
 							if (isCmdSuccessful(response))
-								_ds.stackCmdForUndo(cmd, response);
+								_ds.addCmdForUndo(cmd, response);
 							break;
-	case COMMAND_TYPE::FIND:executor = new Executor_Find();
-							executor->executeCommand(cmd, response, _ds);
+	case COMMAND_TYPE::FIND:_executor = new Executor_Find();
+							_executor->executeCommand(cmd, response, _ds);
 							break;
-	case COMMAND_TYPE::UNDO:executor = new Executor_Undo();
-							executor->executeCommand(cmd, response, _ds);
+	case COMMAND_TYPE::UNDO:_executor = new Executor_Undo();
+							_executor->executeCommand(cmd, response, _ds);
 							if(response.getStatus() != TP::STATUS::ERR) {
 								delete cmd;
-								cmd = (dynamic_cast<Executor_Undo*>(executor)->getUndoCommandToExecute());
+								cmd = (dynamic_cast<Executor_Undo*>(_executor)->getUndoCommandToExecute());
 								executeCommandWithoutUndoRedo(cmd, response);
 							}
 							break;
-	case COMMAND_TYPE::REDO:executor = new Executor_Redo();
-							executor->executeCommand(cmd, response, _ds);
+	case COMMAND_TYPE::REDO:_executor = new Executor_Redo();
+							_executor->executeCommand(cmd, response, _ds);
 							if(response.getStatus() != TP::STATUS::ERR) {
 								delete cmd;
-								cmd = (dynamic_cast<Executor_Redo*>(executor)->getRedoCommandToExecute());
+								cmd = (dynamic_cast<Executor_Redo*>(_executor)->getRedoCommandToExecute());
 								executeCommandWithoutUndoRedo(cmd, response);
 							}
 							break;
 	default:
 		break;
 	}
-	delete executor;
+	if (_executor != NULL) {
+		delete _executor;
+		_executor = NULL;
+	}
 }
 
 void Executor::executeCommandWithoutUndoRedo(Command* cmd, Messenger &response) {
-	Executor_Base* executor;
+	if (_executor != NULL) {
+		delete _executor;
+		_executor = NULL;
+	}
 	switch (cmd->getCommandType()) {
-	case COMMAND_TYPE::ADD:	executor = new Executor_Add();
+	case COMMAND_TYPE::ADD:	_executor = new Executor_Add();
 							break;
-	case COMMAND_TYPE::DEL:	executor = new Executor_Del();
+	case COMMAND_TYPE::DEL:	_executor = new Executor_Del();
 							break;
-	case COMMAND_TYPE::MOD:	executor = new Executor_Mod();
+	case COMMAND_TYPE::MOD:	_executor = new Executor_Mod();
 							break;
 	}
-	executor->executeCommand(cmd, response, _ds);
-	delete executor;
+	_executor->executeCommand(cmd, response, _ds);
+	delete _executor;
+	_executor = NULL;
 }
 
 bool Executor::isCmdSuccessful(const Messenger &response) const {

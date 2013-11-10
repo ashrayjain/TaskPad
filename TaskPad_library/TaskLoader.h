@@ -28,8 +28,7 @@
 class Task;
 class StorableTaskDatastore;
 
-class TaskLoader: public TaskFileHandler
-{
+class TaskLoader: public TaskFileHandler {
 	public:
 		virtual void load (const std::string& fileName) =0;
 
@@ -40,6 +39,7 @@ class TaskLoader: public TaskFileHandler
 							{ this->_fileReader.open(fileName,oMode); }
 
 		void closeFile()	{ _fileReader.close(); }
+
 
 		std::ifstream _fileReader;
 };

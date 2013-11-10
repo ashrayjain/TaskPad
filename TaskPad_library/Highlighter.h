@@ -37,12 +37,14 @@ private:
 	static const char* REGEX_QUOTE_LEFT_PAIRS;
 	static const char* REGEX_HOTKEY_TEMPLATE_BLANK;
 
+	void setupFormat();
+	void setupRegex();
 	void addRegex(HIGHLIGHT_TYPE type, const QString &pattern, bool minimal = true);
 	void highlightPatterns(const QString &text);
 
 	QTextCharFormat CommandFormat;
 	QTextCharFormat KeywordFormat;
-	QTextCharFormat PairOfQuoteLeft;
+	QTextCharFormat PairOfQuoteLeftFormat;
 	QTextCharFormat BlankFormat;
 	QVector<QRegExp> regexForType;
 };

@@ -32,79 +32,62 @@
 using namespace TP;
 using namespace std;
 
-const string Manager::MESSAGE_INDEX_OUT_OF_RANGE = "Given index is out of range!";
-const string Manager::MESSAGE_ERROR_UNEXPECTED_COMMAND_TYPE_WITH_INDEX = "Unexpected Command with index!!";
-const string Manager::MESSAGE_DATE_LIMIT_REACHED	= "Reached date boundary!";
+const string Manager::MESSAGE_INDEX_OUT_OF_RANGE						= "Given index is out of range!";
+const string Manager::MESSAGE_ERROR_UNEXPECTED_COMMAND_TYPE_WITH_INDEX	= "Unexpected Command with index!";
+const string Manager::MESSAGE_DATE_LIMIT_REACHED						= "We have reached the end of time!";
+const string Manager::MESSAGE_INDEX_NOT_GIVEN							= "Please provide an index!";
+
+const int	 Manager::LOWER_END_OF_TIME									= 70;
+const int	 Manager::UPPER_END_OF_TIME									= 200;
+const int	 Manager::DAY_UNIT_OF_TIME									= 1;
+const int	 Manager::WEEK_UNIT_OF_TIME									= 7;
+const int	 Manager::MONTH_UNIT_OF_TIME								= 1;
+
 
 Manager::Manager() {
-	this->_taskDS					= new Datastore;
-	this->_logger					= Logger::getLogger();
-	this->_storage					= new Storage(_taskDS);
-	this->_executor					= new Executor(*_taskDS);
-	this->_interpreter				= new Interpreter;
-	this->_response					= Messenger();
-	this->_cmd						= NULL;
-	this->_lastSuccessfulFindCmd	= NULL;
+	_taskDS					= new Datastore;
+	_logger					= Logger::getLogger();
+	_storage					= new Storage(_taskDS);
+	_executor					= new Executor(*_taskDS);
+	_interpreter				= new Interpreter;
+	_response					= Messenger();
+	_cmd						= NULL;
+	_lastSuccessfulFindCmd	= NULL;
 }
 
 Messenger Manager::refreshList() {
-	this->_executor->executeCommand(this->_lastSuccessfulFindCmd,this->_response);
-	return this->_response;
+	_logger->log("Manager", "entering refreshList()");
+	_executor->executeCommand(_lastSuccessfulFindCmd,_response);
+	return _response;
 }
 
 list<Task> Manager::getCurrentReminders	() {
-	return this->_executor->getCurrentReminders();
+	_logger->log("Manager", "entering getCurrentReminders()");
+	return _executor->getCurrentReminders();
 }
 
 void Manager::syncTaskList (const list<Task>& taskList) {
-	this->_response.setList(taskList);
+	_response.setList(taskList);
 }
 
 void Manager::syncTask (const Task& task) {
-	this->_response.setTask(task);
+	_response.setTask(task);
 }
 
 void Manager::resetStatus() {
-	this->removePreviousCommand();
-	this->removeLastSuccessfulFindCommand();
-	this->_currentPeriod = pair<tm,tm>();
-	this->_response.resetMessenger();
-	std::tm todayTm = getTodayTm();
-	std::tm nextDayTm = getNextDayTm(todayTm);
-	this->setCurrPeriod(todayTm,nextDayTm);
-}
-
-Manager::~Manager() {
-	this->_storage->save(this->_taskDS);
-
-	if(this->_taskDS != NULL) {
-		delete this->_taskDS;
-		_taskDS = NULL;
-	}
-
-	if(this->_interpreter != NULL) {
-		delete this->_interpreter;
-		_interpreter = NULL;
-	}
-
-	if(this->_executor != NULL) {
-		delete this->_executor;
-		_executor = NULL;
-	}
-
-	if(this->_storage != NULL) {
-		delete this->_storage;
-		_storage = NULL;
-	}
-
-	this->removePreviousCommand				();
-	this->removeLastSuccessfulFindCommand	();
-	this->_response.resetMessenger			();
+	removePreviousCommand();
+	removeLastSuccessfulFindCommand();
+	_currentPeriod = pair<tm,tm>();
+	_response.resetMessenger();
+	tm todayTm = getTodayTm();
+	tm nextDayTm = getNextDayTm(todayTm);
+	setCurrPeriod(todayTm,nextDayTm);
 }
 
 Messenger Manager::processCommand(const string& newCommand) {
 	_logger->log("Manager", "processing Command");
-	switch(this->_response.getStatus()) {
+
+	switch(_response.getStatus()) {
 		case INTERMEDIATE:
 			/* empty and falls through*/
 		case ERR_INTER:
@@ -115,10 +98,10 @@ Messenger Manager::processCommand(const string& newCommand) {
 			handleNormalScenarioCommands(newCommand);
 			break;
 	}
-	this->saveChanges();
+	saveChanges();
 
 	_logger -> log("Mananger", "leaving processCommand() \n");
-	return this->_response;
+	return _response;
 }
 
 /*
@@ -127,28 +110,22 @@ Messenger Manager::processCommand(const string& newCommand) {
 
 void Manager::saveChanges()
 {
-	if(this->isSuccessfulCommand()){
-		switch(this->_cmd->getCommandType()) {
-			case ADD:
-				/* empty and falls through*/
-			case MOD:
-				/* empty and falls through*/
-			case DEL:
-				/* empty and falls through*/
-				_logger->log("Manager","saving changes");
-				if (_response.getCommandType() == UNDO || _response.getCommandType() == REDO) {
-					this->_storage->save(this->_response.getTask(), this->_cmd->getCommandType());
-				}
-				else {
-					this->_storage->save(this->_response.getTask(), this->_response.getCommandType());
-				}
-				break;
-			case FIND:
-				 updateLastSuccessfulFindCommand();
-				break;
-			default:
-				break;
-		}
+	if(isNotSuccessfulCommand()) return;
+
+	switch(_cmd->getCommandType()) {
+		case ADD:
+			/* empty and falls through*/
+		case MOD:
+			/* empty and falls through*/
+		case DEL:
+			_logger->log("Manager","saving changes");
+			_storage->save(_response.getTask(), _cmd->getCommandType());
+			break;
+		case FIND:
+				updateLastSuccessfulFindCommand();
+			break;
+		default:
+			break;
 	}
 }
 
@@ -157,9 +134,9 @@ void Manager::saveChanges()
  * returns the memory to the system
  */
 void Manager::removePreviousCommand() {
-	if(this->_cmd != NULL) {
-		delete this->_cmd;
-		this->_cmd = NULL;
+	if(_cmd != NULL) {
+		delete _cmd;
+		_cmd = NULL;
 	}
 	return;
 }
@@ -167,15 +144,15 @@ void Manager::removePreviousCommand() {
 void Manager::updateLastSuccessfulFindCommand	() {
 	 removeLastSuccessfulFindCommand();
 
-	 this->_lastSuccessfulFindCmd	= new Command_Find;
-	*(this->_lastSuccessfulFindCmd) = *(this->_cmd);
+	 _lastSuccessfulFindCmd	= new Command_Find;
+	*(_lastSuccessfulFindCmd) = *(_cmd);
 
 }
 
 void Manager::removeLastSuccessfulFindCommand() {
-	if(this->_lastSuccessfulFindCmd != NULL) {
-		delete this->_lastSuccessfulFindCmd;
-		this->_lastSuccessfulFindCmd = NULL;
+	if(_lastSuccessfulFindCmd != NULL) {
+		delete _lastSuccessfulFindCmd;
+		_lastSuccessfulFindCmd = NULL;
 	}
 	return;
 }
@@ -192,17 +169,17 @@ void Manager::handleNormalScenarioCommands(string newCommand) {
 	_logger->log("Manager","handling normal scenario command");
 	if(isIndexGiven(newCommand)) {
 		_logger->log("Manager","index given by user",NOTICELOG);
-		this->handleIndexCommand();
+		handleShowCommand();
 	}
 	else if (isCommandWithIndexGiven(newCommand)) {
 		_logger->log("Manager","command with index given by user",NOTICELOG);
-		this->storeIndexFromCommandToClassAttribute();
-		this->handleCommandWithIndex();
+		storeIndexFromCommandToClassAttribute();
+		handleCommandWithIndex();
 	}
 	else  {
 	// a generic command and has already been interpreted by isCommandWithIndexGiven() above
 		_logger->log("Manager","generic command given by user",NOTICELOG);
-		this->handleGenericCommand();
+		handleGenericCommand();
 	}
 	return;
 }
@@ -215,53 +192,54 @@ void Manager::handleNormalScenarioCommands(string newCommand) {
  */
 void Manager::handleIntermediateScenarioCommands(string newCommand) {
 	if(isIndexGiven(newCommand)) {
-		if(isIndexWithinRange()) {
-			this->insertActualIndexIntoCommand();
-			this->_executor->executeCommand(this->_cmd,this->_response);
-		}
-		else {
-			this->_response.setErrorMsg(MESSAGE_INDEX_OUT_OF_RANGE);
-			this->_response.setStatus(ERR_INTER);
-		}
+		handleIntermediateIndexCommand();
 	}
 	else {
-		this->_response.setStatus(ERR_INTER);
+		setResponseToError(ERR_INTER, MESSAGE_INDEX_NOT_GIVEN);
 	}
 	return;
 }
 
-void Manager::handleIndexCommand() {
+void Manager::handleShowCommand() {
 	if(isIndexWithinRange()) {
-		this->_response.setInt(this->_index);
-		this->_response.setStatus(DISPLAY);
+		_response.setInt(_index);
+		_response.setStatus(DISPLAY);
 	}
 	else {
-		this->_response.setErrorMsg(MESSAGE_INDEX_OUT_OF_RANGE);
-		this->_response.setStatus(ERR);
+		setResponseToError(ERR, MESSAGE_INDEX_OUT_OF_RANGE);
+	}
+}
+
+void Manager::handleIntermediateIndexCommand() {
+	if(isIndexWithinRange()) {
+		insertActualIndexIntoCommand();
+		_executor->executeCommand(_cmd,_response);
+	}
+	else {
+		setResponseToError(ERR_INTER, MESSAGE_INDEX_OUT_OF_RANGE);
 	}
 }
 
 void Manager::handleCommandWithIndex()
 {
-	if(this->isIndexWithinRange()) {
-		this->insertActualIndexIntoCommand();
-		this->_executor->executeCommand(this->_cmd,this->_response);
+	if(isIndexWithinRange()) {
+		insertActualIndexIntoCommand();
+		_executor->executeCommand(_cmd,_response);
 
-		if(this->hasNoError()) {
-			this->editTaskListInResponse();
-			this->_response.setStatus(SUCCESS_INDEXED_COMMAND);
+		if(hasNoError()) {
+			editTaskListInResponse();
+			_response.setStatus(SUCCESS_INDEXED_COMMAND);
 		}
 	}
 	else {
-		this->_response.setErrorMsg(MESSAGE_INDEX_OUT_OF_RANGE);
-		this->_response.setStatus(ERR);
+		setResponseToError(ERR, MESSAGE_INDEX_OUT_OF_RANGE);
 	}
 }
 
 void Manager::handleGenericCommand()
 {
 	if(hasNoInterpretationError()) {
-		this->_executor->executeCommand(this->_cmd,this->_response);
+		_executor->executeCommand(_cmd,_response);
 	}
 }
 
@@ -269,36 +247,24 @@ void Manager::editTaskListInResponse()
 {
 	assert(isDeleteCommand() || isModifyCommand());
 
-	list<Task> tempList = this->_response.getList();
+	list<Task> tempList = _response.getList();
 	list<Task>::iterator lit = tempList.begin();
 	advance (lit,(_index - 1));
 
-	if(isDeleteCommand())
-	{
+	if(isDeleteCommand()) {
 		tempList.erase(lit);
 	}
-	else if(isModifyCommand())
-	{
-		(*lit) = this->_response.getTask();
+	else if(isModifyCommand()) {
+		(*lit) = _response.getTask();
 	}
-	this->_response.setList(tempList);
+	_response.setList(tempList);
 	return;
 }
 
-bool Manager::isDeleteCommand()
-{
-	return (this->_cmd->getCommandType() == DEL);
-}
-
-bool Manager::isModifyCommand()
-{
-	return (this->_cmd->getCommandType() == MOD);
-}
-
 bool Manager::isIndexGiven(string newCommand) {
-	this->_index = this->_interpreter->interpretIndex(newCommand,this->_response);
+	_index = _interpreter->interpretIndex(newCommand,_response);
 
-	if(this->hasNoInterpretationError()) {
+	if(hasNoInterpretationError()) {
 		return true;
 	}
 	return false;
@@ -306,19 +272,22 @@ bool Manager::isIndexGiven(string newCommand) {
 
 bool Manager::isCommandWithIndexGiven(string newCommand) {
 	//tempStorage is used to ensure that the list is not lost in the interpreter by mistake
-	list<Task> tempStorage = this->_response.getList();
-	this->_cmd = this->_interpreter->interpretCommand(newCommand,this->_response);
-	this->_response.setList(tempStorage);
+	list<Task> tempStorage = _response.getList();
+
+	_cmd = _interpreter->interpretCommand(newCommand,_response);
+
+	//restore the saved value
+	_response.setList(tempStorage);
 
 	if (hasNoInterpretationError()) {
 		bool isModifyCommandWithIndex = false, isDeleteCommandWithIndex = false;
 
-		switch (this->_cmd->getCommandType()) {
+		switch (_cmd->getCommandType()) {
 			case MOD:
-				isModifyCommandWithIndex = this->isIndexedModifyCommand();
+				isModifyCommandWithIndex = isIndexedModifyCommand();
 				break;
 			case DEL:
-				isDeleteCommandWithIndex = this->isIndexedDeleteCommand();
+				isDeleteCommandWithIndex = isIndexedDeleteCommand();
 				break;
 			default:
 				break;
@@ -333,96 +302,90 @@ bool Manager::isCommandWithIndexGiven(string newCommand) {
 }
 
 bool Manager::isIndexedModifyCommand() {
-	Command_Mod tempCommand = *((Command_Mod *) this->_cmd);
+	Command_Mod tempCommand = *((Command_Mod *) _cmd);
 	return tempCommand.getFlagIndex();
 }
 
 bool Manager::isIndexedDeleteCommand() {
-	Command_Del tempCommand = *((Command_Del *) this->_cmd);
+	Command_Del tempCommand = *((Command_Del *) _cmd);
 	return tempCommand.getFlagIndex();
 }
 
 bool Manager::isIndexWithinRange() {
-	int sizeOfCurrentList = this->_response.getList().size();
-	return (sizeOfCurrentList >= this->_index && this->_index > 0);
+	int sizeOfCurrentList = _response.getList().size();
+	return (sizeOfCurrentList >= _index && _index > 0);
 }
 
 void Manager::insertActualIndexIntoCommand() {
 	assert(_cmd != NULL);
 	assert(isModifyCommand() || isDeleteCommand());
 
-	switch(this->_cmd->getCommandType()) {
+	unsigned long long actualIndex = getActualIndexOfTask();
+
+	switch(_cmd->getCommandType()) {
 		case MOD:
-			this->insertActualIndexIntoModifyCommand();
+			insertActualIndexIntoModifyCommand(actualIndex);
 			break;
 		case DEL:
-			this->insertActualIndexIntoDeleteCommand();
+			insertActualIndexIntoDeleteCommand(actualIndex);
 			break;
 	}
 }
 
-void Manager::insertActualIndexIntoDeleteCommand() {
-	Task chosenTask = getPointerToChosenTask();
-	unsigned long long createdTime = this->getCreatedTimeOfTask(chosenTask);
-
-	Command_Del* tempCommand = (Command_Del *) this->_cmd;
-	tempCommand->setCreatedTime(createdTime);
+void Manager::insertActualIndexIntoDeleteCommand(unsigned long long& actualIndex) {
+	Command_Del* tempCommand = (Command_Del *) _cmd;
+	tempCommand->setCreatedTime(actualIndex);
 	return;
 }
 
-void Manager::insertActualIndexIntoModifyCommand() {
-	Task chosenTask = this->getPointerToChosenTask();
-	unsigned long long createdTime = this->getCreatedTimeOfTask(chosenTask);
-
-	Command_Mod* tempCommand = (Command_Mod *) this->_cmd;
-	tempCommand->setCreatedTime(createdTime);
+void Manager::insertActualIndexIntoModifyCommand(unsigned long long& actualIndex) {
+	Command_Mod* tempCommand = (Command_Mod *) _cmd;
+	tempCommand->setCreatedTime(actualIndex);
 	return;
 }
 
-Task Manager::getPointerToChosenTask() const {
-	list<Task> tempList = this->_response.getList();
+Task Manager::getAffectedTask() const {
+	list<Task> tempList = _response.getList();
 	list<Task>::iterator it = tempList.begin();
-	advance(it,(this->_index-1));
+	advance(it,(_index-1));
 
 	return (*it);
 }
 
-unsigned long long Manager::getCreatedTimeOfTask(Task task) const {
-	unsigned long long createdTime = task.getIndex();
+unsigned long long Manager::getActualIndexOfTask() const {
+	Task chosenTask = getAffectedTask();
+	unsigned long long createdTime = chosenTask.getIndex();
 	return createdTime;
 }
 
 void Manager::storeIndexFromCommandToClassAttribute() {
 	assert(isModifyCommand() || isDeleteCommand());
 
-	switch (_cmd->getCommandType())
-	{
+	switch (_cmd->getCommandType()) {
 		case MOD:
 			{
 				Command_Mod* cmdTemp = (Command_Mod*) _cmd;
-				this->_index = cmdTemp->getIndex();
+				_index = cmdTemp->getIndex();
 				break;
 			}
 		case DEL:
 			{
 				Command_Del* cmdTemp = (Command_Del*) _cmd;
-				this->_index = cmdTemp->getIndex();
+				_index = cmdTemp->getIndex();
 				break;
 			}
 	}
 	return;
 }
 
-std::string Manager::createFindCommand(std::tm startTm, std::tm endTm)
-{
-	std::string startTmStr = getStrFromTm(startTm);
-	std::string endTmStr = getStrFromTm(endTm);
+string Manager::createFindCommand(tm startTm, tm endTm) {
+	string startTmStr = getStrFromTm(startTm);
+	string endTmStr = getStrFromTm(endTm);
 
 	return "find from `" + startTmStr + " midnight` to `" + endTmStr + " 11:59pm`";
 }
 
-std::string Manager::getStrFromTm(std::tm timeInfo)
-{
+string Manager::getStrFromTm(tm timeInfo) {
 	char todayCharArray [80];
 
 	strftime (todayCharArray,80,"%d/%m/%Y",&timeInfo);
@@ -433,8 +396,7 @@ std::string Manager::getStrFromTm(std::tm timeInfo)
 	return today;
 }
 
-std::tm Manager::getTodayTm()
-{
+tm Manager::getTodayTm() {
 	time_t rawtime;
 	struct tm * timeInfo;
 
@@ -445,212 +407,235 @@ std::tm Manager::getTodayTm()
 	return *timeInfo;
 }
 
-Messenger Manager::getTodayTasks() {
-	std::tm todayTm = getTodayTm();
-	std::tm nextDayTm = getNextDayTm(todayTm);
-	this->setCurrPeriod(todayTm,nextDayTm);
-
-	return this->processCommand("find from `today midnight` to `tomorrow midnight` undone");
-}
-
 bool Manager::hasInterpretationError() {
-	return !this->hasNoInterpretationError();
+	return !hasNoInterpretationError();
 }
 
 bool Manager::hasNoInterpretationError() {
-	if(this->hasNoError())
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	 return hasNoError();
 }
 
 bool Manager::hasNoError() {
-	if(this->_response.getStatus() == ERR || this->_response.getStatus() == ERR_INTER) {
+	if(_response.getStatus() == ERR || _response.getStatus() == ERR_INTER) {
 		return false;
 	}
-	else
-	{
+	else {
 		return true;
 	}
 }
 
-bool Manager::isSuccessfulCommand() {
-	if(this->_response.getStatus() == SUCCESS || this->_response.getStatus() == SUCCESS_INDEXED_COMMAND)
-	{
-		return true;
+bool Manager::isNotSuccessfulCommand() {
+	if(_response.getStatus() == SUCCESS || _response.getStatus() == SUCCESS_INDEXED_COMMAND) {
+		return false;
 	}
-	return false;
+	return true;
 }
 
 /*********************************************************/
 /************* NAVIGATION RELATED METHODS ****************/
 /*********************************************************/
 
+Messenger Manager::getTodayTasks() {
+	tm todayTm = getTodayTm();
+	tm nextDayTm = getNextDayTm(todayTm);
+	setCurrPeriod(todayTm,nextDayTm);
+
+	return processCommand("find from `today midnight` to `tomorrow midnight` undone");
+}
+
 Messenger Manager::getNextPeriodTasks(PERIOD_TYPE pType) {
-	std::tm currTm = _currentPeriod.second;
-	std::tm nextTm;
+	tm currTm = _currentPeriod.second;
+	tm nextTm = getNextTm(pType, currTm);
 
-	switch(pType)
-	{
-		case DAY:
-			nextTm = this->getNextDayTm(currTm);
-			break;
-		case WEEK:
-			nextTm = this->getNextWeekTm(currTm);
-			break;
-		case MONTH:
-			nextTm = this->getNextMonthTm(currTm);
-			break;
-	}
+	bool canAdvanceToNextPeriod = (mktime(&nextTm) != mktime(&currTm));
 
-	bool canAdvanceToNextPeriod = mktime(&nextTm) != mktime(&currTm);
 	if(canAdvanceToNextPeriod) {
-		this->setCurrPeriod(currTm,nextTm);
-		std::string command = this->createFindCommand(currTm,nextTm);
-		return this->processCommand(command);
+		setCurrPeriod(currTm,nextTm);
+		string command = createFindCommand(currTm,nextTm);
+		return processCommand(command);
 	}
 	else {
-		setResponseToError(MESSAGE_DATE_LIMIT_REACHED);
+		setResponseToError(ERR,MESSAGE_DATE_LIMIT_REACHED);
 		return _response;
 	}
 }
 
 Messenger Manager::getPrevPeriodTasks(PERIOD_TYPE pType) {
-	std::tm currTm = this->_currentPeriod.first;
-	std::tm prevTm;
-
-	switch(pType)
-	{
-		case DAY:
-			prevTm = this->getPrevDayTm(currTm);
-			break;
-		case WEEK:
-			prevTm = this->getPrevWeekTm(currTm);
-			break;
-		case MONTH:
-			prevTm = this->getPrevMonthTm(currTm);
-			break;
-	}
-
+	tm currTm = _currentPeriod.first;
+	tm prevTm = getPrevTm(pType, currTm);
 	bool canAdvanceToPrevPeriod = mktime(&prevTm) != mktime(&currTm);
+
 	if(canAdvanceToPrevPeriod) {
-		this->setCurrPeriod(prevTm, currTm);
-		std::string command = createFindCommand(prevTm, currTm);
-		return this->processCommand(command);
+		setCurrPeriod(prevTm, currTm);
+		string command = createFindCommand(prevTm, currTm);
+		return processCommand(command);
 	}
 	else {
-		setResponseToError(MESSAGE_DATE_LIMIT_REACHED);
+		setResponseToError(ERR,MESSAGE_DATE_LIMIT_REACHED);
 		return _response;
 	}
 }
 
-void Manager::setResponseToError(const string& message) {
-	this->_response.setStatus(ERR);
+void Manager::setResponseToError(const STATUS& status, const string& message) {
+	_response.setStatus(ERR);
+	_response.setErrorMsg(message);
 	return;
 }
 
-pair<tm,tm> Manager::getCurrentPeriod(){
+pair<tm,tm> Manager::getCurrentPeriod() {
 	return _currentPeriod;
 }
 
-std::tm Manager::getNextDayTm(std::tm currTm)
-{
-	std::time_t intermediateResult;
-	currTm.tm_mday += 1;
+tm Manager::getNextTm(const PERIOD_TYPE& pType, tm currTm) {
+	tm nextTm;
+	switch(pType) {
+		case DAY:
+			nextTm = getNextDayTm(currTm);
+			break;
+		case WEEK:
+			nextTm = getNextWeekTm(currTm);
+			break;
+		case MONTH:
+			nextTm = getNextMonthTm(currTm);
+			break;
+	}
+
+	return nextTm;
+}
+
+tm Manager::getNextDayTm(tm currTm) {
+	time_t intermediateResult;
+	currTm.tm_mday += DAY_UNIT_OF_TIME;
 
 	intermediateResult = mktime(&currTm);
 
-	if(currTm.tm_year == 200)
-	{
-		currTm.tm_mday -= 1;
+	if(currTm.tm_year == UPPER_END_OF_TIME) {
+		currTm.tm_mday -= DAY_UNIT_OF_TIME;
 		intermediateResult = mktime(&currTm);
 	}
 
 	return *localtime(&intermediateResult);
 }
 
-std::tm Manager::getNextWeekTm(std::tm currTm)
-{
-	std::time_t intermediateResult;
-	currTm.tm_mday += 7;
+tm Manager::getNextWeekTm(tm currTm) {
+	time_t intermediateResult;
+	currTm.tm_mday += WEEK_UNIT_OF_TIME;
 	intermediateResult = mktime(&currTm);
 
-	if(currTm.tm_year == 200)
-	{
-		currTm.tm_mday -= 7;
-		intermediateResult = mktime(&currTm);
-	}
-	
-	return *localtime(&intermediateResult);
-}
-
-std::tm Manager::getNextMonthTm(std::tm currTm)
-{
-	std::time_t intermediateResult;
-	currTm.tm_mon += 1;
-	intermediateResult = mktime(&currTm);
-	
-	if(currTm.tm_year == 200)
-	{
-		currTm.tm_mon -= 1;
-		intermediateResult = mktime(&currTm);
-	}
-
-	return *localtime(&intermediateResult);
-}
-
-std::tm Manager::getPrevDayTm(std::tm currTm)
-{
-	std::time_t intermediateResult;
-	currTm.tm_mday -= 1;
-
-	intermediateResult = mktime(&currTm);
-
-	if(currTm.tm_year == 70)
-	{
-		currTm.tm_mday += 1;
-		intermediateResult = mktime(&currTm);
-	}
-
-	return *localtime(&intermediateResult);
-}
-
-std::tm Manager::getPrevWeekTm(std::tm currTm)
-{
-	std::time_t intermediateResult;
-	currTm.tm_mday -= 7;
-	intermediateResult = mktime(&currTm);
-
-	if(currTm.tm_year == 70)
-	{
-		currTm.tm_mday += 7;
+	if(currTm.tm_year == UPPER_END_OF_TIME) {
+		currTm.tm_mday -= WEEK_UNIT_OF_TIME;
 		intermediateResult = mktime(&currTm);
 	}
 	
 	return *localtime(&intermediateResult);
 }
 
-std::tm Manager::getPrevMonthTm(std::tm currTm)
-{
-	std::time_t intermediateResult;
-	currTm.tm_mon -= 1;
+tm Manager::getNextMonthTm(tm currTm) {
+	time_t intermediateResult;
+	currTm.tm_mon += MONTH_UNIT_OF_TIME;
+	intermediateResult = mktime(&currTm);
+	
+	if(currTm.tm_year == UPPER_END_OF_TIME) {
+		currTm.tm_mon -= MONTH_UNIT_OF_TIME;
+		intermediateResult = mktime(&currTm);
+	}
+
+	return *localtime(&intermediateResult);
+}
+
+tm Manager::getPrevTm(const PERIOD_TYPE& pType, tm currTm) {
+	tm prevTm;
+	switch(pType) {
+		case DAY:
+			prevTm = getPrevDayTm(currTm);
+			break;
+		case WEEK:
+			prevTm = getPrevWeekTm(currTm);
+			break;
+		case MONTH:
+			prevTm = getPrevMonthTm(currTm);
+			break;
+	}
+	return prevTm;
+}
+
+tm Manager::getPrevDayTm(tm currTm) {
+	time_t intermediateResult;
+	currTm.tm_mday -= DAY_UNIT_OF_TIME;
+
 	intermediateResult = mktime(&currTm);
 
-	if(currTm.tm_year == 70)
-	{
-		currTm.tm_mon += 1;
-		currTm.tm_year = 70;
+	if(currTm.tm_year == LOWER_END_OF_TIME) {
+		currTm.tm_mday += DAY_UNIT_OF_TIME;
+		intermediateResult = mktime(&currTm);
+	}
+
+	return *localtime(&intermediateResult);
+}
+
+tm Manager::getPrevWeekTm(tm currTm) {
+	time_t intermediateResult;
+	currTm.tm_mday -= WEEK_UNIT_OF_TIME;
+	intermediateResult = mktime(&currTm);
+
+	if(currTm.tm_year == LOWER_END_OF_TIME) {
+		currTm.tm_mday += WEEK_UNIT_OF_TIME;
 		intermediateResult = mktime(&currTm);
 	}
 	
 	return *localtime(&intermediateResult);
 }
 
-void Manager::setCurrPeriod(std::tm startTm, std::tm endTm)
-{
-	this->_currentPeriod = pair<tm,tm>(startTm,endTm);
+tm Manager::getPrevMonthTm(tm currTm) {
+	time_t intermediateResult;
+	currTm.tm_mon -= MONTH_UNIT_OF_TIME;
+	intermediateResult = mktime(&currTm);
+
+	if(currTm.tm_year == LOWER_END_OF_TIME) {
+		currTm.tm_mon += MONTH_UNIT_OF_TIME;
+		intermediateResult = mktime(&currTm);
+	}
+	
+	return *localtime(&intermediateResult);
+}
+
+void Manager::setCurrPeriod(tm startTm, tm endTm) {
+	_currentPeriod = pair<tm,tm>(startTm,endTm);
+}
+
+//validators
+bool Manager::isDeleteCommand() {
+	return (_cmd->getCommandType() == DEL);
+}
+
+bool Manager::isModifyCommand() {
+	return (_cmd->getCommandType() == MOD);
+}
+
+Manager::~Manager() {
+	_storage->save(_taskDS);
+
+	if(_taskDS != NULL) {
+		delete _taskDS;
+		_taskDS = NULL;
+	}
+
+	if(_interpreter != NULL) {
+		delete _interpreter;
+		_interpreter = NULL;
+	}
+
+	if(_executor != NULL) {
+		delete _executor;
+		_executor = NULL;
+	}
+
+	if(_storage != NULL) {
+		delete _storage;
+		_storage = NULL;
+	}
+
+	removePreviousCommand				();
+	removeLastSuccessfulFindCommand		();
+	_response.resetMessenger			();
 }

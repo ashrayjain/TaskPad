@@ -164,3 +164,9 @@ TaskPad_exe/*.task
 Overall Architecture.png
 Storage.png
 *.orig
+UnitTest/Dependency/UnitTest.lib
+UnitTest/Dependency/UnitTest.exp
+UnitTest/Dependency/UnitTest.dll
+UnitTest/Dependency/TaskPadLog.txt
+UnitTest/Dependency/TaskPad.txt
+UnitTest/Dependency/UnitTest.bsc

@@ -18,10 +18,10 @@ using namespace std;
 using namespace TP;
 
 void Executor_Redo::executeCommand(Command* cmd, Messenger &response, Datastore &ds) {
-	if (ds.isRedoStackEmpty())
+	if (ds.nothingToRedo())
 		setErrorWithErrMsg(response, REDOSTACK_EMPTY_MSG);
 	else {
-		switch(ds.redoStackTop().first->getCommandType()) {
+		switch(ds.getNextRedoCmd().first->getCommandType()) {
 		case TP::COMMAND_TYPE::ADD:
 			_redoCommandToExecute = new Command_Add(); break;
 		case TP::COMMAND_TYPE::DEL:
@@ -29,8 +29,8 @@ void Executor_Redo::executeCommand(Command* cmd, Messenger &response, Datastore 
 		case TP::COMMAND_TYPE::MOD:
 			_redoCommandToExecute = new Command_Mod(); break;
 		};
-		*_redoCommandToExecute = *(ds.redoStackTop().first);
-		ds.popTopRedoStackToUndoStack();
+		*_redoCommandToExecute = *(ds.getNextRedoCmd().first);
+		ds.transferRedoCmdToUndo();
 	}
 }
 

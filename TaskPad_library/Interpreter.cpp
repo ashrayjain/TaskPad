@@ -30,9 +30,9 @@ const char NOTATION_ACCENT_GRACE='`';
 const int TOTAL_TEST_CASE=12;
 const int DUMMY_VALUE=-1;
 const int START_POSITION_VALUE=0;
-
+const int START_POSITION=0;
 enum COMMAND_CATEGORY{ADD_COMMAND,MOD_COMMAND,MOD_EXACT_COMMAND,MOD_INDEX_COMMAND,FIND_COMMAND,FIND_EXACT_COMMAND,DEL_COMMAND, 
-	DEL_EXACT_COMMAND, DEL_INDEX_COMMAND, UNDO_COMMAND,REDO_COMMAND,SYNC_COMMAND};
+	DEL_EXACT_COMMAND, DEL_INDEX_COMMAND, UNDO_COMMAND,REDO_COMMAND};
 
 
 
@@ -59,8 +59,6 @@ bool Interpreter::checkCommand(string command, int& commandType){
 
 	regex test_redo_command(COMMAND_REDO);
 
-	regex test_sync_command("^sync `([^`]+)`(\\s*)");
-
 
 	testlist[ADD_COMMAND]=regex_match(command,test_add_command);
 	testlist[MOD_COMMAND]=regex_match(command,test_mod_command);
@@ -73,7 +71,6 @@ bool Interpreter::checkCommand(string command, int& commandType){
 	testlist[DEL_INDEX_COMMAND]=regex_match(command,test_del_index_command);
 	testlist[UNDO_COMMAND]=regex_match(command,test_undo_command);
 	testlist[REDO_COMMAND]=regex_match(command,test_redo_command);
-	testlist[SYNC_COMMAND]=regex_match(command,test_sync_command);
 
 	for(int i=START_POSITION_VALUE;i<TOTAL_TEST_CASE && flag!=true;i++){
 		if(testlist[i]==true){
@@ -149,14 +146,41 @@ int Interpreter::interpretIndex(std::string indexStr, Messenger &response){
 
 }
 
+bool Interpreter::integerConverter(string& requiredString, int& number)
+{
+
+	bool flag=true;
+
+	if(requiredString.empty()==true){
+		flag=false;
+	}
+	else{
+		for(unsigned i=START_POSITION;i<requiredString.length();i++){
+			if(isdigit(requiredString[i])==false){
+				flag=false;
+			}
+		}
+	}
+	number=atoi(requiredString.c_str());
+	return flag;
+}
+
+
+int Interpreter:: getIndexMessage(string command,bool& flag){
+
+	int num;
+	flag=integerConverter(command, num);
+	return num;
+}	
+
 Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &response){
 
 	bool flag=true;
 	int commandType;
 
 	string word;
-	string timeFormatIssue;
-	Command* returnCommand = NULL;
+	string issueCollector;
+	Command* returnCommand;
 
 	flag=checkCommand(commandStr,commandType);
 
@@ -179,14 +203,14 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 				
 				try{
 				returnCommand=interpretAdd.interpretAdd(Add_pointer, commandStr, response,flag);
-				}catch(string timeFormatError){
-
-					timeFormatIssue=timeFormatError;
-			     
-					if(flag==false){	
-					delete Add_pointer;
-					returnCommand=NULL;
+				}catch(string errorMessage){
+	                 flag=false;					
+					 issueCollector=errorMessage;
+					 if(Add_pointer!=NULL){
+						delete Add_pointer;
 					}
+					returnCommand=NULL;
+				
 				
 				}
 				
@@ -205,12 +229,21 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 				getline(extractName,taskName,NOTATION_ACCENT_GRACE);
 				Mod_pointer->setName(taskName);
 
+				try{
 				returnCommand=interpretMod.interpretModify(Mod_pointer, commandStr, response,flag);
+				}catch(string errorMessage){
+
+					flag=false;					
+					issueCollector=errorMessage;
+			     					
+					if(Mod_pointer!=NULL){
+						delete Mod_pointer;
+					}
+					returnCommand=NULL;
 				
-				if(flag==false){
-				   delete Mod_pointer;
-				   returnCommand=NULL;
+				
 				}
+				
 				break;
 			}
 		
@@ -229,9 +262,18 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 				Mod_pointer->setName(taskName);
 
 
-
+				try{
 				returnCommand=interpretMod.interpretModify(Mod_pointer, commandStr, response,flag);
-
+				}catch(string errorMessage){
+					flag=false;					
+					issueCollector=errorMessage;
+					if(Mod_pointer!=NULL){
+						delete Mod_pointer;
+					}
+					returnCommand=NULL;
+				
+				
+				}
 				break;
 			}
 
@@ -248,17 +290,20 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 				extractIndex>>getIndex;
 				int index;
 
-				index=interpretMod.getIndexMessage(getIndex,flag);
+				index=getIndexMessage(getIndex,flag);
 				
 				Mod_pointer->setIndex(index);
 
+				try{
 				returnCommand=interpretMod.interpretModify(Mod_pointer, commandStr, response,flag);
-				if(flag==false){
-				
-				delete Mod_pointer;
-				returnCommand=NULL;
-				}
-				
+				}catch(string errorMessage){
+					flag=false;					
+					issueCollector=errorMessage;	
+					if(Mod_pointer!=NULL){
+						delete Mod_pointer;
+					}
+					returnCommand=NULL;				
+				}							
 				break;
 			}
 
@@ -269,8 +314,18 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 				Command_Find* Find_pointer=new Command_Find();
 				Interpreter_Find interpretFind;
 
-
+				try{
 				returnCommand=interpretFind.interpretFind(Find_pointer,commandStr, response,flag);
+				}catch(string errorMessage){
+					flag=false;					
+					issueCollector=errorMessage;					
+					if(Find_pointer!=NULL){
+						delete Find_pointer;
+					}
+					returnCommand=NULL;
+				
+				
+				}
 				break;
 			}
 
@@ -279,10 +334,19 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 
 				Command_Find* Find_pointer=new Command_Find();
 				Interpreter_Find interpretFind;
-
-
 				Find_pointer->setFlagExact();
+				
+				try{
 				returnCommand=interpretFind.interpretFind(Find_pointer,commandStr, response,flag);
+				}catch(string errorMessage){
+					flag=false;					
+					issueCollector=errorMessage;			    				
+					if(Find_pointer!=NULL){
+						delete Find_pointer;
+					}
+					returnCommand=NULL;						
+				}
+				
 				break;
 			}
 
@@ -291,8 +355,7 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 
 				Command_Del* Del_pointer=new Command_Del();
 				Interpreter_Delete interpretDel;
-				
-				
+								
 				returnCommand=interpretDel.interpretDelete(Del_pointer,commandStr, response,flag);
 				break;
 
@@ -300,7 +363,7 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 		case DEL_EXACT_COMMAND:
 			{
 				Command_Del* Del_pointer=new Command_Del();
-               Interpreter_Delete interpretDel;
+                Interpreter_Delete interpretDel;
 				
 				
 				Del_pointer->setFlagExact();
@@ -320,7 +383,7 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 				extractIndex>>commandStr;
 				int index;
 
-				index=interpretDel.getIndexMessage(commandStr,flag);
+				index=getIndexMessage(commandStr,flag);
 				
 				Del_pointer->setIndex(index);
 				response.setCommandType(DEL);
@@ -334,19 +397,14 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 			{
 				Command_Undo* Undo_pointer=new Command_Undo();
 				Interpreter_Undo interpretUndo;
-
 				returnCommand=interpretUndo.interpretUndo(Undo_pointer,commandStr, response,flag);
 				break;
 			}
-		case REDO_COMMAND:
-			{
+		case REDO_COMMAND:{
 				Command_Redo* Redo_pointer=new Command_Redo();
 				Interpreter_Redo interpretRedo;
-
 				returnCommand=interpretRedo.interpretRedo(Redo_pointer,commandStr, response,flag);
 				break;
-
-
 			}
 		default: flag=false;
 			break;
@@ -354,28 +412,20 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 
 	}
 	if(flag==false){
-
-		response.setStatus(ERR);
-		
-		if(!timeFormatIssue.empty()){
-		
-			response.setErrorMsg(timeFormatIssue);
-		
-		}
-		
+		response.setStatus(ERR);	
+		if(!issueCollector.empty()){	
+			response.setErrorMsg(issueCollector);	
+		}		
 		else{
-
 			response.setErrorMsg(ERROR_MSG);
 		}
-		return NULL;
+	   returnCommand=NULL;
 	}
 
 	else{
-
 		response.setStatus(SUCCESS);
-
-		return returnCommand;
 	}
+   return returnCommand;
 }
 
 

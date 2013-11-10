@@ -117,13 +117,13 @@ public:
 	bool							isIndexPresent				(unsigned long long indexToSearch);
 	std::list<Task>					getTasksWithHash			(std::string hash);
 	std::list<Task>					getTasksWithRemindTimes		(std::time_t remindTime);
-	void							stackCmdForUndo				(Command* cmd, Messenger &response);
-	bool							isUndoStackEmpty			() { return _undoStack.empty(); }
-	bool							isRedoStackEmpty			() { return _redoStack.empty(); }
-	std::pair<Command*, Task>		undoStackTop				() { return _undoStack.top();	}
-	std::pair<Command*, Task>		redoStackTop				() { return _redoStack.top();	}
-	void							popTopRedoStackToUndoStack	(); 
-	void							popTopUndoStackToRedoStack	();
+	void							addCmdForUndo				(Command* cmd, Messenger &response);
+	bool							nothingToUndo				() { return _undoStack.empty(); }
+	bool							nothingToRedo				() { return _redoStack.empty(); }
+	std::pair<Command*, Task>		getNextUndoCmd				() { return _undoStack.top();	}
+	std::pair<Command*, Task>		getNextRedoCmd				() { return _redoStack.top();	}
+	void							transferRedoCmdToUndo		(); 
+	void							transferUndoCmdToRedo		();
 
 	Datastore::const_iterator* cbeginPtr();
 	Datastore::const_iterator* cendPtr	();

@@ -53,7 +53,7 @@ namespace UnitTest
 			
 			auto fnptr = [&] {logger->log("tClass4","Fatal Msg",FATALLOG);};
 			tempStream << "FATALLOG: tClass4: Fatal Msg" << endl;
-			Microsoft::VisualStudio::CppUnitTestFramework::Assert::ExpectException<string>(fnptr);
+			Microsoft::VisualStudio::CppUnitTestFramework::Assert::ExpectException<FatalLogException>(fnptr);
 			Microsoft::VisualStudio::CppUnitTestFramework::Assert:: IsTrue(compareStreams(tempStream));
 
 			bool threwException = false;
@@ -61,10 +61,10 @@ namespace UnitTest
 			try
 			{
 				logger->log("tClass4","Fatal Msg",FATALLOG);
-			} catch(string e)
+			} catch(FatalLogException fle)
 			{
 				threwException = true;
-				exceptionString = e;
+				exceptionString = fle.what();
 			}
 
 			Microsoft::VisualStudio::CppUnitTestFramework::Assert::IsTrue(threwException);
@@ -81,23 +81,23 @@ namespace UnitTest
 			time_t rawTime = time(0);
 			tm curTimeTm;
 			localtime_s(&curTimeTm, &rawTime);
-			strftime(logTime, 10, "%A %d-%m-%Y, %T",&curTimeTm);
+			strftime(logTime, 40, "%d-%m-%Y",&curTimeTm);
 
 			return logTime;
 		}
 
 		bool compareStreams(stringstream& sTemp)
 		{
-			const std::string LOG_FILE_NAME = "..\\Debug\\TaskPadLog.txt";
+			const std::string LOG_FILE_NAME = "TaskPadLog.txt";
 			ifstream logFile(LOG_FILE_NAME);
 			stringstream fileBuf;
 
 			fileBuf << logFile.rdbuf();
 
 			// debugging code
-			//ofstream logFileTemp(LOG_FILE_NAME + "_temp.txt");
-			//logFileTemp << sTemp.str();
-			//logFileTemp.close();
+			ofstream logFileTemp(LOG_FILE_NAME + "_temp.txt");
+			logFileTemp << sTemp.str();
+			logFileTemp.close();
 
 			logFile.close();
 

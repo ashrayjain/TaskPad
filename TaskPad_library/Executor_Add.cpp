@@ -23,14 +23,14 @@ const unsigned			Executor_Add::RT_MIN_L_ARR[]				= {60};
 
 void Executor_Add::executeCommand(Command* cmd, Messenger &response, Datastore &ds) {
 	Command_Add* addCmd = dynamic_cast<Command_Add*>(cmd);
-	if(validAddCmd(addCmd, response)) {
+	if(isValidAddCmd(addCmd, response)) {
 		Task newTask = formTaskFromAddCmd(addCmd);
 		ds.addTask(newTask);
 		setOpSuccessTask(newTask, response);
 	}
 }
 
-bool Executor_Add::validAddCmd(Command_Add* cmd, Messenger &response) {
+bool Executor_Add::isValidAddCmd(Command_Add* cmd, Messenger &response) {
 	if (cmd->getFlagFrom() && cmd->getFlagTo() && cmd->getFromDate() > cmd->getToDate()) {
 		setErrorWithErrMsg(response, INVALID_FROMDATE_TODATE_ERROR);
 		return false;

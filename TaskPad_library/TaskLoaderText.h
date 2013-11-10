@@ -29,8 +29,7 @@
 
 class Logger;
 
-class TaskLoaderText :public TaskLoader
-{
+class TaskLoaderText :public TaskLoader {
 	public:
 		void load (const std::string& fileName);
 		TaskLoaderText(StorableTaskDatastore* taskDS);
@@ -80,4 +79,10 @@ class TaskLoaderText :public TaskLoader
 		time_t				getTimeFromString		(std::string attribute);
 		TP::PRIORITY		getPriorityFromString	(std::string attribute);
 		TP::TASK_STATE		getTaskStateFromString	(std::string attribute);
+
+
+		static const std::string FILTER_FOR_TASK_FILES;
+		static const std::string FILTER_FOR_DELETED_TASK_FILES;
+		static const std::string DEFAULT_KEY_VALUE_DELIMITER;
+		static const std::string DEFAULT_DATA_VALUE;
 };

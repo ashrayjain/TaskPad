@@ -17,6 +17,7 @@
 
 #include "ListItemDelegate.h"
 
+//@XIE KAI A0102016E
 const int ListItemDelegate::_1ST_COLUMN = 0;
 const int ListItemDelegate::_2ND_COLUMN = 1;
 const int ListItemDelegate::_3RD_COLUMN = 2;
@@ -30,6 +31,7 @@ ListItemDelegate::ListItemDelegate( TP::PRIORITY priority, TP::TASK_STATE state,
 	_taskPriority = priority;
 }
 
+//make the task align right, normally for the last column
 void ListItemDelegate::alignRight( const QModelIndex &index, QPainter * painter, QStyleOptionViewItemV4 &opt ) const{
 	const int DESIRED_FONT_SIZE = 15;
 	const int X_PT1 = 18, Y_PT1 = 0, X_PT2 = -18, Y_PT2 = -3;
@@ -46,6 +48,7 @@ void ListItemDelegate::alignRight( const QModelIndex &index, QPainter * painter,
 	painter->drawText(drawingRegion, displayText, alignment);
 }
 
+//paint a strike out, normally for the task name's column
 void ListItemDelegate::paintStrikeOut( QPainter * painter, QStyleOptionViewItemV4 &opt ) const{
 	const int X_PT1 = 5, Y_PT1 = 24, X_PT2 = -5, Y_PT2 = -24;
 
@@ -56,6 +59,7 @@ void ListItemDelegate::paintStrikeOut( QPainter * painter, QStyleOptionViewItemV
 	painter->drawRect(drawingRegion);
 }
 
+//paint a high priority bar at the left hand side corner, normally for the high priority task
 void ListItemDelegate::paintHighPrioBar( QPainter * painter, QStyleOptionViewItemV4 &opt ) const{
 	const int X_PT1 = -5, Y_PT1 = 0, X_PT2 = -52, Y_PT2 = -2;
 
@@ -66,6 +70,7 @@ void ListItemDelegate::paintHighPrioBar( QPainter * painter, QStyleOptionViewIte
 	painter->drawRect(drawingRegion);
 }
 
+//paint a "!!", normally for the overdue task
 void ListItemDelegate::paintForOverdue( QPainter * painter ) const{
 	const int DESIRED_FONT_SIZE = 18;
 	const int X_PT1 = 0, Y_PT1 = 0, X_PT2 = 0, Y_PT2 = -2;
@@ -82,6 +87,7 @@ void ListItemDelegate::paintForOverdue( QPainter * painter ) const{
 	painter->drawText(drawingRegion, displayTextForOVERDUE, alignment);
 }
 
+//paint a medium priority bar at the left hand side corner, normally for the medium priority task
 void ListItemDelegate::paintMediumPrioBar( QPainter * painter ) const{
 	const int X_PT1 = -5, Y_PT1 = 0, X_PT2 = -52, Y_PT2 = -2;
 
@@ -95,8 +101,11 @@ void ListItemDelegate::paintMediumPrioBar( QPainter * painter ) const{
 void ListItemDelegate::setupPainting( const QStyleOptionViewItem & option, const QModelIndex & index, QPainter * painter ) const{
 	_opt = option;
 	initStyleOption(&_opt, index);
+	
+	//make the dot-dot rectangle disappear, when select
 	if (_opt.state & QStyle::State_HasFocus)
 		_opt.state = _opt.state ^ QStyle::State_HasFocus;
+	//paint css's style first
 	QStyledItemDelegate::paint(painter, _opt, index);
 }
 
@@ -105,20 +114,15 @@ void ListItemDelegate::setupPainting( const QStyleOptionViewItem & option, const
 void ListItemDelegate::paint( QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index ) const{
 	setupPainting(option, index, painter);
 	painter->save();
-	if(index.column() == _1ST_COLUMN && _taskPriority == TP::HIGH){
+	if(index.column() == _1ST_COLUMN && _taskPriority == TP::HIGH)
 		paintHighPrioBar(painter, _opt);
-	}
-	else if(index.column() == _1ST_COLUMN && _taskPriority == TP::MEDIUM){
+	else if(index.column() == _1ST_COLUMN && _taskPriority == TP::MEDIUM)
 		paintMediumPrioBar(painter);
-	}
-	else if(index.column() == _2ND_COLUMN && _taskState == TP::DONE){
+	else if(index.column() == _2ND_COLUMN && _taskState == TP::DONE)
 		paintStrikeOut(painter, _opt);
-	}
-	else if(index.column() == _2ND_COLUMN && _taskState == TP::OVERDUE){
+	else if(index.column() == _2ND_COLUMN && _taskState == TP::OVERDUE)
 		paintForOverdue(painter);
-	}
-	else if(index.column() == _3RD_COLUMN){
+	else if(index.column() == _3RD_COLUMN)
 		alignRight(index, painter, _opt);
-	}
 	painter->restore();
 }

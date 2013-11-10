@@ -36,11 +36,6 @@ namespace UnitTest
 		testCommand=test.interpretCommand(case2,response);
 		Assert::AreEqual(2,(int)response.getStatus());
 		
-		string case3="add `ww` from `12/09/14` to `12/10/14`";
-		testCommand=test.interpretCommand(case3,response);
-		Assert::AreEqual(2,(int)response.getStatus());
-		
-		
 		string case4="add `ww` ppl `a,b,c` note `study`";
 		testCommand=test.interpretCommand(case4,response);
 		Assert::AreEqual(2,(int)response.getStatus());
@@ -58,19 +53,10 @@ namespace UnitTest
 		string case7="add `ww` note ``";
 		testCommand=test.interpretCommand(case7,response);
 		Assert::AreEqual(2,(int)response.getStatus());
-
-		// The third partition: error message. 
-		string case8="add `ww` due `12/12/13` from `11/09/2012`";
-		testCommand=test.interpretCommand(case8,response);
-		Assert::AreEqual(0,(int)response.getStatus());
-		
-		
 		
 		string case9="add `ww` at `nus` note `study";
 		testCommand=test.interpretCommand(case9,response);
 		Assert::AreEqual(0,(int)response.getStatus());
-		
-		
 		
 		string case10="add `ww``nus` note `study`";
 		testCommand=test.interpretCommand(case10,response);
@@ -93,10 +79,6 @@ namespace UnitTest
 		string case2="mod `ww` #qq #pp";
 		testCommand=test.interpretCommand(case2,response);
 		Assert::AreEqual(2,(int)response.getStatus());
-				
-		string case3="mod `ww` from `12/09/14` to `12/10/14`";
-		testCommand=test.interpretCommand(case3,response);
-		Assert::AreEqual(2,(int)response.getStatus());
 		
 		string case4="mod `ww` ppl `a,b,c` note `study`";
 		testCommand=test.interpretCommand(case4,response);
@@ -114,11 +96,6 @@ namespace UnitTest
 		string case7="mod `ww` note ``";
 		testCommand=test.interpretCommand(case7,response);
 		Assert::AreEqual(2,(int)response.getStatus());
-
-		// The third partition: error message. 
-		string case8="mod `ww` due `12/12/13` from `11/09/2012`";
-		testCommand=test.interpretCommand(case8,response);
-		Assert::AreEqual(0,(int)response.getStatus());
 		
 		string case9="mod `ww` at `nus` note `study";
 		testCommand=test.interpretCommand(case9,response);
@@ -134,16 +111,6 @@ namespace UnitTest
 		 string case11 = "mod -1 name `pp`";
 	     testCommand=test.interpretCommand(case11,response);
 		 Assert::AreEqual(0,(int)response.getStatus());
-		 
-		 string case12 = "mod 10 name `qq` from `12/10` to `12/9`";
-		 testCommand=test.interpretCommand(case12,response);
-		 Assert::AreEqual(0,(int)response.getStatus());
-		 
-		 string case13 = "mod 10 due `121212121`";
-		 testCommand=test.interpretCommand(case13,response);
-		 Assert::AreEqual(0,(int)response.getStatus());
-		
-		
 		
 		}
 

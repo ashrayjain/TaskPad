@@ -18,7 +18,7 @@ namespace UnitTest
 	public:
 		TEST_METHOD_INITIALIZE(Generate_Test_Data)
 		{
-			//data.clear();
+			Task::flushAllIndices();
 			
 			time_t now = time(NULL);
 
@@ -57,14 +57,12 @@ namespace UnitTest
 			ds.addTask(testTask_3);
 			//data.push_back(testTask_3);
 		}
-		/*
+		
 		TEST_METHOD_CLEANUP(Clean_Up)
 		{
-			ds.deleteTask(0);
-			ds.deleteTask(0);
-			ds.deleteTask(0);
+			while(ds.size()!=0)
+				ds.deleteTask(0);
 		}
-		*/
 
 		TEST_METHOD(Execute_Add_Command_Test)
 		{
@@ -72,10 +70,9 @@ namespace UnitTest
 			Command* testCmd = new Command_Add();
 			Command_Add* testAddCmd = dynamic_cast<Command_Add*>(testCmd);
 			time_t now = time(NULL);
-			Datastore s;
 			Executor testExecutor(ds);
 			Messenger testResponse;
-			/*
+			
 			testAddCmd->setName("Test Task");
 			testAddCmd->setDueDate(now + 864000);
 			testAddCmd->setLocation("Someplace");
@@ -89,17 +86,16 @@ namespace UnitTest
 
 			Datastore::const_iterator i = ds.cend();
 			i--;
-			//string name = i->getName();
-			//Assert::IsTrue(string("Test Task") == i->getName());
-			//Assert::IsTrue((now + 864000) == i->getDueDate());
-			//Assert::IsTrue(string("Someplace") == i->getLocation());
-			//Assert::IsTrue(string("This is a sample note!") == i->getNote());
-			//Assert::IsTrue(list<string>(1, "#testhashtag") == i->getTags());
-			//Assert::IsTrue(list<string>(5, "Participant X") == i->getParticipants());
-			//Assert::IsTrue(TP::PRIORITY::HIGH == i->getPriority());
-			//Assert::IsTrue(list<time_t>(1, now + 432000) == i->getRemindTimes());
+			Assert::IsTrue(string("Test Task") == i->getName());
+			Assert::IsTrue((now + 864000) == i->getDueDate());
+			Assert::IsTrue(string("Someplace") == i->getLocation());
+			Assert::IsTrue(string("This is a sample note!") == i->getNote());
+			Assert::IsTrue(list<string>(1, "#testhashtag") == i->getTags());
+			Assert::IsTrue(list<string>(5, "Participant X") == i->getParticipants());
+			Assert::IsTrue(TP::PRIORITY::HIGH == i->getPriority());
+			Assert::IsTrue(list<time_t>(1, now + 432000) == i->getRemindTimes());
 			delete testCmd;
-			*/
+			
 		}
 
 		TEST_METHOD(Execute_Del_Command_Test)
@@ -232,6 +228,64 @@ namespace UnitTest
 			delete testCmd_2;
 			delete testCmd_3;
 			delete testCmd_4;
+		}
+		
+		TEST_METHOD(Execute_Undo_Redo_Command_Test)
+		{
+			Command* testCmd = new Command_Add();
+			Command_Add* testAddCmd = dynamic_cast<Command_Add*>(testCmd);
+			time_t now = time(NULL);
+			Executor testExecutor(ds);
+			Messenger testResponse;
+			
+			testAddCmd->setName("Test Task");
+			testAddCmd->setDueDate(now + 864000);
+			testAddCmd->setLocation("Someplace");
+			testAddCmd->setNote("This is a sample note!");
+			testAddCmd->setTags(list<string>(1, "#testhashtag"));
+			testAddCmd->setParticipants(list<string>(5, "Participant X"));
+			testAddCmd->setPriority(TP::PRIORITY::HIGH);
+			testAddCmd->setRemindTimes(list<time_t>(1, now + 432000));
+			
+			testExecutor.executeCommand(testCmd, testResponse);
+			delete testCmd;
+			
+			testCmd = new Command_Undo();
+			Command_Undo* testUndoCmd = dynamic_cast<Command_Undo*>(testCmd);
+			testExecutor.executeCommand(testCmd, testResponse);
+			delete testCmd;
+
+			testCmd = new Command_Find();
+			Command_Find* testFindCmd = dynamic_cast<Command_Find*>(testCmd);
+
+			testFindCmd->setOptName("Test Task");
+			testFindCmd->setFlagExact();
+
+			testExecutor.executeCommand(testCmd, testResponse);
+			Assert::IsTrue(0 == testResponse.getList().size());
+			delete testCmd;
+
+			testCmd = new Command_Redo();
+			Command_Redo* testRedoCmd = dynamic_cast<Command_Redo*>(testCmd);
+			testExecutor.executeCommand(testCmd, testResponse);
+			delete testCmd;
+
+			testCmd = new Command_Find();
+			testFindCmd = dynamic_cast<Command_Find*>(testCmd);
+
+			testFindCmd->setOptName("Test Task");
+			testFindCmd->setFlagExact();
+
+			testExecutor.executeCommand(testCmd, testResponse);
+			Assert::IsTrue(1 == testResponse.getList().size());
+			delete testCmd;
+
+			Command* testCmd_2 = new Command_Del();
+			Command_Del* testDelCmd_2 = dynamic_cast<Command_Del*>(testCmd_2);
+			testDelCmd_2->setName("Test Task 1");
+			testExecutor.executeCommand(testCmd_2, testResponse);
+			
+			delete testCmd_2;
 		}
 	};
 }

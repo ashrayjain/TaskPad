@@ -83,5 +83,8 @@ class TaskSaverText: public TaskSaver
 
 		//writers
 		void writeLineToFile			(std::string line, bool newLine = true);
+
+		//validation helper
+		bool isSaveableCommandType		(TP::COMMAND_TYPE cType);
 };
 #endif
