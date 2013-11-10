@@ -39,8 +39,8 @@ const string TaskLoaderText::DEFAULT_KEY_VALUE_DELIMITER		= " ";
 const string TaskLoaderText::DEFAULT_DATA_VALUE					= "";
 
 TaskLoaderText::TaskLoaderText(StorableTaskDatastore* taskDB) {
-	this->_logger = Logger::getLogger();
-	this->_taskDB = taskDB;
+	_logger = Logger::getLogger();
+	_taskDB = taskDB;
 }
 
 /****************************************************/
@@ -48,11 +48,11 @@ TaskLoaderText::TaskLoaderText(StorableTaskDatastore* taskDB) {
 /****************************************************/
 
 void TaskLoaderText::load (const string& fileName) {
-	this->recoverUnsavedChanges();
+	recoverUnsavedChanges();
 
-	this->openFile(fileName);
-	this->loadTaskDB();
-	this->closeFile();
+	openFile(fileName);
+	loadTaskDB();
+	closeFile();
 	return;
 }
 
@@ -61,8 +61,8 @@ void TaskLoaderText::load (const string& fileName) {
 /****************************************************/
 
 void TaskLoaderText::recoverUnsavedChanges() {
-	this->loadDeletedIndices();
-	this->loadModifiedTasks();
+	loadDeletedIndices();
+	loadModifiedTasks();
 }
 
 void TaskLoaderText::loadDeletedIndices() {
@@ -89,7 +89,7 @@ void TaskLoaderText::loadDeletedIndices() {
 		nextTaskIndexStr = getNextLineFromFile();
 		closeFile();
 
-		this->recoveredDeletedIndices.insert(nextTaskIndexStr);
+		recoveredDeletedIndices.insert(nextTaskIndexStr);
 		_logger->log("TaskLoaderText","reading deleted tasks file: " + nextTaskIndexStr,NOTICELOG);
 
 		taskFilesIt++;
@@ -116,12 +116,12 @@ void TaskLoaderText::loadModifiedTasks() {
 		nextTaskFile = temp.filePath(*taskFilesIt).toUtf8().constData();
 		_logger->log("TaskLoaderText","found task file: "+nextTaskFile,NOTICELOG);
 
-		this->openFile(nextTaskFile);
+		openFile(nextTaskFile);
 
-		nextTask = this->getNextTask();
+		nextTask = getNextTask();
 		validateAndAddTaskToList(nextTask);
 
-		this->closeFile();
+		closeFile();
 
 		taskFilesIt++;
 	}
@@ -136,9 +136,9 @@ void TaskLoaderText::loadTaskDB() {
 	_logger->log("TaskLoaderText","entering loadTaskList");
 
 	while(_fileReader.good() && hasNextTask()) {
-		Task nextTask = this->getNextTask();
+		Task nextTask = getNextTask();
 		validateAndAddTaskToList(nextTask);
-		this->getNextLineFromFile();
+		getNextLineFromFile();
 	}
 	return;
 }
@@ -222,7 +222,7 @@ bool TaskLoaderText::validateAndCreateTask (Task& newTask, const std::string& ne
 
 	if(taskHasBeenDeleted) {
 		_logger->log("TaskLoaderText","deleted task found: " + newData, NOTICELOG);
-		this->skipThisTask();
+		skipThisTask();
 		newTask = Task();
 		return false;
 	}
