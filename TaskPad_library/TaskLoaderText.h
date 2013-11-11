@@ -46,7 +46,7 @@ class TaskLoaderText :public TaskLoader {
 		void validateAndAddTaskToList	(const Task& nextTask);
 
 		//loader
-		void loadTaskDB					();
+		void loadTaskDS					();
 
 		//helper functions
 		std::string			getNewLabel				(std::string);

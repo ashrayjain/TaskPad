@@ -56,5 +56,8 @@
     <ClCompile Include="Storage_Datastore_stub.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="test_TaskLoaderText.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

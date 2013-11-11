@@ -38,9 +38,9 @@ const string TaskLoaderText::FILTER_FOR_DELETED_TASK_FILES		= "*.deltask";
 const string TaskLoaderText::DEFAULT_KEY_VALUE_DELIMITER		= " ";
 const string TaskLoaderText::DEFAULT_DATA_VALUE					= "";
 
-TaskLoaderText::TaskLoaderText(StorableTaskDatastore* taskDB) {
+TaskLoaderText::TaskLoaderText(StorableTaskDatastore* taskDS) {
 	_logger = Logger::getLogger();
-	_taskDB = taskDB;
+	_taskDS = taskDS;
 }
 
 /****************************************************/
@@ -51,7 +51,7 @@ void TaskLoaderText::load (const string& fileName) {
 	recoverUnsavedChanges();
 
 	openFile(fileName);
-	loadTaskDB();
+	loadTaskDS();
 	closeFile();
 	return;
 }
@@ -132,7 +132,7 @@ void TaskLoaderText::loadModifiedTasks() {
 /************** Private Load Method *****************/
 /****************************************************/
 
-void TaskLoaderText::loadTaskDB() {
+void TaskLoaderText::loadTaskDS() {
 	_logger->log("TaskLoaderText","entering loadTaskList");
 
 	while(_fileReader.good() && hasNextTask()) {
@@ -146,7 +146,7 @@ void TaskLoaderText::loadTaskDB() {
 void TaskLoaderText::validateAndAddTaskToList(const Task& nextTask) {
 	string taskFilePath = getTaskFilePath(nextTask);
 	if(nextTask.getFlagIndex()) {
-		_taskDB->addTask(nextTask);
+		_taskDS->addTask(nextTask);
 		_logger->log("TaskLoaderText","created proper task from "+taskFilePath,NOTICELOG);
 	}
 	else {

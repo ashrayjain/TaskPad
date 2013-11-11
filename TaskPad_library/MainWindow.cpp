@@ -24,6 +24,7 @@
 #include <cassert>
 #include "CommandBar.h"
 #include "Enum.h"
+#include "Logger.h"
 #include "libqxt/qxtglobalshortcut.h"
 #include "ListItemDelegate.h"
 #include "QuickAddWindow.h"
@@ -83,6 +84,8 @@ const char* MainWindow::ERROR_ONLY_SUPPORT_ADD_N_DISPLAY_ONE_CMD = "Only Add Com
 
 MainWindow::MainWindow(QWidget *parent)
 :QMainWindow(parent){
+	logStart();
+
 	setupUI();
 	setupDependency();
 	getToday();
@@ -254,6 +257,7 @@ void MainWindow::setupQuickAddConnection(){
 /************************************************************************/
 
 MainWindow::~MainWindow(){
+	logEnd();
 	dispose();
 }
 
@@ -383,6 +387,8 @@ void MainWindow::about(){
 
 void MainWindow::help(){
 	const QString HOTKEY_LIST = \
+		"<b>Commands</b><br />"
+		"add, mod, del, find, undo, redo<br /><br />"
 		"<b>Global Hotkeys</b><br />"
 		"Alt + ` 			        : open quick add window<br />"
 		"Ctrl + Alt + T 		    : open main window<br />"
@@ -440,6 +446,8 @@ void MainWindow::popMsgBox(QString title, QString description){
 
 void MainWindow::getToday(){
 	reset();
+	//cannot be in the Intermediate stage
+	assert(!isIntermediateStage);
 	Messenger msg = scheduler->getTodayTasks();
 	handleGetToday(msg);
 }
@@ -447,6 +455,8 @@ void MainWindow::getToday(){
 void MainWindow::getInbox(){
 	const char* GET_INBOX_CMD_STR = "find floating undone";
 	reset();
+	//cannot be in the Intermediate stage
+	assert(!isIntermediateStage);
 	Messenger msg = scheduler->processCommand(GET_INBOX_CMD_STR);
 	handleGetInbox(msg);
 }
@@ -546,6 +556,8 @@ bool MainWindow::isEqualOne(QString &requestStr){
 void MainWindow::handleShowReminder(){
 	if(isFromReminder){
 		reset();
+		//cannot be in the Intermediate stage
+		assert(!isIntermediateStage);
 		string findCurrRtTasks = getFindRtCmd();
 		Messenger msg = scheduler->processCommand(findCurrRtTasks);
 		updateMainView(msg, REMINDERS_VIEW);
@@ -1318,4 +1330,18 @@ void MainWindow::handleKeyEnter(){
 		Messenger msg = scheduler->processCommand(inputStdString);
 		handleMessenger(msg);
 	}
+}
+
+void MainWindow::logStart(){
+	const char* MAINWINDOW_NAME = "MainWindow";
+	const char* START_INFO = "UI starts";
+	::Logger* logger = ::Logger::getLogger();
+	logger->log(MAINWINDOW_NAME, START_INFO, INFOLOG);
+}
+
+void MainWindow::logEnd(){
+	const char* MAINWINDOW_NAME = "MainWindow";
+	const char* END_INFO = "UI ends";
+	::Logger* logger = ::Logger::getLogger();
+	logger->log(MAINWINDOW_NAME, END_INFO, INFOLOG);
 }

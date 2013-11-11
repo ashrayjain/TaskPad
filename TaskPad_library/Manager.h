@@ -126,6 +126,13 @@ class Manager {
 		static const std::string MESSAGE_ERROR_UNEXPECTED_COMMAND_TYPE_WITH_INDEX;
 		static const std::string MESSAGE_DATE_LIMIT_REACHED;
 		static const std::string MESSAGE_INDEX_NOT_GIVEN;
+
+		// generated commands and components
+		static const std::string FIND_TODAY_TASKS_COMMAND;
+
+		//class name for logging
+		static const std::string CLASS_NAME;
+
 		static const int		 LOWER_END_OF_TIME;
 		static const int		 UPPER_END_OF_TIME;
 		static const int		 DAY_UNIT_OF_TIME;

@@ -32,10 +32,14 @@
 using namespace TP;
 using namespace std;
 
+const string Manager::CLASS_NAME = "Manager";
+
 const string Manager::MESSAGE_INDEX_OUT_OF_RANGE						= "Given index is out of range!";
 const string Manager::MESSAGE_ERROR_UNEXPECTED_COMMAND_TYPE_WITH_INDEX	= "Unexpected Command with index!";
 const string Manager::MESSAGE_DATE_LIMIT_REACHED						= "We have reached the end of time!";
 const string Manager::MESSAGE_INDEX_NOT_GIVEN							= "Please provide an index!";
+
+const string Manager::FIND_TODAY_TASKS_COMMAND	= "find from `today midnight` to `today 23:59` undone";
 
 const int	 Manager::LOWER_END_OF_TIME									= 70;
 const int	 Manager::UPPER_END_OF_TIME									= 200;
@@ -47,22 +51,24 @@ const int	 Manager::MONTH_UNIT_OF_TIME								= 1;
 Manager::Manager() {
 	_taskDS					= new Datastore;
 	_logger					= Logger::getLogger();
-	_storage					= new Storage(_taskDS);
-	_executor					= new Executor(*_taskDS);
-	_interpreter				= new Interpreter;
-	_response					= Messenger();
-	_cmd						= NULL;
+	_storage				= new Storage(_taskDS);
+	_executor				= new Executor(*_taskDS);
+	_interpreter			= new Interpreter;
+	_response				= Messenger();
+	_cmd					= NULL;
 	_lastSuccessfulFindCmd	= NULL;
 }
 
 Messenger Manager::refreshList() {
-	_logger->log("Manager", "entering refreshList()");
+	_logger->log(CLASS_NAME, "entering refreshList()");
+
 	_executor->executeCommand(_lastSuccessfulFindCmd,_response);
 	return _response;
 }
 
 list<Task> Manager::getCurrentReminders	() {
-	_logger->log("Manager", "entering getCurrentReminders()");
+	_logger->log(CLASS_NAME, "entering getCurrentReminders()");
+
 	return _executor->getCurrentReminders();
 }
 
@@ -75,6 +81,8 @@ void Manager::syncTask (const Task& task) {
 }
 
 void Manager::resetStatus() {
+	_logger->log(CLASS_NAME, "entering resetStatus()", NOTICELOG);
+
 	removePreviousCommand();
 	removeLastSuccessfulFindCommand();
 	_currentPeriod = pair<tm,tm>();
@@ -85,7 +93,7 @@ void Manager::resetStatus() {
 }
 
 Messenger Manager::processCommand(const string& newCommand) {
-	_logger->log("Manager", "processing Command");
+	_logger->log(CLASS_NAME, "processing Command");
 
 	switch(_response.getStatus()) {
 		case INTERMEDIATE:
@@ -100,7 +108,7 @@ Messenger Manager::processCommand(const string& newCommand) {
 	}
 	saveChanges();
 
-	_logger -> log("Mananger", "leaving processCommand() \n");
+	_logger -> log(CLASS_NAME, "leaving processCommand() \n");
 	return _response;
 }
 
@@ -112,7 +120,7 @@ void Manager::saveChanges()
 {
 	if(isNotSuccessfulCommand()) return;
 
-	_logger->log("Manager","saving changes");
+	_logger->log(CLASS_NAME,"saving changes");
 
 	switch(_cmd->getCommandType()) {
 		case ADD:
@@ -172,19 +180,19 @@ void Manager::removeLastSuccessfulFindCommand() {
  *
 */
 void Manager::handleNormalScenarioCommands(string newCommand) {
-	_logger->log("Manager","handling normal scenario command");
+	_logger->log(CLASS_NAME,"handling normal scenario command");
 	if(isIndexGiven(newCommand)) {
-		_logger->log("Manager","index given by user",NOTICELOG);
+		_logger->log(CLASS_NAME,"index given by user",NOTICELOG);
 		handleShowCommand();
 	}
 	else if (isCommandWithIndexGiven(newCommand)) {
-		_logger->log("Manager","command with index given by user",NOTICELOG);
+		_logger->log(CLASS_NAME,"command with index given by user",NOTICELOG);
 		storeIndexFromCommandToClassAttribute();
 		handleCommandWithIndex();
 	}
 	else  {
 	// a generic command and has already been interpreted by isCommandWithIndexGiven() above
-		_logger->log("Manager","generic command given by user",NOTICELOG);
+		_logger->log(CLASS_NAME,"generic command given by user",NOTICELOG);
 		handleGenericCommand();
 	}
 	return;
@@ -446,7 +454,7 @@ Messenger Manager::getTodayTasks() {
 	tm nextDayTm = getNextDayTm(todayTm);
 	setCurrPeriod(todayTm,nextDayTm);
 
-	return processCommand("find from `today midnight` to `tomorrow midnight` undone");
+	return processCommand(FIND_TODAY_TASKS_COMMAND);
 }
 
 Messenger Manager::getNextPeriodTasks(PERIOD_TYPE pType) {
