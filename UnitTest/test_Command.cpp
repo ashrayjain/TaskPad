@@ -5,37 +5,40 @@
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 using namespace std;
 
-namespace UnitTest
-{		
-	TEST_CLASS(test_Command)
-	{
+namespace UnitTest{		
+	TEST_CLASS(test_Command){
 	public:
 		
-		TEST_METHOD(cmd_Add)
-		{
-			//TC0: Command_Add --> Command
-			Command_Add* cmd_add_interpreter = new Command_Add();
-			cmd_add_interpreter->setName("FML 2014");//compulsory field
-			cmd_add_interpreter->setDueDate(time(NULL));
-			Command* cmd = cmd_add_interpreter;//to return
+		//@XIE KAI A0102016E
+		TEST_METHOD(cmd_Add){
+			const char* BEST_NAME_EVER = "FML 2014";
+
+			//TC0: Command_Add converts to Command
+			//Assume it happens in Interpreter
+			Command_Add* cmdAddInInterpreter = new Command_Add();
+			//compulsory field
+			cmdAddInInterpreter->setName(BEST_NAME_EVER);
+			cmdAddInInterpreter->setDueDate(time(NULL));
+			//to return by Interpreter
+			Command* cmd = cmdAddInInterpreter;
 			Assert::AreEqual(static_cast<int>(TP::ADD), static_cast<int>(cmd->getCommandType()));
 
-			//TC1: Command --> Command_Add
-			Command_Add* cmd_add_executor;
+			//TC1: Command converts back to Command_Add
+			//Assume it happens in Executor
+			Command_Add* cmdAddInExecutor;
 			bool isDueDateSet = false;
 			if( cmd->getCommandType() == TP::ADD )
-				cmd_add_executor = dynamic_cast<Command_Add*>(cmd);
-			if( cmd_add_executor->getFlagDue() )
+				cmdAddInExecutor = dynamic_cast<Command_Add*>(cmd);
+			if( cmdAddInExecutor->getFlagDue() )
 				isDueDateSet = true;
 			Assert::AreEqual(true, isDueDateSet);
-			Assert::AreEqual((string)"FML 2014", cmd_add_executor->getName());
+			Assert::AreEqual((string)BEST_NAME_EVER, cmdAddInExecutor->getName());
 			
 			delete cmd;
 		}
 
-		TEST_METHOD(cmd_Modify)
-		{
-			//TC0
+		TEST_METHOD(cmd_Modify){
+			//TC0 test Priority
 			Command* cmd = new Command_Mod();
 			Assert::AreEqual(static_cast<int>(TP::MOD), static_cast<int>(cmd->getCommandType()));
 			
@@ -46,26 +49,35 @@ namespace UnitTest
 			delete cmd;
 		}
 
-		TEST_METHOD(cmd_Delete)
-		{
-			//TC0
+		TEST_METHOD(cmd_Delete){
+			//TC0 test Exact Flag
 			Command* cmd = new Command_Del();
 			Assert::AreEqual(static_cast<int>(TP::DEL), static_cast<int>(cmd->getCommandType()));
 
+			Command_Del* cmd_del = dynamic_cast<Command_Del*>(cmd);
+			cmd_del->setFlagExact();
+			Assert::AreEqual(cmd_del->getFlagExact(), true);
+
 			delete cmd;
 		}
 
-		TEST_METHOD(cmd_Find)
-		{
-			//TC0
+		TEST_METHOD(cmd_Find){
+			//TC0 test From and To date
 			Command* cmd = new Command_Find();
 			Assert::AreEqual(static_cast<int>(TP::FIND), static_cast<int>(cmd->getCommandType()));
 
+			Command_Find* cmd_find = dynamic_cast<Command_Find*>(cmd);
+			time_t currTime = time(NULL);
+			cmd_find->setFromDate(currTime);
+			cmd_find->setToDate(currTime);
+			Assert::IsTrue(cmd_find->getFromDate() == cmd_find->getToDate());
+			Assert::IsTrue(cmd_find->getFlagFrom());
+			Assert::IsTrue(cmd_find->getFlagTo());
+
 			delete cmd;
 		}
 
-		TEST_METHOD(cmd_Undo)
-		{
+		TEST_METHOD(cmd_Undo){
 			//TC0
 			Command* cmd = new Command_Undo();
 			Assert::AreEqual(static_cast<int>(TP::UNDO), static_cast<int>(cmd->getCommandType()));
@@ -73,8 +85,7 @@ namespace UnitTest
 			delete cmd;
 		}
 
-		TEST_METHOD(cmd_Redo)
-		{
+		TEST_METHOD(cmd_Redo){
 			//TC0
 			Command* cmd = new Command_Redo();
 			Assert::AreEqual(static_cast<int>(TP::REDO), static_cast<int>(cmd->getCommandType()));
@@ -82,12 +93,13 @@ namespace UnitTest
 			delete cmd;
 		}
 
-		TEST_METHOD(cmd_Show) {
+		//@Thyagesh A0100124J
+		TEST_METHOD(cmd_Show){
 			int testInt = 0;
 			Command* cmd = new Command_Show();
 			Assert::AreEqual(static_cast<int>(TP::SHOW), static_cast<int>(cmd->getCommandType()));
 
-			Command_Show* cmd_show = dynamic_cast<Command_Show*> (cmd);
+			Command_Show* cmd_show = dynamic_cast<Command_Show*>(cmd);
 
 			Assert::IsFalse(cmd_show->getFlagIndex());
 
