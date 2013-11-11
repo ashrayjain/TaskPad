@@ -128,9 +128,7 @@ bool Interpreter_base::getDueDateMessage(string command, bool&isSuccessful, time
 	}
 
 	if(!field.empty()){
-
 		extractQuotedMessage(field, quotedMessage);
-
 		if(!quotedMessage.empty()){
 			bool isDue=true;
 			content=setTime(quotedMessage,isSuccessful,isDue);
@@ -316,13 +314,13 @@ bool Interpreter_base::getPriorityMessage(string command, bool& isSuccessful, TP
 		if(QuotedMessage.empty())isNotEmpty=false;
 		if(isNotEmpty){
 			UpperContent=toUpper(QuotedMessage);
-			if(UpperContent==PRIORITY_HIGH_ABBREV ||UpperContent==PRIORITY_HIGH_FULL){
+			if(UpperContent==PRIORITY_HIGH_ABBREV || UpperContent==PRIORITY_HIGH_FULL){
 				priority=HIGH;
 			}
 			else if(UpperContent==PRIORITY_MEDIUM_ABBREV || UpperContent==PRIORITY_MEDIUM_FULL){
 				priority=MEDIUM;
 			}
-			else if(UpperContent==PRIORITY_LOW_ABBREV||UpperContent==PRIORITY_LOW_FULL){
+			else if(UpperContent==PRIORITY_LOW_ABBREV || UpperContent==PRIORITY_LOW_FULL){
 				priority=LOW;
 			}
 			else {
@@ -855,7 +853,6 @@ bool Interpreter_base::checkDuplicate(string command, string field,int startPosi
 }
 //@LI ZIXUAN A0096582R
 bool Interpreter_base::extractField(string command, smatch &match, regex extractTemplate, string&field){
-
 	bool isSuccessful=false;
 
 	if (regex_search(command, match, extractTemplate)){
