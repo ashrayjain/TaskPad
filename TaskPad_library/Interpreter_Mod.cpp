@@ -21,8 +21,8 @@ using namespace std;
 using namespace TP;
 
 //AN JIANGZE (FUNCTIONALITY) LI ZIXUAN (REFACTORING)
-//@AN JIANGZE A0105729A 
-//@LI ZIXUAN  A0096582R
+// @author A0105729A 
+// @author  A0096582R
 Command* Interpreter_Mod ::interpretModify(Command_Mod* commandType, string commandStr, Messenger &response, bool &flag){
 
 	PRIORITY		contentPriority;

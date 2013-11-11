@@ -21,8 +21,7 @@ using namespace std;
 using namespace TP;
 
 //AN JIANGZE (FUNCTIONALITY) LI ZIXUAN (REFACTORING)
-//@AN JIANGZE A0105729A 
-//@LI ZIXUAN  A0096582R
+// @author A0105729A 
 Command* Interpreter_Undo::interpretUndo(Command_Undo*commandType,string commandStr, Messenger &response, bool &flag){
 	response.setCommandType(UNDO);
 	response.setStatus(SUCCESS);

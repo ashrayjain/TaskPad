@@ -47,7 +47,7 @@ const int	 Manager::DAY_UNIT_OF_TIME									= 1;
 const int	 Manager::WEEK_UNIT_OF_TIME									= 7;
 const int	 Manager::MONTH_UNIT_OF_TIME								= 1;
 
-//@Manikandan Thyagesh A0100124J
+// @author A0100124J
 Manager::Manager() {
 	_taskDS					= new Datastore;
 	_logger					= Logger::getLogger();

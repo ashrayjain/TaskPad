@@ -16,7 +16,7 @@
 
 using namespace std;
 
-//@ASHRAY JAIN A0105199B
+// @author A0105199B
 
 set<unsigned long long>				Task::listOfAllIndices;
 

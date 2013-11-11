@@ -20,7 +20,7 @@
 #include <QMimeData>
 #include "Highlighter.h"
 
-//@XIE KAI A0102016E
+// @author A0102016E
 const int CommandBar::TOO_LONG		= 777;
 const int CommandBar::MAX_LENGTH	= 777;
 const QStringList CommandBar::COMMAND_LIST = QStringList() \

@@ -14,7 +14,7 @@
 
 #include "Command.h"
 
-//@XIE KAI A0102016E
+// @author A0102016E
 using namespace std;
 using namespace TP;
 

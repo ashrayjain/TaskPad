@@ -17,7 +17,7 @@
 
 #include "Executor_Base.h"
 
-//@ASHRAY JAIN A0105199B
+// @author A0105199B
 
 class Executor_Redo: public Executor_Base {
 public:

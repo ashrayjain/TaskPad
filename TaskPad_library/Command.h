@@ -64,7 +64,7 @@
 #ifndef TASKPAD_COMMAND_H
 #define TASKPAD_COMMAND_H
 
-//@XIE KAI A0102016E
+// @author A0102016E
 /*
  *=======================
  

@@ -134,7 +134,7 @@ protected:
     bool				             setFromDateMessage       ( std::string command, bool&isSuccessful,std::time_t& content);	
 	bool				             setToDateMessage         ( std::string command, bool&isSuccessful,std::time_t& content);
 	bool			                 setPriorityMessage       ( std::string command, bool&isSuccessful,TP::PRIORITY& content);	
-
+	int	                             getIndexMessage          ( std::string command, bool&isSuccessful);
 private:
 	//local functions
 	bool                             isDueExistance           ( std::string &field,  std::string command, std::smatch match, bool& isSuccessful );
@@ -146,8 +146,7 @@ private:
 	bool                             checkKeyWord             ( std::string command, int position);       
 	void                             convertToTime            ( std::string timeStr, std::time_t &result,bool&isSuccessful);
 	bool							 extractField             ( std::string command, std::smatch & match, std::regex extractTemplate, std::string& extracted);	
-	int                              extractTagMessage        ( std::string &field,  std::string &subStirng, std::smatch &match, std::list<std::string>&tagList, int count, std::regex extractTemplate );
-	int	                             getIndexMessage          ( std::string command, bool&isSuccessful);
+	int                              extractTagMessage        ( std::string &field,  std::string &subStirng, std::smatch &match, std::list<std::string>&tagList, int count, std::regex extractTemplate );	
 	std::time_t                      setTime                  ( std::string commandStr, bool&isSuccessful,bool& isDue);
 	std::vector<std::string>         extractNoParameterMessage( std::string command, std::string regexTemplate,int &count); 
 	std::string                      toUpper                  ( std::string str);

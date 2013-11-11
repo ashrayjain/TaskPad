@@ -17,7 +17,7 @@
 using namespace std;
 using namespace TP;
 
-//@ASHRAY JAIN A0105199B
+// @author A0105199B
 
 const unsigned			Executor_Add::RT_MIN_H_ARR[]				= {5, 15, 30, 60};
 const unsigned			Executor_Add::RT_MIN_M_ARR[]				= {15, 30};

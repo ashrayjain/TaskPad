@@ -28,8 +28,8 @@ const int PUSHED_UP_HOUR=23;
 const int PUSHED_UP_MIN=59;
 
 //AN JIANGZE (FUNCTIONALITY) LI ZIXUAN (REFACTORING)
-//@AN JIANGZE A0105729A 
-//@LI ZIXUAN  A0096582R
+// @author A0105729A 
+// @author A0096582R
 Command* Interpreter_Find::interpretFind(Command_Find* commandType, string commandStr, Messenger &response, bool &flag){
 	
 	PRIORITY		contentPriority;

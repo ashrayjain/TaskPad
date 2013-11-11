@@ -12,7 +12,7 @@ using namespace std;
 using namespace TP;
 
 const std::string LOG_FILE_NAME = "TaskPadLog.txt";
-//@Manikandan Thyagesh A0100124J
+// @author A0100124J
 
 namespace UnitTest
 {		

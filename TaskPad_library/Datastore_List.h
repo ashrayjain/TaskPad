@@ -17,7 +17,7 @@
 
 #include "Datastore_Base.h"
 
-//@ASHRAY JAIN A0105199B
+// @author A0105199B
 
 class Datastore_List: public Datastore_Base {
 private:

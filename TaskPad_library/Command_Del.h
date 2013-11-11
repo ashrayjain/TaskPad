@@ -1,7 +1,7 @@
 #ifndef TASKPAD_COMMAND_DEL_H
 #define TASKPAD_COMMAND_DEL_H
 
-//@XIE KAI A0102016E
+// @author A0102016E
 /*
  *=======================
  

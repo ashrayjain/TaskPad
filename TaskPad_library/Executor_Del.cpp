@@ -17,7 +17,7 @@
 using namespace std;
 using namespace TP;
 
-//@ASHRAY JAIN A0105199B
+// @author A0105199B
 
 void Executor_Del::executeCommand(Command* cmd, Messenger &response, Datastore &ds) {
 	Command_Del* delCmd = dynamic_cast<Command_Del*>(cmd);

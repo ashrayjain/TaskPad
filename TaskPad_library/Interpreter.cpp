@@ -71,8 +71,8 @@ enum COMMAND_CATEGORY{ADD_COMMAND,MOD_COMMAND,MOD_EXACT_COMMAND,MOD_INDEX_COMMAN
 *				  message if any												  *
 **********************************************************************************/
 //AN JIANGZE (FUNCTIONALITY) LI ZIXUAN (REFACTORING)
-//@AN JIANGZE A0105729A 
-//@LI ZIXUAN  A0096582R
+// @author A0105729A 
+// @author  A0096582R
 Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &response){
 
 	bool isValidCommand=true;

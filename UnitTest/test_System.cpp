@@ -15,7 +15,7 @@ namespace UnitTest{
 	public:
 		
 		TEST_METHOD(System_Testing_Basic_CRUD){
-			//@XIE KAI A0102016E
+			// @author A0102016E
 			////*************************************** simple test
 			////use case:
 			////1. user add a task

@@ -24,7 +24,7 @@
 #include "Command.h"
 #include "Datastore.h"
 
-//@ASHRAY JAIN A0105199B
+// @author A0105199B
 
 class Executor_Base {
 protected:
