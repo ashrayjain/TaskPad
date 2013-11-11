@@ -20,7 +20,7 @@
 int main(int argc, char *argv[])
 {
 	const int ONE_INSTANCE_MODE = 1;
-	const QString APP_NAME = "TaskPad";
+	const QString APP_NAME = "TaskPad"; 
 
 	int ret = 0;
 	QSharedMemory singletonCheck(APP_NAME);
