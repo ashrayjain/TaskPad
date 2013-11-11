@@ -12,7 +12,8 @@
  * =====================================================================================
  */
 
-#pragma once
+#ifndef TASKPAD_EXECUTOR_BASE_H
+#define TASKPAD_EXECUTOR_BASE_H
 
 #include <string>
 #include <cstring>
@@ -22,6 +23,8 @@
 #include "Messenger.h"
 #include "Command.h"
 #include "Datastore.h"
+
+//@ASHRAY JAIN A0105199B
 
 class Executor_Base {
 protected:
@@ -51,3 +54,4 @@ public:
 	virtual ~Executor_Base			()=0  {};
 	virtual void executeCommand		(Command* cmd, Messenger &response, Datastore &ds)=0;
 };
+#endif

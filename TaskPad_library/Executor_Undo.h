@@ -12,9 +12,12 @@
  * =====================================================================================
  */
 
-#pragma once
+#ifndef TASKPAD_EXECUTOR_UNDO_H
+#define TASKPAD_EXECUTOR_UNDO_H
 
 #include "Executor_Base.h"
+
+//@ASHRAY JAIN A0105199B
 
 class Executor_Undo: public Executor_Base {
 public:
@@ -32,3 +35,4 @@ private:
 	void		formAddCmdFromTask				(Task &task, Command_Add* cmd);
 	Command*	_undoCommandToExecute;
 };
+#endif

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef TASKPAD_NATTY_H
+#define TASKPAD_NATTY_H
 
 #include "./Natty/jni.h"
 #include <Windows.h>
@@ -30,3 +31,4 @@ public:
 	std::string parseDateTime(std::string commandStr);
 	static natty& getNatty();
 };
+#endif

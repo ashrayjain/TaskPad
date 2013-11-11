@@ -24,6 +24,9 @@
     <ClInclude Include="Storage_Datastore_stub.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Executor_Datastore_stub.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -54,6 +57,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Storage_Datastore_stub.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Executor_Datastore_stub.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="test_Task.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

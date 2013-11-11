@@ -12,9 +12,12 @@
  * =====================================================================================
  */
 
-#pragma once
+#ifndef TASKPAD_EXECUTOR_DEL_H
+#define TASKPAD_EXECUTOR_DEL_H
 
 #include "Executor_Base.h"
+
+//@ASHRAY JAIN A0105199B
 
 class Executor_Del: public Executor_Base {
 public:
@@ -27,3 +30,4 @@ private:
 	void selectAppropriateDeleteResponse	(const std::list<Task> &matchingResults, const std::list<Task> &caseInsensitiveResults, 
 											 const std::string &name, Messenger &response, Datastore &ds);
 };
+#endif
