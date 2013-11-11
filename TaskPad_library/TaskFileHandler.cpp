@@ -21,7 +21,7 @@
 #include <sstream>
 
 using namespace std;
-//@Manikandan Thyagesh A0100124J
+// @author A0100124J
 
 const string TaskFileHandler::TASK_DIRECTORY				= "Tasks\\";
 const string TaskFileHandler::TASK_FILE_EXTENSION			= ".task";

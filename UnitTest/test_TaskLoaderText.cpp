@@ -31,7 +31,7 @@ static const string LABEL_REMINDER_TIME		= "rt: ";
 static const string LABEL_STATE				= "state: ";
 static const string LABEL_END_OF_TASK		= "EndOfTask";
 
-//@Manikandan Thyagesh A0100124J
+// @author A0100124J
 
 namespace UnitTest {
 

@@ -22,8 +22,8 @@ using namespace TP;
 using namespace std;
 
 //AN JIANGZE (FUNCTIONALITY) LI ZIXUAN (REFACTORING)
-//@AN JIANGZE A0105729A 
-//@LI ZIXUAN  A0096582R
+// @author A0105729A 
+// @author  A0096582R
 Command* Interpreter_Delete:: interpretDelete(Command_Del*commandType,string commandStr, Messenger &response, bool &flag){
 
 	stringstream extractContent(commandStr);

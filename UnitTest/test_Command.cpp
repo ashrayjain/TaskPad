@@ -9,7 +9,7 @@ namespace UnitTest{
 	TEST_CLASS(test_Command){
 	public:
 		
-		//@XIE KAI A0102016E
+		// @author A0102016E
 		TEST_METHOD(cmd_Add){
 			const char* BEST_NAME_EVER = "FML 2014";
 
@@ -93,7 +93,7 @@ namespace UnitTest{
 			delete cmd;
 		}
 
-		//@Thyagesh A0100124J
+		// @author A0100124J
 		TEST_METHOD(cmd_Show){
 			int testInt = 0;
 			Command* cmd = new Command_Show();

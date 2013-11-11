@@ -32,7 +32,7 @@
 
 using namespace TP;
 using namespace std;
-//@Manikandan Thyagesh A0100124J
+// @author A0100124J
 
 const string TaskLoaderText::FILTER_FOR_TASK_FILES				= "*.task";
 const string TaskLoaderText::FILTER_FOR_DELETED_TASK_FILES		= "*.deltask";

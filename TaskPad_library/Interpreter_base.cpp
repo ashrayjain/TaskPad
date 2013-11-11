@@ -114,7 +114,7 @@ const int	 Interpreter_base::	CHANGE_BY_ONE			=1;
 const int	 Interpreter_base::	CHANGE_BY_TWO			=2;
 
 
-//@AN JIANGZE A0105729A 
+// @author A0105729A 
 bool Interpreter_base::setDueDateMessage(string command, bool&isSuccessful, time_t& content){
 
 	regex extractTemplate(FIELD_DUE);
@@ -155,7 +155,7 @@ bool Interpreter_base::setDueDateMessage(string command, bool&isSuccessful, time
 
 	return isNotEmpty;
 }
-//@AN JIANGZE A0105729A
+// @author A0105729A
 bool Interpreter_base::setFromDateMessage(string command, bool&isSuccessful, time_t& content){
 
 	regex extractTemplate(FIELD_FROM);
@@ -192,7 +192,7 @@ bool Interpreter_base::setFromDateMessage(string command, bool&isSuccessful, tim
 	}
 	return isNotEmpty;
 }
-//@AN JIANGZE A0105729A
+// @author A0105729A
 bool Interpreter_base::setToDateMessage(string command, bool&isSuccessful, time_t& content){
 
 	regex extractTemplate(FIELD_TO);
@@ -226,7 +226,7 @@ bool Interpreter_base::setToDateMessage(string command, bool&isSuccessful, time_
 	}
 	return isNotEmpty;
 }
-//@AN JIANGZE A0105729A
+// @author A0105729A
 bool Interpreter_base::setParticipantsMessage(string command, bool&isSuccessful, list<string>& content,string regexTemplate){
 	list<string>pplList;
 	regex extractTemplate(regexTemplate);
@@ -273,7 +273,7 @@ bool Interpreter_base::setParticipantsMessage(string command, bool&isSuccessful,
 *		content->extracted message												  *
 *		isEmpty->indicates whether extracted message is empty					  *
 **********************************************************************************/
-//@AN JIANGZE A0105729A
+// @author A0105729A
 bool  Interpreter_base::setGeneralMessage(string command, bool&isSuccessful,string& content,string regexTemplate){
 	regex extractTemplate(regexTemplate);
 	smatch match;
@@ -296,7 +296,7 @@ bool  Interpreter_base::setGeneralMessage(string command, bool&isSuccessful,stri
 	}
 	return isNotEmpty;
 }
-//@AN JIANGZE A0105729A
+// @author A0105729A
 bool Interpreter_base::setPriorityMessage(string command, bool& isSuccessful, TP::PRIORITY& content){ 
 	regex extractTemplate(FIELD_PRIORITY);
 	smatch match;
@@ -339,7 +339,7 @@ bool Interpreter_base::setPriorityMessage(string command, bool& isSuccessful, TP
 	}
 	return isNotEmpty;
 }
-//@AN JIANGZE A0105729A
+// @author A0105729A
 bool Interpreter_base::setTagsMessage(string command, bool&isSuccessful,list<string>& content,string regexTemplate){
 
 	list<string>tagList;
@@ -361,7 +361,7 @@ bool Interpreter_base::setTagsMessage(string command, bool&isSuccessful,list<str
 	return isNotEmpty;
 
 }
-//@AN JIANGZE A0105729A
+// @author A0105729A
 bool Interpreter_base::setRemindTimesMessage(string command, bool&isSuccessful,list<time_t>&content, string regexTemplate){
 
 	list<time_t>rtList;
@@ -398,7 +398,7 @@ bool Interpreter_base::setRemindTimesMessage(string command, bool&isSuccessful,l
 	}
 	return isNotEmpty;
 }
-//@AN JIANGZE A0105729A
+// @author A0105729A
 bool Interpreter_base::setTaskStateMessage(string command, bool&isSuccessful, TP::TASK_STATE& content){ 
 
 	TASK_STATE task_state;
@@ -439,7 +439,7 @@ bool Interpreter_base::setTaskStateMessage(string command, bool&isSuccessful, TP
 *Ouput: count->number of occurance												  *
 *		result->a vector containing all occurances								  *
 **********************************************************************************/
-//@LI ZIXUAN A0096582R
+// @author A0096582R
 vector<string> Interpreter_base::extractNoParameterMessage(string command, string regexTemplate,int& count){
 	string field;
 	smatch match;
@@ -467,7 +467,7 @@ vector<string> Interpreter_base::extractNoParameterMessage(string command, strin
 	}
 	return result;
 }
-//@AN JIANGZE A0105729A
+// @author A0105729A
 bool Interpreter_base::setTaskTypeMessage(string command, bool&isSuccessful, TP::TASK_TYPE& content){
 	TASK_TYPE task_type;
 	int count=EMPTY_ITEM;
@@ -492,7 +492,7 @@ bool Interpreter_base::setTaskTypeMessage(string command, bool&isSuccessful, TP:
 	}
 	return isNotEmpty;
 }
-//@AN JIANGZE A0105729A
+// @author A0105729A
 bool  Interpreter_base::setNoParameterMessage(string command, bool&isSuccessful, string regexTemplate){
 	
 	int count=EMPTY_ITEM;
@@ -520,7 +520,7 @@ bool  Interpreter_base::setNoParameterMessage(string command, bool&isSuccessful,
 *Ouput: mktime(&timeMessage)->time in time_t format								  *
 *		isSucessful->indicates whether error is present								  *
 **********************************************************************************/
-//@AN JIANGZE A0105729A
+// @author A0105729A
 time_t Interpreter_base::setTime(string timeInput,bool& isSuccessful, bool& isDue){
 	timeInput = natty::getNatty().parseDateTime(timeInput);
 	int year=UNINITIALIZED_TIME,month=UNINITIALIZED_TIME,day=UNINITIALIZED_TIME,hour=UNINITIALIZED_TIME,min=UNINITIALIZED_TIME;
@@ -570,7 +570,7 @@ time_t Interpreter_base::setTime(string timeInput,bool& isSuccessful, bool& isDu
 	}
 	return mktime(&timeMessage);
 }
-//@AN JIANGZE A0105729A
+// @author A0105729A
 bool Interpreter_base::integerConverter(string& requiredString, int& number){
 	bool isSuccessful=true;
 	if(requiredString.empty()==true){
@@ -586,12 +586,12 @@ bool Interpreter_base::integerConverter(string& requiredString, int& number){
 	number=atoi(requiredString.c_str());
 	return isSuccessful;
 }
-//@LI ZIXUAN A0096582R
+// @author A0096582R
 string Interpreter_base::toUpper(string str){
 	transform(str.begin(), str.end(), str.begin(), ::toupper);
 	return str;
 }
-//@LI ZIXUAN A0096582R
+// @author A0096582R
 void Interpreter_base::extractTimeWithZeroSlash( std::string &timeMessage, std::string &content, bool& isSuccessful, int& day, int& hour, int& min )
 {
 	int countSpace=EMPTY_ITEM;
@@ -639,7 +639,7 @@ void Interpreter_base::extractTimeWithZeroSlash( std::string &timeMessage, std::
 	}
 	return;
 }
-//@LI ZIXUAN A0096582R
+// @author A0096582R
 void Interpreter_base::extractTimeWithOneSlash( std::string timeMessage, std::string &content, bool& isSuccessful, int& day, int& month, int& hour, int& min )
 {
 	//time format dd/mm hh:mm
@@ -662,7 +662,7 @@ void Interpreter_base::extractTimeWithOneSlash( std::string timeMessage, std::st
 	}
 	return;
 }
-//@LI ZIXUAN A0096582R
+// @author A0096582R
 void Interpreter_base::extractTimeWithTwoSlash( std::string timeMessage, std::string &content, bool &isSuccessful, int& day, int& month, int &year, int& hour, int& min )
 {
 	//time format dd/mm/yy hh:mm
@@ -689,7 +689,7 @@ void Interpreter_base::extractTimeWithTwoSlash( std::string timeMessage, std::st
 	}
 	return;
 }
-//@AN JIANGZE A0105729A
+// @author A0105729A
 void Interpreter_base::setUnitializeTime( int &year, struct tm &timeinfo, int &month, int &day, bool& isDue, int &hour, int &min ){
 	if(year==UNINITIALIZED_TIME)year=timeinfo.tm_year+DEFAULT_CTIME_BASE_YEAR;
 	if(month==UNINITIALIZED_TIME)month=timeinfo.tm_mon+CHANGE_BY_ONE;
@@ -708,7 +708,7 @@ void Interpreter_base::setUnitializeTime( int &year, struct tm &timeinfo, int &m
 	if(hour==UNINITIALIZED_TIME)hour=DEFAULT_TIME;
 	if(min==UNINITIALIZED_TIME)min=DEFAULT_TIME;
 }
-//@LI ZIXUAN A0096582R
+// @author A0096582R
 bool Interpreter_base::checkTimeValidity( int year, bool& isSuccessful, int month, int day, int hour, int min ){
 	if(year>UPPER_LIMIT_YEAR || year<LOWER_LIMIT_YEAR)
 		isSuccessful=false;
@@ -722,7 +722,7 @@ bool Interpreter_base::checkTimeValidity( int year, bool& isSuccessful, int mont
 		isSuccessful=false;
 	return isSuccessful;
 }
-//@LI ZIXUAN A0096582R
+// @author A0096582R
 bool Interpreter_base::isFromExistance( string command, smatch match, string &field, bool& isSuccessful ){
 	regex checkFrom(FIELD_FROM);
 	if (regex_search(command, match, checkFrom)){
@@ -733,7 +733,7 @@ bool Interpreter_base::isFromExistance( string command, smatch match, string &fi
 	}	
 	return isSuccessful;
 }
-//@LI ZIXUAN A0096582R
+// @author A0096582R
 bool Interpreter_base::isDueExistance( string &field, string command, smatch match, bool& isSuccessful ){
 	regex checkDue(FIELD_DUE);
 	field.clear();
@@ -743,7 +743,7 @@ bool Interpreter_base::isDueExistance( string &field, string command, smatch mat
 	if(!field.empty())isSuccessful=false;
 	return isSuccessful;
 }
-//@LI ZIXUAN A0096582R
+// @author A0096582R
 bool Interpreter_base::isToExistance( string command, smatch match, string &field, bool& isSuccessful ){
 	regex checkTo(FIELD_TO);
 	if (regex_search(command, match, checkTo)){
@@ -754,7 +754,7 @@ bool Interpreter_base::isToExistance( string command, smatch match, string &fiel
 	}	
 	return isSuccessful;
 }
-//@LI ZIXUAN A0096582R
+// @author A0096582R
 int Interpreter_base::extractTagMessage( string &field, string &subString, smatch &match, list<string> &tagList, int count, regex extractTemplate ){
 	while(!field.empty()){
 		if(checkKeyWord(subString,match.position())==true){
@@ -776,7 +776,7 @@ int Interpreter_base::extractTagMessage( string &field, string &subString, smatc
 	}	
 	return count;
 }
-//@AN JIANGZE A0105729A
+// @author A0105729A
 bool Interpreter_base::checkKeyWord(string command, int position){
 
 	vector<int> positionForNotion; 
@@ -804,7 +804,7 @@ bool Interpreter_base::checkKeyWord(string command, int position){
 *Ouput:	quotedMessage->the message in between the two ACCENT_GRAVE of the field   *
 *					   e.g Zixuan of name `Zixuan`								  *
 **********************************************************************************/
-//@LI ZIXUAN A0096582R
+// @author A0096582R
 void Interpreter_base::extractQuotedMessage(string field, string& QuotedMessage){
 
 	stringstream extract(field);
@@ -813,7 +813,7 @@ void Interpreter_base::extractQuotedMessage(string field, string& QuotedMessage)
 	getline(extract,QuotedMessage,NOTATION_ACCENT_GRAVE);
 	return;
 }
-//@AN JIANGZE A0105729A
+// @author A0105729A
 int Interpreter_base::getIndexMessage(string command,bool& isSuccessful){
 	int num;
 	isSuccessful=integerConverter(command, num);
@@ -830,7 +830,7 @@ int Interpreter_base::getIndexMessage(string command,bool& isSuccessful){
 *																				  *
 *Ouput: isDuplicate->indicates whether duplicates field exists					  *
 **********************************************************************************/
-//@AN JIANGZE A0105729A
+// @author A0105729A
 bool Interpreter_base::checkDuplicate(string command, string field,int startPosition, int matchLength){
 
 	string subString=command.substr(startPosition+matchLength);
@@ -848,7 +848,7 @@ bool Interpreter_base::checkDuplicate(string command, string field,int startPosi
 	if(isDuplicate==true) throw ERROR_DUPLICATE;
 	return isDuplicate;
 }
-//@AN JIANGZE A0105729A
+// @author A0105729A
 string Interpreter_base::trim(string str){
 	stringstream trimmer;
 	string substr;

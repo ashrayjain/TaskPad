@@ -17,7 +17,7 @@
 
 #include "QuickAddWindow.h"
 
-//@XIE KAI A0102016E
+// @author A0102016E
 QuickAddWindow::QuickAddWindow(QWidget *parent):QDialog(parent){
 	setupUi();
 	customisedUi();

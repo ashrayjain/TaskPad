@@ -16,7 +16,7 @@
 
 #include "Highlighter.h"
 
-//@XIE KAI A0102016E
+// @author A0102016E
 const char* Highlighter::COLOR_BLACK                 = "#232323";
 const char* Highlighter::COLOR_BLUE                  = "#397CD4";
 const char* Highlighter::COLOR_GRAY                  = "#787878";

@@ -17,7 +17,7 @@
 
 #include "ListItemDelegate.h"
 
-//@XIE KAI A0102016E
+// @author A0102016E
 const int ListItemDelegate::_1ST_COLUMN = 0;
 const int ListItemDelegate::_2ND_COLUMN = 1;
 const int ListItemDelegate::_3RD_COLUMN = 2;

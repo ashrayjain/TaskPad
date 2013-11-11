@@ -24,7 +24,7 @@
 
 using namespace std;
 using namespace TP;
-//@Manikandan Thyagesh A0100124J
+// @author A0100124J
 
 const int	 Logger::CONFIG_DETAILS_SIZE					= 3;
 const int	 Logger::FILENAME								= 0;
