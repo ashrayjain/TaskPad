@@ -1,3 +1,21 @@
+/*
+ *
+=================================================================
+=================================================================
+ *
+ *  Filename: Interpreter_Find.cpp  
+ *  
+ *  Version V0.5
+ *  Created 15/10/13 12:00
+ *
+ *  Author: An Jiangze(A0105729A),Li Zixuan(A0096582R)
+ *  Organization: NUS,SOC
+ *
+==================================================================
+==================================================================
+ */
+
+
 #include "Interpreter_Find.h"
 #include "Natty.h"
 
@@ -56,6 +74,7 @@ Command* Interpreter_Find::interpretFind(Command_Find* commandType, string comma
 		if(commandType->getFromDate()>commandType->getToDate()){
 			flag=false;
 		}
+		//pull up and pull down if FormDate=DueDate
 		if(commandType->getFromDate()==commandType->getToDate()){
 			commandType->setFromDate(pullDownFromDate(commandType->getFromDate()));
 			commandType->setToDate(pushUpToDate(commandType->getToDate()));
@@ -122,7 +141,7 @@ time_t Interpreter_Find::setTime(string commandStr, bool&flag){
 		timeMessage.tm_sec=DEFAULT_TIME;
 	}
 	else{
-		throw TIME_FORMAT_ERROR;
+		throw ERROR_TIME_FORMAT;
 	}
 	return mktime(&timeMessage);
 }
@@ -147,18 +166,14 @@ bool Interpreter_Find::getFromDateMessage(string command, bool&flag, time_t& con
 
 		if(preContent.empty())isNotEmpty=false;
 		else{
-
 			content=setTime(preContent,flag);
 		}
 		if(checkDuplicate(command,FIELD_FROM,match.position(),commandStr.length())==true){
-
 			flag=false;
 		}		
 	}
 	else{
-
 		isNotEmpty=false;
-
 	}
 
 	return isNotEmpty;

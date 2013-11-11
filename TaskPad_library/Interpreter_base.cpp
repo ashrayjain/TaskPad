@@ -1,10 +1,34 @@
+/*
+ *
+=================================================================
+=================================================================
+ *
+ *  Filename: Interpreter_base.cpp 
+ *  
+ *  Version V0.5
+ *  Created 15/10/13 12:00
+ *
+ *  Author: An Jiangze(A0105729A),Li Zixuan(A0096582R)
+ *  Organization: NUS,SOC
+ *
+==================================================================
+==================================================================
+ */
 #include "Interpreter_base.h"
 #include "Natty.h"
 
 using namespace std;
 using namespace TP;
 
+/************************
+*    Error Constants    *
+************************/
+const string Interpreter_base:: ERROR_TIME_FORMAT="Cannot parse the time format!";
+const string Interpreter_base:: ERROR_DUPLICATE="Duplicate command!";
 
+/************************
+*    Field Constants    *
+************************/
 const string Interpreter_base:: FIELD_NAME="(\\s+)name(\\s+)`[^`]*`";
 const string Interpreter_base:: FIELD_DUE="(\\s+)(due|by)(\\s+)`[^`]*`";
 const string Interpreter_base:: FIELD_FROM="(\\s+)from(\\s+)`[^`]*`";
@@ -30,6 +54,19 @@ const string Interpreter_base:: FIELD_RT_ADD="(\\s+)\\+(rt|remind)(\\s+)`[^`]*`"
 const string Interpreter_base:: FIELD_PPL_ADD="(\\s+)\\+(ppl|with)(\\s+)`[^`]*`";
 const string Interpreter_base:: FIELD_TAG_ADD="\\s(\\+#[^( |`)]*)(\\s|$)";
 
+/************************
+*   Notation Constants  *
+************************/
+const char Interpreter_base::   NOTATION_COMMA=',';
+const char Interpreter_base::   NOTATION_HASH='#';
+const char Interpreter_base::   NOTATION_SPACE=' ';
+const char Interpreter_base::   NOTATION_SLASH='/';
+const char Interpreter_base::   NOTATION_COLON=':';
+const char Interpreter_base::   NOTATION_ACCENT_GRAVE='`';
+
+/************************
+*   Priority Constants  *
+************************/
 const string Interpreter_base:: PRIORITY_HIGH_ABBREV="H";
 const string Interpreter_base:: PRIORITY_HIGH_FULL="HIGH";
 const string Interpreter_base:: PRIORITY_MEDIUM_ABBREV="M";
@@ -37,47 +74,50 @@ const string Interpreter_base:: PRIORITY_MEDIUM_FULL="MEDIUM";
 const string Interpreter_base:: PRIORITY_LOW_ABBREV="L";
 const string Interpreter_base:: PRIORITY_LOW_FULL="LOW";
 
+/************************
+* Task Status Constants *
+************************/
 const string Interpreter_base:: STATUS_UNDONE="undone";
 const string Interpreter_base:: STATUS_DONE="done";
 const string Interpreter_base:: STATUS_OVERDUE="overdue";
 
+/************************
+* Task Type Constants *
+************************/
 const string Interpreter_base:: TYPE_TIMED="timed";
 const string Interpreter_base:: TYPE_DEADLINE="deadline";
-const string Interpreter_base:: TIME_FORMAT_ERROR="Cannot parse the time format!";
-const string Interpreter_base:: DUPLICATE_ERROR="Duplicate command!";
-const char Interpreter_base:: NOTATION_COMMA=',';
-const char Interpreter_base:: NOTATION_HASH='#';
-const char Interpreter_base:: NOTATION_SPACE=' ';
-const char Interpreter_base:: NOTATION_SLASH='/';
-const char Interpreter_base:: NOTATION_COLON=':';
-const char Interpreter_base:: NOTATION_ACCENT_GRAVE='`';
 
+/************************
+*     Time Constants    *
+************************/
+const int Interpreter_base::    UNINITIALIZED_TIME=-1;
+const int Interpreter_base::	DEFAULT_TIME=0;
+const int Interpreter_base::	DEFAULT_CTIME_BASE_YEAR=1900;
+const int Interpreter_base::	DEFAULT_MONTH=1;
 
-const int Interpreter_base:: INCREMENT_BY_ONE=1;
-const int Interpreter_base:: UNINITIALIZED_TIME=-1;
-const int Interpreter_base:: DEFAULT_TIME=0;
-const int Interpreter_base:: DEFAULT_CTIME_BASE_YEAR=1900;
-const int Interpreter_base:: DEFAULT_MONTH=1;
+const int Interpreter_base::	UPPER_LIMIT_YEAR=2100;
+const int Interpreter_base::	UPPER_LIMIT_MONTH=12;
+const int Interpreter_base::	UPPER_LIMIT_DAY=31;
+const int Interpreter_base::	UPPER_LIMIT_HOUR=24;
+const int Interpreter_base::	UPPER_LIMIT_MINUTE=59;
+const int Interpreter_base::	LOWER_LIMIT_YEAR=1971;
+const int Interpreter_base::	CURRENT_CENTURY=2000;
 
-const int Interpreter_base:: UPPER_LIMIT_YEAR=2100;
-const int Interpreter_base:: UPPER_LIMIT_MONTH=12;
-const int Interpreter_base:: UPPER_LIMIT_DAY=31;
-const int Interpreter_base:: UPPER_LIMIT_HOUR=24;
-const int Interpreter_base:: UPPER_LIMIT_MINUTE=59;
-const int Interpreter_base:: LOWER_LIMIT_YEAR=1971;
-const int Interpreter_base:: CURRENT_CENTURY=2000;
-
-const int Interpreter_base::EMPTY_STRING=0;
-const int Interpreter_base::START_POSITION = 0;
-const int Interpreter_base::DUMMY_VALUE = -1;
-const int Interpreter_base::CHANGE_BY_ONE=1;
-const int Interpreter_base::CHANGE_BY_TWO=2;
+/************************
+*   General Constants   *
+************************/
+const int Interpreter_base::	INCREMENT_BY_ONE=1;
+const int Interpreter_base::	EMPTY_STRING=0;
+const int Interpreter_base::	START_POSITION = 0;
+const int Interpreter_base::	DUMMY_VALUE = -1;
+const int Interpreter_base::	CHANGE_BY_ONE=1;
+const int Interpreter_base::	CHANGE_BY_TWO=2;
 
 
 bool Interpreter_base::checkKeyWord(string command, int position){
 
 	vector<int> positionForNotion; 
-	positionForNotion.push_back(DUMMY_VALUE); // dummy value;
+	positionForNotion.push_back(DUMMY_VALUE);
 	bool isKeyWord=true;
 	int count=ONE_ITEM;
 
@@ -95,7 +135,12 @@ bool Interpreter_base::checkKeyWord(string command, int position){
 	return isKeyWord;
 } 
 
-
+/**********************************************************************************
+*Input: field->a Field Constant e.g FIELD_NAME								      *
+*																				  *
+*Ouput:	quotedMessage->the message in between the two ACCENT_GRAVE of the field   *
+*					   e.g Zixuan of name `Zixuan`								  *
+**********************************************************************************/
 void Interpreter_base:: extractQuotedMessage(string field, string& QuotedMessage){
 
 	stringstream extract(field);
@@ -113,25 +158,33 @@ int Interpreter_base:: getIndexMessage(string command,bool& flag){
 	return num;
 }	
 
-
-bool Interpreter_base::checkDuplicate(string command, string cmdTemplate,int startPosition, int matchLength){
+/**********************************************************************************
+*Input: command->original command line input by user						      *
+*		field->a FIELD CONSTANT	e.g FIELD_AT									  *
+*		startPosition->position first character of first occurance of the field   *
+*		matchLength->length of the first occurance								  *
+*																				  *
+*Function: This function checks for multiple occurance of the same field.		  *
+*																				  *
+*Ouput: isDuplicate->indicates whether duplicates field exists					  *
+**********************************************************************************/
+bool Interpreter_base::checkDuplicate(string command, string field,int startPosition, int matchLength){
 
 	string subString=command.substr(startPosition+matchLength);
 	smatch match;
-	regex extractTemplate(cmdTemplate);
-	string field;
+	regex extractTemplate(field);
+	string duplicate;
 	bool isDuplicate=false;
 
 	if (regex_search(subString, match, extractTemplate)){
-		field=match[START_POSITION];
+		duplicate=match[START_POSITION];
 	}
-	if(field.length()>EMPTY_STRING){
+	if(duplicate.length()>EMPTY_STRING){
 		isDuplicate=true;
 	}
-	if(isDuplicate==true) throw (string)"Duplicate command!";
+	if(isDuplicate==true) throw ERROR_DUPLICATE;
 	return isDuplicate;
 }
-
 
 bool Interpreter_base::extractField(string command, smatch &match, regex extractTemplate, string&field){
 
@@ -171,6 +224,8 @@ bool Interpreter_base::getDueDateMessage(string command, bool&flag, time_t& cont
 		if(checkDuplicate(command,FIELD_DUE,match.position(),field.length())==true){
 			flag=false;
 		}
+		
+		//"Due" ,and "from" and "to", are mutually exclusive.
 
 		// Check whether the command has "from" or not.
 		field.clear();
@@ -211,6 +266,8 @@ bool Interpreter_base::getFromDateMessage(string command, bool&flag, time_t& con
 			flag=false;
 		}		
 
+		//"Due" ,and "from" and "to", are mutually exclusive.
+
 		// Check whether the command has "due" or not.
 		field.clear();
 		isDueExistance(field, command, match, flag);
@@ -243,6 +300,9 @@ bool Interpreter_base::getToDateMessage(string command, bool&flag, time_t& conte
 		if(checkDuplicate(command,FIELD_TO,match.position(),field.length())==true){
 			flag=false;
 		}
+
+		//"Due" ,and "from" and "to", are mutually exclusive.
+
 		// Check whether the command has the "due" or not.
 		isDueExistance(field, command, match, flag);
 	}
@@ -299,6 +359,18 @@ string Interpreter_base::trim(string str){
 	return str;
 }
 
+/**********************************************************************************
+*Input: command->original command line input by user						      *
+*		regexTemplate->a FIELD CONSTANT	e.g FIELD_AT							  *
+*																				  *
+*Function: This function applies to a field of the format yy `xxx` e.g at `nus`,  *
+*			note `hello`. It finds the corresponding field from command using     *
+*			regexTemplate and extract the message from the field            	  *
+*																				  *
+*Ouput:	flag->indicates whether error is present in the field					  *
+*		content->extracted message												  *
+*		isEmpty->indicates whether extracted message is empty					  *
+**********************************************************************************/
 bool  Interpreter_base::setGeneralMessage(string command, bool&flag,string& content,string regexTemplate){
 	regex extractTemplate(regexTemplate);
 	smatch match;
@@ -345,7 +417,6 @@ bool Interpreter_base::getPriorityMessage(string command, bool& isSuccessful, TP
 			else if(UpperContent==PRIORITY_MEDIUM_ABBREV || UpperContent==PRIORITY_MEDIUM_FULL){
 				priority=MEDIUM;
 			}
-
 			else if(UpperContent==PRIORITY_LOW_ABBREV||UpperContent==PRIORITY_LOW_FULL){
 				priority=LOW;
 			}
@@ -401,7 +472,7 @@ bool Interpreter_base::	setRemindTimesMessage(string command, bool&flag,list<tim
 	if(!field.empty()){
 		extractQuotedMessage(field, QuotedMessage);
 		stringstream extractIndividual(QuotedMessage);
-		string time="";
+		string time;
 		getline(extractIndividual,time,NOTATION_COMMA);
 		while(!time.empty()){
 			bool isDue=false;
@@ -450,6 +521,18 @@ bool Interpreter_base::getTaskStateMessage(string command, bool&flag, TP::TASK_S
 	}
 	return isNotEmpty;
 }
+
+/**********************************************************************************
+*Input: command->original command line input by user						      *
+*		regexTemplate->a FIELD CONSTANT	e.g FIELD_AT							  *
+*																				  *
+*Function: This function applies to a field without message e.g -rtall,done,timed.*
+*		   It extracts all occurance the corresponding field from command using   *
+*		   regexTemplate and stores them in a string vector                       *
+*																				  *
+*Ouput: count->number of occurance												  *
+*		result->a vector containing all occurances								  *
+**********************************************************************************/
 vector<string> Interpreter_base::extractNoParameterMessage(string command, string regexTemplate,int& count){
 	string field;
 	smatch match;
@@ -521,43 +604,53 @@ bool  Interpreter_base::setNoParameterMessage(string command, bool&flag, string 
 	return isNotEmpty;
 }
 
-time_t Interpreter_base::setTime(string field,bool& flag, bool& isDue){
-	field = natty::getNatty().parseDateTime(field);
+/**********************************************************************************
+*Input: isDue->indicates whether the call of this function is for FIELD_DUE	      *
+*		timeInput->message in time format										  *
+*																				  *
+*Function: This function accepts 4 time formats hh:mm, dd hh:mm, dd/mm hh:mm	  *
+*			dd/mm/yy hh:mm and converts them from string to time_t.				  *
+*																				  *
+*Ouput: mktime(&timeMessage)->time in time_t format								  *
+*		isSucessful->indicates whether error is present								  *
+**********************************************************************************/
+time_t Interpreter_base::setTime(string timeInput,bool& isSuccessful, bool& isDue){
+	timeInput = natty::getNatty().parseDateTime(timeInput);
 	int year=UNINITIALIZED_TIME,month=UNINITIALIZED_TIME,day=UNINITIALIZED_TIME,hour=UNINITIALIZED_TIME,min=UNINITIALIZED_TIME;
 	time_t rawtime;
-	string inputInfo=field;
+	string inputInfo=timeInput;
 	string content;
 	struct tm  timeinfo={DEFAULT_TIME,DEFAULT_TIME,DEFAULT_TIME,DEFAULT_TIME,DEFAULT_TIME,DEFAULT_TIME};
 	time (&rawtime);
 	localtime_s (&timeinfo,&rawtime);
 	int countSlash=EMPTY_ITEM;
-	for(int i=START_POSITION;i<field.length();i++){
-		if(field.at(i)==NOTATION_SLASH){
+	for(int i=START_POSITION;i<timeInput.length();i++){
+		if(timeInput.at(i)==NOTATION_SLASH){
 			countSlash++;
 		}
 	}	
 	switch(countSlash){
 	case EMPTY_ITEM: {	
-			extractTimeWithEmptySlash(field, content, flag, day, hour, min);
+			extractTimeWithEmptySlash(timeInput, content, isSuccessful, day, hour, min);
 			break;
 		}
 	case ONE_ITEM:{	
-			extractTimeWithOneSlash(field, content, flag, day, month, hour, min);
+			extractTimeWithOneSlash(timeInput, content, isSuccessful, day, month, hour, min);
 			break;
 		}
 	case TWO_ITEMS:{	
-			extractTimeWithTwoSlash(field, content, flag, day, month, year, hour, min);
+			extractTimeWithTwoSlash(timeInput, content, isSuccessful, day, month, year, hour, min);
 			break;
 		}
 	default:
 		break;
 	}
-	if(flag!=false){
+	if(isSuccessful!=false){
 		setUnitializeTime(year, timeinfo, month, day, isDue, hour, min);
 	}
 	struct tm  timeMessage={DEFAULT_TIME,DEFAULT_TIME,DEFAULT_TIME,DEFAULT_TIME,DEFAULT_TIME,DEFAULT_TIME};
-    checkTimeValidity(year, flag, month, day, hour, min);
-	if(flag!=false){
+    checkTimeValidity(year, isSuccessful, month, day, hour, min);
+	if(isSuccessful!=false){
 		timeMessage.tm_year=year-DEFAULT_CTIME_BASE_YEAR;
 		timeMessage.tm_mon=month-CHANGE_BY_ONE;
 		timeMessage.tm_mday=day;
@@ -566,24 +659,24 @@ time_t Interpreter_base::setTime(string field,bool& flag, bool& isDue){
 	    timeMessage.tm_sec=DEFAULT_TIME;
 	}
 	else{
-		throw TIME_FORMAT_ERROR;
+		throw ERROR_TIME_FORMAT;
 	}
 	return mktime(&timeMessage);
 }
 bool Interpreter_base::integerConverter(string& requiredString, int& number){
-	bool flag=true;
+	bool isSuccessful=true;
 	if(requiredString.empty()==true){
-		flag=false;
+		isSuccessful=false;
 	}
 	else{
 		for(unsigned i=START_POSITION;i<requiredString.length();i++){
 			if(isdigit(requiredString[i])==false){
-				flag=false;
+				isSuccessful=false;
 			}
 		}
 	}
 	number=atoi(requiredString.c_str());
-	return flag;
+	return isSuccessful;
 }
 
 string Interpreter_base::toUpper(string str){
@@ -591,16 +684,16 @@ string Interpreter_base::toUpper(string str){
 	return str;
 }
 
-void Interpreter_base::extractTimeWithEmptySlash( std::string &field, std::string &content, bool& flag, int& day, int& hour, int& min )
+void Interpreter_base::extractTimeWithEmptySlash( std::string &timeMessage, std::string &content, bool& flag, int& day, int& hour, int& min )
 {
 	int countSpace=EMPTY_ITEM;
-	for(int i=START_POSITION;i<field.length();i++){
-		if(field.at(i)==NOTATION_SPACE){
+	for(int i=START_POSITION;i<timeMessage.length();i++){
+		if(timeMessage.at(i)==NOTATION_SPACE){
 			countSpace++;
 		}
 	}
 	if(countSpace==ONE_ITEM){
-		stringstream extract(field);
+		stringstream extract(timeMessage);
 		getline(extract,content,NOTATION_SPACE);
 		if(!content.empty()){
 			flag=integerConverter(content,day);
@@ -622,7 +715,7 @@ void Interpreter_base::extractTimeWithEmptySlash( std::string &field, std::strin
 		}
 	}
 	else if(countSpace==EMPTY_ITEM){
-		stringstream extract(field);
+		stringstream extract(timeMessage);
 		getline(extract,content,NOTATION_COLON);
 		if(!content.empty()){
 
@@ -640,9 +733,9 @@ void Interpreter_base::extractTimeWithEmptySlash( std::string &field, std::strin
 	
 }
 
-void Interpreter_base::extractTimeWithOneSlash( std::string field, std::string &content, bool& flag, int& day, int& month, int& hour, int& min )
+void Interpreter_base::extractTimeWithOneSlash( std::string timeMessage, std::string &content, bool& flag, int& day, int& month, int& hour, int& min )
 {
-	stringstream extract(field);
+	stringstream extract(timeMessage);
 	content.clear();
 	getline(extract,content,NOTATION_SLASH);  
 	flag=integerConverter(content,day);
@@ -661,10 +754,10 @@ void Interpreter_base::extractTimeWithOneSlash( std::string field, std::string &
 	}	
 }
 
-void Interpreter_base::extractTimeWithTwoSlash( std::string field, std::string &content, bool &flag, int& day, int& month, int &year, int& hour, int& min )
+void Interpreter_base::extractTimeWithTwoSlash( std::string timeMessage, std::string &content, bool &flag, int& day, int& month, int &year, int& hour, int& min )
 {
 	
-	stringstream extract(field);
+	stringstream extract(timeMessage);
 	content.clear();
 	getline(extract,content,NOTATION_SLASH);  
 	flag=integerConverter(content,day);
