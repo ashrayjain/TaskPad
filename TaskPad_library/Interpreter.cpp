@@ -57,10 +57,6 @@ const char NOTATION_ACCENT_GRAVE='`';
 enum COMMAND_CATEGORY{ADD_COMMAND,MOD_COMMAND,MOD_EXACT_COMMAND,MOD_INDEX_COMMAND,FIND_COMMAND,FIND_EXACT_COMMAND,DEL_COMMAND, 
 	DEL_EXACT_COMMAND, DEL_INDEX_COMMAND, UNDO_COMMAND,REDO_COMMAND,INDEX_COMMAND};
 
-
-
-
-
 /**********************************************************************************
 *Input: commandStr->original command line input by user						      *
 *		response->a Messenger object that contains status and error message		  *
@@ -73,6 +69,9 @@ enum COMMAND_CATEGORY{ADD_COMMAND,MOD_COMMAND,MOD_EXACT_COMMAND,MOD_INDEX_COMMAN
 *		response->a Messenger object with status of interpretation and error      *
 *				  message if any												  *
 **********************************************************************************/
+//AN JIANGZE (FUNCTIONALITY) LI ZIXUAN (REFACTORING)
+//@AN JIANGZE A0105729A 
+//@LI ZIXUAN  A0096582R
 Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &response){
 
 	bool isValidCommand=true;
@@ -128,7 +127,7 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 				Command_Mod* Mod_pointer=new Command_Mod();
 				Interpreter_Mod interpretMod;
 				string taskName;
-				Mod_pointer->setFlagExact();	
+				Mod_pointer->setisSuccessfulExact();	
 				extractQuotedMessage(commandStr, taskName);
 				Mod_pointer->setName(taskName);
 
@@ -191,7 +190,7 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 
 				Command_Find* Find_pointer=new Command_Find();
 				Interpreter_Find interpretFind;
-				Find_pointer->setFlagExact();			
+				Find_pointer->setisSuccessfulExact();			
 				try{
 					returnCommand=interpretFind.interpretFind(Find_pointer,commandStr, response,isValidCommand);
 				}catch(string errorMessage){
@@ -200,22 +199,19 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 					if(Find_pointer!=NULL){
 						delete Find_pointer;
 					}					
-				}
-				
+				}	
 				break;
 			}
-
 		case DEL_COMMAND:{
 				Command_Del* Del_pointer=new Command_Del();
 				Interpreter_Delete interpretDel;								
 				returnCommand=interpretDel.interpretDelete(Del_pointer,commandStr, response,isValidCommand);
 				break;
-
 			}
 		case DEL_EXACT_COMMAND:{
 				Command_Del* Del_pointer=new Command_Del();
                 Interpreter_Delete interpretDel;						
-				Del_pointer->setFlagExact();
+				Del_pointer->setisSuccessfulExact();
 				returnCommand=interpretDel.interpretDelete(Del_pointer,commandStr, response,isValidCommand);
 				break;
 			}
@@ -233,8 +229,6 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 				response.setCommandType(DEL);
 				returnCommand=(Command*)Del_pointer;
 				break;
-
-
 			}
 		case UNDO_COMMAND:{
 				Command_Undo* Undo_pointer=new Command_Undo();
@@ -314,7 +308,7 @@ void Interpreter::interpretCommand(unsigned ActualIndex, Command *prevCommand){
 	}
 	return;
 }
-
+/*
 int Interpreter::interpretIndex(std::string indexStr, Messenger &response){
 
 	int num;
@@ -327,7 +321,7 @@ int Interpreter::interpretIndex(std::string indexStr, Messenger &response){
 	}
 	return num;
 }
-
+*/
 
 bool Interpreter::checkCommand(string command, int& commandType){
 
@@ -384,32 +378,31 @@ void Interpreter:: extractQuotedMessage(string field, string& quotedMessage){
 	getline(extract,quotedMessage,NOTATION_ACCENT_GRAVE);
 	quotedMessage.clear();
 	getline(extract,quotedMessage,NOTATION_ACCENT_GRAVE);
-
 	return;
 }
 
-int Interpreter:: getIndexMessage(string command,bool& flag){
+int Interpreter:: getIndexMessage(string command,bool& isSuccessful){
 
 	int num;
-	flag=integerConvert(command, num);
+	isSuccessful=integerConvert(command, num);
 	return num;
 }	
 
 bool Interpreter::integerConvert(string& requiredString, int& number){
 	
-	bool flag=true;
+	bool isSuccessful=true;
 
 	if(requiredString.empty()==true){
-		flag=false;
+		isSuccessful=false;
 	}
 	else{
 		for(unsigned i=START_POSITION_VALUE;i<requiredString.length();i++){
 			if(isdigit(requiredString[i])==false){
-				flag=false;
+				isSuccessful=false;
 			}
 		}
 	}
 	number=atoi(requiredString.c_str());
 
-	return flag;
+	return isSuccessful;
 }
