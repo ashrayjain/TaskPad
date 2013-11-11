@@ -688,6 +688,7 @@ void CommandBar::handleKeyDefault(){
 
 void CommandBar::mousePressEvent(QMouseEvent *event){
 	autoCompleteMode = false;
+	QTextEdit::mousePressEvent(event);
 }
 
 //create a hotkey template according to templateStr
