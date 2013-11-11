@@ -651,6 +651,7 @@ void MainWindow::handleQA_SUCCESS(){
 	closeQuickAddWindow();
 	refresh();
 	showTrayMsg(SUCCESS_QA_MSG_ADDED);
+	showReminder();
 }
 
 void MainWindow::handleQA_DISPLAY(Messenger msg){
@@ -674,12 +675,14 @@ void MainWindow::handleMsg_SUCCESS(Messenger &msg){
 	switch(msg.getCommandType()){
 	case TP::ADD:
 		updateForCmdExec(SUCCESS_STATUS_BAR_ADD_TEXT, SUCCESS_DETAILS_ADD_TEXT, msg);
+		showReminder();
 		break;
 	case TP::DEL:
 		updateForCmdExec(SUCCESS_STATUS_BAR_DEL_TEXT, SUCCESS_DETAILS_DEL_TEXT, msg);
 		break;
 	case TP::MOD:
 		updateForCmdExec(SUCCESS_STATUS_BAR_MOD_TEXT, SUCCESS_DETAILS_MOD_TEXT, msg);
+		showReminder();
 		break;
 	case TP::FIND:
 		updateMainView(msg, SUCCESS_NAV_LABEL_FIND_CMD, SUCCESS_STATUS_BAR_FIND_TEXT);
@@ -706,6 +709,7 @@ void MainWindow::handleMsg_SUCCESS_INDEXED_CMD(Messenger &msg){
 	switch (msg.getCommandType()){
 	case TP::MOD:
 		updateForCmdExec(SUCCESS_STATUS_BAR_MOD_TEXT, SUCCESS_DETAILS_MOD_TEXT, msg);
+		showReminder();
 		break;
 	case TP::DEL:
 		updateForCmdExec(SUCCESS_STATUS_BAR_DEL_TEXT, SUCCESS_DETAILS_DEL_TEXT, msg);

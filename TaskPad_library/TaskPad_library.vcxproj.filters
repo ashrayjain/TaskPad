@@ -390,5 +390,11 @@
     <ClCompile Include="Interpreter_base.cpp">
       <Filter>Source Files\Logic_Related</Filter>
     </ClCompile>
+    <ClCompile Include="TaskLoader.cpp">
+      <Filter>Source Files\Logic_Related\FileHandler_Derived</Filter>
+    </ClCompile>
+    <ClCompile Include="TaskSaver.cpp">
+      <Filter>Source Files\Logic_Related\FileHandler_Derived</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

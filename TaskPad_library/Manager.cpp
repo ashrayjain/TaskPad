@@ -112,14 +112,20 @@ void Manager::saveChanges()
 {
 	if(isNotSuccessfulCommand()) return;
 
+	_logger->log("Manager","saving changes");
+
 	switch(_cmd->getCommandType()) {
 		case ADD:
 			/* empty and falls through*/
 		case MOD:
 			/* empty and falls through*/
 		case DEL:
-			_logger->log("Manager","saving changes");
-			_storage->save(_response.getTask(), _cmd->getCommandType());
+			try {
+				_storage->save(_response.getTask(), _cmd->getCommandType());
+			}
+			catch(BaseException be) {
+				setResponseToError(ERR,be.what());
+			}
 			break;
 		case FIND:
 				updateLastSuccessfulFindCommand();
