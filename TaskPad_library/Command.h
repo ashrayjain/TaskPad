@@ -48,6 +48,7 @@
  *
  */
 
+
 #include <list>
 #include <string>
 #include <ctime>
@@ -58,6 +59,7 @@
 #include "Command_Find.h"
 #include "Command_Undo.h"
 #include "Command_Redo.h"
+#include "Command_Show.h"
 
 #ifndef TASKPAD_COMMAND_H
 #define TASKPAD_COMMAND_H

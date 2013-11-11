@@ -29,6 +29,7 @@
     <ClInclude Include="Command_Find.h" />
     <ClInclude Include="Command_Mod.h" />
     <ClInclude Include="Command_Redo.h" />
+    <ClInclude Include="Command_Show.h" />
     <ClInclude Include="Command_Undo.h" />
     <ClInclude Include="Datastore.h" />
     <ClInclude Include="Datastore_Base.h" />

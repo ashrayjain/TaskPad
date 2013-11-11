@@ -81,5 +81,22 @@ namespace UnitTest
 
 			delete cmd;
 		}
+
+		TEST_METHOD(cmd_Show) {
+			int testInt = 0;
+			Command* cmd = new Command_Show();
+			Assert::AreEqual(static_cast<int>(TP::SHOW), static_cast<int>(cmd->getCommandType()));
+
+			Command_Show* cmd_show = dynamic_cast<Command_Show*> (cmd);
+
+			Assert::IsFalse(cmd_show->getFlagIndex());
+
+			cmd_show->setIndex(testInt);
+			Assert::IsTrue(cmd_show->getFlagIndex());
+
+			Assert::AreEqual(cmd_show->getIndex(), testInt);
+
+			delete cmd;
+		}
 	};
 }
