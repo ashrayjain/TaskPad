@@ -244,6 +244,9 @@
     <ClInclude Include="Logger.h">
       <Filter>Header Files\Commons</Filter>
     </ClInclude>
+    <ClInclude Include="Command_Show.h">
+      <Filter>Header Files\Commons\Command_Derived</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GeneratedFiles\Debug\moc_CommandBar.cpp">
@@ -389,6 +392,12 @@
     </ClCompile>
     <ClCompile Include="Interpreter_base.cpp">
       <Filter>Source Files\Logic_Related</Filter>
+    </ClCompile>
+    <ClCompile Include="TaskLoader.cpp">
+      <Filter>Source Files\Logic_Related\FileHandler_Derived</Filter>
+    </ClCompile>
+    <ClCompile Include="TaskSaver.cpp">
+      <Filter>Source Files\Logic_Related\FileHandler_Derived</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

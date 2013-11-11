@@ -1,8 +1,27 @@
+/*
+ *
+=================================================================
+=================================================================
+ *
+ *  Filename: Interpreter_Add.cpp   
+ *  
+ *  Version V0.5
+ *  Created 15/10/13 12:00
+ *
+ *  Author: An Jiangze(A0105729A),Li Zixuan(A0096582R)
+ *  Organization: NUS,SOC
+ *
+==================================================================
+==================================================================
+ */
 #include"Interpreter_Add.h"
 
 using namespace std;
 using namespace TP;
 
+//AN JIANGZE (FUNCTIONALITY) LI ZIXUAN (REFACTORING)
+//@AN JIANGZE A0105729A 
+//@LI ZIXUAN  A0096582R
 Command* Interpreter_Add::interpretAdd(Command_Add* commandType, string commandStr, Messenger &response, bool &flag){
 
 	PRIORITY		contentPriority;
@@ -15,7 +34,6 @@ Command* Interpreter_Add::interpretAdd(Command_Add* commandType, string commandS
 
 	if(getDueDateMessage(commandStr,flag,contentTime)){		
 		commandType->setDueDate(contentTime);		
-		
 	}		
 	if(getFromDateMessage(commandStr,flag,contentTime)){
 		commandType->setFromDate(contentTime);

@@ -24,6 +24,7 @@
 #include <cassert>
 #include "CommandBar.h"
 #include "Enum.h"
+#include "Logger.h"
 #include "libqxt/qxtglobalshortcut.h"
 #include "ListItemDelegate.h"
 #include "QuickAddWindow.h"
@@ -83,6 +84,8 @@ const char* MainWindow::ERROR_ONLY_SUPPORT_ADD_N_DISPLAY_ONE_CMD = "Only Add Com
 
 MainWindow::MainWindow(QWidget *parent)
 :QMainWindow(parent){
+	logStart();
+
 	setupUI();
 	setupDependency();
 	getToday();
@@ -254,6 +257,7 @@ void MainWindow::setupQuickAddConnection(){
 /************************************************************************/
 
 MainWindow::~MainWindow(){
+	logEnd();
 	dispose();
 }
 
@@ -383,6 +387,8 @@ void MainWindow::about(){
 
 void MainWindow::help(){
 	const QString HOTKEY_LIST = \
+		"<b>Commands</b><br />"
+		"add, mod, del, find, undo, redo<br /><br />"
 		"<b>Global Hotkeys</b><br />"
 		"Alt + ` 			        : open quick add window<br />"
 		"Ctrl + Alt + T 		    : open main window<br />"
@@ -440,6 +446,8 @@ void MainWindow::popMsgBox(QString title, QString description){
 
 void MainWindow::getToday(){
 	reset();
+	//cannot be in the Intermediate stage
+	assert(!isIntermediateStage);
 	Messenger msg = scheduler->getTodayTasks();
 	handleGetToday(msg);
 }
@@ -447,6 +455,8 @@ void MainWindow::getToday(){
 void MainWindow::getInbox(){
 	const char* GET_INBOX_CMD_STR = "find floating undone";
 	reset();
+	//cannot be in the Intermediate stage
+	assert(!isIntermediateStage);
 	Messenger msg = scheduler->processCommand(GET_INBOX_CMD_STR);
 	handleGetInbox(msg);
 }
@@ -546,6 +556,8 @@ bool MainWindow::isEqualOne(QString &requestStr){
 void MainWindow::handleShowReminder(){
 	if(isFromReminder){
 		reset();
+		//cannot be in the Intermediate stage
+		assert(!isIntermediateStage);
 		string findCurrRtTasks = getFindRtCmd();
 		Messenger msg = scheduler->processCommand(findCurrRtTasks);
 		updateMainView(msg, REMINDERS_VIEW);
@@ -651,6 +663,7 @@ void MainWindow::handleQA_SUCCESS(){
 	closeQuickAddWindow();
 	refresh();
 	showTrayMsg(SUCCESS_QA_MSG_ADDED);
+	showReminder();
 }
 
 void MainWindow::handleQA_DISPLAY(Messenger msg){
@@ -674,12 +687,14 @@ void MainWindow::handleMsg_SUCCESS(Messenger &msg){
 	switch(msg.getCommandType()){
 	case TP::ADD:
 		updateForCmdExec(SUCCESS_STATUS_BAR_ADD_TEXT, SUCCESS_DETAILS_ADD_TEXT, msg);
+		showReminder();
 		break;
 	case TP::DEL:
 		updateForCmdExec(SUCCESS_STATUS_BAR_DEL_TEXT, SUCCESS_DETAILS_DEL_TEXT, msg);
 		break;
 	case TP::MOD:
 		updateForCmdExec(SUCCESS_STATUS_BAR_MOD_TEXT, SUCCESS_DETAILS_MOD_TEXT, msg);
+		showReminder();
 		break;
 	case TP::FIND:
 		updateMainView(msg, SUCCESS_NAV_LABEL_FIND_CMD, SUCCESS_STATUS_BAR_FIND_TEXT);
@@ -706,6 +721,7 @@ void MainWindow::handleMsg_SUCCESS_INDEXED_CMD(Messenger &msg){
 	switch (msg.getCommandType()){
 	case TP::MOD:
 		updateForCmdExec(SUCCESS_STATUS_BAR_MOD_TEXT, SUCCESS_DETAILS_MOD_TEXT, msg);
+		showReminder();
 		break;
 	case TP::DEL:
 		updateForCmdExec(SUCCESS_STATUS_BAR_DEL_TEXT, SUCCESS_DETAILS_DEL_TEXT, msg);
@@ -1314,4 +1330,18 @@ void MainWindow::handleKeyEnter(){
 		Messenger msg = scheduler->processCommand(inputStdString);
 		handleMessenger(msg);
 	}
+}
+
+void MainWindow::logStart(){
+	const char* MAINWINDOW_NAME = "MainWindow";
+	const char* START_INFO = "UI starts";
+	::Logger* logger = ::Logger::getLogger();
+	logger->log(MAINWINDOW_NAME, START_INFO, INFOLOG);
+}
+
+void MainWindow::logEnd(){
+	const char* MAINWINDOW_NAME = "MainWindow";
+	const char* END_INFO = "UI ends";
+	::Logger* logger = ::Logger::getLogger();
+	logger->log(MAINWINDOW_NAME, END_INFO, INFOLOG);
 }

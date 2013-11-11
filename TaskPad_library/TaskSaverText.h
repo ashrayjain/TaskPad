@@ -40,6 +40,9 @@ class TaskSaverText: public TaskSaver
 
 		Logger* _logger;
 
+		//create directory
+		void mkTaskDir					();
+
 		//save records
 		void saveDeleteCommand			(const Task& task);
 		void saveNonDeleteCommands		(const Task& task);
@@ -85,6 +88,6 @@ class TaskSaverText: public TaskSaver
 		void writeLineToFile			(std::string line, bool newLine = true);
 
 		//validation helper
-		bool isSaveableCommandType		(TP::COMMAND_TYPE cType);
+		bool isSaveableCommandType			(TP::COMMAND_TYPE cType);
 };
 #endif

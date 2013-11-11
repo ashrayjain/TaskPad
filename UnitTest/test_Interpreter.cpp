@@ -8,135 +8,217 @@
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 using namespace std;
 
+//valid command
+const string ADD_CASE_1="add `test` ppl `jiangze` note `CS2103` at `nus`";
+const string ADD_CASE_2="add `test` impt `H` #: #:P #T.T";
+const string ADD_CASE_3="add `test` impt `low`";
+const string ADD_CASE_4="add `test` note `study`";
+const string ADD_CASE_5="add `test` #a #b #c note `_|_`";
+const string ADD_CASE_6="add `test` at `nus`  note `  note   `";
+//invalid command
+const string ADD_CASE_7="add `test` note `nus` note `111`";
+const string ADD_CASE_8="add `test` at `home` at `wc`";
+const string ADD_CASE_9="add `test` 10";
+const string ADD_CASE_10="add `test` dddddddd";
+//valid command
+const string MOD_CASE_1="mod `test` ppl `jiangze` note `CS2103` at `nus`";
+const string MOD_CASE_2="mod `test` impt `H` #: #:P #T.T";
+const string MOD_CASE_3="mod 1 at `home`";
+const string MOD_CASE_4="mod  exact `test` note `study`";
+const string MOD_CASE_5="mod  exact `test`";
+const string MOD_CASE_6="mod `test` at `nus` -pplall";
+const string MOD_CASE_7="mod `test` -ppl `a`";
+const string MOD_CASE_8="mod `test` -from";
+const string MOD_CASE_9="mod `test` -due";
+const string MOD_CASE_10="mod `test` -rtall";
+//invalid command
+const string MOD_CASE_11="mod `test` note `dd` note `123`";
+const string MOD_CASE_12="mod `test` at `home` at `nus`";
+const string MOD_CASE_13="mod `test` 1111";
+const string MOD_CASE_14="mod `test` dddddddd";
+const string MOD_CASE_15="mod exact exact";
+//valid command
+const string FIND_CASE_1="find name `test`";
+const string FIND_CASE_2="find undone";
+const string FIND_CASE_3="find #123";
+const string FIND_CASE_4="find timed";
+const string FIND_CASE_5="find floating";
+const string FIND_CASE_6="find overdue";
+//invalid command
+const string FIND_CASE_7="find duee `tomorrow`";
+const string FIND_CASE_8="find `test`";
+const string FIND_CASE_9="find timed timed";
+const string FIND_CASE_10="find `test` dddddddd";
+
+//valid command
+const string DEL_CASE_1="del `test`";
+const string DEL_CASE_2="del exact `test`";
+const string DEL_CASE_3="del 1"; 
+
+const int VALID_COMMAND = 2;
+const int INVALID_COMMAND = 0;
+
 namespace UnitTest
 {
 	TEST_CLASS(test_Interpreter)
 	{
 	public:
-		
-		
-		TEST_METHOD(Add)
+
+
+		TEST_METHOD(Interpreter_Add)
 		{
 			// TODO: Your test code here
-		
-		Interpreter test;
-		Command* testCommand;  
-		
-		Messenger response;
-	
 
+			Interpreter test;
+			Command* testCommand;  
 
-        // For test case, normally, I use equivalence pattitioning to find bugs.
-		// The first partition: Normal case.
-		string case1="add `ww` at `nus` note `study`";
-		testCommand=test.interpretCommand(case1,response);
-		Assert::AreEqual(2,(int)response.getStatus());
-		
-		string case2="add `ww` #qq #pp";
-		testCommand=test.interpretCommand(case2,response);
-		Assert::AreEqual(2,(int)response.getStatus());
-		
-		string case4="add `ww` ppl `a,b,c` note `study`";
-		testCommand=test.interpretCommand(case4,response);
-		Assert::AreEqual(2,(int)response.getStatus());
-		
-		// The second partition: empty content. 
-		string case5="add `ww`"; 
-		testCommand=test.interpretCommand(case5,response);
-		Assert::AreEqual(2,(int)response.getStatus());
-		
-		
-		string case6="add `ww` at ``";
-		testCommand=test.interpretCommand(case6,response);
-		Assert::AreEqual(2,(int)response.getStatus());
-		
-		string case7="add `ww` note ``";
-		testCommand=test.interpretCommand(case7,response);
-		Assert::AreEqual(2,(int)response.getStatus());
-		
-		string case9="add `ww` at `nus` note `study";
-		testCommand=test.interpretCommand(case9,response);
-		Assert::AreEqual(0,(int)response.getStatus());
-		
-		string case10="add `ww``nus` note `study`";
-		testCommand=test.interpretCommand(case10,response);
-		Assert::AreEqual(0,(int)response.getStatus());
-		}
-		
-		TEST_METHOD(Mod)
-		{
-			// TODO: Your test code here
-		
-		Interpreter test;
-		Command* testCommand;  
-		Messenger response;
-	   
-		// The first partition: Normal case.
-		string case1="mod `ww` at `nus` note `study`";
-		testCommand=test.interpretCommand(case1,response);
-		Assert::AreEqual(2,(int)response.getStatus());
-		
-		string case2="mod `ww` #qq #pp";
-		testCommand=test.interpretCommand(case2,response);
-		Assert::AreEqual(2,(int)response.getStatus());
-		
-		string case4="mod `ww` ppl `a,b,c` note `study`";
-		testCommand=test.interpretCommand(case4,response);
-		Assert::AreEqual(2,(int)response.getStatus());
-		
-		// The second partition: empty content. 
-		string case5="mod `ww`"; 
-		testCommand=test.interpretCommand(case5,response);
-		Assert::AreEqual(2,(int)response.getStatus());
-		
-		string case6="mod `ww` at ``";
-		testCommand=test.interpretCommand(case6,response);
-		Assert::AreEqual(2,(int)response.getStatus());
-		
-		string case7="mod `ww` note ``";
-		testCommand=test.interpretCommand(case7,response);
-		Assert::AreEqual(2,(int)response.getStatus());
-		
-		string case9="mod `ww` at `nus` note `study";
-		testCommand=test.interpretCommand(case9,response);
-		Assert::AreEqual(0,(int)response.getStatus());
-		
-		string case10="mod `ww``nus` note `study`";
-	    testCommand=test.interpretCommand(case10,response);
-		Assert::AreEqual(0,(int)response.getStatus());
-	
-		
-		// For modify, also could check the boundary condition
+			Messenger response;
 
-		 string case11 = "mod -1 name `pp`";
-	     testCommand=test.interpretCommand(case11,response);
-		 Assert::AreEqual(0,(int)response.getStatus());
-		
-		}
+			//CASE 1 to 6 are valid, 7 to 10 are invalid	
+			testCommand=test.interpretCommand(ADD_CASE_1,response);
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
 
-		
-		TEST_METHOD(Find)
-		{
-			// TODO: Your test code here
-		
-		Interpreter test;
-		Command* tt;
-		string pp="find at `nus` note `study` undone";
-		
-		Messenger response;
-		
-		tt=test.interpretCommand(pp,response);
-		
-		Command_Find* ttt=(Command_Find*)tt;
-		
-		string testone = ttt->getLocation();
-		
-		TP::STATUS get=response.getStatus();
-		Assert:: AreEqual((string)"nus", (string)testone);
-		
+			testCommand=test.interpretCommand(ADD_CASE_2,response);
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(ADD_CASE_3,response);
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(ADD_CASE_4,response);
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(ADD_CASE_5,response);
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(ADD_CASE_6,response);
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(ADD_CASE_7,response);
+			Assert::AreEqual(INVALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(ADD_CASE_8,response);
+			Assert::AreEqual(INVALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(ADD_CASE_9,response);
+			Assert::AreEqual(INVALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(ADD_CASE_10,response);
+			Assert::AreEqual(INVALID_COMMAND,(int)response.getStatus());
+
 		}
 
 
+		TEST_METHOD(Interpreter_Mod)
+		{
+
+			//Case 1 to 10 are valid, 11 to 15 are invalid
+			Interpreter test;
+			Command* testCommand;  
+			Messenger response;
+
+			testCommand=test.interpretCommand(MOD_CASE_1,response);
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(MOD_CASE_2,response);
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(MOD_CASE_3,response);
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(MOD_CASE_4,response);
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(MOD_CASE_5,response);
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(MOD_CASE_6,response);
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(MOD_CASE_7,response);
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(MOD_CASE_8,response);
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(MOD_CASE_9,response);
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(MOD_CASE_10,response);
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(MOD_CASE_11,response);
+			Assert::AreEqual(INVALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(MOD_CASE_12,response);
+			Assert::AreEqual(INVALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(MOD_CASE_13,response);
+			Assert::AreEqual(INVALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(MOD_CASE_14,response);
+			Assert::AreEqual(INVALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(MOD_CASE_15,response);
+			Assert::AreEqual(INVALID_COMMAND,(int)response.getStatus());
+
+		}
+
+
+		TEST_METHOD(Interpreter_Find)
+		{
+			Interpreter test;
+			Command* testCommand;  
+			Messenger response;
+
+
+			//CASE 1 to 6 are valid, 7 to 10 are invalid	
+			testCommand=test.interpretCommand(FIND_CASE_1,response);
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(FIND_CASE_2,response);
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(FIND_CASE_3,response);
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(FIND_CASE_4,response);
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(FIND_CASE_5,response);
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(FIND_CASE_6,response);
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(FIND_CASE_7,response);
+			Assert::AreEqual(INVALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(FIND_CASE_8,response);
+			Assert::AreEqual(INVALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(FIND_CASE_9,response);
+			Assert::AreEqual(INVALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(FIND_CASE_10,response);
+			Assert::AreEqual(INVALID_COMMAND,(int)response.getStatus());
+
+		}		
+
+		TEST_METHOD(Interpreter_DEL){
+			Interpreter test;
+			Command* testCommand;  
+			Messenger response;
+			testCommand=test.interpretCommand(DEL_CASE_1,response);
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(DEL_CASE_2,response);
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(DEL_CASE_3,response);
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
+
+
+		}
 
 	};
 }
