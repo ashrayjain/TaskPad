@@ -40,10 +40,10 @@ Command* Interpreter_Find::interpretFind(Command_Find* commandType, string comma
 	time_t			contentTime;
 	list<time_t>	contentTimeList;
 
-	if(getFromDateMessage(commandStr,flag,contentTime)){
+	if(setFromDateMessage(commandStr,flag,contentTime)){
 		commandType->setFromDate(contentTime);
 	}
-	if(getToDateMessage(commandStr,flag,contentTime)){
+	if(setToDateMessage(commandStr,flag,contentTime)){
 		commandType->setToDate(contentTime);
 	}
 	if(setParticipantsMessage(commandStr,flag,contentStringList,FIELD_PPL)){
@@ -64,13 +64,13 @@ Command* Interpreter_Find::interpretFind(Command_Find* commandType, string comma
 	if(setGeneralMessage(commandStr,flag,contentString,FIELD_NAME)){
 		commandType->setOptName(contentString);
 	}
-	if(getTaskStateMessage(commandStr,flag,contentTaskState)){
+	if(setTaskStateMessage(commandStr,flag,contentTaskState)){
 		commandType->setTaskState(contentTaskState);
 	}
-	if(getTaskTypeMessage(commandStr,flag,contentTaskType)){
+	if(setTaskTypeMessage(commandStr,flag,contentTaskType)){
 		commandType->setTaskType(contentTaskType);
 	}	
-	if(getPriorityMessage(commandStr,flag,contentPriority)){
+	if(setPriorityMessage(commandStr,flag,contentPriority)){
 		commandType->setPriority(contentPriority);
 	}
 	

@@ -32,27 +32,28 @@
 using namespace std;
 using namespace TP;
 
-const string GENERAL_ADD_CASE="((((\\s+)(due|by)|(\\s+)from|(\\s+)to|(\\s+)(impt|priority)|(\\s+)(at|place|location)|(\\s+)(ppl|with)|(\\s+)note|(\\s+)(rt|remind))(\\s+)`[^`]*`)|((\\s+)#[^( |`)]*))*(\\s*)";
-const string GENERAL_MOD_CASE="((((\\s+)(due|by)|(\\s+)from|(\\s+)name|(\\s+)to|(\\s+)(impt|priority)|(\\s+)(at|place|location)|(\\s+)(ppl|with)|(\\s+)note|(\\s+)(rt|remind)|(\\s+)-(rt|remind)|(\\s+)-(ppl|with)|(\\s+)\\+(rt|remind)|(\\s+)\\+(ppl|with))(\\s+)`[^`]*`)|((\\s+)done|(\\s+)undone)|((\\s+)-(due|by)|(\\s+)-from|(\\s+)-to)|((\\s+)-rtall|(\\s+)-pplall|(\\s+)-#)|((\\s+)(#|-#|\\+#)[^( |`)]*))*(\\s*)";
-const string GENERAL_FIND_CASE="((((\\s+)from|(\\s+)name|(\\s+)to|(\\s+)(impt|priority)|(\\s+)(at|place|location)|(\\s+)(ppl|with)|(\\s+)note|(\\s+)(rt|remind))(\\s+)`[^`]*`)|((\\s+)#[^( |`)]*)|((\\s+)done|(\\s+)undone|(\\s+)overdue)|(((\\s+)timed|(\\s+)deadline|(\\s+)floating)))*(\\s*)";
-const string COMMAND_ADD="^add(\\s+)`([^`]+)`(\\s*)";
-const string COMMAND_MOD="^mod(\\s+)`([^`]+)`(\\s*)";
-const string COMMAND_MOD_EXACT="^mod(\\s+)exact(\\s+)`([^`]+)`(\\s*)";
-const string COMMAND_MOD_INDEX="^mod(\\s+)([0-9]+)(\\s*)";
-const string COMMAND_FIND="^find(\\s*)";
-const string COMMAND_FIND_EXACT="^find(\\s+)exact(\\s*)";
-const string COMMAND_DEL="^del(\\s+)`([^`]+)`(\\s*)";
-const string COMMAND_DEL_EXACT="^del(\\s+)exact(\\s+)`([^`]+)`(\\s*)";
-const string COMMAND_DEL_INDEX="^del(\\s+)([0-9]+)(\\s*)";
-const string COMMAND_UNDO="^undo(\\s*)";
-const string COMMAND_REDO="^redo(\\s*)";
-const string COMMAND_INDEX="^([0-9]+)(\\s*)";
-const string ERROR_COMMAND="invalid command";
-const int TOTAL_TEST_CASE=12;
-const int DUMMY_VALUE=-1;
-const int START_POSITION_VALUE=0;
-const int START_POSITION=0;
-const char NOTATION_ACCENT_GRAVE='`';
+const string GENERAL_ADD_CASE			="((((\\s+)(due|by)|(\\s+)from|(\\s+)to|(\\s+)(impt|priority)|(\\s+)(at|place|location)|(\\s+)(ppl|with)|(\\s+)note|(\\s+)(rt|remind))(\\s+)`[^`]*`)|((\\s+)#[^( |`)]*))*(\\s*)";
+const string GENERAL_MOD_CASE			="((((\\s+)(due|by)|(\\s+)from|(\\s+)name|(\\s+)to|(\\s+)(impt|priority)|(\\s+)(at|place|location)|(\\s+)(ppl|with)|(\\s+)note|(\\s+)(rt|remind)|(\\s+)-(rt|remind)|(\\s+)-(ppl|with)|(\\s+)\\+(rt|remind)|(\\s+)\\+(ppl|with))(\\s+)`[^`]*`)|((\\s+)done|(\\s+)undone)|((\\s+)-(due|by)|(\\s+)-from|(\\s+)-to)|((\\s+)-rtall|(\\s+)-pplall|(\\s+)-#)|((\\s+)(#|-#|\\+#)[^( |`)]*))*(\\s*)";
+const string GENERAL_FIND_CASE			="((((\\s+)from|(\\s+)name|(\\s+)to|(\\s+)(impt|priority)|(\\s+)(at|place|location)|(\\s+)(ppl|with)|(\\s+)note|(\\s+)(rt|remind))(\\s+)`[^`]*`)|((\\s+)#[^( |`)]*)|((\\s+)done|(\\s+)undone|(\\s+)overdue)|(((\\s+)timed|(\\s+)deadline|(\\s+)floating)))*(\\s*)";
+const string COMMAND_ADD				="^add(\\s+)`([^`]+)`(\\s*)";
+const string COMMAND_MOD				="^mod(\\s+)`([^`]+)`(\\s*)";
+const string COMMAND_MOD_EXACT			="^mod(\\s+)exact(\\s+)`([^`]+)`(\\s*)";
+const string COMMAND_MOD_INDEX			="^mod(\\s+)([0-9]+)(\\s*)";
+const string COMMAND_FIND				="^find(\\s*)";
+const string COMMAND_FIND_EXACT			="^find(\\s+)exact(\\s*)";
+const string COMMAND_DEL				="^del(\\s+)`([^`]+)`(\\s*)";
+const string COMMAND_DEL_EXACT			="^del(\\s+)exact(\\s+)`([^`]+)`(\\s*)";
+const string COMMAND_DEL_INDEX			="^del(\\s+)([0-9]+)(\\s*)";
+const string COMMAND_UNDO				="^undo(\\s*)";
+const string COMMAND_REDO				="^redo(\\s*)";
+const string COMMAND_INDEX				="^([0-9]+)(\\s*)";
+const string ERROR_COMMAND				="invalid command";
+
+const int	 TOTAL_TEST_CASE			=12;
+const int	 DUMMY_VALUE				=-1;
+const int	 START_POSITION_VALUE		=0;
+const int    START_POSITION				=0;
+const char   NOTATION_ACCENT_GRAVE		='`';
 
 enum COMMAND_CATEGORY{ADD_COMMAND,MOD_COMMAND,MOD_EXACT_COMMAND,MOD_INDEX_COMMAND,FIND_COMMAND,FIND_EXACT_COMMAND,DEL_COMMAND, 
 	DEL_EXACT_COMMAND, DEL_INDEX_COMMAND, UNDO_COMMAND,REDO_COMMAND,INDEX_COMMAND};

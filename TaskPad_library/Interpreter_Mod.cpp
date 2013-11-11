@@ -33,13 +33,13 @@ Command* Interpreter_Mod ::interpretModify(Command_Mod* commandType, string comm
 	time_t			contentTime;
 	list<time_t>	contentTimeList;
 
-	if(getDueDateMessage(commandStr,flag,contentTime)){		
+	if(setDueDateMessage(commandStr,flag,contentTime)){		
 		commandType->setDueDate(contentTime);		
 	}		
-	if(getFromDateMessage(commandStr,flag,contentTime)){
+	if(setFromDateMessage(commandStr,flag,contentTime)){
 		commandType->setFromDate(contentTime);
 	}
-	if(getToDateMessage(commandStr,flag,contentTime)){
+	if(setToDateMessage(commandStr,flag,contentTime)){
 		commandType->setToDate(contentTime);
 	}
 	if(setParticipantsMessage(commandStr,flag,contentStringList,FIELD_PPL)){
@@ -54,7 +54,7 @@ Command* Interpreter_Mod ::interpretModify(Command_Mod* commandType, string comm
 	if(setRemindTimesMessage(commandStr,flag,contentTimeList,FIELD_RT)){
 		commandType->setRemindTimes(contentTimeList);
 	}
-	if(getPriorityMessage(commandStr,flag,contentPriority)){
+	if(setPriorityMessage(commandStr,flag,contentPriority)){
 		commandType->setPriority(contentPriority);
 	}
 	if(setTagsMessage(commandStr,flag,contentStringList,FIELD_TAG)){
@@ -63,7 +63,7 @@ Command* Interpreter_Mod ::interpretModify(Command_Mod* commandType, string comm
 	if(setGeneralMessage(commandStr,flag,contentString,FIELD_NAME)){
 		commandType->setOptName(contentString);
 	}
-	if(getTaskStateMessage(commandStr,flag,contentTaskState)){
+	if(setTaskStateMessage(commandStr,flag,contentTaskState)){
 		commandType->setTaskState(contentTaskState);
 	}
 	if(setNoParameterMessage(commandStr,flag,FIELD_DUE_REMOVE)){
