@@ -24,15 +24,15 @@ namespace UnitTest{
 			////TC0: WORK FLOW ADD
 			Manager scheduler;
 			const char* TC0_TASK_NAME = "Project Kai Testing";
-			const char* TEST_ADD_TASK_1 = "add `Project Kai Testing`";
-			Messenger msg = scheduler.processCommand(TEST_ADD_TASK_1);
+			const char* TEST_ADD_SIMPLE_TASK = "add `Project Kai Testing`";
+			Messenger msg = scheduler.processCommand(TEST_ADD_SIMPLE_TASK);
 			Assert::AreEqual((int)msg.getStatus(), (int) SUCCESS);
 			Assert::AreEqual((int)msg.getCommandType(), (int)ADD);
 			Assert::AreEqual(msg.getTask().getName(), (string)TC0_TASK_NAME);
 
 			////TC1: WORK FLOW DEL
-			const char* TEST_DEL_TASK_1 = "del exact `Project Kai Testing`";
-			msg = scheduler.processCommand(TEST_DEL_TASK_1);
+			const char* TEST_DEL_SIMPLE_TASK = "del exact `Project Kai Testing`";
+			msg = scheduler.processCommand(TEST_DEL_SIMPLE_TASK);
 			Assert::AreEqual((int)msg.getStatus(), (int)SUCCESS);
 			Assert::AreEqual((int)msg.getCommandType(), (int)DEL);
 			Assert::AreEqual(msg.getTask().getName(), (string)TC0_TASK_NAME);
@@ -47,45 +47,53 @@ namespace UnitTest{
 			////6. user deleted the task
 			////
 			////TC2: WORK FLOW ADD 2
-			const char* TEST_ADD_TASK_2 = "add `Project22 Kai Testing` note `TEST NOTE` #KaiTesting";
-			msg = scheduler.processCommand(TEST_ADD_TASK_2);
+			const char* TEST_ADD_TASK_ID_2 = "add `Project22 Kai Testing` note `TEST NOTE` #KaiTesting";
+			const char* TC2_TASK_NAME = "Project22 Kai Testing";
+			const char* TC2_NOTE = "TEST NOTE";
+			msg = scheduler.processCommand(TEST_ADD_TASK_ID_2);
 			Assert::AreEqual((int)msg.getStatus(), (int)SUCCESS);
 			Assert::AreEqual((int)msg.getCommandType(), (int)ADD);
-			Assert::AreEqual(msg.getTask().getName(), (string)"Project22 Kai Testing");
-			Assert::AreEqual(msg.getTask().getNote(), (string)"TEST NOTE");
+			Assert::AreEqual(msg.getTask().getName(), (string)TC2_TASK_NAME);
+			Assert::AreEqual(msg.getTask().getNote(), (string)TC2_NOTE);
 
 			////TC3: WORK FLOW MOD
-			msg = scheduler.processCommand("mod exact `Project22 Kai Testing` note `TEST NOTE2`");
+			const char* TEST_MOD_TASK_ID_2 = "mod exact `Project22 Kai Testing` note `TEST NOTE2`";
+			const char* TC3_NOTE = "TEST NOTE2";
+			msg = scheduler.processCommand(TEST_MOD_TASK_ID_2);
 			Assert::AreEqual((int)msg.getStatus(), (int)SUCCESS);
 			Assert::AreEqual((int)msg.getCommandType(), (int)MOD);
-			Assert::AreEqual(msg.getTask().getNote(), (string)"TEST NOTE2");
+			Assert::AreEqual(msg.getTask().getNote(), (string)TC3_NOTE);
 
 			////TC4: UNDO
-			msg = scheduler.processCommand("undo");
+			const char* TEST_UNDO_CMD_MOD = "undo";
+			msg = scheduler.processCommand(TEST_UNDO_CMD_MOD);
 			Assert::AreEqual((int)msg.getStatus(), (int)SUCCESS);
 			Assert::AreEqual((int)msg.getCommandType(), (int)UNDO);
-			Assert::AreEqual(msg.getTask().getNote(), (string)"TEST NOTE");
+			Assert::AreEqual(msg.getTask().getNote(), (string)TC2_NOTE);
 
 			////TC5: REDO
-			msg = scheduler.processCommand("redo");
+			const char* TEST_REDO_CMD_MOD = "redo";
+			msg = scheduler.processCommand(TEST_REDO_CMD_MOD);
 			Assert::AreEqual((int)msg.getStatus(), (int)SUCCESS);
 			Assert::AreEqual((int)msg.getCommandType(), (int)REDO);
-			Assert::AreEqual(msg.getTask().getNote(), (string)"TEST NOTE2");
+			Assert::AreEqual(msg.getTask().getNote(), (string)TC3_NOTE);
 
 			////TC6: FIND
-			msg = scheduler.processCommand("find #KaiTesting");
+			const char* TEST_FIND_TAG = "find #KaiTesting";
+			msg = scheduler.processCommand(TEST_FIND_TAG);
 			Assert::AreEqual((int)msg.getStatus(), (int)SUCCESS);
 			Assert::AreEqual((int)msg.getCommandType(), (int)FIND);
-			Assert::AreEqual(msg.getList().front().getName(), (string)"Project22 Kai Testing");
+			Assert::AreEqual(msg.getList().front().getName(), (string)TC2_TASK_NAME);
 
 			////reset
 			scheduler.resetStatus();
 
 			////TC7: DEL 2
-			msg = scheduler.processCommand("del exact `Project22 Kai Testing`");
+			const char* TEST_DEL_EXACT = "del exact `Project22 Kai Testing`";
+			msg = scheduler.processCommand(TEST_DEL_EXACT);
 			Assert::AreEqual((int)msg.getStatus(), (int)SUCCESS);
 			Assert::AreEqual((int)msg.getCommandType(),(int) DEL);
-			Assert::AreEqual(msg.getTask().getName(), (string)"Project22 Kai Testing");
+			Assert::AreEqual(msg.getTask().getName(), (string)TC2_TASK_NAME);
 		}
 	};
 }
