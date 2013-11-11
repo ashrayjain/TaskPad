@@ -1,0 +1,9 @@
+# Config file for the Logger
+
+FileName: TaskPadLog.txt
+
+# For the MinLogLevel, please use one of the following values: INFOLOG, NOTICELOG, WARNINGLOG, ERRORLOG, FATALLOG
+MinLogLevel: INFOLOG
+
+# For the class to Monitor, give the value that you pass as the first parameter to the log function of the Logger
+ClasstoMonitor:
