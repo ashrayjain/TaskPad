@@ -512,7 +512,7 @@ Messenger Manager::getPrevPeriodTasks(PERIOD_TYPE pType) {
 }
 
 void Manager::setResponseToError(const STATUS& status, const string& message) {
-	_response.setStatus(ERR);
+	_response.setStatus(status);
 	_response.setErrorMsg(message);
 	return;
 }
