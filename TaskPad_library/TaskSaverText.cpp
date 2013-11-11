@@ -55,6 +55,7 @@ void TaskSaverText::save(StorableTaskDatastore* taskDS, const std::string& fileN
 // deleted tasks' IDs are recorded in a delete record
 void TaskSaverText::save(const Task& task, const COMMAND_TYPE& cType) {
 	assert(isSaveableCommandType(cType));
+
 	switch(cType) {
 		case DEL:
 			saveDeleteCommand(task);
@@ -334,7 +335,6 @@ void TaskSaverText::writeLineToFile(string line, bool newLine) {
 /****************************************************/
 /***************** Helper functions *****************/
 /****************************************************/
-
 
 bool TaskSaverText::isSaveableCommandType(COMMAND_TYPE cType) {
 	return (cType == DEL || cType == MOD || cType == ADD);
