@@ -23,10 +23,10 @@ const string ADD_CASE_10="add `test` dddddddd";
 //valid command
 const string MOD_CASE_1="mod `test` ppl `jiangze` note `CS2103` at `nus`";
 const string MOD_CASE_2="mod `test` impt `H` #: #:P #T.T";
-const string MOD_CASE_3="mod 1 from at `home`";
+const string MOD_CASE_3="mod 1 at `home`";
 const string MOD_CASE_4="mod  exact `test` note `study`";
-const string MOD_CASE_5="add  exact `test`";
-const string MOD_CASE_6="mod `test` at `nus` -note `  note   `";
+const string MOD_CASE_5="mod  exact `test`";
+const string MOD_CASE_6="mod `test` at `nus` -pplall";
 const string MOD_CASE_7="mod `test` -ppl `a`";
 const string MOD_CASE_8="mod `test` -from";
 const string MOD_CASE_9="mod `test` -due";
@@ -55,6 +55,9 @@ const string DEL_CASE_1="del `test`";
 const string DEL_CASE_2="del exact `test`";
 const string DEL_CASE_3="del 1"; 
 
+const int VALID_COMMAND = 2;
+const int INVALID_COMMAND = 0;
+
 namespace UnitTest
 {
 	TEST_CLASS(test_Interpreter)
@@ -73,34 +76,34 @@ namespace UnitTest
 
 			//CASE 1 to 6 are valid, 7 to 10 are invalid	
 			testCommand=test.interpretCommand(ADD_CASE_1,response);
-			Assert::AreEqual(2,(int)response.getStatus());
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
 
 			testCommand=test.interpretCommand(ADD_CASE_2,response);
-			Assert::AreEqual(2,(int)response.getStatus());
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
 
 			testCommand=test.interpretCommand(ADD_CASE_3,response);
-			Assert::AreEqual(2,(int)response.getStatus());
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
 
 			testCommand=test.interpretCommand(ADD_CASE_4,response);
-			Assert::AreEqual(2,(int)response.getStatus());
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
 
 			testCommand=test.interpretCommand(ADD_CASE_5,response);
-			Assert::AreEqual(2,(int)response.getStatus());
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
 
 			testCommand=test.interpretCommand(ADD_CASE_6,response);
-			Assert::AreEqual(2,(int)response.getStatus());
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
 
 			testCommand=test.interpretCommand(ADD_CASE_7,response);
-			Assert::AreEqual(0,(int)response.getStatus());
+			Assert::AreEqual(INVALID_COMMAND,(int)response.getStatus());
 
 			testCommand=test.interpretCommand(ADD_CASE_8,response);
-			Assert::AreEqual(0,(int)response.getStatus());
+			Assert::AreEqual(INVALID_COMMAND,(int)response.getStatus());
 
 			testCommand=test.interpretCommand(ADD_CASE_9,response);
-			Assert::AreEqual(0,(int)response.getStatus());
+			Assert::AreEqual(INVALID_COMMAND,(int)response.getStatus());
 
 			testCommand=test.interpretCommand(ADD_CASE_10,response);
-			Assert::AreEqual(0,(int)response.getStatus());
+			Assert::AreEqual(INVALID_COMMAND,(int)response.getStatus());
 
 		}
 
@@ -114,49 +117,49 @@ namespace UnitTest
 			Messenger response;
 
 			testCommand=test.interpretCommand(MOD_CASE_1,response);
-			Assert::AreEqual(2,(int)response.getStatus());
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
 
 			testCommand=test.interpretCommand(MOD_CASE_2,response);
-			Assert::AreEqual(2,(int)response.getStatus());
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
 
 			testCommand=test.interpretCommand(MOD_CASE_3,response);
-			Assert::AreEqual(2,(int)response.getStatus());
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
 
 			testCommand=test.interpretCommand(MOD_CASE_4,response);
-			Assert::AreEqual(2,(int)response.getStatus());
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
 
 			testCommand=test.interpretCommand(MOD_CASE_5,response);
-			Assert::AreEqual(2,(int)response.getStatus());
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
 
 			testCommand=test.interpretCommand(MOD_CASE_6,response);
-			Assert::AreEqual(2,(int)response.getStatus());
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
 
 			testCommand=test.interpretCommand(MOD_CASE_7,response);
-			Assert::AreEqual(0,(int)response.getStatus());
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
 
 			testCommand=test.interpretCommand(MOD_CASE_8,response);
-			Assert::AreEqual(0,(int)response.getStatus());
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
 
 			testCommand=test.interpretCommand(MOD_CASE_9,response);
-			Assert::AreEqual(0,(int)response.getStatus());
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
 
 			testCommand=test.interpretCommand(MOD_CASE_10,response);
-			Assert::AreEqual(0,(int)response.getStatus());
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
 
 			testCommand=test.interpretCommand(MOD_CASE_11,response);
-			Assert::AreEqual(0,(int)response.getStatus());
+			Assert::AreEqual(INVALID_COMMAND,(int)response.getStatus());
 
 			testCommand=test.interpretCommand(MOD_CASE_12,response);
-			Assert::AreEqual(0,(int)response.getStatus());
+			Assert::AreEqual(INVALID_COMMAND,(int)response.getStatus());
 
 			testCommand=test.interpretCommand(MOD_CASE_13,response);
-			Assert::AreEqual(0,(int)response.getStatus());
+			Assert::AreEqual(INVALID_COMMAND,(int)response.getStatus());
 
 			testCommand=test.interpretCommand(MOD_CASE_14,response);
-			Assert::AreEqual(0,(int)response.getStatus());
+			Assert::AreEqual(INVALID_COMMAND,(int)response.getStatus());
 
 			testCommand=test.interpretCommand(MOD_CASE_15,response);
-			Assert::AreEqual(0,(int)response.getStatus());
+			Assert::AreEqual(INVALID_COMMAND,(int)response.getStatus());
 
 		}
 
@@ -170,34 +173,34 @@ namespace UnitTest
 
 			//CASE 1 to 6 are valid, 7 to 10 are invalid	
 			testCommand=test.interpretCommand(FIND_CASE_1,response);
-			Assert::AreEqual(2,(int)response.getStatus());
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
 
 			testCommand=test.interpretCommand(FIND_CASE_2,response);
-			Assert::AreEqual(2,(int)response.getStatus());
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
 
 			testCommand=test.interpretCommand(FIND_CASE_3,response);
-			Assert::AreEqual(2,(int)response.getStatus());
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
 
 			testCommand=test.interpretCommand(FIND_CASE_4,response);
-			Assert::AreEqual(2,(int)response.getStatus());
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
 
 			testCommand=test.interpretCommand(FIND_CASE_5,response);
-			Assert::AreEqual(2,(int)response.getStatus());
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
 
 			testCommand=test.interpretCommand(FIND_CASE_6,response);
-			Assert::AreEqual(2,(int)response.getStatus());
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
 
 			testCommand=test.interpretCommand(FIND_CASE_7,response);
-			Assert::AreEqual(0,(int)response.getStatus());
+			Assert::AreEqual(INVALID_COMMAND,(int)response.getStatus());
 
 			testCommand=test.interpretCommand(FIND_CASE_8,response);
-			Assert::AreEqual(0,(int)response.getStatus());
+			Assert::AreEqual(INVALID_COMMAND,(int)response.getStatus());
 
 			testCommand=test.interpretCommand(FIND_CASE_9,response);
-			Assert::AreEqual(0,(int)response.getStatus());
+			Assert::AreEqual(INVALID_COMMAND,(int)response.getStatus());
 
 			testCommand=test.interpretCommand(FIND_CASE_10,response);
-			Assert::AreEqual(0,(int)response.getStatus());
+			Assert::AreEqual(INVALID_COMMAND,(int)response.getStatus());
 
 		}		
 
@@ -206,13 +209,13 @@ namespace UnitTest
 			Command* testCommand;  
 			Messenger response;
 			testCommand=test.interpretCommand(DEL_CASE_1,response);
-			Assert::AreEqual(2,(int)response.getStatus());
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
 
 			testCommand=test.interpretCommand(DEL_CASE_2,response);
-			Assert::AreEqual(2,(int)response.getStatus());
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
 
 			testCommand=test.interpretCommand(DEL_CASE_3,response);
-			Assert::AreEqual(2,(int)response.getStatus());
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
 
 
 		}
