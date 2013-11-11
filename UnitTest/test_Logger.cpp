@@ -7,11 +7,12 @@
 #include "../TaskPad_library/Enum.h"
 
 
-//using namespace Microsoft::VisualStudio::CppUnitTestFramework;
+using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 using namespace std;
 using namespace TP;
 
 const std::string LOG_FILE_NAME = "TaskPadLog.txt";
+//@Manikandan Thyagesh A0100124J
 
 namespace UnitTest
 {		
@@ -20,10 +21,10 @@ namespace UnitTest
 	public:		
 		TEST_METHOD(Logger_getLogger)
 		{
-			Logger* log1 = Logger::getLogger();
-			Logger* log2 = Logger::getLogger();
+			::Logger* log1 = ::Logger::getLogger();
+			::Logger* log2 = ::Logger::getLogger();
 
-			Microsoft::VisualStudio::CppUnitTestFramework::Assert:: IsTrue(log1 == log2);
+			Assert:: IsTrue(log1 == log2);
 		}
 
 		TEST_METHOD(Logger_log)
@@ -31,26 +32,26 @@ namespace UnitTest
 			stringstream tempStream;
 			std::string curTime;
 
-			Logger* logger = Logger::getLogger();
+			::Logger* logger = ::Logger::getLogger();
 			curTime = getCurTime();
 			tempStream <<  "Logging Started at: " << curTime << endl;
-			Microsoft::VisualStudio::CppUnitTestFramework::Assert:: IsTrue(compareStreams(tempStream));
+			Assert:: IsTrue(compareStreams(tempStream));
 
 			logger->log("tClass0","Info Msg");
 			tempStream << "\t\t\t" << "tClass0: Info Msg"<<endl;
-			Microsoft::VisualStudio::CppUnitTestFramework::Assert:: IsTrue(compareStreams(tempStream));
+			Assert:: IsTrue(compareStreams(tempStream));
 
 			logger->log("tClass1","Notice Msg",NOTICELOG);
 			tempStream << "\t\t" << "tClass1: Notice Msg" << endl;
-			Microsoft::VisualStudio::CppUnitTestFramework::Assert:: IsTrue(compareStreams(tempStream));
+			Assert:: IsTrue(compareStreams(tempStream));
 
 			logger->log("tClass2","Warning Msg",WARNINGLOG);
 			tempStream << "\t" << "tClass2: Warning Msg" << endl;
-			Microsoft::VisualStudio::CppUnitTestFramework::Assert:: IsTrue(compareStreams(tempStream));
+			Assert:: IsTrue(compareStreams(tempStream));
 
 			logger->log("tClass3","Error Msg",ERRORLOG);
 			tempStream << "tClass3: Error Msg" << endl;
-			Microsoft::VisualStudio::CppUnitTestFramework::Assert:: IsTrue(compareStreams(tempStream));
+			Assert:: IsTrue(compareStreams(tempStream));
 
 			bool threwException = false;
 			std::string exceptionString;
@@ -63,11 +64,11 @@ namespace UnitTest
 				exceptionString = fle.what();
 			}
 
-			Microsoft::VisualStudio::CppUnitTestFramework::Assert::IsTrue(threwException);
-			Microsoft::VisualStudio::CppUnitTestFramework::Assert::AreEqual(exceptionString.c_str(), "Fatal log occurred!");
+			Assert::IsTrue(threwException);
+			Assert::AreEqual(exceptionString.c_str(), "Fatal log occurred!");
 
 			tempStream << "FATALLOG: tClass4: Fatal Msg" << endl;
-			Microsoft::VisualStudio::CppUnitTestFramework::Assert:: IsTrue(compareStreams(tempStream));
+			Assert:: IsTrue(compareStreams(tempStream));
 
 			std::remove(LOG_FILE_NAME.c_str());
 
