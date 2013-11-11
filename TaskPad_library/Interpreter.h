@@ -43,6 +43,6 @@ public:
 	//APIs
 	Command*             interpretCommand(std::string commandStr, Messenger &response);	
 	void                 interpretCommand(unsigned ActualIndex, Command *prevCommand);	
-	int                  interpretIndex  (std::string indexStr, Messenger &response); 
+	//int                  interpretIndex  (std::string indexStr, Messenger &response); 
 };
 #endif

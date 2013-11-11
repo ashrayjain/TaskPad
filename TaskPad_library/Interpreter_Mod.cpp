@@ -20,6 +20,9 @@
 using namespace std;
 using namespace TP;
 
+//AN JIANGZE (FUNCTIONALITY) LI ZIXUAN (REFACTORING)
+//@AN JIANGZE A0105729A 
+//@LI ZIXUAN  A0096582R
 Command* Interpreter_Mod ::interpretModify(Command_Mod* commandType, string commandStr, Messenger &response, bool &flag){
 
 	PRIORITY		contentPriority;
@@ -32,11 +35,9 @@ Command* Interpreter_Mod ::interpretModify(Command_Mod* commandType, string comm
 
 	if(getDueDateMessage(commandStr,flag,contentTime)){		
 		commandType->setDueDate(contentTime);		
-		
 	}		
 	if(getFromDateMessage(commandStr,flag,contentTime)){
 		commandType->setFromDate(contentTime);
-		
 	}
 	if(getToDateMessage(commandStr,flag,contentTime)){
 		commandType->setToDate(contentTime);

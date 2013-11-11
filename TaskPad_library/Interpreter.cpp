@@ -57,10 +57,6 @@ const char NOTATION_ACCENT_GRAVE='`';
 enum COMMAND_CATEGORY{ADD_COMMAND,MOD_COMMAND,MOD_EXACT_COMMAND,MOD_INDEX_COMMAND,FIND_COMMAND,FIND_EXACT_COMMAND,DEL_COMMAND, 
 	DEL_EXACT_COMMAND, DEL_INDEX_COMMAND, UNDO_COMMAND,REDO_COMMAND,INDEX_COMMAND};
 
-
-
-
-
 /**********************************************************************************
 *Input: commandStr->original command line input by user						      *
 *		response->a Messenger object that contains status and error message		  *
@@ -73,6 +69,9 @@ enum COMMAND_CATEGORY{ADD_COMMAND,MOD_COMMAND,MOD_EXACT_COMMAND,MOD_INDEX_COMMAN
 *		response->a Messenger object with status of interpretation and error      *
 *				  message if any												  *
 **********************************************************************************/
+//AN JIANGZE (FUNCTIONALITY) LI ZIXUAN (REFACTORING)
+//@AN JIANGZE A0105729A 
+//@LI ZIXUAN  A0096582R
 Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &response){
 
 	bool isValidCommand=true;
@@ -200,17 +199,14 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 					if(Find_pointer!=NULL){
 						delete Find_pointer;
 					}					
-				}
-				
+				}	
 				break;
 			}
-
 		case DEL_COMMAND:{
 				Command_Del* Del_pointer=new Command_Del();
 				Interpreter_Delete interpretDel;								
 				returnCommand=interpretDel.interpretDelete(Del_pointer,commandStr, response,isValidCommand);
 				break;
-
 			}
 		case DEL_EXACT_COMMAND:{
 				Command_Del* Del_pointer=new Command_Del();
@@ -233,8 +229,6 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 				response.setCommandType(DEL);
 				returnCommand=(Command*)Del_pointer;
 				break;
-
-
 			}
 		case UNDO_COMMAND:{
 				Command_Undo* Undo_pointer=new Command_Undo();
@@ -314,7 +308,7 @@ void Interpreter::interpretCommand(unsigned ActualIndex, Command *prevCommand){
 	}
 	return;
 }
-
+/*
 int Interpreter::interpretIndex(std::string indexStr, Messenger &response){
 
 	int num;
@@ -327,7 +321,7 @@ int Interpreter::interpretIndex(std::string indexStr, Messenger &response){
 	}
 	return num;
 }
-
+*/
 
 bool Interpreter::checkCommand(string command, int& commandType){
 
@@ -384,7 +378,6 @@ void Interpreter:: extractQuotedMessage(string field, string& quotedMessage){
 	getline(extract,quotedMessage,NOTATION_ACCENT_GRAVE);
 	quotedMessage.clear();
 	getline(extract,quotedMessage,NOTATION_ACCENT_GRAVE);
-
 	return;
 }
 
