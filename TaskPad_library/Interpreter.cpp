@@ -127,7 +127,7 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 				Command_Mod* Mod_pointer=new Command_Mod();
 				Interpreter_Mod interpretMod;
 				string taskName;
-				Mod_pointer->setFlagExact();	
+				Mod_pointer->setisSuccessfulExact();	
 				extractQuotedMessage(commandStr, taskName);
 				Mod_pointer->setName(taskName);
 
@@ -190,7 +190,7 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 
 				Command_Find* Find_pointer=new Command_Find();
 				Interpreter_Find interpretFind;
-				Find_pointer->setFlagExact();			
+				Find_pointer->setisSuccessfulExact();			
 				try{
 					returnCommand=interpretFind.interpretFind(Find_pointer,commandStr, response,isValidCommand);
 				}catch(string errorMessage){
@@ -211,7 +211,7 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 		case DEL_EXACT_COMMAND:{
 				Command_Del* Del_pointer=new Command_Del();
                 Interpreter_Delete interpretDel;						
-				Del_pointer->setFlagExact();
+				Del_pointer->setisSuccessfulExact();
 				returnCommand=interpretDel.interpretDelete(Del_pointer,commandStr, response,isValidCommand);
 				break;
 			}
@@ -381,28 +381,28 @@ void Interpreter:: extractQuotedMessage(string field, string& quotedMessage){
 	return;
 }
 
-int Interpreter:: getIndexMessage(string command,bool& flag){
+int Interpreter:: getIndexMessage(string command,bool& isSuccessful){
 
 	int num;
-	flag=integerConvert(command, num);
+	isSuccessful=integerConvert(command, num);
 	return num;
 }	
 
 bool Interpreter::integerConvert(string& requiredString, int& number){
 	
-	bool flag=true;
+	bool isSuccessful=true;
 
 	if(requiredString.empty()==true){
-		flag=false;
+		isSuccessful=false;
 	}
 	else{
 		for(unsigned i=START_POSITION_VALUE;i<requiredString.length();i++){
 			if(isdigit(requiredString[i])==false){
-				flag=false;
+				isSuccessful=false;
 			}
 		}
 	}
 	number=atoi(requiredString.c_str());
 
-	return flag;
+	return isSuccessful;
 }
