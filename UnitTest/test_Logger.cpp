@@ -11,12 +11,13 @@
 using namespace std;
 using namespace TP;
 
+const std::string LOG_FILE_NAME = "TaskPadLog.txt";
+
 namespace UnitTest
 {		
 	TEST_CLASS(test_Logger)
 	{
-	public:
-		
+	public:		
 		TEST_METHOD(Logger_getLogger)
 		{
 			Logger* log1 = Logger::getLogger();
@@ -50,11 +51,6 @@ namespace UnitTest
 			logger->log("tClass3","Error Msg",ERRORLOG);
 			tempStream << "tClass3: Error Msg" << endl;
 			Microsoft::VisualStudio::CppUnitTestFramework::Assert:: IsTrue(compareStreams(tempStream));
-			
-			auto fnptr = [&] {logger->log("tClass4","Fatal Msg",FATALLOG);};
-			tempStream << "FATALLOG: tClass4: Fatal Msg" << endl;
-			Microsoft::VisualStudio::CppUnitTestFramework::Assert::ExpectException<FatalLogException>(fnptr);
-			Microsoft::VisualStudio::CppUnitTestFramework::Assert:: IsTrue(compareStreams(tempStream));
 
 			bool threwException = false;
 			std::string exceptionString;
@@ -73,6 +69,8 @@ namespace UnitTest
 			tempStream << "FATALLOG: tClass4: Fatal Msg" << endl;
 			Microsoft::VisualStudio::CppUnitTestFramework::Assert:: IsTrue(compareStreams(tempStream));
 
+			std::remove(LOG_FILE_NAME.c_str());
+
 		}
 
 		string getCurTime()
@@ -88,18 +86,16 @@ namespace UnitTest
 
 		bool compareStreams(stringstream& sTemp)
 		{
-			const std::string LOG_FILE_NAME = "TaskPadLog.txt";
 			ifstream logFile(LOG_FILE_NAME);
 			stringstream fileBuf;
 
 			fileBuf << logFile.rdbuf();
+			logFile.close();
 
 			// debugging code
-			ofstream logFileTemp(LOG_FILE_NAME + "_temp.txt");
-			logFileTemp << sTemp.str();
-			logFileTemp.close();
-
-			logFile.close();
+			//ofstream logFileTemp(LOG_FILE_NAME + "_temp.txt");
+			//logFileTemp << sTemp.str();
+			//logFileTemp.close();
 
 			return (fileBuf.str() == sTemp.str());
 		}

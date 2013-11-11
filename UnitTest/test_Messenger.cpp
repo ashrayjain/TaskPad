@@ -42,12 +42,14 @@ namespace UnitTest
 
 			list<Task> returnList = testMessenger.getList();
 			list<Task>::iterator it = returnList.begin();
-			Assert::AreEqual((int) testMessenger.getList().size(),4);
+			Assert::AreEqual((int) returnList.size(),4);
 
 			Assert::AreEqual(((it++)->getName()),nameT1);
 			Assert::AreEqual(((it++)->getName()),nameT2);
 			Assert::AreEqual(((it++)->getName()),nameT3);
 			Assert::AreEqual(((it++)->getName()),nameT4);
+
+			Task::flushAllIndices();
 
 			Assert::AreEqual(testMessenger.getTask().getName(),nameT5);
 		}

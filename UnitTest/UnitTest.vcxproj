@@ -108,6 +108,7 @@
     <ClCompile Include="test_Logger.cpp" />
     <ClCompile Include="test_Manager.cpp" />
     <ClCompile Include="test_Messenger.cpp" />
+    <ClCompile Include="test_TaskLoaderText.cpp" />
     <ClCompile Include="test_TaskSaverText.cpp" />
     <ClCompile Include="test_System.cpp" />
   </ItemGroup>

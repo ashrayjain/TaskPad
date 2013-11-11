@@ -61,23 +61,6 @@ namespace TP{
 		FileNotFoundException (std::string errorStr)	{ _errorStr = errorStr; }
 	};
 
-	//For interpreter:
-
-	class DuplicateKeyWordException : public TP::BaseException {
-	public:
-		DuplicateKeyWordException (std::string errorStr)	{ _errorStr = errorStr; }
-	};
-
-	class TimeFormatException : public TP::BaseException {
-	public:
-		TimeFormatException (std::string errorStr)	{ _errorStr = errorStr; }
-	};
-
-	class GeneralCommandFormatException : public TP::BaseException {
-	public:
-		GeneralCommandFormatException (std::string errorStr)	{ _errorStr = errorStr; }
-	};
-
 	// for tasksaver
 
 	class FileHandlingException : public TP::BaseException {
