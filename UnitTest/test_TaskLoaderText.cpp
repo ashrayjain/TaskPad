@@ -5,7 +5,7 @@
 #include "../TaskPad_library/Datastore.h"
 #include "../TaskPad_library/Task.h"
 #include "../TaskPad_library/Enum.h"
-#include "../TaskPad_library/TaskSaverText.h"
+#include "../TaskPad_library/TaskLoaderText.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 using namespace std;
@@ -32,85 +32,74 @@ const string LABEL_STATE			= "state: ";
 const string LABEL_END_OF_TASK		= "EndOfTask";
 
 namespace UnitTest {		
-	TEST_CLASS(test_TaskSaverText) {
+	TEST_CLASS(test_TaskLoaderText) {
 	public:
 
-		TEST_METHOD(save_taskDS) {
-			// There are 2 partitions: A Datastore with tasks and one without
-			// * We can consider subcases where the tasks in the datastore have partially
-			// * filled attributes
+		TEST_METHOD(load_taskDS) {
+			// There are 3 partitions for this function:-
+			// (i) no main load, no changes to recover
+			// (ii) has main load, no changes to recover
+			// (iii) has main load, changes to recover
 
-			Storage_Datastore_stub taskStore, emptyStore;
-			TaskSaverText saver;
-			stringstream tempStream;
-			Task task;
+			//stringstream	taskPath;
+			//string			path1, path2;
+			//Storage_Datastore_stub taskDS;
+			//TaskLoaderText	loader(&taskDS);
+			//Task task1 = getFirstTask();
+			//Task task2 = getSecondTask();
+			//Task task3 = getThirdTask();
+			//list<Task> returnList;
+			//list<Task>::iterator it;
 
-			// Partition 1 & Boundary Condition : no Tasks in the list
-			emptyStreams(tempStream);
-			saver.save(&emptyStore,TASK_FILE_NAME);
-			Assert::IsTrue(compareStreams(tempStream));
+			//string newName = "New Task Name";
 
-			// Boundary condition - All possible attributes for a task, one task given 
-			taskStore.emptyStore();
-			emptyStreams(tempStream);
 
-			task = getFirstTask();
-			taskStore.addTask(task);
-			generateExpectedOutput(tempStream,task);
-			saver.save(&taskStore,TASK_FILE_NAME);
-			Assert::IsTrue(compareStreams(tempStream));
+			//// Partition 1, no main load/recover
+			//emptyStreams(taskPath);
+			//loader.load(TASK_FILE_NAME);
+			//Assert::IsTrue(taskDS.getTaskList().empty());
 
-			// Partition 2: Multiple Tasks in the list with variable attributes 
-			taskStore.emptyStore();
-			emptyStreams(tempStream);
+			////Partition 2, has main load.
+			//generateExpectedOutput(task1);
+			//generateExpectedOutput(task2);
+			//generateExpectedOutput(task3);
 
-			task = getFirstTask();
-			taskStore.addTask(task);
-			generateExpectedOutput(tempStream,task);
-			getSecondTask();
-			taskStore.addTask(task);
-			generateExpectedOutput(tempStream,task);
-			getThirdTask();
-			taskStore.addTask(task);
-			generateExpectedOutput(tempStream,task);
+			//loader.load(TASK_FILE_NAME);
+			//
+			//returnList = taskDS.getTaskList();
+			//it = returnList.begin();
+			//Assert::AreEqual((int) returnList.size(),3);
 
-			saver.save(&taskStore,TASK_FILE_NAME);
+			//Assert::IsTrue((*it++) == task1);
+			//Assert::IsTrue((*it++) == task2);
+			//Assert::IsTrue((*it++) == task3);
 
-			emptyStreams(tempStream);
-			taskStore.emptyStore();
-			std::remove(TASK_FILE_NAME.c_str());
-		}
+			////Partition 3, main load and recover changes
 
-		TEST_METHOD(save_task) {
-			// This method is called after every user command
-			// There are 3 partitions: (i) a mod/add command (ii) a del command
+			////simulate a modified task
+			//task1.setName(newName);
+			//taskPath.str("");
+			//taskPath << TASK_FILE_DIRECTORY << task1.getIndex() << TASK_FILE_EXTENSION;		
+			//path1 = taskPath.str();
+			//generateExpectedOutput(task1,path1);
+			//// simulate a deleted task
+			//path2 = generateExpectedOutput(task2.getIndex());
 
-			Task tempTask = getFirstTask();
-			ifstream tempIfstream;
-			COMMAND_TYPE tempType = ADD;
-			TaskSaverText saver;
-			stringstream tempStream;
-			stringstream taskPath;
-			taskPath << TASK_FILE_DIRECTORY << tempTask.getIndex() << TASK_FILE_EXTENSION;
-			
-			emptyStreams(tempStream);
+			//taskDS.emptyStore();
+			//loader.load(TASK_FILE_NAME);
+			//returnList = taskDS.getTaskList();
+			//it = returnList.begin();
+			//Assert::AreEqual((int) returnList.size(),2);
 
-			// Partition 1: ADD type
-			generateExpectedOutput(tempStream,tempTask);
-			saver.save(tempTask,tempType);
-			Assert::IsTrue(compareStreams(tempStream,taskPath.str()));
-			std::remove(taskPath.str().c_str());
+			//Assert::IsTrue((*it++) == task1);
+			//Assert::IsTrue((*it++) == task3);
 
-			//Partition 2: DEL type
-			taskPath.str("");
-			taskPath << TASK_FILE_DIRECTORY << tempTask.getIndex() << TASK_FILE_DELETED_EXTENSION;
-
-			emptyStreams(tempStream);
-			tempStream << tempTask.getIndex() << endl;
-			tempType = DEL;
-			saver.save(tempTask,tempType);
-			Assert::IsTrue(compareStreams(tempStream,taskPath.str()));
-			std::remove(taskPath.str().c_str());
+			//taskDS.emptyStore();
+			//std::remove(path1.c_str());
+			//std::remove(path2.c_str());
+			//emptyStreams(taskPath);
+			//emptyStreams(taskPath,TASK_FILE_NAME);
+			//std::remove(TASK_FILE_NAME.c_str());
 		}
 
 		Task getFirstTask() {
@@ -206,23 +195,10 @@ namespace UnitTest {
 			tempStream.str("");
 		}
 
-		bool compareStreams(stringstream& sTemp, string fileName = TASK_FILE_NAME) {
-			ifstream outFile(fileName);
-			stringstream fileBuf;
+		void generateExpectedOutput (const Task& task, string fileName = TASK_FILE_NAME) {
 
-			fileBuf << outFile.rdbuf();
+			ofstream parallelStream(fileName, ofstream::app);
 
-			// debugging code for unit test
-			//ofstream logFileTemp(TASK_FILE_NAME + "_temp.txt");
-			//logFileTemp << sTemp.str();
-			//logFileTemp.close();
-
-			outFile.close();
-
-			return (fileBuf.str() == sTemp.str());
-		}
-
-		void generateExpectedOutput (stringstream& parallelStream, const Task& task) {
 			//generate the expected output
 			parallelStream << endl;
 			parallelStream << LABEL_START_OF_TASK << endl;
@@ -270,6 +246,21 @@ namespace UnitTest {
 			}
 			parallelStream << LABEL_STATE << TASK_STATE_STRING[task.getState()] << endl;
 			parallelStream << LABEL_END_OF_TASK << endl;
+
+			parallelStream.close();
+		}
+
+		string generateExpectedOutput (unsigned long long index) {
+			stringstream taskPath;
+			taskPath.str("");
+			taskPath << TASK_FILE_DIRECTORY << index << TASK_FILE_DELETED_EXTENSION;
+
+			ofstream delTaskFile(taskPath.str());
+			delTaskFile << index << endl;
+
+			delTaskFile.close();
+
+			return taskPath.str();
 		}
 	};
 }

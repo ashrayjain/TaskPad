@@ -21,12 +21,9 @@
 
 #include "Command.h"
 
-using namespace std;
-using namespace TP;
-
 class Command_Show: public Command {
 public:
-	Command_Show	() {init(); setCommandType(SHOW); }
+	Command_Show	() {init(); setCommandType(TP::SHOW); }
 	~Command_Show	() { }
 
 	int		getIndex()			    { return Command::getIndex();		}

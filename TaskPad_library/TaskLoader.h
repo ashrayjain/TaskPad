@@ -34,7 +34,7 @@ class TaskLoader: public TaskFileHandler {
 		virtual ~TaskLoader() {}
 	protected:
 
-		StorableTaskDatastore* _taskDB;
+		StorableTaskDatastore* _taskDS;
 		void openFile(const std::string& fileName, std::ios_base::openmode oMode = std::ios::in);
 		void closeFile();
 
