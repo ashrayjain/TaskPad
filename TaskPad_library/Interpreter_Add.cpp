@@ -19,6 +19,9 @@
 using namespace std;
 using namespace TP;
 
+//AN JIANGZE (FUNCTIONALITY) LI ZIXUAN (REFACTORING)
+//@AN JIANGZE A0105729A 
+//@LI ZIXUAN  A0096582R
 Command* Interpreter_Add::interpretAdd(Command_Add* commandType, string commandStr, Messenger &response, bool &flag){
 
 	PRIORITY		contentPriority;

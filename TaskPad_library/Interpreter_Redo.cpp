@@ -20,6 +20,9 @@
 using namespace TP;
 using namespace std;
 
+//AN JIANGZE (FUNCTIONALITY) LI ZIXUAN (REFACTORING)
+//@AN JIANGZE A0105729A 
+//@LI ZIXUAN  A0096582R
 Command* Interpreter_Redo::interpretRedo(Command_Redo*commandType,string commandStr, Messenger &response, bool &flag){
 
 	response.setCommandType(REDO);

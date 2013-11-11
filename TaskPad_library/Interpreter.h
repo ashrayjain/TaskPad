@@ -35,7 +35,7 @@ class Interpreter{
 private:
 	//local functions
 	bool                 checkCommand    (std::string command, int& commandType);
-	int                  getIndexMessage (std::string command,bool&flag);
+	int                  getIndexMessage (std::string command,bool&isSuccessful);
     bool                 integerConvert  (std::string& requiredString, int& number);
 	void                 extractQuotedMessage(std::string field, std::string& quotedMessage);
 public:
@@ -43,6 +43,6 @@ public:
 	//APIs
 	Command*             interpretCommand(std::string commandStr, Messenger &response);	
 	void                 interpretCommand(unsigned ActualIndex, Command *prevCommand);	
-	int                  interpretIndex  (std::string indexStr, Messenger &response); 
+	//int                  interpretIndex  (std::string indexStr, Messenger &response); 
 };
 #endif
