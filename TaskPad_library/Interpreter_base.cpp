@@ -443,7 +443,6 @@ bool Interpreter_base::getTaskStateMessage(string command, bool&isSuccessful, TP
 vector<string> Interpreter_base::extractNoParameterMessage(string command, string regexTemplate,int& count){
 	string field;
 	smatch match;
-//	string subString=command;
 	string::const_iterator startPos = command.begin();
 	string::const_iterator endPos = command.end();
 	int startIndex=START_POSITION;
@@ -491,16 +490,14 @@ bool Interpreter_base::getTaskTypeMessage(string command, bool&isSuccessful, TP:
 	else{
 		isSuccessful=false;
 	}
-
 	return isNotEmpty;
 }
 //@AN JIANGZE A0105729A
 bool  Interpreter_base::setNoParameterMessage(string command, bool&isSuccessful, string regexTemplate){
+	
 	int count=EMPTY_ITEM;
 	bool isNotEmpty=true;
-
 	vector<string>result=extractNoParameterMessage(command, regexTemplate, count);
-
 	if(count==EMPTY_ITEM){
 		isNotEmpty=false;
 	}
@@ -541,7 +538,7 @@ time_t Interpreter_base::setTime(string timeInput,bool& isSuccessful, bool& isDu
 	}	
 	switch(countSlash){
 	case EMPTY_ITEM: {	
-			extractTimeWithEmptySlash(timeInput, content, isSuccessful, day, hour, min);
+			extractTimeWithZeroSlash(timeInput, content, isSuccessful, day, hour, min);
 			break;
 		}
 	case ONE_ITEM:{	
@@ -595,7 +592,7 @@ string Interpreter_base::toUpper(string str){
 	return str;
 }
 //@LI ZIXUAN A0096582R
-void Interpreter_base::extractTimeWithEmptySlash( std::string &timeMessage, std::string &content, bool& isSuccessful, int& day, int& hour, int& min )
+void Interpreter_base::extractTimeWithZeroSlash( std::string &timeMessage, std::string &content, bool& isSuccessful, int& day, int& hour, int& min )
 {
 	int countSpace=EMPTY_ITEM;
 	for(int i=START_POSITION;i<timeMessage.length();i++){
@@ -603,6 +600,7 @@ void Interpreter_base::extractTimeWithEmptySlash( std::string &timeMessage, std:
 			countSpace++;
 		}
 	}
+	//time format dd hh:mm
 	if(countSpace==ONE_ITEM){
 		stringstream extract(timeMessage);
 		getline(extract,content,NOTATION_SPACE);
@@ -615,21 +613,19 @@ void Interpreter_base::extractTimeWithEmptySlash( std::string &timeMessage, std:
 		content.clear();
 		getline(extract,content,NOTATION_COLON);
 		if(!content.empty()){
-
 			isSuccessful=integerConverter(content,hour);
 		}
 		content.clear();
 		getline(extract,content);
 		if(!content.empty()){
-
 			isSuccessful=integerConverter(content,min);
 		}
 	}
+	//time format hh/mm
 	else if(countSpace==EMPTY_ITEM){
 		stringstream extract(timeMessage);
 		getline(extract,content,NOTATION_COLON);
 		if(!content.empty()){
-
 			isSuccessful=integerConverter(content,hour);
 		}
 		content.clear();
@@ -641,11 +637,12 @@ void Interpreter_base::extractTimeWithEmptySlash( std::string &timeMessage, std:
 	else{
 		isSuccessful=false;
 	}
-	
+	return;
 }
 //@LI ZIXUAN A0096582R
 void Interpreter_base::extractTimeWithOneSlash( std::string timeMessage, std::string &content, bool& isSuccessful, int& day, int& month, int& hour, int& min )
 {
+	//time format dd/mm hh:mm
 	stringstream extract(timeMessage);
 	content.clear();
 	getline(extract,content,NOTATION_SLASH);  
@@ -662,12 +659,13 @@ void Interpreter_base::extractTimeWithOneSlash( std::string timeMessage, std::st
 	getline(extract,content);
 	if(!content.empty()){
 		isSuccessful=integerConverter(content,min);
-	}	
+	}
+	return;
 }
 //@LI ZIXUAN A0096582R
 void Interpreter_base::extractTimeWithTwoSlash( std::string timeMessage, std::string &content, bool &isSuccessful, int& day, int& month, int &year, int& hour, int& min )
 {
-	
+	//time format dd/mm/yy hh:mm
 	stringstream extract(timeMessage);
 	content.clear();
 	getline(extract,content,NOTATION_SLASH);  
@@ -689,6 +687,7 @@ void Interpreter_base::extractTimeWithTwoSlash( std::string timeMessage, std::st
 	if(!content.empty()){
 		isSuccessful=integerConverter(content,min);
 	}
+	return;
 }
 //@AN JIANGZE A0105729A
 void Interpreter_base::setUnitializeTime( int &year, struct tm &timeinfo, int &month, int &day, bool& isDue, int &hour, int &min ){
@@ -729,7 +728,6 @@ bool Interpreter_base::isFromExistance( string command, smatch match, string &fi
 	if (regex_search(command, match, checkFrom)){
 		field=match[START_POSITION];
 	}
-
 	if(!field.empty()){
 		isSuccessful=false;
 	}	
@@ -813,7 +811,6 @@ void Interpreter_base::extractQuotedMessage(string field, string& QuotedMessage)
 	getline(extract,QuotedMessage,NOTATION_ACCENT_GRAVE);
 	QuotedMessage.clear();
 	getline(extract,QuotedMessage,NOTATION_ACCENT_GRAVE);
-
 	return;
 }
 //@AN JIANGZE A0105729A
@@ -850,16 +847,6 @@ bool Interpreter_base::checkDuplicate(string command, string field,int startPosi
 	}
 	if(isDuplicate==true) throw ERROR_DUPLICATE;
 	return isDuplicate;
-}
-//@LI ZIXUAN A0096582R
-bool Interpreter_base::extractField(string command, smatch &match, regex extractTemplate, string&field){
-	bool isSuccessful=false;
-
-	if (regex_search(command, match, extractTemplate)){
-		field=match[START_POSITION];
-		isSuccessful=true;
-	}
-	return isSuccessful;
 }
 //@AN JIANGZE A0105729A
 string Interpreter_base::trim(string str){
