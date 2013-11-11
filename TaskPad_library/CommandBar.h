@@ -36,9 +36,6 @@ class CommandBar: public QTextEdit{
 
 public:
 	CommandBar(QWidget *parent);
-
-	void initRegExp();
-
 	QString getCurrentLine();
 	void pushCurrentLine();
 	void setQuickAddMode();
@@ -85,6 +82,7 @@ private:
 	static const QString HOTKEY_TEMPLATE_REDO;
 	static const QString HOTKEY_TEMPLATE_BLANK;
 	//INIT RELATED
+	void initRegExp();
 	void initWidgets();
 	void initState();
 	void initCompleter();
