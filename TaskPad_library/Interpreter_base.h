@@ -44,10 +44,10 @@ public:
 protected:
     enum ELEMENT_NUM{EMPTY_ITEM,ONE_ITEM,TWO_ITEMS,THREE_ITEMS};
 
-	const static std::string FIELD_NAME;//=" name `[^`]*`";
-	const static std::string FIELD_DUE;//=" (due|by) `[^`]*`";
-	const static std::string FIELD_FROM;//=" from `[^`]*`";
-	const static std::string FIELD_TO;//=" to `[^`]*`";
+	const static std::string FIELD_NAME;
+	const static std::string FIELD_DUE;
+	const static std::string FIELD_FROM;
+	const static std::string FIELD_TO;
 	const static std::string FIELD_AT;
 	const static std::string FIELD_PPL;
 	const static std::string FIELD_NOTE;
@@ -86,9 +86,9 @@ protected:
     const static std::string ERROR_TIME_FORMAT;
 	const static std::string ERROR_DUPLICATE;
 
-	const static char NOTATION_COMMA;
-	const static char NOTATION_HASH;
-	const static char NOTATION_SPACE;
+	const static char		 NOTATION_COMMA;
+	const static char		 NOTATION_HASH;
+	const static char		 NOTATION_SPACE;
 	const static char NOTATION_SLASH;
 	const static char NOTATION_COLON;
 	const static char NOTATION_ACCENT_GRAVE;
