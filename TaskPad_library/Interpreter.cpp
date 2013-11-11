@@ -46,7 +46,7 @@ const string COMMAND_DEL_EXACT="^del(\\s+)exact(\\s+)`([^`]+)`(\\s*)";
 const string COMMAND_DEL_INDEX="^del(\\s+)([0-9]+)(\\s*)";
 const string COMMAND_UNDO="^undo(\\s*)";
 const string COMMAND_REDO="^redo(\\s*)";
-const string COMMAND_INDEX="[0-9]+\\s*";
+const string COMMAND_INDEX="^([0-9]+)(\\s*)";
 const string ERROR_COMMAND="invalid command";
 const int TOTAL_TEST_CASE=12;
 const int DUMMY_VALUE=-1;
@@ -80,11 +80,8 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 
 	string word;
 	string issueCollector;
-	Command* returnCommand;
-
+	Command* returnCommand=NULL;
 	isValidCommand=checkCommand(commandStr,commandType);
-
-
 
 	if(isValidCommand!=false){
 		switch (commandType){
@@ -104,7 +101,6 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 					 if(Add_pointer!=NULL){
 						delete Add_pointer;
 					}
-					returnCommand=NULL;
 				}
 				break;
 			}
@@ -119,16 +115,12 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 				try{
 					returnCommand=interpretMod.interpretModify(Mod_pointer, commandStr, response,isValidCommand);
 				}catch(string errorMessage){
-
 					isValidCommand=false;					
-					issueCollector=errorMessage;
-			     					
+					issueCollector=errorMessage;			     					
 					if(Mod_pointer!=NULL){
 						delete Mod_pointer;
-					}
-					returnCommand=NULL;
+					}				
 				}
-				
 				break;
 			}
 		
@@ -147,8 +139,7 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 					issueCollector=errorMessage;
 					if(Mod_pointer!=NULL){
 						delete Mod_pointer;
-					}
-					returnCommand=NULL;			
+					}			
 				}
 				break;
 			}
@@ -175,18 +166,15 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 					issueCollector=errorMessage;	
 					if(Mod_pointer!=NULL){
 						delete Mod_pointer;
-					}
-					returnCommand=NULL;				
+					}				
 				}							
 				break;
 			}
 
 
 		case FIND_COMMAND:{
-
 				Command_Find* Find_pointer=new Command_Find();
 				Interpreter_Find interpretFind;
-
 				try{
 					returnCommand=interpretFind.interpretFind(Find_pointer,commandStr, response,isValidCommand);
 				}catch(string errorMessage){
@@ -194,10 +182,7 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 					issueCollector=errorMessage;					
 					if(Find_pointer!=NULL){
 						delete Find_pointer;
-					}
-					returnCommand=NULL;
-				
-				
+					}				
 				}
 				break;
 			}
@@ -206,8 +191,7 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 
 				Command_Find* Find_pointer=new Command_Find();
 				Interpreter_Find interpretFind;
-				Find_pointer->setFlagExact();
-				
+				Find_pointer->setFlagExact();			
 				try{
 					returnCommand=interpretFind.interpretFind(Find_pointer,commandStr, response,isValidCommand);
 				}catch(string errorMessage){
@@ -215,48 +199,38 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 					issueCollector=errorMessage;			    				
 					if(Find_pointer!=NULL){
 						delete Find_pointer;
-					}
-					returnCommand=NULL;						
+					}					
 				}
 				
 				break;
 			}
 
 		case DEL_COMMAND:{
-
 				Command_Del* Del_pointer=new Command_Del();
-				Interpreter_Delete interpretDel;
-								
+				Interpreter_Delete interpretDel;								
 				returnCommand=interpretDel.interpretDelete(Del_pointer,commandStr, response,isValidCommand);
 				break;
 
 			}
 		case DEL_EXACT_COMMAND:{
 				Command_Del* Del_pointer=new Command_Del();
-                Interpreter_Delete interpretDel;
-				
-				
+                Interpreter_Delete interpretDel;						
 				Del_pointer->setFlagExact();
-
 				returnCommand=interpretDel.interpretDelete(Del_pointer,commandStr, response,isValidCommand);
 				break;
 			}
 		case DEL_INDEX_COMMAND:{
 				Command_Del* Del_pointer=new Command_Del();
 				Interpreter_Delete interpretDel;
-				
 				stringstream extractIndex(commandStr);
 				string content;
+				int index;
 				extractIndex>>commandStr;
 				commandStr.clear();
-				extractIndex>>commandStr;
-				int index;
-
-				index=getIndexMessage(commandStr,isValidCommand);
-				
+				extractIndex>>commandStr;				
+				index=getIndexMessage(commandStr,isValidCommand);				
 				Del_pointer->setIndex(index);
 				response.setCommandType(DEL);
-
 				returnCommand=(Command*)Del_pointer;
 				break;
 
@@ -276,13 +250,11 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 			}
 		case INDEX_COMMAND:{
 				int num;
-				if(integerConvert(commandStr,num)){
-					response.setStatus(SUCCESS);
-				}
-				else{ 
-					response.setStatus(ERR);
-					response.setErrorMsg(ERROR_COMMAND);
-				}
+				Command_Show* Show_pointer=new Command_Show();
+				integerConvert(commandStr,num);
+				Show_pointer->setIndex(num);
+				response.setCommandType(SHOW);
+				returnCommand=(Command*)Show_pointer;
 				break;
 			}
 		default: isValidCommand=false;
@@ -299,7 +271,6 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 		else{
 			response.setErrorMsg(ERROR_COMMAND);
 		}
-	   returnCommand=NULL;
 	}
 
 	else{
@@ -308,6 +279,19 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 	return returnCommand;
 }
 
+/**********************************************************************************
+*Input: ActualIndex->index input by the user								      *
+*		prevCommand->the previous Command object for the previous user input	  *
+*																				  *
+*Function: This function is called during "intermediate" case where the system    *
+*		   returns multiple results with due to an ambiguous find/mod/del command.*
+*		   These results have allocated indices and user can input an index to    *
+*		   choose the corresponding task. This function parses the index and sets *
+*		   it as an attribute of the previous Command object.                     *
+*   	   					 													  *
+*Ouput: prevCommand->previous Command object with index set						  *
+*																				  *
+**********************************************************************************/
 void Interpreter::interpretCommand(unsigned ActualIndex, Command *prevCommand){
 	
 	TP::COMMAND_TYPE taskType;
