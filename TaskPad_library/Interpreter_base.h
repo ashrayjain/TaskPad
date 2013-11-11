@@ -1,20 +1,3 @@
-
-
-#include "Command.h"
-#include "Messenger.h"
-#include "Enum.h"
-#include <string>
-#include <sstream>
-#include <vector>
-#include<regex>
-#include<ctime>
-
-
-#ifndef _INTERPRETER_BASE_H_
-#define _INTERPRETER_BASE_H_
-
-
-
 /*
  *
 =================================================================
@@ -25,7 +8,7 @@
  *  Version V0.5
  *  Created 15/10/13 12:00
  *
- *  Author: An Jiangze(A0105729A),Liu Zixuan
+ *  Author: An Jiangze(A0105729A),Li Zixuan(A0096582R)
  *  Organization: NUS,SOC
  *
 ==================================================================
@@ -33,7 +16,22 @@
  */
 
 
+/*****************************************************************
+*Summary of class:												 *
+*Interpreter_Base is a virtual class that provides base functions*
+*for its child classes to inherit								 *
+*****************************************************************/
+#ifndef _INTERPRETER_BASE_H_
+#define _INTERPRETER_BASE_H_
 
+#include "Command.h"
+#include "Messenger.h"
+#include "Enum.h"
+#include <string>
+#include <sstream>
+#include <vector>
+#include <regex>
+#include <ctime>
 
 
 class Interpreter_base{
@@ -84,8 +82,10 @@ protected:
 
 	const static std::string TYPE_TIMED;
 	const static std::string TYPE_DEADLINE;
-    const static std::string TIME_FORMAT_ERROR;
-	const static std::string DUPLICATE_ERROR;
+
+    const static std::string ERROR_TIME_FORMAT;
+	const static std::string ERROR_DUPLICATE;
+
 	const static char NOTATION_COMMA;
 	const static char NOTATION_HASH;
 	const static char NOTATION_SPACE;
