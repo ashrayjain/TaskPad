@@ -184,17 +184,17 @@ void Manager::handleNormalScenarioCommands(string newCommand) {
 
 	if (!interpretCommand(newCommand)) return;
 
-	if(isIndexGiven(newCommand)) {
+	if(isShowCommand()) {
 		_logger->log(CLASS_NAME,"index given by user",NOTICELOG);
+		storeIndexFromCommandToClassAttribute();
 		handleShowCommand();
 	}
-	else if (isCommandWithIndexGiven(newCommand)) {
+	else if (isCommandWithIndexGiven()) {
 		_logger->log(CLASS_NAME,"command with index given by user",NOTICELOG);
 		storeIndexFromCommandToClassAttribute();
 		handleCommandWithIndex();
 	}
 	else  {
-	// a generic command and has already been interpreted by isCommandWithIndexGiven() above
 		_logger->log(CLASS_NAME,"generic command given by user",NOTICELOG);
 		handleGenericCommand();
 	}
@@ -213,18 +213,25 @@ bool Manager::interpretCommand(string newCommand) {
  * - Only index
  */
 void Manager::handleIntermediateScenarioCommands(string newCommand) {
-	if(isIndexGiven(newCommand)) {
+	Command* backupCommand = _cmd;
+	interpretCommand(newCommand);
+
+	if(isIndexGiven()) {
+		removePreviousCommand();
+		_response.setStatus(INTERMEDIATE);
+		_cmd = backupCommand;
 		handleIntermediateIndexCommand();
 	}
 	else {
+		removePreviousCommand();
+		_cmd = backupCommand;
+		_response.setStatus(INTERMEDIATE);
 		setResponseToError(ERR_INTER, MESSAGE_INDEX_NOT_GIVEN);
 	}
 	return;
 }
 
 void Manager::handleShowCommand() {
-	storeIndexFromCommandToClassAttribute();
-
 	if(isIndexWithinRange()) {
 		_response.setInt(_index);
 		_response.setStatus(DISPLAY);
@@ -285,12 +292,16 @@ void Manager::editTaskListInResponse()
 	return;
 }
 
-bool Manager::isIndexGiven(string newCommand) {
-	return _response.getCommandType() == SHOW;
+bool Manager::isIndexGiven() {
+	if(isShowCommand()) {
+		storeIndexFromCommandToClassAttribute();
+		return true;
+	}
+
+	return false;
 }
 
-bool Manager::isCommandWithIndexGiven(string newCommand) {
-
+bool Manager::isCommandWithIndexGiven() {
 	bool isModifyCommandWithIndex = false, isDeleteCommandWithIndex = false;
 
 	switch (_cmd->getCommandType()) {
@@ -370,29 +381,34 @@ unsigned long long Manager::getActualIndexOfTask() const {
 }
 
 void Manager::storeIndexFromCommandToClassAttribute() {
-	assert(isModifyCommand() || isDeleteCommand());
+	assert(isModifyCommand() || isDeleteCommand() || isShowCommand());
 
 	switch (_cmd->getCommandType()) {
-		case MOD:
-			{
-				Command_Mod* cmdTemp = (Command_Mod*) _cmd;
-				_index = cmdTemp->getIndex();
-				break;
-			}
+	case MOD:
+			storeIndexFromModCommandToClassAttribute();
+			break;
 		case DEL:
-			{
-				Command_Del* cmdTemp = (Command_Del*) _cmd;
-				_index = cmdTemp->getIndex();
-				break;
-			}
+			storeIndexFromDelCommandToClassAttribute();
+			break;
 		case SHOW:
-			{
-				Command_Show* cmdTemp = (Command_Show*) _cmd;
-				_index = cmdTemp->getIndex();
-				break;
-			}
+			storeIndexFromShowCommandToClassAttribute();
+			break;
 	}
 	return;
+}
+
+void Manager::storeIndexFromModCommandToClassAttribute() {
+	Command_Mod* cmdTemp = (Command_Mod*) _cmd;
+	_index = cmdTemp->getIndex();
+}
+
+void Manager::storeIndexFromDelCommandToClassAttribute() {
+	Command_Del* cmdTemp = (Command_Del*) _cmd;
+	_index = cmdTemp->getIndex();
+}
+void Manager::storeIndexFromShowCommandToClassAttribute() {
+	Command_Show* cmdTemp = (Command_Show*) _cmd;
+	_index = cmdTemp->getIndex();
 }
 
 string Manager::createFindCommand(tm startTm, tm endTm) {
@@ -627,6 +643,10 @@ bool Manager::isDeleteCommand() {
 
 bool Manager::isModifyCommand() {
 	return (_cmd->getCommandType() == MOD);
+}
+
+bool Manager::isShowCommand() {
+	return _response.getCommandType() == SHOW;
 }
 
 Manager::~Manager() {

@@ -57,32 +57,36 @@ class Manager {
 		bool isNotSuccessfulCommand					();
 		bool hasInterpretationError					();
 		bool hasNoInterpretationError				();
-		bool isIndexGiven							(std::string newCommand);
-		bool isCommandWithIndexGiven				(std::string newCommand);
+		bool isIndexGiven							();
+		bool isCommandWithIndexGiven				();
 		bool isIndexedModifyCommand					();
 		bool isIndexedDeleteCommand					();
 		bool isIndexWithinRange						();
 
 		bool isDeleteCommand						();
 		bool isModifyCommand						();
+		bool isShowCommand							();
 
 		void handleShowCommand						();
 		void handleCommandWithIndex					();
 		void handleGenericCommand					();
 		void handleIntermediateIndexCommand			();
 
-		bool interpretCommand						(std::string newCommand);
-		void handleNormalScenarioCommands			(std::string newCommand);
-		void handleIntermediateScenarioCommands		(std::string newCommand);
-		void insertActualIndexIntoCommand			();
-		void insertActualIndexIntoModifyCommand		(unsigned long long& actualIndex);
-		void insertActualIndexIntoDeleteCommand		(unsigned long long& actualIndex);
-		void removePreviousCommand					();
-		void removeLastSuccessfulFindCommand		();
-		void updateLastSuccessfulFindCommand		();
-		void storeIndexFromCommandToClassAttribute	();
+		bool interpretCommand							(std::string newCommand);
+		void handleNormalScenarioCommands				(std::string newCommand);
+		void handleIntermediateScenarioCommands			(std::string newCommand);
+		void insertActualIndexIntoCommand				();
+		void insertActualIndexIntoModifyCommand			(unsigned long long& actualIndex);
+		void insertActualIndexIntoDeleteCommand			(unsigned long long& actualIndex);
+		void removePreviousCommand						();
+		void removeLastSuccessfulFindCommand			();
+		void updateLastSuccessfulFindCommand			();
+		void storeIndexFromCommandToClassAttribute		();
+		void storeIndexFromModCommandToClassAttribute	();
+		void storeIndexFromDelCommandToClassAttribute	();
+		void storeIndexFromShowCommandToClassAttribute	();
 
-		void editTaskListInResponse					();
+		void editTaskListInResponse						();
 
 		//state determinant functions
 		void setCurrPeriod	(std::tm, std::tm);
