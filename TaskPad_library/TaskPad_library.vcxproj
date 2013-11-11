@@ -204,7 +204,9 @@
     <ClCompile Include="Storage.cpp" />
     <ClCompile Include="Task.cpp" />
     <ClCompile Include="TaskFileHandler.cpp" />
+    <ClCompile Include="TaskLoader.cpp" />
     <ClCompile Include="TaskLoaderText.cpp" />
+    <ClCompile Include="TaskSaver.cpp" />
     <ClCompile Include="TaskSaverText.cpp" />
   </ItemGroup>
   <ItemGroup>
