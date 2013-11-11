@@ -32,10 +32,14 @@
 using namespace TP;
 using namespace std;
 
+const string Manager::CLASS_NAME = "Manager";
+
 const string Manager::MESSAGE_INDEX_OUT_OF_RANGE						= "Given index is out of range!";
 const string Manager::MESSAGE_ERROR_UNEXPECTED_COMMAND_TYPE_WITH_INDEX	= "Unexpected Command with index!";
 const string Manager::MESSAGE_DATE_LIMIT_REACHED						= "We have reached the end of time!";
 const string Manager::MESSAGE_INDEX_NOT_GIVEN							= "Please provide an index!";
+
+const string Manager::FIND_TODAY_TASKS_COMMAND	= "find from `today midnight` to `today 23:59` undone";
 
 const int	 Manager::LOWER_END_OF_TIME									= 70;
 const int	 Manager::UPPER_END_OF_TIME									= 200;
@@ -47,22 +51,24 @@ const int	 Manager::MONTH_UNIT_OF_TIME								= 1;
 Manager::Manager() {
 	_taskDS					= new Datastore;
 	_logger					= Logger::getLogger();
-	_storage					= new Storage(_taskDS);
-	_executor					= new Executor(*_taskDS);
-	_interpreter				= new Interpreter;
-	_response					= Messenger();
-	_cmd						= NULL;
+	_storage				= new Storage(_taskDS);
+	_executor				= new Executor(*_taskDS);
+	_interpreter			= new Interpreter;
+	_response				= Messenger();
+	_cmd					= NULL;
 	_lastSuccessfulFindCmd	= NULL;
 }
 
 Messenger Manager::refreshList() {
-	_logger->log("Manager", "entering refreshList()");
+	_logger->log(CLASS_NAME, "entering refreshList()");
+
 	_executor->executeCommand(_lastSuccessfulFindCmd,_response);
 	return _response;
 }
 
 list<Task> Manager::getCurrentReminders	() {
-	_logger->log("Manager", "entering getCurrentReminders()");
+	_logger->log(CLASS_NAME, "entering getCurrentReminders()");
+
 	return _executor->getCurrentReminders();
 }
 
@@ -75,6 +81,8 @@ void Manager::syncTask (const Task& task) {
 }
 
 void Manager::resetStatus() {
+	_logger->log(CLASS_NAME, "entering resetStatus()", NOTICELOG);
+
 	removePreviousCommand();
 	removeLastSuccessfulFindCommand();
 	_currentPeriod = pair<tm,tm>();
@@ -85,7 +93,7 @@ void Manager::resetStatus() {
 }
 
 Messenger Manager::processCommand(const string& newCommand) {
-	_logger->log("Manager", "processing Command");
+	_logger->log(CLASS_NAME, "processing Command");
 
 	switch(_response.getStatus()) {
 		case INTERMEDIATE:
@@ -100,7 +108,7 @@ Messenger Manager::processCommand(const string& newCommand) {
 	}
 	saveChanges();
 
-	_logger -> log("Mananger", "leaving processCommand() \n");
+	_logger -> log(CLASS_NAME, "leaving processCommand() \n");
 	return _response;
 }
 
@@ -112,14 +120,20 @@ void Manager::saveChanges()
 {
 	if(isNotSuccessfulCommand()) return;
 
+	_logger->log(CLASS_NAME,"saving changes");
+
 	switch(_cmd->getCommandType()) {
 		case ADD:
 			/* empty and falls through*/
 		case MOD:
 			/* empty and falls through*/
 		case DEL:
-			_logger->log("Manager","saving changes");
-			_storage->save(_response.getTask(), _cmd->getCommandType());
+			try {
+				_storage->save(_response.getTask(), _cmd->getCommandType());
+			}
+			catch(BaseException be) {
+				setResponseToError(ERR,be.what());
+			}
 			break;
 		case FIND:
 				updateLastSuccessfulFindCommand();
@@ -166,22 +180,30 @@ void Manager::removeLastSuccessfulFindCommand() {
  *
 */
 void Manager::handleNormalScenarioCommands(string newCommand) {
-	_logger->log("Manager","handling normal scenario command");
-	if(isIndexGiven(newCommand)) {
-		_logger->log("Manager","index given by user",NOTICELOG);
+	_logger->log(CLASS_NAME,"handling normal scenario command");
+
+	if (!interpretCommand(newCommand)) return;
+
+	if(isShowCommand()) {
+		_logger->log(CLASS_NAME,"index given by user",NOTICELOG);
+		storeIndexFromCommandToClassAttribute();
 		handleShowCommand();
 	}
-	else if (isCommandWithIndexGiven(newCommand)) {
-		_logger->log("Manager","command with index given by user",NOTICELOG);
+	else if (isCommandWithIndexGiven()) {
+		_logger->log(CLASS_NAME,"command with index given by user",NOTICELOG);
 		storeIndexFromCommandToClassAttribute();
 		handleCommandWithIndex();
 	}
 	else  {
-	// a generic command and has already been interpreted by isCommandWithIndexGiven() above
-		_logger->log("Manager","generic command given by user",NOTICELOG);
+		_logger->log(CLASS_NAME,"generic command given by user",NOTICELOG);
 		handleGenericCommand();
 	}
 	return;
+}
+
+bool Manager::interpretCommand(string newCommand) {
+	_cmd = _interpreter->interpretCommand(newCommand,_response);
+	return hasNoInterpretationError();
 }
 
 /**
@@ -191,10 +213,19 @@ void Manager::handleNormalScenarioCommands(string newCommand) {
  * - Only index
  */
 void Manager::handleIntermediateScenarioCommands(string newCommand) {
-	if(isIndexGiven(newCommand)) {
+	Command* backupCommand = _cmd;
+	interpretCommand(newCommand);
+
+	if(isIndexGiven()) {
+		removePreviousCommand();
+		_response.setStatus(INTERMEDIATE);
+		_cmd = backupCommand;
 		handleIntermediateIndexCommand();
 	}
 	else {
+		removePreviousCommand();
+		_cmd = backupCommand;
+		_response.setStatus(INTERMEDIATE);
 		setResponseToError(ERR_INTER, MESSAGE_INDEX_NOT_GIVEN);
 	}
 	return;
@@ -261,44 +292,35 @@ void Manager::editTaskListInResponse()
 	return;
 }
 
-bool Manager::isIndexGiven(string newCommand) {
-	_index = _interpreter->interpretIndex(newCommand,_response);
-
-	if(hasNoInterpretationError()) {
+bool Manager::isIndexGiven() {
+	if(isShowCommand()) {
+		storeIndexFromCommandToClassAttribute();
 		return true;
 	}
+
 	return false;
 }
 
-bool Manager::isCommandWithIndexGiven(string newCommand) {
-	//tempStorage is used to ensure that the list is not lost in the interpreter by mistake
-	list<Task> tempStorage = _response.getList();
+bool Manager::isCommandWithIndexGiven() {
+	bool isModifyCommandWithIndex = false, isDeleteCommandWithIndex = false;
 
-	_cmd = _interpreter->interpretCommand(newCommand,_response);
-
-	//restore the saved value
-	_response.setList(tempStorage);
-
-	if (hasNoInterpretationError()) {
-		bool isModifyCommandWithIndex = false, isDeleteCommandWithIndex = false;
-
-		switch (_cmd->getCommandType()) {
-			case MOD:
-				isModifyCommandWithIndex = isIndexedModifyCommand();
-				break;
-			case DEL:
-				isDeleteCommandWithIndex = isIndexedDeleteCommand();
-				break;
-			default:
-				break;
-		}
-
-		if(isModifyCommandWithIndex || isDeleteCommandWithIndex) {
-			return true;
-		}
+	switch (_cmd->getCommandType()) {
+		case MOD:
+			isModifyCommandWithIndex = isIndexedModifyCommand();
+			break;
+		case DEL:
+			isDeleteCommandWithIndex = isIndexedDeleteCommand();
+			break;
+		default:
+			break;
 	}
-	//else
-	return false;
+
+	if(isModifyCommandWithIndex || isDeleteCommandWithIndex) {
+		return true;
+	}
+	else {
+		return false;
+	}
 }
 
 bool Manager::isIndexedModifyCommand() {
@@ -359,23 +381,34 @@ unsigned long long Manager::getActualIndexOfTask() const {
 }
 
 void Manager::storeIndexFromCommandToClassAttribute() {
-	assert(isModifyCommand() || isDeleteCommand());
+	assert(isModifyCommand() || isDeleteCommand() || isShowCommand());
 
 	switch (_cmd->getCommandType()) {
-		case MOD:
-			{
-				Command_Mod* cmdTemp = (Command_Mod*) _cmd;
-				_index = cmdTemp->getIndex();
-				break;
-			}
+	case MOD:
+			storeIndexFromModCommandToClassAttribute();
+			break;
 		case DEL:
-			{
-				Command_Del* cmdTemp = (Command_Del*) _cmd;
-				_index = cmdTemp->getIndex();
-				break;
-			}
+			storeIndexFromDelCommandToClassAttribute();
+			break;
+		case SHOW:
+			storeIndexFromShowCommandToClassAttribute();
+			break;
 	}
 	return;
+}
+
+void Manager::storeIndexFromModCommandToClassAttribute() {
+	Command_Mod* cmdTemp = (Command_Mod*) _cmd;
+	_index = cmdTemp->getIndex();
+}
+
+void Manager::storeIndexFromDelCommandToClassAttribute() {
+	Command_Del* cmdTemp = (Command_Del*) _cmd;
+	_index = cmdTemp->getIndex();
+}
+void Manager::storeIndexFromShowCommandToClassAttribute() {
+	Command_Show* cmdTemp = (Command_Show*) _cmd;
+	_index = cmdTemp->getIndex();
 }
 
 string Manager::createFindCommand(tm startTm, tm endTm) {
@@ -440,7 +473,7 @@ Messenger Manager::getTodayTasks() {
 	tm nextDayTm = getNextDayTm(todayTm);
 	setCurrPeriod(todayTm,nextDayTm);
 
-	return processCommand("find from `today midnight` to `tomorrow midnight` undone");
+	return processCommand(FIND_TODAY_TASKS_COMMAND);
 }
 
 Messenger Manager::getNextPeriodTasks(PERIOD_TYPE pType) {
@@ -610,6 +643,10 @@ bool Manager::isDeleteCommand() {
 
 bool Manager::isModifyCommand() {
 	return (_cmd->getCommandType() == MOD);
+}
+
+bool Manager::isShowCommand() {
+	return _response.getCommandType() == SHOW;
 }
 
 Manager::~Manager() {

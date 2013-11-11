@@ -61,23 +61,12 @@ namespace TP{
 		FileNotFoundException (std::string errorStr)	{ _errorStr = errorStr; }
 	};
 
-	//For interpreter:
+	// for tasksaver
 
-	class DuplicateKeyWordException : public TP::BaseException {
-	public:
-		DuplicateKeyWordException (std::string errorStr)	{ _errorStr = errorStr; }
+	class FileHandlingException : public TP::BaseException {
+		public:
+			FileHandlingException (std::string errorStr)	{ _errorStr = errorStr; }
 	};
-
-	class TimeFormatException : public TP::BaseException {
-	public:
-		TimeFormatException (std::string errorStr)	{ _errorStr = errorStr; }
-	};
-
-	class GeneralCommandFormatException : public TP::BaseException {
-	public:
-		GeneralCommandFormatException (std::string errorStr)	{ _errorStr = errorStr; }
-	};
-
 	//for logger:
 
 	class FatalLogException : public TP::BaseException {
@@ -85,6 +74,7 @@ namespace TP{
 			FatalLogException (std::string errorStr)	{ _errorStr = errorStr; }
 	};
 
+	//for executor/datastore
 	class ClassNotFoundException : public TP::BaseException {
 		public:
 			ClassNotFoundException (std::string errorStr)	{ _errorStr = errorStr; }
@@ -93,11 +83,6 @@ namespace TP{
 	class DllNotFoundException : public TP::BaseException {
 		public:
 			DllNotFoundException (std::string errorStr)	{ _errorStr = errorStr; }
-	};
-
-	class StackUnderflowException : public TP::BaseException {
-		public:
-			StackUnderflowException (std::string errorStr)	{ _errorStr = errorStr; }
 	};
 
 	class JvmLoadException : public TP::BaseException {

@@ -29,6 +29,7 @@
     <ClInclude Include="Command_Find.h" />
     <ClInclude Include="Command_Mod.h" />
     <ClInclude Include="Command_Redo.h" />
+    <ClInclude Include="Command_Show.h" />
     <ClInclude Include="Command_Undo.h" />
     <ClInclude Include="Datastore.h" />
     <ClInclude Include="Datastore_Base.h" />
@@ -204,7 +205,9 @@
     <ClCompile Include="Storage.cpp" />
     <ClCompile Include="Task.cpp" />
     <ClCompile Include="TaskFileHandler.cpp" />
+    <ClCompile Include="TaskLoader.cpp" />
     <ClCompile Include="TaskLoaderText.cpp" />
+    <ClCompile Include="TaskSaver.cpp" />
     <ClCompile Include="TaskSaverText.cpp" />
   </ItemGroup>
   <ItemGroup>

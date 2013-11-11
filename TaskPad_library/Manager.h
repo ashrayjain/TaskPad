@@ -57,31 +57,36 @@ class Manager {
 		bool isNotSuccessfulCommand					();
 		bool hasInterpretationError					();
 		bool hasNoInterpretationError				();
-		bool isIndexGiven							(std::string newCommand);
-		bool isCommandWithIndexGiven				(std::string newCommand);
+		bool isIndexGiven							();
+		bool isCommandWithIndexGiven				();
 		bool isIndexedModifyCommand					();
 		bool isIndexedDeleteCommand					();
 		bool isIndexWithinRange						();
 
 		bool isDeleteCommand						();
 		bool isModifyCommand						();
+		bool isShowCommand							();
 
 		void handleShowCommand						();
 		void handleCommandWithIndex					();
 		void handleGenericCommand					();
 		void handleIntermediateIndexCommand			();
 
-		void handleNormalScenarioCommands			(std::string newCommand);
-		void handleIntermediateScenarioCommands		(std::string newCommand);
-		void insertActualIndexIntoCommand			();
-		void insertActualIndexIntoModifyCommand		(unsigned long long& actualIndex);
-		void insertActualIndexIntoDeleteCommand		(unsigned long long& actualIndex);
-		void removePreviousCommand					();
-		void removeLastSuccessfulFindCommand		();
-		void updateLastSuccessfulFindCommand		();
-		void storeIndexFromCommandToClassAttribute	();
+		bool interpretCommand							(std::string newCommand);
+		void handleNormalScenarioCommands				(std::string newCommand);
+		void handleIntermediateScenarioCommands			(std::string newCommand);
+		void insertActualIndexIntoCommand				();
+		void insertActualIndexIntoModifyCommand			(unsigned long long& actualIndex);
+		void insertActualIndexIntoDeleteCommand			(unsigned long long& actualIndex);
+		void removePreviousCommand						();
+		void removeLastSuccessfulFindCommand			();
+		void updateLastSuccessfulFindCommand			();
+		void storeIndexFromCommandToClassAttribute		();
+		void storeIndexFromModCommandToClassAttribute	();
+		void storeIndexFromDelCommandToClassAttribute	();
+		void storeIndexFromShowCommandToClassAttribute	();
 
-		void editTaskListInResponse					();
+		void editTaskListInResponse						();
 
 		//state determinant functions
 		void setCurrPeriod	(std::tm, std::tm);
@@ -126,6 +131,13 @@ class Manager {
 		static const std::string MESSAGE_ERROR_UNEXPECTED_COMMAND_TYPE_WITH_INDEX;
 		static const std::string MESSAGE_DATE_LIMIT_REACHED;
 		static const std::string MESSAGE_INDEX_NOT_GIVEN;
+
+		// generated commands and components
+		static const std::string FIND_TODAY_TASKS_COMMAND;
+
+		//class name for logging
+		static const std::string CLASS_NAME;
+
 		static const int		 LOWER_END_OF_TIME;
 		static const int		 UPPER_END_OF_TIME;
 		static const int		 DAY_UNIT_OF_TIME;
