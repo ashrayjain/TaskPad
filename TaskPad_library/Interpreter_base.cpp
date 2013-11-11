@@ -23,95 +23,95 @@ using namespace TP;
 /************************
 *    Error Constants    *
 ************************/
-const string Interpreter_base:: ERROR_TIME_FORMAT="Cannot parse the time format!";
-const string Interpreter_base:: ERROR_DUPLICATE="Duplicate command!";
+const string Interpreter_base:: ERROR_TIME_FORMAT		="Cannot parse the time format!";
+const string Interpreter_base:: ERROR_DUPLICATE			="Duplicate command!";
 
 /************************
 *    Field Constants    *
 ************************/
-const string Interpreter_base:: FIELD_NAME="(\\s+)name(\\s+)`[^`]*`";
-const string Interpreter_base:: FIELD_DUE="(\\s+)(due|by)(\\s+)`[^`]*`";
-const string Interpreter_base:: FIELD_FROM="(\\s+)from(\\s+)`[^`]*`";
-const string Interpreter_base:: FIELD_TO="(\\s+)to(\\s+)`[^`]*`";   
-const string Interpreter_base:: FIELD_AT="(\\s+)(at|location|place)(\\s+)`[^`]*`";
-const string Interpreter_base:: FIELD_PPL="(\\s+)(ppl|with)(\\s+)`[^`]*`";
-const string Interpreter_base:: FIELD_NOTE="(\\s+)note(\\s+)`[^`]*`";
-const string Interpreter_base:: FIELD_PRIORITY="(\\s+)(impt|priority)(\\s+)`[^`]*`";
-const string Interpreter_base:: FIELD_TAG="\\s(#[^( |`)]*)(\\s|$)";
-const string Interpreter_base:: FIELD_RT="(\\s+)(rt|remind)(\\s+)`[^`]*`";
-const string Interpreter_base:: FIELD_TASK_STATE="\\s(done|undone|overdue)(\\s|$)";
-const string Interpreter_base:: FIELD_TASK_TYPE="\\s(timed|deadline|floating)(\\s|$)";
-const string Interpreter_base:: FIELD_DUE_REMOVE="\\s(-(due|by))(\\s|$)";
-const string Interpreter_base:: FIELD_FROM_REMOVE="\\s(-from)(\\s|$)";
-const string Interpreter_base:: FIELD_TO_REMOVE="\\s(-to)(\\s|$)";
-const string Interpreter_base:: FIELD_RT_REMOVE_ALL="\\s(-rtall)(\\s|$)";
-const string Interpreter_base:: FIELD_PPL_REMOVE_ALL="\\s(-pplall)(\\s|$)";
-const string Interpreter_base:: FIELD_TAG_REMOVE_ALL="\\s(-#)(\\s|$)";
-const string Interpreter_base:: FIELD_RT_REMOVE="(\\s+)-(rt|remind)(\\s+)`[^`]*`";
-const string Interpreter_base:: FIELD_PPL_REMOVE="(\\s+)-(ppl|with)(\\s+)`[^`]*`";
-const string Interpreter_base:: FIELD_TAG_REMOVE="\\s(-#[^( |`)]*)(\\s|$)";
-const string Interpreter_base:: FIELD_RT_ADD="(\\s+)\\+(rt|remind)(\\s+)`[^`]*`";
-const string Interpreter_base:: FIELD_PPL_ADD="(\\s+)\\+(ppl|with)(\\s+)`[^`]*`";
-const string Interpreter_base:: FIELD_TAG_ADD="\\s(\\+#[^( |`)]*)(\\s|$)";
+const string Interpreter_base:: FIELD_NAME				="(\\s+)name(\\s+)`[^`]*`";
+const string Interpreter_base:: FIELD_DUE				="(\\s+)(due|by)(\\s+)`[^`]*`";
+const string Interpreter_base:: FIELD_FROM				="(\\s+)from(\\s+)`[^`]*`";
+const string Interpreter_base:: FIELD_TO				="(\\s+)to(\\s+)`[^`]*`";   
+const string Interpreter_base:: FIELD_AT				="(\\s+)(at|location|place)(\\s+)`[^`]*`";
+const string Interpreter_base:: FIELD_PPL				="(\\s+)(ppl|with)(\\s+)`[^`]*`";
+const string Interpreter_base:: FIELD_NOTE				="(\\s+)note(\\s+)`[^`]*`";
+const string Interpreter_base:: FIELD_PRIORITY			="(\\s+)(impt|priority)(\\s+)`[^`]*`";
+const string Interpreter_base:: FIELD_TAG				="\\s(#[^( |`)]*)(\\s|$)";
+const string Interpreter_base:: FIELD_RT				="(\\s+)(rt|remind)(\\s+)`[^`]*`";
+const string Interpreter_base:: FIELD_TASK_STATE		="\\s(done|undone|overdue)(\\s|$)";
+const string Interpreter_base:: FIELD_TASK_TYPE			="\\s(timed|deadline|floating)(\\s|$)";
+const string Interpreter_base:: FIELD_DUE_REMOVE		="\\s(-(due|by))(\\s|$)";
+const string Interpreter_base:: FIELD_FROM_REMOVE		="\\s(-from)(\\s|$)";
+const string Interpreter_base:: FIELD_TO_REMOVE			="\\s(-to)(\\s|$)";
+const string Interpreter_base:: FIELD_RT_REMOVE_ALL		="\\s(-rtall)(\\s|$)";
+const string Interpreter_base:: FIELD_PPL_REMOVE_ALL	="\\s(-pplall)(\\s|$)";
+const string Interpreter_base:: FIELD_TAG_REMOVE_ALL	="\\s(-#)(\\s|$)";
+const string Interpreter_base:: FIELD_RT_REMOVE			="(\\s+)-(rt|remind)(\\s+)`[^`]*`";
+const string Interpreter_base:: FIELD_PPL_REMOVE		="(\\s+)-(ppl|with)(\\s+)`[^`]*`";
+const string Interpreter_base:: FIELD_TAG_REMOVE		="\\s(-#[^( |`)]*)(\\s|$)";
+const string Interpreter_base:: FIELD_RT_ADD			="(\\s+)\\+(rt|remind)(\\s+)`[^`]*`";
+const string Interpreter_base:: FIELD_PPL_ADD			="(\\s+)\\+(ppl|with)(\\s+)`[^`]*`";
+const string Interpreter_base:: FIELD_TAG_ADD			="\\s(\\+#[^( |`)]*)(\\s|$)";
 
 /************************
 *   Notation Constants  *
 ************************/
-const char Interpreter_base::   NOTATION_COMMA=',';
-const char Interpreter_base::   NOTATION_HASH='#';
-const char Interpreter_base::   NOTATION_SPACE=' ';
-const char Interpreter_base::   NOTATION_SLASH='/';
-const char Interpreter_base::   NOTATION_COLON=':';
-const char Interpreter_base::   NOTATION_ACCENT_GRAVE='`';
+const char   Interpreter_base:: NOTATION_COMMA			=',';
+const char   Interpreter_base:: NOTATION_HASH			='#';
+const char   Interpreter_base:: NOTATION_SPACE			=' ';
+const char   Interpreter_base:: NOTATION_SLASH			='/';
+const char   Interpreter_base:: NOTATION_COLON			=':';
+const char   Interpreter_base:: NOTATION_ACCENT_GRAVE	='`';
 
 /************************
 *   Priority Constants  *
 ************************/
-const string Interpreter_base:: PRIORITY_HIGH_ABBREV="H";
-const string Interpreter_base:: PRIORITY_HIGH_FULL="HIGH";
-const string Interpreter_base:: PRIORITY_MEDIUM_ABBREV="M";
-const string Interpreter_base:: PRIORITY_MEDIUM_FULL="MEDIUM";
-const string Interpreter_base:: PRIORITY_LOW_ABBREV="L";
-const string Interpreter_base:: PRIORITY_LOW_FULL="LOW";
+const string Interpreter_base:: PRIORITY_HIGH_ABBREV	="H";
+const string Interpreter_base:: PRIORITY_HIGH_FULL		="HIGH";
+const string Interpreter_base:: PRIORITY_MEDIUM_ABBREV	="M";
+const string Interpreter_base:: PRIORITY_MEDIUM_FULL	="MEDIUM";
+const string Interpreter_base:: PRIORITY_LOW_ABBREV		="L";
+const string Interpreter_base:: PRIORITY_LOW_FULL		="LOW";
 
 /************************
 * Task Status Constants *
 ************************/
-const string Interpreter_base:: STATUS_UNDONE="undone";
-const string Interpreter_base:: STATUS_DONE="done";
-const string Interpreter_base:: STATUS_OVERDUE="overdue";
+const string Interpreter_base:: STATUS_UNDONE			="undone";
+const string Interpreter_base:: STATUS_DONE				="done";
+const string Interpreter_base:: STATUS_OVERDUE			="overdue";
 
 /************************
 * Task Type Constants *
 ************************/
-const string Interpreter_base:: TYPE_TIMED="timed";
-const string Interpreter_base:: TYPE_DEADLINE="deadline";
+const string Interpreter_base:: TYPE_TIMED				="timed";
+const string Interpreter_base:: TYPE_DEADLINE			="deadline";
 
 /************************
 *     Time Constants    *
 ************************/
-const int Interpreter_base::    UNINITIALIZED_TIME=-1;
-const int Interpreter_base::	DEFAULT_TIME=0;
-const int Interpreter_base::	DEFAULT_CTIME_BASE_YEAR=1900;
-const int Interpreter_base::	DEFAULT_MONTH=1;
+const int	 Interpreter_base:: UNINITIALIZED_TIME		=-1;
+const int	 Interpreter_base::	DEFAULT_TIME			=0;
+const int	 Interpreter_base::	DEFAULT_CTIME_BASE_YEAR =1900;
+const int	 Interpreter_base::	DEFAULT_MONTH			=1;
 
-const int Interpreter_base::	UPPER_LIMIT_YEAR=2100;
-const int Interpreter_base::	UPPER_LIMIT_MONTH=12;
-const int Interpreter_base::	UPPER_LIMIT_DAY=31;
-const int Interpreter_base::	UPPER_LIMIT_HOUR=24;
-const int Interpreter_base::	UPPER_LIMIT_MINUTE=59;
-const int Interpreter_base::	LOWER_LIMIT_YEAR=1971;
-const int Interpreter_base::	CURRENT_CENTURY=2000;
+const int	 Interpreter_base::	UPPER_LIMIT_YEAR		=2100;
+const int	 Interpreter_base::	UPPER_LIMIT_MONTH		=12;
+const int	 Interpreter_base::	UPPER_LIMIT_DAY			=31;
+const int	 Interpreter_base::	UPPER_LIMIT_HOUR		=24;
+const int	 Interpreter_base::	UPPER_LIMIT_MINUTE		=59;
+const int	 Interpreter_base::	LOWER_LIMIT_YEAR		=1971;
+const int	 Interpreter_base::	CURRENT_CENTURY			=2000;
 
 /************************
 *   General Constants   *
 ************************/
-const int Interpreter_base::	INCREMENT_BY_ONE=1;
-const int Interpreter_base::	EMPTY_STRING=0;
-const int Interpreter_base::	START_POSITION = 0;
-const int Interpreter_base::	DUMMY_VALUE = -1;
-const int Interpreter_base::	CHANGE_BY_ONE=1;
-const int Interpreter_base::	CHANGE_BY_TWO=2;
+const int	 Interpreter_base::	INCREMENT_BY_ONE		=1;
+const int	 Interpreter_base::	EMPTY_STRING			=0;
+const int	 Interpreter_base::	START_POSITION			=0;
+const int	 Interpreter_base::	DUMMY_VALUE				=-1;
+const int	 Interpreter_base::	CHANGE_BY_ONE			=1;
+const int	 Interpreter_base::	CHANGE_BY_TWO			=2;
 
 
 //@AN JIANGZE A0105729A 
@@ -505,7 +505,7 @@ bool  Interpreter_base::setNoParameterMessage(string command, bool&isSuccessful,
 		isNotEmpty=true;
 	}
 	else{
-		isSuccessful=false;
+		throw ERROR_DUPLICATE;
 	}
 	return isNotEmpty;
 }

@@ -44,10 +44,10 @@ public:
 protected:
     enum ELEMENT_NUM{EMPTY_ITEM,ONE_ITEM,TWO_ITEMS,THREE_ITEMS};
 
-	const static std::string FIELD_NAME;//=" name `[^`]*`";
-	const static std::string FIELD_DUE;//=" (due|by) `[^`]*`";
-	const static std::string FIELD_FROM;//=" from `[^`]*`";
-	const static std::string FIELD_TO;//=" to `[^`]*`";
+	const static std::string FIELD_NAME;
+	const static std::string FIELD_DUE;
+	const static std::string FIELD_FROM;
+	const static std::string FIELD_TO;
 	const static std::string FIELD_AT;
 	const static std::string FIELD_PPL;
 	const static std::string FIELD_NOTE;
@@ -86,41 +86,41 @@ protected:
     const static std::string ERROR_TIME_FORMAT;
 	const static std::string ERROR_DUPLICATE;
 
-	const static char NOTATION_COMMA;
-	const static char NOTATION_HASH;
-	const static char NOTATION_SPACE;
-	const static char NOTATION_SLASH;
-	const static char NOTATION_COLON;
-	const static char NOTATION_ACCENT_GRAVE;
+	const static char		 NOTATION_COMMA;
+	const static char		 NOTATION_HASH;
+	const static char		 NOTATION_SPACE;
+	const static char		 NOTATION_SLASH;
+	const static char		 NOTATION_COLON;
+	const static char		 NOTATION_ACCENT_GRAVE;
 
 
-	const static int INCREMENT_BY_ONE;
-	const static int UNINITIALIZED_TIME;
-	const static int DEFAULT_TIME;
-	const static int DEFAULT_YEAR;
-	const static int DEFAULT_MONTH;
+	const static int		 INCREMENT_BY_ONE;
+	const static int		 UNINITIALIZED_TIME;
+	const static int		 DEFAULT_TIME;
+	const static int		 DEFAULT_YEAR;
+	const static int		 DEFAULT_MONTH;
 
-	const static int UPPER_LIMIT_YEAR;
-	const static int UPPER_LIMIT_MONTH;
-	const static int UPPER_LIMIT_DAY;
-	const static int UPPER_LIMIT_HOUR;
-	const static int UPPER_LIMIT_MINUTE;
-	const static int LOWER_LIMIT_YEAR;
-	const static int CURRENT_CENTURY;
-	const static int DEFAULT_CTIME_BASE_YEAR;
+	const static int		 UPPER_LIMIT_YEAR;
+	const static int		 UPPER_LIMIT_MONTH;
+	const static int		 UPPER_LIMIT_DAY;
+	const static int		 UPPER_LIMIT_HOUR;
+	const static int		 UPPER_LIMIT_MINUTE;
+	const static int		 LOWER_LIMIT_YEAR;
+	const static int		 CURRENT_CENTURY;
+	const static int		 DEFAULT_CTIME_BASE_YEAR;
 
-	const static int ELEMENT_ZERO;
-	const static int ELEMENT_ONE;
-	const static int ELEMENT_TWO;
-	const static int ELEMENT_THREE;
-	const static int START_LOOP_VALUE;
-	const static int START_POSITION_VALUE;
+	const static int		 ELEMENT_ZERO;
+	const static int		 ELEMENT_ONE;
+	const static int		 ELEMENT_TWO;
+	const static int		 ELEMENT_THREE;
+	const static int		 START_LOOP_VALUE;
+	const static int		 START_POSITION_VALUE;
 
-	const static int EMPTY_STRING;
-	const static int START_POSITION;
-	const static int DUMMY_VALUE;
-	const static int CHANGE_BY_ONE;
-	const static int CHANGE_BY_TWO;
+	const static int		 EMPTY_STRING;
+	const static int		 START_POSITION;
+	const static int		 DUMMY_VALUE;
+	const static int		 CHANGE_BY_ONE;
+	const static int		 CHANGE_BY_TWO;
 	 
 	bool                             checkTimeValidity        ( int year, bool& isSuccessful, int month, int day, int hour, int min );
 	bool                             integerConverter         ( std::string& required, int& number);	
