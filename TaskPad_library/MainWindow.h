@@ -213,6 +213,8 @@ private:
 	void          handleKeyEnter               ();
 	void          mousePressEvent              (QMouseEvent *event);
 	void          mouseMoveEvent               (QMouseEvent *event);
+	void          logEnd                       ();
+	void          logStart                     ();
 	//Main Widgets******************************
 	Ui::MainWindowClass ui;
 	QSystemTrayIcon*    trayIcon;
@@ -224,7 +226,7 @@ private:
 	QPoint              mousePressPosition;
 	QPoint              mouseMovePosition;
 	double              detailsViewOpacity;
-	std::list<Task>          intermediateList;
+	std::list<Task>     intermediateList;
 	QString             navTitleOfLastTime;
 	//State Flag********************************
 	bool                isQuickAddOpen;
