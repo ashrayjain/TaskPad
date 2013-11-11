@@ -1,3 +1,4 @@
+#include <sstream>
 #include "stdafx.h"
 #include "CppUnitTest.h"
 #include "Storage_Datastore_stub.h"
@@ -199,7 +200,7 @@ namespace UnitTest {
 		void emptyStreams (stringstream& tempStream, string fileName = TASK_FILE_NAME) {
 			ofstream tempFile(fileName);
 			tempFile.close();
-			tempStream.clear();
+			tempStream.str("");
 		}
 
 		bool compareStreams(stringstream& sTemp, string fileName = TASK_FILE_NAME) {
@@ -209,9 +210,9 @@ namespace UnitTest {
 			fileBuf << outFile.rdbuf();
 
 			// debugging code for unit test
-			ofstream logFileTemp(TASK_FILE_NAME + "_temp.txt");
-			logFileTemp << sTemp.str();
-			logFileTemp.close();
+			//ofstream logFileTemp(TASK_FILE_NAME + "_temp.txt");
+			//logFileTemp << sTemp.str();
+			//logFileTemp.close();
 
 			outFile.close();
 
