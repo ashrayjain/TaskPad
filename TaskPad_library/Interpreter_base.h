@@ -151,7 +151,7 @@ protected:
 	void                             setUnitializeTime        ( int &year, struct tm &timeinfo, int &month, int &day, bool& isDue, int &hour, int &min );
 	void                             extractTimeWithTwoSlash  ( std::string field, std::string &content, bool &isSuccessful, int& day, int& month, int &year, int& hour, int& min );
 	void                             extractTimeWithOneSlash  ( std::string field, std::string &content, bool& isSuccessful, int& day, int& month, int& hour, int& min );
-	void                             extractTimeWithEmptySlash( std::string &field, std::string &content, bool& isSuccessful, int& day, int& hour, int& min );
+	void                             extractTimeWithZeroSlash ( std::string &field, std::string &content, bool& isSuccessful, int& day, int& hour, int& min );
 	void							 extractQuotedMessage     ( std::string commandStr, std::string& preContent);
 };
 

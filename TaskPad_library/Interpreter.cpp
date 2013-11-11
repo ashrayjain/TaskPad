@@ -308,20 +308,6 @@ void Interpreter::interpretCommand(unsigned ActualIndex, Command *prevCommand){
 	}
 	return;
 }
-/*
-int Interpreter::interpretIndex(std::string indexStr, Messenger &response){
-
-	int num;
-	if(integerConvert(indexStr,num)){
-		response.setStatus(SUCCESS);
-	}
-	else{ 
-		response.setStatus(ERR);
-		response.setErrorMsg(ERROR_COMMAND);
-	}
-	return num;
-}
-*/
 
 bool Interpreter::checkCommand(string command, int& commandType){
 
