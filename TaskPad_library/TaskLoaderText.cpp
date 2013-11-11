@@ -41,6 +41,15 @@ const string TaskLoaderText::DEFAULT_DATA_VALUE					= "";
 TaskLoaderText::TaskLoaderText(StorableTaskDatastore* taskDS) {
 	_logger = Logger::getLogger();
 	_taskDS = taskDS;
+	mkTaskDir();
+}
+
+void TaskLoaderText::mkTaskDir() {
+	QDir temp;
+	if (!temp.cd(QString("Tasks")))
+	{
+		temp.mkdir("Tasks");
+	}
 }
 
 /****************************************************/

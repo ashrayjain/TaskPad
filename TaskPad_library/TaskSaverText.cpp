@@ -35,6 +35,15 @@ using namespace std;
 
 TaskSaverText::TaskSaverText() {
 	_logger = Logger::getLogger();
+	mkTaskDir();
+}
+
+void TaskSaverText::mkTaskDir() {
+	QDir temp;
+	if (!temp.cd(QString("Tasks")))
+	{
+		temp.mkdir("Tasks");
+	}
 }
 
 /****************************************************/

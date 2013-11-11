@@ -71,6 +71,7 @@ class Manager {
 		void handleGenericCommand					();
 		void handleIntermediateIndexCommand			();
 
+		bool interpretCommand						(std::string newCommand);
 		void handleNormalScenarioCommands			(std::string newCommand);
 		void handleIntermediateScenarioCommands		(std::string newCommand);
 		void insertActualIndexIntoCommand			();
