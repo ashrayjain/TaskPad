@@ -28,13 +28,12 @@ class QuickAddWindow: public QDialog{
 public:
 	QuickAddWindow(QWidget *parent = 0);
 
-	void setupUi();
-
 signals:
 	void requestSubmitted(QString requestStr);
 	void windowClosed();
 
 private:
+	void setupUi();
 	void customisedUi();
 	bool eventFilter(QObject* watched, QEvent* event);
 	bool handleKeyEvent( bool &FILTERED, QObject* watched, QEvent* event);
