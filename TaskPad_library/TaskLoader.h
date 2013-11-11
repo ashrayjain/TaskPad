@@ -31,15 +31,16 @@ class StorableTaskDatastore;
 class TaskLoader: public TaskFileHandler {
 	public:
 		virtual void load (const std::string& fileName) =0;
-
 		virtual ~TaskLoader() {}
 	protected:
+
 		StorableTaskDatastore* _taskDB;
-		void openFile(const std::string& fileName, std::ios_base::openmode oMode = std::ios::in)
-							{ this->_fileReader.open(fileName,oMode); }
+		void openFile(const std::string& fileName, std::ios_base::openmode oMode = std::ios::in);
+		void closeFile();
 
-		void closeFile()	{ _fileReader.close(); }
-
+		static const std::string MESSAGE_FILE_OPENING_ERROR;
+		static const std::string MESSAGE_FILE_CLOSING_ERROR;
+		static const std::string MESSAGE_RESTART_ADVICE;
 
 		std::ifstream _fileReader;
 };

@@ -34,10 +34,13 @@ class TaskSaver :public TaskFileHandler {
 		virtual void save (StorableTaskDatastore* taskDB, const std::string& fileName) =0;
 		virtual void save (const Task& task, const TP::COMMAND_TYPE& cType) =0;
 	protected:
-		void openFile(const std::string& fileName, std::ios_base::openmode oMode = std::ios::trunc)	
-							{ _fileWriter.open(fileName,oMode); }
-		
-		void closeFile()	{ _fileWriter.close(); }
+
+		void openFile(const std::string& fileName, std::ios_base::openmode oMode = std::ios::trunc);
+		void closeFile();
+
+		static const std::string MESSAGE_FILE_OPENING_ERROR;
+		static const std::string MESSAGE_FILE_CLOSING_ERROR;
+		static const std::string MESSAGE_RESTART_ADVICE;
 
 		std::ofstream _fileWriter;
 };
