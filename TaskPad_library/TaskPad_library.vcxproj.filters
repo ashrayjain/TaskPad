@@ -244,6 +244,9 @@
     <ClInclude Include="Logger.h">
       <Filter>Header Files\Commons</Filter>
     </ClInclude>
+    <ClInclude Include="Command_Show.h">
+      <Filter>Header Files\Commons\Command_Derived</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GeneratedFiles\Debug\moc_CommandBar.cpp">
