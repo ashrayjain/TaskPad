@@ -383,6 +383,8 @@ void MainWindow::about(){
 
 void MainWindow::help(){
 	const QString HOTKEY_LIST = \
+		"<b>Commands</b><br />"
+		"add, mod, del, find, undo, redo<br /><br />"
 		"<b>Global Hotkeys</b><br />"
 		"Alt + ` 			        : open quick add window<br />"
 		"Ctrl + Alt + T 		    : open main window<br />"
