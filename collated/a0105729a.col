@@ -1,0 +1,787 @@
+//@author: a0105729a
+
+
+
+	/**
+	 * origin: C:\Users\a0102016\Desktop\asd\Interpreter.cpp
+	 */
+
+	// End of segment: C:\Users\a0102016\Desktop\asd\Interpreter.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\a0102016\Desktop\asd\Interpreter_Add.cpp
+	 */
+
+	// End of segment: C:\Users\a0102016\Desktop\asd\Interpreter_Add.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\a0102016\Desktop\asd\Interpreter_base.cpp
+	 */
+
+bool Interpreter_base::setDueDateMessage(string command, bool&isSuccessful, time_t& content){
+
+	regex extractTemplate(FIELD_DUE);
+	smatch match;
+	string field;
+	string quotedMessage;
+	bool isNotEmpty=true;
+
+	if (regex_search(command, match, extractTemplate)){
+		field=match[START_POSITION];
+	}
+
+	if(!field.empty()){
+		extractQuotedMessage(field, quotedMessage);
+		if(!quotedMessage.empty()){
+			bool isDue=true;
+			content=setTime(quotedMessage,isSuccessful,isDue);
+		}
+		else{
+			isNotEmpty=false;
+		}
+		if(checkDuplicate(command,FIELD_DUE,match.position(),field.length())==true){
+			isSuccessful=false;
+		}
+		
+		//"Due" ,and "from" and "to", are mutually exclusive.
+
+		// Check whether the command has "from" or not.
+		field.clear();
+		isFromExistance(command, match, field, isSuccessful);
+		// Check whether the command has "to" or not.
+		field.clear();
+		isToExistance(command, match, field, isSuccessful);
+	}
+	else{
+		isNotEmpty=false;
+	}
+
+	return isNotEmpty;
+}
+	// End of segment: C:\Users\a0102016\Desktop\asd\Interpreter_base.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\a0102016\Desktop\asd\Interpreter_base.cpp
+	 */
+
+bool Interpreter_base::setFromDateMessage(string command, bool&isSuccessful, time_t& content){
+
+	regex extractTemplate(FIELD_FROM);
+	smatch match;
+	string field;
+	string QuotedMessage;
+	bool isNotEmpty=true;
+
+	if (regex_search(command, match, extractTemplate)){
+		field=match[START_POSITION];
+	}
+
+	if(!field.empty()){
+		extractQuotedMessage(field, QuotedMessage);
+		if(QuotedMessage.empty())isNotEmpty=false;
+		else{
+			bool isDue=false;
+			content=setTime(QuotedMessage,isSuccessful,isDue);
+
+		}
+		if(checkDuplicate(command,FIELD_FROM,match.position(),field.length())==true){
+
+			isSuccessful=false;
+		}		
+
+		//"Due" ,and "from" and "to", are mutually exclusive.
+
+		// Check whether the command has "due" or not.
+		field.clear();
+		isDueExistance(field, command, match, isSuccessful);
+	}
+	else{
+		isNotEmpty=false;
+	}
+	return isNotEmpty;
+}
+	// End of segment: C:\Users\a0102016\Desktop\asd\Interpreter_base.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\a0102016\Desktop\asd\Interpreter_base.cpp
+	 */
+
+bool Interpreter_base::setToDateMessage(string command, bool&isSuccessful, time_t& content){
+
+	regex extractTemplate(FIELD_TO);
+	smatch match;
+	string field;
+	string QuotedMessage;
+	bool isNotEmpty=true;
+
+	if (regex_search(command, match, extractTemplate)){
+		field=match[START_POSITION];
+	}
+	if(!field.empty()){
+		extractQuotedMessage(field, QuotedMessage);
+		if(QuotedMessage.empty())isNotEmpty=false;
+		else{
+			bool isDue=false;
+			content=setTime(QuotedMessage,isSuccessful, isDue);
+		}
+
+		if(checkDuplicate(command,FIELD_TO,match.position(),field.length())==true){
+			isSuccessful=false;
+		}
+
+		//"Due" ,and "from" and "to", are mutually exclusive.
+
+		// Check whether the command has the "due" or not.
+		isDueExistance(field, command, match, isSuccessful);
+	}
+	else{
+		isNotEmpty=false;
+	}
+	return isNotEmpty;
+}
+	// End of segment: C:\Users\a0102016\Desktop\asd\Interpreter_base.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\a0102016\Desktop\asd\Interpreter_base.cpp
+	 */
+
+bool Interpreter_base::setParticipantsMessage(string command, bool&isSuccessful, list<string>& content,string regexTemplate){
+	list<string>pplList;
+	regex extractTemplate(regexTemplate);
+	smatch match;
+	string field;
+	string QuotedMessage;
+	bool isNotEmpty=true;
+
+	if (regex_search(command, match, extractTemplate)){
+		field=match[START_POSITION];
+	}
+	if(!field.empty()){
+		extractQuotedMessage(field, QuotedMessage);
+		stringstream extractIndividual(QuotedMessage);
+		string name;
+		getline(extractIndividual,name,NOTATION_COMMA);
+		while(!name.empty()){
+
+			pplList.push_back(trim(name));
+			name.clear();
+			getline(extractIndividual,name,NOTATION_COMMA);
+		}
+		content=pplList;
+		if(pplList.empty())isNotEmpty=false;
+		if(checkDuplicate(command,regexTemplate,match.position(),field.length())==true){
+			isSuccessful=false;
+		}	
+	}
+	else{
+		isNotEmpty=false;
+	}
+	return isNotEmpty;
+}	
+
+/**********************************************************************************
+*Input: command->original command line input by user						      *
+*		regexTemplate->a FIELD CONSTANT	e.g FIELD_AT							  *
+*																				  *
+*Function: This function applies to a field of the format yy `xxx` e.g at `nus`,  *
+*			note `hello`. It finds the corresponding field from command using     *
+*			regexTemplate and extract the message from the field            	  *
+*																				  *
+*Ouput:	isSuccessful->indicates whether error is present in the field					  *
+*		content->extracted message												  *
+*		isEmpty->indicates whether extracted message is empty					  *
+**********************************************************************************/
+	// End of segment: C:\Users\a0102016\Desktop\asd\Interpreter_base.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\a0102016\Desktop\asd\Interpreter_base.cpp
+	 */
+
+bool  Interpreter_base::setGeneralMessage(string command, bool&isSuccessful,string& content,string regexTemplate){
+	regex extractTemplate(regexTemplate);
+	smatch match;
+	string field;
+	string QuotedMessage;
+	bool isNotEmpty=true;
+	if (regex_search(command, match, extractTemplate)){
+		field=match[START_POSITION];
+	}
+	if(!field.empty()){
+		extractQuotedMessage(field, QuotedMessage);
+		content=QuotedMessage;
+		if(content.empty())isNotEmpty=false;
+		if(checkDuplicate(command,regexTemplate,match.position(),field.length())==true){
+			isSuccessful=false;
+		}	
+	}
+	else{
+		isNotEmpty=false;
+	}
+	return isNotEmpty;
+}
+	// End of segment: C:\Users\a0102016\Desktop\asd\Interpreter_base.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\a0102016\Desktop\asd\Interpreter_base.cpp
+	 */
+
+bool Interpreter_base::setPriorityMessage(string command, bool& isSuccessful, TP::PRIORITY& content){ 
+	regex extractTemplate(FIELD_PRIORITY);
+	smatch match;
+	string field;
+	string QuotedMessage;
+	string UpperContent;
+	PRIORITY priority=MEDIUM;
+	bool isNotEmpty=true;
+
+	if (regex_search(command, match, extractTemplate)){
+		field=match[START_POSITION];
+	}
+	if(!field.empty()){
+		extractQuotedMessage(field, QuotedMessage);
+		if(QuotedMessage.empty())isNotEmpty=false;
+		if(isNotEmpty){
+			UpperContent=toUpper(QuotedMessage);
+			if(UpperContent==PRIORITY_HIGH_ABBREV || UpperContent==PRIORITY_HIGH_FULL){
+				priority=HIGH;
+			}
+			else if(UpperContent==PRIORITY_MEDIUM_ABBREV || UpperContent==PRIORITY_MEDIUM_FULL){
+				priority=MEDIUM;
+			}
+			else if(UpperContent==PRIORITY_LOW_ABBREV || UpperContent==PRIORITY_LOW_FULL){
+				priority=LOW;
+			}
+			else {
+				isSuccessful=false;
+			}
+			content=priority;
+		}
+		if(isSuccessful==true){
+			if(checkDuplicate(command,FIELD_PRIORITY,match.position(),field.length())==true){
+				isSuccessful=false;
+			}
+		}
+	}
+	else {
+		isNotEmpty=false;
+	}
+	return isNotEmpty;
+}
+	// End of segment: C:\Users\a0102016\Desktop\asd\Interpreter_base.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\a0102016\Desktop\asd\Interpreter_base.cpp
+	 */
+
+bool Interpreter_base::setTagsMessage(string command, bool&isSuccessful,list<string>& content,string regexTemplate){
+
+	list<string>tagList;
+	regex extractTemplate(regexTemplate);
+	smatch match;
+	string field;
+	string QuotedMessage;
+	bool isNotEmpty=true;
+	string subString=command;
+	int count=EMPTY_ITEM;
+	if (regex_search(subString, match, extractTemplate)){
+		field=match[START_POSITION];
+	}
+	count = extractTagMessage(field, subString, match, tagList, count, extractTemplate);
+	if(count==EMPTY_ITEM || tagList.empty()){
+		isNotEmpty=false;
+	}
+	content=tagList;
+	return isNotEmpty;
+
+}
+	// End of segment: C:\Users\a0102016\Desktop\asd\Interpreter_base.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\a0102016\Desktop\asd\Interpreter_base.cpp
+	 */
+
+bool Interpreter_base::setRemindTimesMessage(string command, bool&isSuccessful,list<time_t>&content, string regexTemplate){
+
+	list<time_t>rtList;
+	regex extractTemplate(regexTemplate);
+	smatch match;
+	string field;
+	string QuotedMessage;
+	bool isNotEmpty=true;
+
+	if (regex_search(command, match, extractTemplate)){
+		field=match[START_POSITION];
+	}
+	if(!field.empty()){
+		extractQuotedMessage(field, QuotedMessage);
+		stringstream extractIndividual(QuotedMessage);
+		string time;
+		getline(extractIndividual,time,NOTATION_COMMA);
+		while(!time.empty()){
+			bool isDue=false;
+			time_t rtTime=setTime(time,isSuccessful,isDue);
+
+			rtList.push_back(rtTime);
+			time.clear();
+			getline(extractIndividual,time,NOTATION_COMMA);
+		}
+		content=rtList;
+		if(content.empty())isNotEmpty=false;
+		if(checkDuplicate(command,regexTemplate,match.position(),field.length())==true){
+			isSuccessful=false;
+		}
+	}
+	else{
+		isNotEmpty=false;
+	}
+	return isNotEmpty;
+}
+	// End of segment: C:\Users\a0102016\Desktop\asd\Interpreter_base.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\a0102016\Desktop\asd\Interpreter_base.cpp
+	 */
+
+bool Interpreter_base::setTaskStateMessage(string command, bool&isSuccessful, TP::TASK_STATE& content){ 
+
+	TASK_STATE task_state;
+	int count=EMPTY_ITEM;
+	bool isNotEmpty=true;
+	vector<string>result=extractNoParameterMessage(command,FIELD_TASK_STATE,count);
+	if(count==EMPTY_ITEM){
+		isNotEmpty=false;
+	}
+	else if(count==ONE_ITEM){
+		if(result.at(START_POSITION).find(STATUS_UNDONE)!=string::npos){
+			content=UNDONE;
+		}
+		else if(result.at(START_POSITION).find(STATUS_DONE)!=string::npos){
+			content=DONE;	
+		}
+		else if(result.at(START_POSITION).find(STATUS_OVERDUE)!=string::npos){
+			content=OVERDUE;
+		}
+		else{
+			isSuccessful=false;
+		}
+	}
+	else{
+		isSuccessful=false;
+	}
+	return isNotEmpty;
+}
+
+/**********************************************************************************
+*Input: command->original command line input by user						      *
+*		regexTemplate->a FIELD CONSTANT	e.g FIELD_AT							  *
+*																				  *
+*Function: This function applies to a field without message e.g -rtall,done,timed.*
+*		   It extracts all occurance the corresponding field from command using   *
+*		   regexTemplate and stores them in a string vector                       *
+*																				  *
+*Ouput: count->number of occurance												  *
+*		result->a vector containing all occurances								  *
+**********************************************************************************/
+	// End of segment: C:\Users\a0102016\Desktop\asd\Interpreter_base.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\a0102016\Desktop\asd\Interpreter_base.cpp
+	 */
+
+bool Interpreter_base::setTaskTypeMessage(string command, bool&isSuccessful, TP::TASK_TYPE& content){
+	TASK_TYPE task_type;
+	int count=EMPTY_ITEM;
+	bool isNotEmpty=true;
+	vector<string>result=extractNoParameterMessage(command,FIELD_TASK_TYPE,count);
+	if(count==EMPTY_ITEM){
+		isNotEmpty=false;
+	}
+	else if(count==ONE_ITEM){
+		if(result.at(START_POSITION).find(TYPE_TIMED)!=string::npos){
+			content=TIMED;
+		}
+		else if(result.at(START_POSITION).find(TYPE_DEADLINE)!=string::npos){
+			content=DEADLINE;
+		}
+		else {
+			content=FLOATING;
+		}
+	}
+	else{
+		isSuccessful=false;
+	}
+	return isNotEmpty;
+}
+	// End of segment: C:\Users\a0102016\Desktop\asd\Interpreter_base.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\a0102016\Desktop\asd\Interpreter_base.cpp
+	 */
+
+bool  Interpreter_base::setNoParameterMessage(string command, bool&isSuccessful, string regexTemplate){
+	
+	int count=EMPTY_ITEM;
+	bool isNotEmpty=true;
+	vector<string>result=extractNoParameterMessage(command, regexTemplate, count);
+	if(count==EMPTY_ITEM){
+		isNotEmpty=false;
+	}
+	else if(count==ONE_ITEM){
+		isNotEmpty=true;
+	}
+	else{
+		throw ERROR_DUPLICATE;
+	}
+	return isNotEmpty;
+}
+
+/**********************************************************************************
+*Input: isDue->indicates whether the call of this function is for FIELD_DUE	      *
+*		timeInput->message in time format										  *
+*																				  *
+*Function: This function accepts 4 time formats hh:mm, dd hh:mm, dd/mm hh:mm	  *
+*			dd/mm/yy hh:mm and converts them from string to time_t.				  *
+*																				  *
+*Ouput: mktime(&timeMessage)->time in time_t format								  *
+*		isSucessful->indicates whether error is present								  *
+**********************************************************************************/
+	// End of segment: C:\Users\a0102016\Desktop\asd\Interpreter_base.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\a0102016\Desktop\asd\Interpreter_base.cpp
+	 */
+
+time_t Interpreter_base::setTime(string timeInput,bool& isSuccessful, bool& isDue){
+	timeInput = natty::getNatty().parseDateTime(timeInput);
+	int year=UNINITIALIZED_TIME,month=UNINITIALIZED_TIME,day=UNINITIALIZED_TIME,hour=UNINITIALIZED_TIME,min=UNINITIALIZED_TIME;
+	time_t rawtime;
+	string inputInfo=timeInput;
+	string content;
+	struct tm  timeinfo={DEFAULT_TIME,DEFAULT_TIME,DEFAULT_TIME,DEFAULT_TIME,DEFAULT_TIME,DEFAULT_TIME};
+	time (&rawtime);
+	localtime_s (&timeinfo,&rawtime);
+	int countSlash=EMPTY_ITEM;
+	for(int i=START_POSITION;i<timeInput.length();i++){
+		if(timeInput.at(i)==NOTATION_SLASH){
+			countSlash++;
+		}
+	}	
+	switch(countSlash){
+	case EMPTY_ITEM: {	
+			extractTimeWithZeroSlash(timeInput, content, isSuccessful, day, hour, min);
+			break;
+		}
+	case ONE_ITEM:{	
+			extractTimeWithOneSlash(timeInput, content, isSuccessful, day, month, hour, min);
+			break;
+		}
+	case TWO_ITEMS:{	
+			extractTimeWithTwoSlash(timeInput, content, isSuccessful, day, month, year, hour, min);
+			break;
+		}
+	default:
+		break;
+	}
+	if(isSuccessful!=false){
+		setUnitializeTime(year, timeinfo, month, day, isDue, hour, min);
+	}
+	struct tm  timeMessage={DEFAULT_TIME,DEFAULT_TIME,DEFAULT_TIME,DEFAULT_TIME,DEFAULT_TIME,DEFAULT_TIME};
+    checkTimeValidity(year, isSuccessful, month, day, hour, min);
+	if(isSuccessful!=false){
+		timeMessage.tm_year=year-DEFAULT_CTIME_BASE_YEAR;
+		timeMessage.tm_mon=month-CHANGE_BY_ONE;
+		timeMessage.tm_mday=day;
+		timeMessage.tm_hour=hour;
+		timeMessage.tm_min=min;
+	    timeMessage.tm_sec=DEFAULT_TIME;
+	}
+	else{
+		throw ERROR_TIME_FORMAT;
+	}
+	return mktime(&timeMessage);
+}
+	// End of segment: C:\Users\a0102016\Desktop\asd\Interpreter_base.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\a0102016\Desktop\asd\Interpreter_base.cpp
+	 */
+
+bool Interpreter_base::integerConverter(string& requiredString, int& number){
+	bool isSuccessful=true;
+	if(requiredString.empty()==true){
+		isSuccessful=false;
+	}
+	else{
+		for(unsigned i=START_POSITION;i<requiredString.length();i++){
+			if(isdigit(requiredString[i])==false){
+				isSuccessful=false;
+			}
+		}
+	}
+	number=atoi(requiredString.c_str());
+	return isSuccessful;
+}
+	// End of segment: C:\Users\a0102016\Desktop\asd\Interpreter_base.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\a0102016\Desktop\asd\Interpreter_base.cpp
+	 */
+
+void Interpreter_base::setUnitializeTime( int &year, struct tm &timeinfo, int &month, int &day, bool& isDue, int &hour, int &min ){
+	if(year==UNINITIALIZED_TIME)year=timeinfo.tm_year+DEFAULT_CTIME_BASE_YEAR;
+	if(month==UNINITIALIZED_TIME)month=timeinfo.tm_mon+CHANGE_BY_ONE;
+	if(day==UNINITIALIZED_TIME){
+		if(isDue){
+			if(timeinfo.tm_hour>hour)
+				day=timeinfo.tm_mday+CHANGE_BY_ONE;
+			else if(timeinfo.tm_hour==hour && timeinfo.tm_min>min)
+				day=timeinfo.tm_mday+CHANGE_BY_ONE;
+			else 
+				day=timeinfo.tm_mday;
+		}
+		else 
+			day=timeinfo.tm_mday;
+	}
+	if(hour==UNINITIALIZED_TIME)hour=DEFAULT_TIME;
+	if(min==UNINITIALIZED_TIME)min=DEFAULT_TIME;
+}
+	// End of segment: C:\Users\a0102016\Desktop\asd\Interpreter_base.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\a0102016\Desktop\asd\Interpreter_base.cpp
+	 */
+
+bool Interpreter_base::checkKeyWord(string command, int position){
+
+	vector<int> positionForNotion; 
+	positionForNotion.push_back(DUMMY_VALUE);
+	bool isKeyWord=true;
+	int count=ONE_ITEM;
+
+	for(int i=START_POSITION;i<command.length();i++){
+		if(command.at(i)==NOTATION_ACCENT_GRAVE){
+			positionForNotion.push_back(i);
+		}
+	}
+	while(isKeyWord &&count<(int)positionForNotion.size()){
+		if(position>positionForNotion[count] && position<positionForNotion[count+CHANGE_BY_ONE]){
+			isKeyWord=false;
+		}
+		count=count+CHANGE_BY_TWO;
+	}
+	return isKeyWord;
+} 
+
+/**********************************************************************************
+*Input: field->a Field Constant e.g FIELD_NAME								      *
+*																				  *
+*Ouput:	quotedMessage->the message in between the two ACCENT_GRAVE of the field   *
+*					   e.g Zixuan of name `Zixuan`								  *
+**********************************************************************************/
+	// End of segment: C:\Users\a0102016\Desktop\asd\Interpreter_base.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\a0102016\Desktop\asd\Interpreter_base.cpp
+	 */
+
+int Interpreter_base::getIndexMessage(string command,bool& isSuccessful){
+	int num;
+	isSuccessful=integerConverter(command, num);
+	return num;
+}	
+
+/**********************************************************************************
+*Input: command->original command line input by user						      *
+*		field->a FIELD CONSTANT	e.g FIELD_AT									  *
+*		startPosition->position first character of first occurance of the field   *
+*		matchLength->length of the first occurance								  *
+*																				  *
+*Function: This function checks for multiple occurance of the same field.		  *
+*																				  *
+*Ouput: isDuplicate->indicates whether duplicates field exists					  *
+**********************************************************************************/
+	// End of segment: C:\Users\a0102016\Desktop\asd\Interpreter_base.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\a0102016\Desktop\asd\Interpreter_base.cpp
+	 */
+
+bool Interpreter_base::checkDuplicate(string command, string field,int startPosition, int matchLength){
+
+	string subString=command.substr(startPosition+matchLength);
+	smatch match;
+	regex extractTemplate(field);
+	string duplicate;
+	bool isDuplicate=false;
+
+	if (regex_search(subString, match, extractTemplate)){
+		duplicate=match[START_POSITION];
+	}
+	if(duplicate.length()>EMPTY_STRING){
+		isDuplicate=true;
+	}
+	if(isDuplicate==true) throw ERROR_DUPLICATE;
+	return isDuplicate;
+}
+	// End of segment: C:\Users\a0102016\Desktop\asd\Interpreter_base.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\a0102016\Desktop\asd\Interpreter_base.cpp
+	 */
+
+string Interpreter_base::trim(string str){
+	stringstream trimmer;
+	string substr;
+	trimmer << str;
+	str.clear();
+	trimmer >> str;
+	while(trimmer >> substr){
+		str += NOTATION_SPACE + substr;
+		substr.clear();
+	}
+	return str;
+}
+	// End of segment: C:\Users\a0102016\Desktop\asd\Interpreter_base.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\a0102016\Desktop\asd\Interpreter_Delete.cpp
+	 */
+
+	// End of segment: C:\Users\a0102016\Desktop\asd\Interpreter_Delete.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\a0102016\Desktop\asd\Interpreter_Find.cpp
+	 */
+
+	// End of segment: C:\Users\a0102016\Desktop\asd\Interpreter_Find.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\a0102016\Desktop\asd\Interpreter_Mod.cpp
+	 */
+
+	// End of segment: C:\Users\a0102016\Desktop\asd\Interpreter_Mod.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\a0102016\Desktop\asd\Interpreter_Redo.cpp
+	 */
+
+Command* Interpreter_Redo::interpretRedo(Command_Redo*commandType,string commandStr, Messenger &response, bool &flag){
+
+	response.setCommandType(REDO);
+	response.setStatus(SUCCESS);
+	return (Command*)commandType;
+
+}
+	// End of segment: C:\Users\a0102016\Desktop\asd\Interpreter_Redo.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\a0102016\Desktop\asd\Interpreter_Undo.cpp
+	 */
+
+Command* Interpreter_Undo::interpretUndo(Command_Undo*commandType,string commandStr, Messenger &response, bool &flag){
+	response.setCommandType(UNDO);
+	response.setStatus(SUCCESS);
+	return (Command*)commandType;
+}
+	// End of segment: C:\Users\a0102016\Desktop\asd\Interpreter_Undo.cpp
+
+
+
+
+
