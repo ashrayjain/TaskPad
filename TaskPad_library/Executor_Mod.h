@@ -12,9 +12,12 @@
  * =====================================================================================
  */
 
-#pragma once
+#ifndef TASKPAD_EXECUTOR_MOD_H
+#define TASKPAD_EXECUTOR_MOD_H
 
 #include "Executor_Base.h"
+
+//@ASHRAY JAIN A0105199B
 
 class Executor_Mod: public Executor_Base {
 public:
@@ -29,3 +32,4 @@ private:
 										 Command_Mod* cmd, Messenger &response, Datastore &ds);
 	bool isModCmdValid					(Command_Mod* cmd, const Task& task, Messenger &response);
 };
+#endif

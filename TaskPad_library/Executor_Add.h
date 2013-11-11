@@ -12,9 +12,12 @@
  * =====================================================================================
  */
 
-#pragma once
+#ifndef TASKPAD_EXECUTOR_ADD_H
+#define TASKPAD_EXECUTOR_ADD_H
 
 #include "Executor_Base.h"
+
+//@ASHRAY JAIN A0105199B
 
 class Executor_Add: public Executor_Base {
 public:
@@ -34,3 +37,4 @@ private:
 															 const int N, 
 															 const std::time_t &deadline) const;
 };
+#endif

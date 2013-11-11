@@ -12,12 +12,8 @@
  * =====================================================================================
  */
 
-
-/*
- *		How to use these classes
- *
- *
- */
+#ifndef TASKPAD_TASK_H
+#define TASKPAD_TASK_H
 
 #include <list>
 #include <string>
@@ -26,8 +22,8 @@
 #include <set>
 #include "Enum.h"
 
-#ifndef TASKPAD_TASK_H
-#define TASKPAD_TASK_H
+//@ASHRAY JAIN A0105199B
+
 
 /*
  *=======================
