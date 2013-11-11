@@ -108,7 +108,6 @@
     <ClCompile Include="test_Executor.cpp" />
     <ClCompile Include="test_Interpreter.cpp" />
     <ClCompile Include="test_Logger.cpp" />
-    <ClCompile Include="test_Manager.cpp" />
     <ClCompile Include="test_Messenger.cpp" />
     <ClCompile Include="test_Task.cpp" />
     <ClCompile Include="test_TaskLoaderText.cpp" />
