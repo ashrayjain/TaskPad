@@ -29,5 +29,4 @@ Command* Interpreter_Redo::interpretRedo(Command_Redo*commandType,string command
 	response.setStatus(SUCCESS);
 	return (Command*)commandType;
 
-
 }

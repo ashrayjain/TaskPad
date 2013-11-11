@@ -115,7 +115,7 @@ const int	 Interpreter_base::	CHANGE_BY_TWO			=2;
 
 
 //@AN JIANGZE A0105729A 
-bool Interpreter_base::getDueDateMessage(string command, bool&isSuccessful, time_t& content){
+bool Interpreter_base::setDueDateMessage(string command, bool&isSuccessful, time_t& content){
 
 	regex extractTemplate(FIELD_DUE);
 	smatch match;
@@ -156,7 +156,7 @@ bool Interpreter_base::getDueDateMessage(string command, bool&isSuccessful, time
 	return isNotEmpty;
 }
 //@AN JIANGZE A0105729A
-bool Interpreter_base::getFromDateMessage(string command, bool&isSuccessful, time_t& content){
+bool Interpreter_base::setFromDateMessage(string command, bool&isSuccessful, time_t& content){
 
 	regex extractTemplate(FIELD_FROM);
 	smatch match;
@@ -193,7 +193,7 @@ bool Interpreter_base::getFromDateMessage(string command, bool&isSuccessful, tim
 	return isNotEmpty;
 }
 //@AN JIANGZE A0105729A
-bool Interpreter_base::getToDateMessage(string command, bool&isSuccessful, time_t& content){
+bool Interpreter_base::setToDateMessage(string command, bool&isSuccessful, time_t& content){
 
 	regex extractTemplate(FIELD_TO);
 	smatch match;
@@ -297,7 +297,7 @@ bool  Interpreter_base::setGeneralMessage(string command, bool&isSuccessful,stri
 	return isNotEmpty;
 }
 //@AN JIANGZE A0105729A
-bool Interpreter_base::getPriorityMessage(string command, bool& isSuccessful, TP::PRIORITY& content){ 
+bool Interpreter_base::setPriorityMessage(string command, bool& isSuccessful, TP::PRIORITY& content){ 
 	regex extractTemplate(FIELD_PRIORITY);
 	smatch match;
 	string field;
@@ -399,7 +399,7 @@ bool Interpreter_base::setRemindTimesMessage(string command, bool&isSuccessful,l
 	return isNotEmpty;
 }
 //@AN JIANGZE A0105729A
-bool Interpreter_base::getTaskStateMessage(string command, bool&isSuccessful, TP::TASK_STATE& content){ 
+bool Interpreter_base::setTaskStateMessage(string command, bool&isSuccessful, TP::TASK_STATE& content){ 
 
 	TASK_STATE task_state;
 	int count=EMPTY_ITEM;
@@ -468,7 +468,7 @@ vector<string> Interpreter_base::extractNoParameterMessage(string command, strin
 	return result;
 }
 //@AN JIANGZE A0105729A
-bool Interpreter_base::getTaskTypeMessage(string command, bool&isSuccessful, TP::TASK_TYPE& content){
+bool Interpreter_base::setTaskTypeMessage(string command, bool&isSuccessful, TP::TASK_TYPE& content){
 	TASK_TYPE task_type;
 	int count=EMPTY_ITEM;
 	bool isNotEmpty=true;

@@ -47,7 +47,7 @@ const int	 Manager::DAY_UNIT_OF_TIME									= 1;
 const int	 Manager::WEEK_UNIT_OF_TIME									= 7;
 const int	 Manager::MONTH_UNIT_OF_TIME								= 1;
 
-
+//@Manikandan Thyagesh A0100124J
 Manager::Manager() {
 	_taskDS					= new Datastore;
 	_logger					= Logger::getLogger();
@@ -218,14 +218,16 @@ void Manager::handleIntermediateScenarioCommands(string newCommand) {
 
 	if(isIndexGiven()) {
 		removePreviousCommand();
-		_response.setStatus(INTERMEDIATE);
 		_cmd = backupCommand;
+		_response.setStatus(INTERMEDIATE);
+		_response.setCommandType(_cmd->getCommandType());
 		handleIntermediateIndexCommand();
 	}
 	else {
 		removePreviousCommand();
 		_cmd = backupCommand;
 		_response.setStatus(INTERMEDIATE);
+		_response.setCommandType(_cmd->getCommandType());
 		setResponseToError(ERR_INTER, MESSAGE_INDEX_NOT_GIVEN);
 	}
 	return;
@@ -510,7 +512,7 @@ Messenger Manager::getPrevPeriodTasks(PERIOD_TYPE pType) {
 }
 
 void Manager::setResponseToError(const STATUS& status, const string& message) {
-	_response.setStatus(ERR);
+	_response.setStatus(status);
 	_response.setErrorMsg(message);
 	return;
 }

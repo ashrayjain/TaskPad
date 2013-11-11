@@ -12,9 +12,12 @@
  * =====================================================================================
  */
 
-#pragma once
+#ifndef TASKPAD_EXECUTOR_FIND_H
+#define TASKPAD_EXECUTOR_FIND_H
 
 #include "Executor_Base.h"
+
+//@ASHRAY JAIN A0105199B
 
 class Executor_Find: public Executor_Base {
 public:
@@ -51,3 +54,4 @@ private:
 	static bool sortTaskByPriorityComparator	(const Task &first, const Task &second);
 	static bool sortTaskByFromTimeComparator	(const Task &first, const Task &second); 
 };
+#endif

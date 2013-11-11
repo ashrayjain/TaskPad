@@ -12,9 +12,12 @@
  * =====================================================================================
  */
 
-#pragma once
+#ifndef TASKPAD_EXECUTOR_REDO_H
+#define TASKPAD_EXECUTOR_REDO_H
 
 #include "Executor_Base.h"
+
+//@ASHRAY JAIN A0105199B
 
 class Executor_Redo: public Executor_Base {
 public:
@@ -26,3 +29,4 @@ public:
 private:
 	Command*	_redoCommandToExecute;
 };
+#endif

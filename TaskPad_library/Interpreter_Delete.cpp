@@ -32,8 +32,6 @@ Command* Interpreter_Delete:: interpretDelete(Command_Del*commandType,string com
 	content.clear();
 	getline(extractContent,content,NOTATION_ACCENT_GRAVE);
 	commandType->setName(content);
-
-
 	response.setCommandType(DEL);
 	response.setStatus(SUCCESS);
 	return (Command*)commandType;

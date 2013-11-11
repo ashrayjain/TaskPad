@@ -25,6 +25,8 @@
 #include "StorableTaskDatastore.h"
 #include "Datastore_List.h"
 
+//@ASHRAY JAIN A0105199B
+
 class Datastore: public StorableTaskDatastore {
 private:
 	typedef Datastore_List Datastore_Type;
@@ -36,8 +38,8 @@ private:
 	std::stack<std::pair<Command*, Task>>				_redoStack;
 	Task												_interimTask;
 
-	void clearRedoStack();
-	void clearUndoStack();
+	void					clearRedoStack();
+	void					clearUndoStack();
 
 	void					handleHashTagPtrs			(Task &newTask, const std::list<std::string> &hashTagsList);
 	void					handleExistingHashTag		(std::list<std::list<Task*>::iterator> &newHashTagPtrs, 
@@ -77,8 +79,13 @@ public:
 
 	class const_iterator: public StorableTaskDatastore::const_iterator {
         public:
-			const_iterator()											{ }
-			~const_iterator()											{ delete i; i = NULL; }
+			const_iterator()											{ i = NULL; }
+			~const_iterator()											{ 
+				if (i != NULL) {
+					delete i;
+					i = NULL; 
+				} 
+			}
 			const_iterator(Datastore_Type::const_iterator* it): i(it)	{ }
 			const_iterator(Datastore::const_iterator &rhs)				{ this->i = new Datastore_Type::const_iterator(*(rhs.i)); }
 			typedef const_iterator self_type;

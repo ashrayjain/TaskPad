@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "CppUnitTest.h"
 #include "../TaskPad_library/Executor.h"
-#include "../TaskPad_library//Datastore.h"
+#include "../TaskPad_library/Datastore.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 using namespace std;
@@ -13,7 +13,7 @@ namespace UnitTest
 	{
 	private:
 		Datastore ds;
-		//list<Task> data;
+		list<Task> data;
 
 	public:
 		TEST_METHOD_INITIALIZE(Generate_Test_Data)
@@ -61,7 +61,7 @@ namespace UnitTest
 		TEST_METHOD_CLEANUP(Clean_Up)
 		{
 			while(ds.size()!=0)
-				ds.deleteTask(0);
+				ds.deleteTask(ds.cbegin());
 		}
 
 		TEST_METHOD(Execute_Add_Command_Test)
@@ -83,7 +83,7 @@ namespace UnitTest
 			testAddCmd->setRemindTimes(list<time_t>(1, now + 432000));
 			
 			testExecutor.executeCommand(testCmd, testResponse);
-
+			
 			Datastore::const_iterator i = ds.cend();
 			i--;
 			Assert::IsTrue(string("Test Task") == i->getName());
@@ -279,13 +279,6 @@ namespace UnitTest
 			testExecutor.executeCommand(testCmd, testResponse);
 			Assert::IsTrue(1 == testResponse.getList().size());
 			delete testCmd;
-
-			Command* testCmd_2 = new Command_Del();
-			Command_Del* testDelCmd_2 = dynamic_cast<Command_Del*>(testCmd_2);
-			testDelCmd_2->setName("Test Task 1");
-			testExecutor.executeCommand(testCmd_2, testResponse);
-			
-			delete testCmd_2;
 		}
 	};
 }
