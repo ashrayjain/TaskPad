@@ -127,7 +127,7 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 				Command_Mod* Mod_pointer=new Command_Mod();
 				Interpreter_Mod interpretMod;
 				string taskName;
-				Mod_pointer->setisSuccessfulExact();	
+				Mod_pointer->setFlagExact();	
 				extractQuotedMessage(commandStr, taskName);
 				Mod_pointer->setName(taskName);
 
@@ -190,7 +190,7 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 
 				Command_Find* Find_pointer=new Command_Find();
 				Interpreter_Find interpretFind;
-				Find_pointer->setisSuccessfulExact();			
+				Find_pointer->setFlagExact();			
 				try{
 					returnCommand=interpretFind.interpretFind(Find_pointer,commandStr, response,isValidCommand);
 				}catch(string errorMessage){
@@ -211,7 +211,7 @@ Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &respo
 		case DEL_EXACT_COMMAND:{
 				Command_Del* Del_pointer=new Command_Del();
                 Interpreter_Delete interpretDel;						
-				Del_pointer->setisSuccessfulExact();
+				Del_pointer->setFlagExact();
 				returnCommand=interpretDel.interpretDelete(Del_pointer,commandStr, response,isValidCommand);
 				break;
 			}
@@ -308,20 +308,6 @@ void Interpreter::interpretCommand(unsigned ActualIndex, Command *prevCommand){
 	}
 	return;
 }
-/*
-int Interpreter::interpretIndex(std::string indexStr, Messenger &response){
-
-	int num;
-	if(integerConvert(indexStr,num)){
-		response.setStatus(SUCCESS);
-	}
-	else{ 
-		response.setStatus(ERR);
-		response.setErrorMsg(ERROR_COMMAND);
-	}
-	return num;
-}
-*/
 
 bool Interpreter::checkCommand(string command, int& commandType){
 

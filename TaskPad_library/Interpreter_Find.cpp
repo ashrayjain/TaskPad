@@ -31,6 +31,7 @@ const int PUSHED_UP_MIN=59;
 //@AN JIANGZE A0105729A 
 //@LI ZIXUAN  A0096582R
 Command* Interpreter_Find::interpretFind(Command_Find* commandType, string commandStr, Messenger &response, bool &flag){
+	
 	PRIORITY		contentPriority;
 	string			contentString;
 	list<string>	contentStringList;
@@ -38,6 +39,7 @@ Command* Interpreter_Find::interpretFind(Command_Find* commandType, string comma
 	TASK_TYPE		contentTaskType;
 	time_t			contentTime;
 	list<time_t>	contentTimeList;
+
 	if(getFromDateMessage(commandStr,flag,contentTime)){
 		commandType->setFromDate(contentTime);
 	}
@@ -76,7 +78,7 @@ Command* Interpreter_Find::interpretFind(Command_Find* commandType, string comma
 		if(commandType->getFromDate()>commandType->getToDate()){
 			flag=false;
 		}
-		//pull up and pull down if FormDate=DueDate
+		//pull up and pull down if FromDate=DueDate
 		if(commandType->getFromDate()==commandType->getToDate()){
 			commandType->setFromDate(pullDownFromDate(commandType->getFromDate()));
 			commandType->setToDate(pushUpToDate(commandType->getToDate()));
