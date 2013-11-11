@@ -40,6 +40,9 @@ class TaskSaverText: public TaskSaver
 
 		Logger* _logger;
 
+		//create directory
+		void mkTaskDir					();
+
 		//save records
 		void saveDeleteCommand			(const Task& task);
 		void saveNonDeleteCommands		(const Task& task);

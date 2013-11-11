@@ -16,90 +16,96 @@ static const std::string TASK_FILE_DIRECTORY			= "Tasks\\";
 static const std::string TASK_FILE_EXTENSION			= ".task";
 static const std::string TASK_FILE_DELETED_EXTENSION	= ".deltask";
 
-const string LABEL_START_OF_TASK	= "StartOfTask";
-const string LABEL_NAME				= "name: ";
-const string LABEL_INDEX			= "index: ";
-const string LABEL_DUE_DATE			= "due: ";
-const string LABEL_FROM_DATE		= "from: ";
-const string LABEL_TO_DATE			= "to: ";
-const string LABEL_LOCATION			= "at: ";
-const string LABEL_PARTICIPANT		= "ppl: ";
-const string LABEL_NOTE				= "note: ";
-const string LABEL_PRIORITY			= "impt: ";
-const string LABEL_TAG				= "#: ";
-const string LABEL_REMINDER_TIME	= "rt: ";
-const string LABEL_STATE			= "state: ";
-const string LABEL_END_OF_TASK		= "EndOfTask";
+static const string LABEL_START_OF_TASK		= "StartOfTask";
+static const string LABEL_NAME				= "name: ";
+static const string LABEL_INDEX				= "index: ";
+static const string LABEL_DUE_DATE			= "due: ";
+static const string LABEL_FROM_DATE			= "from: ";
+static const string LABEL_TO_DATE			= "to: ";
+static const string LABEL_LOCATION			= "at: ";
+static const string LABEL_PARTICIPANT		= "ppl: ";
+static const string LABEL_NOTE				= "note: ";
+static const string LABEL_PRIORITY			= "impt: ";
+static const string LABEL_TAG				= "#: ";
+static const string LABEL_REMINDER_TIME		= "rt: ";
+static const string LABEL_STATE				= "state: ";
+static const string LABEL_END_OF_TASK		= "EndOfTask";
 
-namespace UnitTest {		
+
+namespace UnitTest {
+
 	TEST_CLASS(test_TaskLoaderText) {
 	public:
 
 		TEST_METHOD(load_taskDS) {
-			// There are 3 partitions for this function:-
-			// (i) no main load, no changes to recover
-			// (ii) has main load, no changes to recover
-			// (iii) has main load, changes to recover
+			//There are 3 partitions for this function:-
+			//(i) no main load, no changes to recover
+			//(ii) has main load, no changes to recover
+			//(iii) has main load, changes to recover
 
-			//stringstream	taskPath;
-			//string			path1, path2;
-			//Storage_Datastore_stub taskDS;
-			//TaskLoaderText	loader(&taskDS);
-			//Task task1 = getFirstTask();
-			//Task task2 = getSecondTask();
-			//Task task3 = getThirdTask();
-			//list<Task> returnList;
-			//list<Task>::iterator it;
+			Task::flushAllIndices();
+			stringstream	taskPath;
+			string			path1, path2;
+			Storage_Datastore_stub taskDS;
+			TaskLoaderText	loader(&taskDS);
+			Task task1 = getFirstTask();
+			Task task2 = getSecondTask();
+			Task task3 = getThirdTask();
+			Task::flushAllIndices();
+			list<Task> returnList;
+			list<Task>::iterator it;
 
-			//string newName = "New Task Name";
+			string newName = "New Task Name";
 
 
-			//// Partition 1, no main load/recover
-			//emptyStreams(taskPath);
-			//loader.load(TASK_FILE_NAME);
-			//Assert::IsTrue(taskDS.getTaskList().empty());
+			// Partition 1, no main load/recover
+			emptyStreams(taskPath);
+			loader.load(TASK_FILE_NAME);
+			Assert::IsTrue(taskDS.getTaskList().empty());
 
-			////Partition 2, has main load.
-			//generateExpectedOutput(task1);
-			//generateExpectedOutput(task2);
-			//generateExpectedOutput(task3);
+			//Partition 2, has main load.
+			generateExpectedOutput(task1);
+			generateExpectedOutput(task2);
+			generateExpectedOutput(task3);
 
-			//loader.load(TASK_FILE_NAME);
-			//
-			//returnList = taskDS.getTaskList();
-			//it = returnList.begin();
-			//Assert::AreEqual((int) returnList.size(),3);
+			loader.load(TASK_FILE_NAME);
+			
+			returnList = taskDS.getTaskList();
+			it = returnList.begin();
+			Assert::AreEqual(3, (int) returnList.size());
 
-			//Assert::IsTrue((*it++) == task1);
-			//Assert::IsTrue((*it++) == task2);
-			//Assert::IsTrue((*it++) == task3);
+			Assert::IsTrue((*it++) == task1);
+			Assert::IsTrue((*it++) == task2);
+			Assert::IsTrue((*it++) == task3);
 
-			////Partition 3, main load and recover changes
+			//cleanup
+			taskDS.emptyStore();
 
-			////simulate a modified task
-			//task1.setName(newName);
-			//taskPath.str("");
-			//taskPath << TASK_FILE_DIRECTORY << task1.getIndex() << TASK_FILE_EXTENSION;		
-			//path1 = taskPath.str();
-			//generateExpectedOutput(task1,path1);
-			//// simulate a deleted task
-			//path2 = generateExpectedOutput(task2.getIndex());
+			//Partition 3, main load and recover changes
 
-			//taskDS.emptyStore();
-			//loader.load(TASK_FILE_NAME);
-			//returnList = taskDS.getTaskList();
-			//it = returnList.begin();
-			//Assert::AreEqual((int) returnList.size(),2);
+			//simulate a modified task
+			task1.setName(newName);
+			taskPath.str("");
+			taskPath << TASK_FILE_DIRECTORY << task1.getIndex() << TASK_FILE_EXTENSION;		
+			path1 = taskPath.str();
+			generateExpectedOutput(task1,path1);
+			// simulate a deleted task
+			path2 = generateExpectedOutput(task2.getIndex());
 
-			//Assert::IsTrue((*it++) == task1);
-			//Assert::IsTrue((*it++) == task3);
+			loader.load(TASK_FILE_NAME);
+			returnList = taskDS.getTaskList();
+			it = returnList.begin();
+			Assert::AreEqual(2,(int) returnList.size());
 
-			//taskDS.emptyStore();
-			//std::remove(path1.c_str());
-			//std::remove(path2.c_str());
-			//emptyStreams(taskPath);
-			//emptyStreams(taskPath,TASK_FILE_NAME);
-			//std::remove(TASK_FILE_NAME.c_str());
+			Assert::IsTrue((*it++) == task1);
+			Assert::IsTrue((*it++) == task3);
+
+			taskDS.emptyStore();
+			std::remove(path1.c_str());
+			std::remove(path2.c_str());
+			emptyStreams(taskPath);
+			emptyStreams(taskPath,TASK_FILE_NAME);
+			std::remove(TASK_FILE_NAME.c_str());
 		}
 
 		Task getFirstTask() {

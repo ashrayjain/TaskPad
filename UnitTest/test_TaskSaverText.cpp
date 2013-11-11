@@ -16,20 +16,20 @@ static const std::string TASK_FILE_DIRECTORY			= "Tasks\\";
 static const std::string TASK_FILE_EXTENSION			= ".task";
 static const std::string TASK_FILE_DELETED_EXTENSION	= ".deltask";
 
-const string LABEL_START_OF_TASK	= "StartOfTask";
-const string LABEL_NAME				= "name: ";
-const string LABEL_INDEX			= "index: ";
-const string LABEL_DUE_DATE			= "due: ";
-const string LABEL_FROM_DATE		= "from: ";
-const string LABEL_TO_DATE			= "to: ";
-const string LABEL_LOCATION			= "at: ";
-const string LABEL_PARTICIPANT		= "ppl: ";
-const string LABEL_NOTE				= "note: ";
-const string LABEL_PRIORITY			= "impt: ";
-const string LABEL_TAG				= "#: ";
-const string LABEL_REMINDER_TIME	= "rt: ";
-const string LABEL_STATE			= "state: ";
-const string LABEL_END_OF_TASK		= "EndOfTask";
+static const string LABEL_START_OF_TASK		= "StartOfTask";
+static const string LABEL_NAME				= "name: ";
+static const string LABEL_INDEX				= "index: ";
+static const string LABEL_DUE_DATE			= "due: ";
+static const string LABEL_FROM_DATE			= "from: ";
+static const string LABEL_TO_DATE			= "to: ";
+static const string LABEL_LOCATION			= "at: ";
+static const string LABEL_PARTICIPANT		= "ppl: ";
+static const string LABEL_NOTE				= "note: ";
+static const string LABEL_PRIORITY			= "impt: ";
+static const string LABEL_TAG				= "#: ";
+static const string LABEL_REMINDER_TIME		= "rt: ";
+static const string LABEL_STATE				= "state: ";
+static const string LABEL_END_OF_TASK		= "EndOfTask";
 
 namespace UnitTest {		
 	TEST_CLASS(test_TaskSaverText) {
@@ -79,12 +79,13 @@ namespace UnitTest {
 			emptyStreams(tempStream);
 			taskStore.emptyStore();
 			std::remove(TASK_FILE_NAME.c_str());
+
 		}
 
 		TEST_METHOD(save_task) {
 			// This method is called after every user command
 			// There are 3 partitions: (i) a mod/add command (ii) a del command
-
+			Task::flushAllIndices();
 			Task tempTask = getFirstTask();
 			ifstream tempIfstream;
 			COMMAND_TYPE tempType = ADD;
@@ -99,6 +100,8 @@ namespace UnitTest {
 			generateExpectedOutput(tempStream,tempTask);
 			saver.save(tempTask,tempType);
 			Assert::IsTrue(compareStreams(tempStream,taskPath.str()));
+
+			//clean up
 			std::remove(taskPath.str().c_str());
 
 			//Partition 2: DEL type
@@ -110,6 +113,8 @@ namespace UnitTest {
 			tempType = DEL;
 			saver.save(tempTask,tempType);
 			Assert::IsTrue(compareStreams(tempStream,taskPath.str()));
+
+			//cleanup
 			std::remove(taskPath.str().c_str());
 		}
 
@@ -203,6 +208,7 @@ namespace UnitTest {
 		void emptyStreams (stringstream& tempStream, string fileName = TASK_FILE_NAME) {
 			ofstream tempFile(fileName);
 			tempFile.close();
+			std::remove(fileName.c_str());
 			tempStream.str("");
 		}
 

@@ -181,6 +181,9 @@ void Manager::removeLastSuccessfulFindCommand() {
 */
 void Manager::handleNormalScenarioCommands(string newCommand) {
 	_logger->log(CLASS_NAME,"handling normal scenario command");
+
+	if (!interpretCommand(newCommand)) return;
+
 	if(isIndexGiven(newCommand)) {
 		_logger->log(CLASS_NAME,"index given by user",NOTICELOG);
 		handleShowCommand();
@@ -196,6 +199,11 @@ void Manager::handleNormalScenarioCommands(string newCommand) {
 		handleGenericCommand();
 	}
 	return;
+}
+
+bool Manager::interpretCommand(string newCommand) {
+	_cmd = _interpreter->interpretCommand(newCommand,_response);
+	return hasNoInterpretationError();
 }
 
 /**
@@ -215,6 +223,8 @@ void Manager::handleIntermediateScenarioCommands(string newCommand) {
 }
 
 void Manager::handleShowCommand() {
+	storeIndexFromCommandToClassAttribute();
+
 	if(isIndexWithinRange()) {
 		_response.setInt(_index);
 		_response.setStatus(DISPLAY);
@@ -276,43 +286,30 @@ void Manager::editTaskListInResponse()
 }
 
 bool Manager::isIndexGiven(string newCommand) {
-	_index = _interpreter->interpretIndex(newCommand,_response);
-
-	if(hasNoInterpretationError()) {
-		return true;
-	}
-	return false;
+	return _response.getCommandType() == SHOW;
 }
 
 bool Manager::isCommandWithIndexGiven(string newCommand) {
-	//tempStorage is used to ensure that the list is not lost in the interpreter by mistake
-	list<Task> tempStorage = _response.getList();
 
-	_cmd = _interpreter->interpretCommand(newCommand,_response);
+	bool isModifyCommandWithIndex = false, isDeleteCommandWithIndex = false;
 
-	//restore the saved value
-	_response.setList(tempStorage);
-
-	if (hasNoInterpretationError()) {
-		bool isModifyCommandWithIndex = false, isDeleteCommandWithIndex = false;
-
-		switch (_cmd->getCommandType()) {
-			case MOD:
-				isModifyCommandWithIndex = isIndexedModifyCommand();
-				break;
-			case DEL:
-				isDeleteCommandWithIndex = isIndexedDeleteCommand();
-				break;
-			default:
-				break;
-		}
-
-		if(isModifyCommandWithIndex || isDeleteCommandWithIndex) {
-			return true;
-		}
+	switch (_cmd->getCommandType()) {
+		case MOD:
+			isModifyCommandWithIndex = isIndexedModifyCommand();
+			break;
+		case DEL:
+			isDeleteCommandWithIndex = isIndexedDeleteCommand();
+			break;
+		default:
+			break;
 	}
-	//else
-	return false;
+
+	if(isModifyCommandWithIndex || isDeleteCommandWithIndex) {
+		return true;
+	}
+	else {
+		return false;
+	}
 }
 
 bool Manager::isIndexedModifyCommand() {
@@ -385,6 +382,12 @@ void Manager::storeIndexFromCommandToClassAttribute() {
 		case DEL:
 			{
 				Command_Del* cmdTemp = (Command_Del*) _cmd;
+				_index = cmdTemp->getIndex();
+				break;
+			}
+		case SHOW:
+			{
+				Command_Show* cmdTemp = (Command_Show*) _cmd;
 				_index = cmdTemp->getIndex();
 				break;
 			}

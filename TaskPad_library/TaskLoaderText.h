@@ -37,6 +37,9 @@ class TaskLoaderText :public TaskLoader {
 
 		Logger* _logger;
 
+		//create directory
+		void mkTaskDir					();
+
 		//recovery system
 		std::set<std::string> recoveredDeletedIndices;
 
