@@ -1,0 +1,2146 @@
+//@author: a0105729a
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter.cpp
+	 */
+
+/*
+ *
+=================================================================
+=================================================================
+ *
+ *  Filename: Interpreter.cpp   
+ *  
+ *  Version V0.5
+ *  Created 15/10/13 12:00
+ *
+ *  Author: An Jiangze(A0105729A),Li Zixuan(A0096582R)
+ *  Organization: NUS,SOC
+ *
+==================================================================
+==================================================================
+ */
+
+
+
+#include "Interpreter.h"
+#include "Interpreter_Add.h"
+#include "Interpreter_Mod.h"
+#include "Interpreter_Find.h"
+#include "Interpreter_Delete.h"
+#include "Interpreter_Redo.h"
+#include "Interpreter_Undo.h"
+
+#include <regex>
+
+
+
+using namespace std;
+using namespace TP;
+
+const string GENERAL_ADD_CASE			="((((\\s+)(due|by)|(\\s+)from|(\\s+)to|(\\s+)(impt|priority)|(\\s+)(at|place|location)|(\\s+)(ppl|with)|(\\s+)note|(\\s+)(rt|remind))(\\s+)`[^`]*`)|((\\s+)#[^( |`)]*))*(\\s*)";
+const string GENERAL_MOD_CASE			="((((\\s+)(due|by)|(\\s+)from|(\\s+)name|(\\s+)to|(\\s+)(impt|priority)|(\\s+)(at|place|location)|(\\s+)(ppl|with)|(\\s+)note|(\\s+)(rt|remind)|(\\s+)-(rt|remind)|(\\s+)-(ppl|with)|(\\s+)\\+(rt|remind)|(\\s+)\\+(ppl|with))(\\s+)`[^`]*`)|((\\s+)done|(\\s+)undone)|((\\s+)-(due|by)|(\\s+)-from|(\\s+)-to)|((\\s+)-rtall|(\\s+)-pplall|(\\s+)-#)|((\\s+)(#|-#|\\+#)[^( |`)]*))*(\\s*)";
+const string GENERAL_FIND_CASE			="((((\\s+)from|(\\s+)name|(\\s+)to|(\\s+)(impt|priority)|(\\s+)(at|place|location)|(\\s+)(ppl|with)|(\\s+)note|(\\s+)(rt|remind))(\\s+)`[^`]*`)|((\\s+)#[^( |`)]*)|((\\s+)done|(\\s+)undone|(\\s+)overdue)|(((\\s+)timed|(\\s+)deadline|(\\s+)floating)))*(\\s*)";
+const string COMMAND_ADD				="^add(\\s+)`([^`]+)`(\\s*)";
+const string COMMAND_MOD				="^mod(\\s+)`([^`]+)`(\\s*)";
+const string COMMAND_MOD_EXACT			="^mod(\\s+)exact(\\s+)`([^`]+)`(\\s*)";
+const string COMMAND_MOD_INDEX			="^mod(\\s+)([0-9]+)(\\s*)";
+const string COMMAND_FIND				="^find(\\s*)";
+const string COMMAND_FIND_EXACT			="^find(\\s+)exact(\\s*)";
+const string COMMAND_DEL				="^del(\\s+)`([^`]+)`(\\s*)";
+const string COMMAND_DEL_EXACT			="^del(\\s+)exact(\\s+)`([^`]+)`(\\s*)";
+const string COMMAND_DEL_INDEX			="^del(\\s+)([0-9]+)(\\s*)";
+const string COMMAND_UNDO				="^undo(\\s*)";
+const string COMMAND_REDO				="^redo(\\s*)";
+const string COMMAND_INDEX				="^([0-9]+)(\\s*)";
+const string ERROR_COMMAND				="invalid command";
+
+const int	 TOTAL_TEST_CASE			=12;
+const int	 DUMMY_VALUE				=-1;
+const int	 START_POSITION_VALUE		=0;
+const int    START_POSITION				=0;
+const char   NOTATION_ACCENT_GRAVE		='`';
+
+enum COMMAND_CATEGORY{ADD_COMMAND,MOD_COMMAND,MOD_EXACT_COMMAND,MOD_INDEX_COMMAND,FIND_COMMAND,FIND_EXACT_COMMAND,DEL_COMMAND, 
+	DEL_EXACT_COMMAND, DEL_INDEX_COMMAND, UNDO_COMMAND,REDO_COMMAND,INDEX_COMMAND};
+
+/**********************************************************************************
+*Input: commandStr->original command line input by user						      *
+*		response->a Messenger object that contains status and error message		  *
+*																				  *
+*Function: This function checks whether the user input command matches with one   *
+*		   of the 11 general cases and parses the command. The success of		  *
+*		   the interpretation and any error message is set in response			  *
+*																				  *
+*Ouput: returnCommand->a Command object with all fields set by Interpreter		  *
+*		response->a Messenger object with status of interpretation and error      *
+*				  message if any												  *
+**********************************************************************************/
+//AN JIANGZE (FUNCTIONALITY) LI ZIXUAN (REFACTORING)
+
+Command*  Interpreter::interpretCommand(std::string commandStr, Messenger &response){
+
+	bool isValidCommand=true;
+	int commandType;
+
+	string word;
+	string issueCollector;
+	Command* returnCommand=NULL;
+	isValidCommand=checkCommand(commandStr,commandType);
+
+	if(isValidCommand!=false){
+		switch (commandType){
+		case ADD_COMMAND:{
+				Command_Add* Add_pointer=new Command_Add();
+				Interpreter_Add interpretAdd;
+				string taskName;
+				extractQuotedMessage(commandStr, taskName);
+				Add_pointer->setName(taskName);
+
+				
+				try{
+					returnCommand=interpretAdd.interpretAdd(Add_pointer, commandStr, response,isValidCommand);
+				}catch(string errorMessage){
+	                 isValidCommand=false;					
+					 issueCollector=errorMessage;
+					 if(Add_pointer!=NULL){
+						delete Add_pointer;
+					}
+				}
+				break;
+			}
+
+		case MOD_COMMAND:{
+				Command_Mod* Mod_pointer=new Command_Mod();
+				Interpreter_Mod interpretMod;
+				string taskName;
+				extractQuotedMessage(commandStr, taskName);
+				Mod_pointer->setName(taskName);
+
+				try{
+					returnCommand=interpretMod.interpretModify(Mod_pointer, commandStr, response,isValidCommand);
+				}catch(string errorMessage){
+					isValidCommand=false;					
+					issueCollector=errorMessage;			     					
+					if(Mod_pointer!=NULL){
+						delete Mod_pointer;
+					}				
+				}
+				break;
+			}
+		
+		case MOD_EXACT_COMMAND:{
+				Command_Mod* Mod_pointer=new Command_Mod();
+				Interpreter_Mod interpretMod;
+				string taskName;
+				Mod_pointer->setFlagExact();	
+				extractQuotedMessage(commandStr, taskName);
+				Mod_pointer->setName(taskName);
+
+				try{
+					returnCommand=interpretMod.interpretModify(Mod_pointer, commandStr, response,isValidCommand);
+				}catch(string errorMessage){
+					isValidCommand=false;					
+					issueCollector=errorMessage;
+					if(Mod_pointer!=NULL){
+						delete Mod_pointer;
+					}			
+				}
+				break;
+			}
+
+		case MOD_INDEX_COMMAND:{
+				Command_Mod* Mod_pointer=new Command_Mod();
+				Interpreter_Mod interpretMod;	
+				string getIndex=commandStr;
+				stringstream extractIndex(getIndex);
+				string content;
+				extractIndex>>getIndex;
+				getIndex.clear();
+				extractIndex>>getIndex;
+				int index;
+
+				index=getIndexMessage(getIndex,isValidCommand);
+				
+				Mod_pointer->setIndex(index);
+
+				try{
+					returnCommand=interpretMod.interpretModify(Mod_pointer, commandStr, response,isValidCommand);
+				}catch(string errorMessage){
+					isValidCommand=false;					
+					issueCollector=errorMessage;	
+					if(Mod_pointer!=NULL){
+						delete Mod_pointer;
+					}				
+				}							
+				break;
+			}
+
+
+		case FIND_COMMAND:{
+				Command_Find* Find_pointer=new Command_Find();
+				Interpreter_Find interpretFind;
+				try{
+					returnCommand=interpretFind.interpretFind(Find_pointer,commandStr, response,isValidCommand);
+				}catch(string errorMessage){
+					isValidCommand=false;					
+					issueCollector=errorMessage;					
+					if(Find_pointer!=NULL){
+						delete Find_pointer;
+					}				
+				}
+				break;
+			}
+
+		case FIND_EXACT_COMMAND:{
+
+				Command_Find* Find_pointer=new Command_Find();
+				Interpreter_Find interpretFind;
+				Find_pointer->setFlagExact();			
+				try{
+					returnCommand=interpretFind.interpretFind(Find_pointer,commandStr, response,isValidCommand);
+				}catch(string errorMessage){
+					isValidCommand=false;					
+					issueCollector=errorMessage;			    				
+					if(Find_pointer!=NULL){
+						delete Find_pointer;
+					}					
+				}	
+				break;
+			}
+		case DEL_COMMAND:{
+				Command_Del* Del_pointer=new Command_Del();
+				Interpreter_Delete interpretDel;								
+				returnCommand=interpretDel.interpretDelete(Del_pointer,commandStr, response,isValidCommand);
+				break;
+			}
+		case DEL_EXACT_COMMAND:{
+				Command_Del* Del_pointer=new Command_Del();
+                Interpreter_Delete interpretDel;						
+				Del_pointer->setFlagExact();
+				returnCommand=interpretDel.interpretDelete(Del_pointer,commandStr, response,isValidCommand);
+				break;
+			}
+		case DEL_INDEX_COMMAND:{
+				Command_Del* Del_pointer=new Command_Del();
+				Interpreter_Delete interpretDel;
+				stringstream extractIndex(commandStr);
+				string content;
+				int index;
+				extractIndex>>commandStr;
+				commandStr.clear();
+				extractIndex>>commandStr;				
+				index=getIndexMessage(commandStr,isValidCommand);				
+				Del_pointer->setIndex(index);
+				response.setCommandType(DEL);
+				returnCommand=(Command*)Del_pointer;
+				break;
+			}
+		case UNDO_COMMAND:{
+				Command_Undo* Undo_pointer=new Command_Undo();
+				Interpreter_Undo interpretUndo;
+				returnCommand=interpretUndo.interpretUndo(Undo_pointer,commandStr, response,isValidCommand);
+				break;
+			}
+		case REDO_COMMAND:{
+				Command_Redo* Redo_pointer=new Command_Redo();
+				Interpreter_Redo interpretRedo;
+				returnCommand=interpretRedo.interpretRedo(Redo_pointer,commandStr, response,isValidCommand);
+				break;
+			}
+		case INDEX_COMMAND:{
+				int num;
+				Command_Show* Show_pointer=new Command_Show();
+				integerConvert(commandStr,num);
+				Show_pointer->setIndex(num);
+				response.setCommandType(SHOW);
+				returnCommand=(Command*)Show_pointer;
+				break;
+			}
+		default: isValidCommand=false;
+			break;
+		}
+
+	}
+	if(isValidCommand==false){
+		response.setStatus(ERR);
+		//if has not encountered any throw yet has error, command format is wrong
+		if(!issueCollector.empty()){	
+			response.setErrorMsg(issueCollector);	
+		}		
+		else{
+			response.setErrorMsg(ERROR_COMMAND);
+		}
+	}
+
+	else{
+		response.setStatus(SUCCESS);
+	}
+	return returnCommand;
+}
+
+/**********************************************************************************
+*Input: ActualIndex->index input by the user								      *
+*		prevCommand->the previous Command object for the previous user input	  *
+*																				  *
+*Function: This function is called during "intermediate" case where the system    *
+*		   returns multiple results with due to an ambiguous find/mod/del command.*
+*		   These results have allocated indices and user can input an index to    *
+*		   choose the corresponding task. This function parses the index and sets *
+*		   it as an attribute of the previous Command object.                     *
+*   	   					 													  *
+*Ouput: prevCommand->previous Command object with index set						  *
+*																				  *
+**********************************************************************************/
+void Interpreter::interpretCommand(unsigned ActualIndex, Command *prevCommand){
+	
+	TP::COMMAND_TYPE taskType;
+	taskType=prevCommand->getCommandType();
+	Command_Mod* Mod_pointer;
+	Command_Del* Del_pointer;
+
+	if(taskType==MOD){
+		Mod_pointer=(Command_Mod*)prevCommand;
+		Mod_pointer->setIndex(ActualIndex);
+		prevCommand=Mod_pointer;
+	}
+
+	else if(taskType==DEL){
+
+		Del_pointer=(Command_Del*)prevCommand;
+		Del_pointer->setIndex(ActualIndex);
+		prevCommand=Del_pointer;
+
+	}
+	return;
+}
+
+bool Interpreter::checkCommand(string command, int& commandType){
+
+	bool isValidCommand=false;
+	bool testlist[TOTAL_TEST_CASE]={false};
+	int num=DUMMY_VALUE;
+
+	regex test_add_command(COMMAND_ADD+GENERAL_ADD_CASE); 
+
+	regex test_mod_command(COMMAND_MOD+GENERAL_MOD_CASE); 
+	regex test_mod_exact_command(COMMAND_MOD_EXACT+GENERAL_MOD_CASE);
+	regex test_mod_index_command(COMMAND_MOD_INDEX+GENERAL_MOD_CASE);
+
+	regex test_find_command(COMMAND_FIND+GENERAL_FIND_CASE);
+	regex test_find_exact_command(COMMAND_FIND_EXACT+GENERAL_FIND_CASE);
+
+	regex test_del_command(COMMAND_DEL);
+	regex test_del_exact_command(COMMAND_DEL_EXACT);
+	regex test_del_index_command(COMMAND_DEL_INDEX);
+
+	regex test_undo_command(COMMAND_UNDO);
+
+	regex test_redo_command(COMMAND_REDO);
+	regex test_index_command(COMMAND_INDEX);
+
+
+	testlist[ADD_COMMAND]=regex_match(command,test_add_command);
+	testlist[MOD_COMMAND]=regex_match(command,test_mod_command);
+	testlist[MOD_EXACT_COMMAND]=regex_match(command,test_mod_exact_command);
+	testlist[MOD_INDEX_COMMAND]=regex_match(command,test_mod_index_command);
+	testlist[FIND_COMMAND]=regex_match(command,test_find_command);
+	testlist[FIND_EXACT_COMMAND]=regex_match(command,test_find_exact_command);
+	testlist[DEL_COMMAND]=regex_match(command,test_del_command);
+	testlist[DEL_EXACT_COMMAND]=regex_match(command,test_del_exact_command);
+	testlist[DEL_INDEX_COMMAND]=regex_match(command,test_del_index_command);
+	testlist[UNDO_COMMAND]=regex_match(command,test_undo_command);
+	testlist[REDO_COMMAND]=regex_match(command,test_redo_command);
+	testlist[INDEX_COMMAND]=regex_match(command,test_index_command);
+
+	for(int i=START_POSITION_VALUE;i<TOTAL_TEST_CASE && isValidCommand!=true;i++){
+		if(testlist[i]==true){
+			num=i;
+			isValidCommand=true;
+		}
+	}
+
+	commandType=num;
+	return isValidCommand;
+}
+
+void Interpreter:: extractQuotedMessage(string field, string& quotedMessage){
+
+	stringstream extract(field);
+	getline(extract,quotedMessage,NOTATION_ACCENT_GRAVE);
+	quotedMessage.clear();
+	getline(extract,quotedMessage,NOTATION_ACCENT_GRAVE);
+	return;
+}
+
+int Interpreter:: getIndexMessage(string command,bool& isSuccessful){
+
+	int num;
+	isSuccessful=integerConvert(command, num);
+	return num;
+}	
+
+bool Interpreter::integerConvert(string& requiredString, int& number){
+	
+	bool isSuccessful=true;
+
+	if(requiredString.empty()==true){
+		isSuccessful=false;
+	}
+	else{
+		for(unsigned i=START_POSITION_VALUE;i<requiredString.length();i++){
+			if(isdigit(requiredString[i])==false){
+				isSuccessful=false;
+			}
+		}
+	}
+	number=atoi(requiredString.c_str());
+
+	return isSuccessful;
+}
+
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter.h
+	 */
+
+/*
+ *
+=================================================================
+=================================================================
+ *
+ *  Filename: Interpreter.h    
+ *  
+ *  Version V0.5
+ *  Created 15/10/13 12:00
+ *
+ *  Author: An Jiangze(A0105729A),Li Zixuan(A0096582R)
+ *  Organization: NUS,SOC
+ *
+==================================================================
+==================================================================
+ */
+
+/*****************************************************************
+*Summary of class:												 *
+*Interpreter is a facade for all interpreter classes			 *
+*****************************************************************/
+
+
+#ifndef _INTERPRETER_H_
+#define _INTERPRETER_H_
+#include<string>
+
+
+class Messenger;
+class Command;
+
+
+class Interpreter{
+
+private:
+	//local functions
+	bool                 checkCommand    (std::string command, int& commandType);
+	int                  getIndexMessage (std::string command,bool&isSuccessful);
+    bool                 integerConvert  (std::string& requiredString, int& number);
+	void                 extractQuotedMessage(std::string field, std::string& quotedMessage);
+public:
+	Interpreter          () {};
+	//APIs
+	Command*             interpretCommand(std::string commandStr, Messenger &response);	
+	void                 interpretCommand(unsigned ActualIndex, Command *prevCommand);	
+};
+#endif
+
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter.h
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_Add.cpp
+	 */
+
+/*
+ *
+=================================================================
+=================================================================
+ *
+ *  Filename: Interpreter_Add.cpp   
+ *  
+ *  Version V0.5
+ *  Created 15/10/13 12:00
+ *
+ *  Author: An Jiangze(A0105729A)(FUNCTIONALITY),Li Zixuan(A0096582R)(REFACTORING)
+ *  Organization: NUS,SOC
+ *
+==================================================================
+==================================================================
+ */
+#include"Interpreter_Add.h"
+
+using namespace std;
+using namespace TP;
+
+Command* Interpreter_Add::interpretAdd(Command_Add* commandType, string commandStr, Messenger &response, bool &flag){
+
+	PRIORITY		contentPriority;
+	string			contentString;
+	list<string>	contentStringList;
+	TASK_STATE		contentTaskState;
+	TASK_TYPE		contentTaskType;
+	time_t			contentTime;
+	list<time_t>	contentTimeList;
+
+	if(setDueDateMessage(commandStr,flag,contentTime)){		
+		commandType->setDueDate(contentTime);		
+	}		
+	if(setFromDateMessage(commandStr,flag,contentTime)){
+		commandType->setFromDate(contentTime);
+	}
+	if(setToDateMessage(commandStr,flag,contentTime)){
+		commandType->setToDate(contentTime);
+	}
+	if(setParticipantsMessage(commandStr,flag,contentStringList,FIELD_PPL)){
+		commandType->setParticipants(contentStringList);
+	}
+	if(setGeneralMessage(commandStr,flag,contentString,FIELD_NOTE)){
+		commandType->setNote(contentString);
+	}
+	if(setGeneralMessage(commandStr,flag,contentString,FIELD_AT)){
+		commandType->setLocation(contentString);
+	}
+	if(setRemindTimesMessage(commandStr,flag,contentTimeList,FIELD_RT)){
+		commandType->setRemindTimes(contentTimeList);
+	}
+	if(setPriorityMessage(commandStr,flag,contentPriority)){
+		commandType->setPriority(contentPriority);
+	}
+	if(setTagsMessage(commandStr,flag,contentStringList,FIELD_TAG)){
+		commandType->setTags(contentStringList);
+	}
+	if(commandType->getFlagFrom()==true && commandType->getFlagTo()==true){
+		if(commandType->getFromDate()>commandType->getToDate()){
+			flag=false;
+		}
+	}
+
+	if(flag==true){
+		response.setStatus(SUCCESS);
+		response.setCommandType(ADD);
+	}
+	else{
+		delete commandType;
+		commandType=NULL;
+	}
+	return (Command*)commandType;
+}
+
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_Add.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_Add.h
+	 */
+
+/*
+ *
+=================================================================
+=================================================================
+ *
+ *  Filename: Interpreter_Add.h    
+ *  
+ *  Version V0.5
+ *  Created 15/10/13 12:00
+ *
+ *  Author: An Jiangze(A0105729A),Li Zixuan(A0096582R)
+ *  Organization: NUS,SOC
+ *
+==================================================================
+==================================================================
+ */
+
+#ifndef _INTERPRETER_ADD_H_
+#define _INTERPRETER_ADD_H_
+
+#include "Interpreter_base.h"
+
+class Interpreter_Add: public Interpreter_base
+{
+
+public:
+	Interpreter_Add(){};
+	~Interpreter_Add(){};
+
+	Command* interpretAdd(Command_Add* commandType, std::string commandStr, Messenger &response, bool &flag);
+};
+
+#endif
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_Add.h
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+	 */
+
+/*
+ *
+=================================================================
+=================================================================
+ *
+ *  Filename: Interpreter_base.cpp 
+ *  
+ *  Version V0.5
+ *  Created 15/10/13 12:00
+ *
+ *  Author: An Jiangze(A0105729A),Li Zixuan(A0096582R)
+ *  Organization: NUS,SOC
+ *
+==================================================================
+==================================================================
+ */
+#include "Interpreter_base.h"
+#include "Natty.h"
+
+using namespace std;
+using namespace TP;
+
+/************************
+*    Error Constants    *
+************************/
+const string Interpreter_base:: ERROR_TIME_FORMAT		="Cannot parse the time format!";
+const string Interpreter_base:: ERROR_DUPLICATE			="Duplicate command!";
+
+/************************
+*    Field Constants    *
+************************/
+const string Interpreter_base:: FIELD_NAME				="(\\s+)name(\\s+)`[^`]*`";
+const string Interpreter_base:: FIELD_DUE				="(\\s+)(due|by)(\\s+)`[^`]*`";
+const string Interpreter_base:: FIELD_FROM				="(\\s+)from(\\s+)`[^`]*`";
+const string Interpreter_base:: FIELD_TO				="(\\s+)to(\\s+)`[^`]*`";   
+const string Interpreter_base:: FIELD_AT				="(\\s+)(at|location|place)(\\s+)`[^`]*`";
+const string Interpreter_base:: FIELD_PPL				="(\\s+)(ppl|with)(\\s+)`[^`]*`";
+const string Interpreter_base:: FIELD_NOTE				="(\\s+)note(\\s+)`[^`]*`";
+const string Interpreter_base:: FIELD_PRIORITY			="(\\s+)(impt|priority)(\\s+)`[^`]*`";
+const string Interpreter_base:: FIELD_TAG				="\\s(#[^( |`)]*)(\\s|$)";
+const string Interpreter_base:: FIELD_RT				="(\\s+)(rt|remind)(\\s+)`[^`]*`";
+const string Interpreter_base:: FIELD_TASK_STATE		="\\s(done|undone|overdue)(\\s|$)";
+const string Interpreter_base:: FIELD_TASK_TYPE			="\\s(timed|deadline|floating)(\\s|$)";
+const string Interpreter_base:: FIELD_DUE_REMOVE		="\\s(-(due|by))(\\s|$)";
+const string Interpreter_base:: FIELD_FROM_REMOVE		="\\s(-from)(\\s|$)";
+const string Interpreter_base:: FIELD_TO_REMOVE			="\\s(-to)(\\s|$)";
+const string Interpreter_base:: FIELD_RT_REMOVE_ALL		="\\s(-rtall)(\\s|$)";
+const string Interpreter_base:: FIELD_PPL_REMOVE_ALL	="\\s(-pplall)(\\s|$)";
+const string Interpreter_base:: FIELD_TAG_REMOVE_ALL	="\\s(-#)(\\s|$)";
+const string Interpreter_base:: FIELD_RT_REMOVE			="(\\s+)-(rt|remind)(\\s+)`[^`]*`";
+const string Interpreter_base:: FIELD_PPL_REMOVE		="(\\s+)-(ppl|with)(\\s+)`[^`]*`";
+const string Interpreter_base:: FIELD_TAG_REMOVE		="\\s(-#[^( |`)]*)(\\s|$)";
+const string Interpreter_base:: FIELD_RT_ADD			="(\\s+)\\+(rt|remind)(\\s+)`[^`]*`";
+const string Interpreter_base:: FIELD_PPL_ADD			="(\\s+)\\+(ppl|with)(\\s+)`[^`]*`";
+const string Interpreter_base:: FIELD_TAG_ADD			="\\s(\\+#[^( |`)]*)(\\s|$)";
+
+/************************
+*   Notation Constants  *
+************************/
+const char   Interpreter_base:: NOTATION_COMMA			=',';
+const char   Interpreter_base:: NOTATION_HASH			='#';
+const char   Interpreter_base:: NOTATION_SPACE			=' ';
+const char   Interpreter_base:: NOTATION_SLASH			='/';
+const char   Interpreter_base:: NOTATION_COLON			=':';
+const char   Interpreter_base:: NOTATION_ACCENT_GRAVE	='`';
+
+/************************
+*   Priority Constants  *
+************************/
+const string Interpreter_base:: PRIORITY_HIGH_ABBREV	="H";
+const string Interpreter_base:: PRIORITY_HIGH_FULL		="HIGH";
+const string Interpreter_base:: PRIORITY_MEDIUM_ABBREV	="M";
+const string Interpreter_base:: PRIORITY_MEDIUM_FULL	="MEDIUM";
+const string Interpreter_base:: PRIORITY_LOW_ABBREV		="L";
+const string Interpreter_base:: PRIORITY_LOW_FULL		="LOW";
+
+/************************
+* Task Status Constants *
+************************/
+const string Interpreter_base:: STATUS_UNDONE			="undone";
+const string Interpreter_base:: STATUS_DONE				="done";
+const string Interpreter_base:: STATUS_OVERDUE			="overdue";
+
+/************************
+* Task Type Constants *
+************************/
+const string Interpreter_base:: TYPE_TIMED				="timed";
+const string Interpreter_base:: TYPE_DEADLINE			="deadline";
+
+/************************
+*     Time Constants    *
+************************/
+const int	 Interpreter_base:: UNINITIALIZED_TIME		=-1;
+const int	 Interpreter_base::	DEFAULT_TIME			=0;
+const int	 Interpreter_base::	DEFAULT_CTIME_BASE_YEAR =1900;
+const int	 Interpreter_base::	DEFAULT_MONTH			=1;
+
+const int	 Interpreter_base::	UPPER_LIMIT_YEAR		=2100;
+const int	 Interpreter_base::	UPPER_LIMIT_MONTH		=12;
+const int	 Interpreter_base::	UPPER_LIMIT_DAY			=31;
+const int	 Interpreter_base::	UPPER_LIMIT_HOUR		=24;
+const int	 Interpreter_base::	UPPER_LIMIT_MINUTE		=59;
+const int	 Interpreter_base::	LOWER_LIMIT_YEAR		=1971;
+const int	 Interpreter_base::	CURRENT_CENTURY			=2000;
+
+/************************
+*   General Constants   *
+************************/
+const int	 Interpreter_base::	INCREMENT_BY_ONE		=1;
+const int	 Interpreter_base::	EMPTY_STRING			=0;
+const int	 Interpreter_base::	START_POSITION			=0;
+const int	 Interpreter_base::	DUMMY_VALUE				=-1;
+const int	 Interpreter_base::	CHANGE_BY_ONE			=1;
+const int	 Interpreter_base::	CHANGE_BY_TWO			=2;
+
+
+bool Interpreter_base::setDueDateMessage(string command, bool&isSuccessful, time_t& content){
+
+	regex extractTemplate(FIELD_DUE);
+	smatch match;
+	string field;
+	string quotedMessage;
+	bool isNotEmpty=true;
+
+	if (regex_search(command, match, extractTemplate)){
+		field=match[START_POSITION];
+	}
+
+	if(!field.empty()){
+		extractQuotedMessage(field, quotedMessage);
+		if(!quotedMessage.empty()){
+			bool isDue=true;
+			content=setTime(quotedMessage,isSuccessful,isDue);
+		}
+		else{
+			isNotEmpty=false;
+		}
+		if(checkDuplicate(command,FIELD_DUE,match.position(),field.length())==true){
+			isSuccessful=false;
+		}
+		
+		//"Due" ,and "from" and "to", are mutually exclusive.
+
+		// Check whether the command has "from" or not.
+		field.clear();
+		isFromExistance(command, match, field, isSuccessful);
+		// Check whether the command has "to" or not.
+		field.clear();
+		isToExistance(command, match, field, isSuccessful);
+	}
+	else{
+		isNotEmpty=false;
+	}
+
+	return isNotEmpty;
+}
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+	 */
+
+bool Interpreter_base::setFromDateMessage(string command, bool&isSuccessful, time_t& content){
+
+	regex extractTemplate(FIELD_FROM);
+	smatch match;
+	string field;
+	string QuotedMessage;
+	bool isNotEmpty=true;
+
+	if (regex_search(command, match, extractTemplate)){
+		field=match[START_POSITION];
+	}
+
+	if(!field.empty()){
+		extractQuotedMessage(field, QuotedMessage);
+		if(QuotedMessage.empty())isNotEmpty=false;
+		else{
+			bool isDue=false;
+			content=setTime(QuotedMessage,isSuccessful,isDue);
+
+		}
+		if(checkDuplicate(command,FIELD_FROM,match.position(),field.length())==true){
+
+			isSuccessful=false;
+		}		
+
+		//"Due" ,and "from" and "to", are mutually exclusive.
+
+		// Check whether the command has "due" or not.
+		field.clear();
+		isDueExistance(field, command, match, isSuccessful);
+	}
+	else{
+		isNotEmpty=false;
+	}
+	return isNotEmpty;
+}
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+	 */
+
+bool Interpreter_base::setToDateMessage(string command, bool&isSuccessful, time_t& content){
+
+	regex extractTemplate(FIELD_TO);
+	smatch match;
+	string field;
+	string QuotedMessage;
+	bool isNotEmpty=true;
+
+	if (regex_search(command, match, extractTemplate)){
+		field=match[START_POSITION];
+	}
+	if(!field.empty()){
+		extractQuotedMessage(field, QuotedMessage);
+		if(QuotedMessage.empty())isNotEmpty=false;
+		else{
+			bool isDue=false;
+			content=setTime(QuotedMessage,isSuccessful, isDue);
+		}
+
+		if(checkDuplicate(command,FIELD_TO,match.position(),field.length())==true){
+			isSuccessful=false;
+		}
+
+		//"Due" ,and "from" and "to", are mutually exclusive.
+
+		// Check whether the command has the "due" or not.
+		isDueExistance(field, command, match, isSuccessful);
+	}
+	else{
+		isNotEmpty=false;
+	}
+	return isNotEmpty;
+}
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+	 */
+
+bool Interpreter_base::setParticipantsMessage(string command, bool&isSuccessful, list<string>& content,string regexTemplate){
+	list<string>pplList;
+	regex extractTemplate(regexTemplate);
+	smatch match;
+	string field;
+	string QuotedMessage;
+	bool isNotEmpty=true;
+
+	if (regex_search(command, match, extractTemplate)){
+		field=match[START_POSITION];
+	}
+	if(!field.empty()){
+		extractQuotedMessage(field, QuotedMessage);
+		stringstream extractIndividual(QuotedMessage);
+		string name;
+		getline(extractIndividual,name,NOTATION_COMMA);
+		while(!name.empty()){
+
+			pplList.push_back(trim(name));
+			name.clear();
+			getline(extractIndividual,name,NOTATION_COMMA);
+		}
+		content=pplList;
+		if(pplList.empty())isNotEmpty=false;
+		if(checkDuplicate(command,regexTemplate,match.position(),field.length())==true){
+			isSuccessful=false;
+		}	
+	}
+	else{
+		isNotEmpty=false;
+	}
+	return isNotEmpty;
+}	
+
+/**********************************************************************************
+*Input: command->original command line input by user						      *
+*		regexTemplate->a FIELD CONSTANT	e.g FIELD_AT							  *
+*																				  *
+*Function: This function applies to a field of the format yy `xxx` e.g at `nus`,  *
+*			note `hello`. It finds the corresponding field from command using     *
+*			regexTemplate and extract the message from the field            	  *
+*																				  *
+*Ouput:	isSuccessful->indicates whether error is present in the field			  *
+*		content->extracted message												  *
+*		isEmpty->indicates whether extracted message is empty					  *
+**********************************************************************************/
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+	 */
+
+bool  Interpreter_base::setGeneralMessage(string command, bool&isSuccessful,string& content,string regexTemplate){
+	regex extractTemplate(regexTemplate);
+	smatch match;
+	string field;
+	string QuotedMessage;
+	bool isNotEmpty=true;
+	if (regex_search(command, match, extractTemplate)){
+		field=match[START_POSITION];
+	}
+	if(!field.empty()){
+		extractQuotedMessage(field, QuotedMessage);
+		content=QuotedMessage;
+		if(content.empty())isNotEmpty=false;
+		if(checkDuplicate(command,regexTemplate,match.position(),field.length())==true){
+			isSuccessful=false;
+		}	
+	}
+	else{
+		isNotEmpty=false;
+	}
+	return isNotEmpty;
+}
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+	 */
+
+bool Interpreter_base::setPriorityMessage(string command, bool& isSuccessful, TP::PRIORITY& content){ 
+	regex extractTemplate(FIELD_PRIORITY);
+	smatch match;
+	string field;
+	string QuotedMessage;
+	string UpperContent;
+	PRIORITY priority=MEDIUM;
+	bool isNotEmpty=true;
+
+	if (regex_search(command, match, extractTemplate)){
+		field=match[START_POSITION];
+	}
+	if(!field.empty()){
+		extractQuotedMessage(field, QuotedMessage);
+		if(QuotedMessage.empty())isNotEmpty=false;
+		if(isNotEmpty){
+			UpperContent=toUpper(QuotedMessage);
+			if(UpperContent==PRIORITY_HIGH_ABBREV || UpperContent==PRIORITY_HIGH_FULL){
+				priority=HIGH;
+			}
+			else if(UpperContent==PRIORITY_MEDIUM_ABBREV || UpperContent==PRIORITY_MEDIUM_FULL){
+				priority=MEDIUM;
+			}
+			else if(UpperContent==PRIORITY_LOW_ABBREV || UpperContent==PRIORITY_LOW_FULL){
+				priority=LOW;
+			}
+			else {
+				isSuccessful=false;
+			}
+			content=priority;
+		}
+		if(isSuccessful==true){
+			if(checkDuplicate(command,FIELD_PRIORITY,match.position(),field.length())==true){
+				isSuccessful=false;
+			}
+		}
+	}
+	else {
+		isNotEmpty=false;
+	}
+	return isNotEmpty;
+}
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+	 */
+
+bool Interpreter_base::setTagsMessage(string command, bool&isSuccessful,list<string>& content,string regexTemplate){
+
+	list<string>tagList;
+	regex extractTemplate(regexTemplate);
+	smatch match;
+	string field;
+	string QuotedMessage;
+	bool isNotEmpty=true;
+	string subString=command;
+	int count=EMPTY_ITEM;
+	if (regex_search(subString, match, extractTemplate)){
+		field=match[START_POSITION];
+	}
+	count = extractTagMessage(field, subString, match, tagList, count, extractTemplate);
+	if(count==EMPTY_ITEM || tagList.empty()){
+		isNotEmpty=false;
+	}
+	content=tagList;
+	return isNotEmpty;
+
+}
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+	 */
+
+bool Interpreter_base::setRemindTimesMessage(string command, bool&isSuccessful,list<time_t>&content, string regexTemplate){
+
+	list<time_t>rtList;
+	regex extractTemplate(regexTemplate);
+	smatch match;
+	string field;
+	string QuotedMessage;
+	bool isNotEmpty=true;
+
+	if (regex_search(command, match, extractTemplate)){
+		field=match[START_POSITION];
+	}
+	if(!field.empty()){
+		extractQuotedMessage(field, QuotedMessage);
+		stringstream extractIndividual(QuotedMessage);
+		string time;
+		getline(extractIndividual,time,NOTATION_COMMA);
+		while(!time.empty()){
+			bool isDue=false;
+			time_t rtTime=setTime(time,isSuccessful,isDue);
+
+			rtList.push_back(rtTime);
+			time.clear();
+			getline(extractIndividual,time,NOTATION_COMMA);
+		}
+		content=rtList;
+		if(content.empty())isNotEmpty=false;
+		if(checkDuplicate(command,regexTemplate,match.position(),field.length())==true){
+			isSuccessful=false;
+		}
+	}
+	else{
+		isNotEmpty=false;
+	}
+	return isNotEmpty;
+}
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+	 */
+
+bool Interpreter_base::setTaskStateMessage(string command, bool&isSuccessful, TP::TASK_STATE& content){ 
+
+	TASK_STATE task_state;
+	int count=EMPTY_ITEM;
+	bool isNotEmpty=true;
+	vector<string>result=extractNoParameterMessage(command,FIELD_TASK_STATE,count);
+	if(count==EMPTY_ITEM){
+		isNotEmpty=false;
+	}
+	else if(count==ONE_ITEM){
+		if(result.at(START_POSITION).find(STATUS_UNDONE)!=string::npos){
+			content=UNDONE;
+		}
+		else if(result.at(START_POSITION).find(STATUS_DONE)!=string::npos){
+			content=DONE;	
+		}
+		else if(result.at(START_POSITION).find(STATUS_OVERDUE)!=string::npos){
+			content=OVERDUE;
+		}
+		else{
+			isSuccessful=false;
+		}
+	}
+	else{
+		isSuccessful=false;
+	}
+	return isNotEmpty;
+}
+
+/**********************************************************************************
+*Input: command->original command line input by user						      *
+*		regexTemplate->a FIELD CONSTANT	e.g FIELD_AT							  *
+*																				  *
+*Function: This function applies to a field without message e.g -rtall,done,timed.*
+*		   It extracts all occurance the corresponding field from command using   *
+*		   regexTemplate and stores them in a string vector                       *
+*																				  *
+*Ouput: count->number of occurance												  *
+*		result->a vector containing all occurances								  *
+**********************************************************************************/
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+	 */
+
+bool Interpreter_base::setTaskTypeMessage(string command, bool&isSuccessful, TP::TASK_TYPE& content){
+	TASK_TYPE task_type;
+	int count=EMPTY_ITEM;
+	bool isNotEmpty=true;
+	vector<string>result=extractNoParameterMessage(command,FIELD_TASK_TYPE,count);
+	if(count==EMPTY_ITEM){
+		isNotEmpty=false;
+	}
+	else if(count==ONE_ITEM){
+		if(result.at(START_POSITION).find(TYPE_TIMED)!=string::npos){
+			content=TIMED;
+		}
+		else if(result.at(START_POSITION).find(TYPE_DEADLINE)!=string::npos){
+			content=DEADLINE;
+		}
+		else {
+			content=FLOATING;
+		}
+	}
+	else{
+		isSuccessful=false;
+	}
+	return isNotEmpty;
+}
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+	 */
+
+bool  Interpreter_base::setNoParameterMessage(string command, bool&isSuccessful, string regexTemplate){
+	
+	int count=EMPTY_ITEM;
+	bool isNotEmpty=true;
+	vector<string>result=extractNoParameterMessage(command, regexTemplate, count);
+	if(count==EMPTY_ITEM){
+		isNotEmpty=false;
+	}
+	else if(count==ONE_ITEM){
+		isNotEmpty=true;
+	}
+	else{
+		throw ERROR_DUPLICATE;
+	}
+	return isNotEmpty;
+}
+
+/**********************************************************************************
+*Input: isDue->indicates whether the call of this function is for FIELD_DUE	      *
+*		timeInput->message in time format										  *
+*																				  *
+*Function: This function accepts 4 time formats hh:mm, dd hh:mm, dd/mm hh:mm	  *
+*			dd/mm/yy hh:mm and converts them from string to time_t.				  *
+*																				  *
+*Ouput: mktime(&timeMessage)->time in time_t format								  *
+*		isSucessful->indicates whether error is present							  *
+**********************************************************************************/
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+	 */
+
+time_t Interpreter_base::setTime(string timeInput,bool& isSuccessful, bool& isDue){
+	timeInput = natty::getNatty().parseDateTime(timeInput);
+	int year=UNINITIALIZED_TIME,month=UNINITIALIZED_TIME,day=UNINITIALIZED_TIME,hour=UNINITIALIZED_TIME,min=UNINITIALIZED_TIME;
+	time_t rawtime;
+	string inputInfo=timeInput;
+	string content;
+	struct tm  timeinfo={DEFAULT_TIME,DEFAULT_TIME,DEFAULT_TIME,DEFAULT_TIME,DEFAULT_TIME,DEFAULT_TIME};
+	time (&rawtime);
+	localtime_s (&timeinfo,&rawtime);
+	int countSlash=EMPTY_ITEM;
+	for(int i=START_POSITION;i<timeInput.length();i++){
+		if(timeInput.at(i)==NOTATION_SLASH){
+			countSlash++;
+		}
+	}	
+	switch(countSlash){
+	case EMPTY_ITEM: {	
+			extractTimeWithZeroSlash(timeInput, content, isSuccessful, day, hour, min);
+			break;
+		}
+	case ONE_ITEM:{	
+			extractTimeWithOneSlash(timeInput, content, isSuccessful, day, month, hour, min);
+			break;
+		}
+	case TWO_ITEMS:{	
+			extractTimeWithTwoSlash(timeInput, content, isSuccessful, day, month, year, hour, min);
+			break;
+		}
+	default:
+		break;
+	}
+	if(isSuccessful!=false){
+		setUnitializeTime(year, timeinfo, month, day, isDue, hour, min);
+	}
+	struct tm  timeMessage={DEFAULT_TIME,DEFAULT_TIME,DEFAULT_TIME,DEFAULT_TIME,DEFAULT_TIME,DEFAULT_TIME};
+    checkTimeValidity(year, isSuccessful, month, day, hour, min);
+	if(isSuccessful!=false){
+		timeMessage.tm_year=year-DEFAULT_CTIME_BASE_YEAR;
+		timeMessage.tm_mon=month-CHANGE_BY_ONE;
+		timeMessage.tm_mday=day;
+		timeMessage.tm_hour=hour;
+		timeMessage.tm_min=min;
+	    timeMessage.tm_sec=DEFAULT_TIME;
+	}
+	else{
+		throw ERROR_TIME_FORMAT;
+	}
+	return mktime(&timeMessage);
+}
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+	 */
+
+bool Interpreter_base::integerConverter(string& requiredString, int& number){
+	bool isSuccessful=true;
+	if(requiredString.empty()==true){
+		isSuccessful=false;
+	}
+	else{
+		for(unsigned i=START_POSITION;i<requiredString.length();i++){
+			if(isdigit(requiredString[i])==false){
+				isSuccessful=false;
+			}
+		}
+	}
+	number=atoi(requiredString.c_str());
+	return isSuccessful;
+}
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+	 */
+
+void Interpreter_base::setUnitializeTime(int &year, struct tm &timeinfo, int &month, int &day, bool& isDue, int &hour, int &min ){
+	if(year==UNINITIALIZED_TIME)year=timeinfo.tm_year+DEFAULT_CTIME_BASE_YEAR;
+	if(month==UNINITIALIZED_TIME)month=timeinfo.tm_mon+CHANGE_BY_ONE;
+	if(day==UNINITIALIZED_TIME){
+		if(isDue){
+			if(timeinfo.tm_hour>hour)
+				day=timeinfo.tm_mday+CHANGE_BY_ONE;
+			else if(timeinfo.tm_hour==hour && timeinfo.tm_min>min)
+				day=timeinfo.tm_mday+CHANGE_BY_ONE;
+			else 
+				day=timeinfo.tm_mday;
+		}
+		else 
+			day=timeinfo.tm_mday;
+	}
+	if(hour==UNINITIALIZED_TIME)hour=DEFAULT_TIME;
+	if(min==UNINITIALIZED_TIME)min=DEFAULT_TIME;
+}
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+	 */
+
+bool Interpreter_base::checkKeyWord(string command, int position){
+
+	vector<int> positionForNotion; 
+	positionForNotion.push_back(DUMMY_VALUE);
+	bool isKeyWord=true;
+	int count=ONE_ITEM;
+
+	for(int i=START_POSITION;i<command.length();i++){
+		if(command.at(i)==NOTATION_ACCENT_GRAVE){
+			positionForNotion.push_back(i);
+		}
+	}
+	while(isKeyWord &&count<(int)positionForNotion.size()){
+		if(position>positionForNotion[count] && position<positionForNotion[count+CHANGE_BY_ONE]){
+			isKeyWord=false;
+		}
+		count=count+CHANGE_BY_TWO;
+	}
+	return isKeyWord;
+} 
+
+/**********************************************************************************
+*Input: field->a Field Constant e.g FIELD_NAME								      *
+*																				  *
+*Ouput:	quotedMessage->the message in between the two ACCENT_GRAVE of the field   *
+*					   e.g Zixuan of name `Zixuan`								  *
+**********************************************************************************/
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+	 */
+
+int Interpreter_base::getIndexMessage(string command,bool& isSuccessful){
+	int num;
+	isSuccessful=integerConverter(command, num);
+	return num;
+}	
+
+/**********************************************************************************
+*Input: command->original command line input by user						      *
+*		field->a FIELD CONSTANT	e.g FIELD_AT									  *
+*		startPosition->position first character of first occurance of the field   *
+*		matchLength->length of the first occurance								  *
+*																				  *
+*Function: This function checks for multiple occurance of the same field.		  *
+*																				  *
+*Ouput: isDuplicate->indicates whether duplicates field exists					  *
+**********************************************************************************/
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+	 */
+
+bool Interpreter_base::checkDuplicate(string command, string field,int startPosition, int matchLength){
+
+	string subString=command.substr(startPosition+matchLength);
+	smatch match;
+	regex extractTemplate(field);
+	string duplicate;
+	bool isDuplicate=false;
+
+	if (regex_search(subString, match, extractTemplate)){
+		duplicate=match[START_POSITION];
+	}
+	if(duplicate.length()>EMPTY_STRING){
+		isDuplicate=true;
+	}
+	if(isDuplicate==true) throw ERROR_DUPLICATE;
+	return isDuplicate;
+}
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+	 */
+
+string Interpreter_base::trim(string str){
+	stringstream trimmer;
+	string substr;
+	trimmer << str;
+	str.clear();
+	trimmer >> str;
+	while(trimmer >> substr){
+		str += NOTATION_SPACE + substr;
+		substr.clear();
+	}
+	return str;
+}
+
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.h
+	 */
+
+/*
+ *
+=================================================================
+=================================================================
+ *
+ *  Filename: Interpreter_base.h    
+ *  
+ *  Version V0.5
+ *  Created 15/10/13 12:00
+ *
+ *  Author: An Jiangze(A0105729A),Li Zixuan(A0096582R)
+ *  Organization: NUS,SOC
+ *
+==================================================================
+==================================================================
+ */
+
+
+/*****************************************************************
+*Summary of class:												 *
+*Interpreter_Base is a virtual class that provides base functions*
+*for its child classes to inherit								 *
+*****************************************************************/
+#ifndef _INTERPRETER_BASE_H_
+#define _INTERPRETER_BASE_H_
+
+#include "Command.h"
+#include "Messenger.h"
+#include "Enum.h"
+#include <string>
+#include <sstream>
+#include <vector>
+#include <regex>
+#include <ctime>
+
+
+class Interpreter_base{
+
+
+public:
+	Interpreter_base() {};
+	virtual ~Interpreter_base() = 0	{};
+
+protected:
+    enum ELEMENT_NUM{EMPTY_ITEM,ONE_ITEM,TWO_ITEMS,THREE_ITEMS};
+
+	const static std::string FIELD_NAME;
+	const static std::string FIELD_DUE;
+	const static std::string FIELD_FROM;
+	const static std::string FIELD_TO;
+	const static std::string FIELD_AT;
+	const static std::string FIELD_PPL;
+	const static std::string FIELD_NOTE;
+	const static std::string FIELD_PRIORITY;
+	const static std::string FIELD_TAG;
+	const static std::string FIELD_RT;
+	const static std::string FIELD_TASK_STATE;
+	const static std::string FIELD_TASK_TYPE;
+	const static std::string FIELD_DUE_REMOVE;
+	const static std::string FIELD_FROM_REMOVE;
+	const static std::string FIELD_TO_REMOVE;
+	const static std::string FIELD_RT_REMOVE_ALL;
+	const static std::string FIELD_PPL_REMOVE_ALL;
+	const static std::string FIELD_TAG_REMOVE_ALL;
+	const static std::string FIELD_RT_REMOVE;
+	const static std::string FIELD_PPL_REMOVE;
+	const static std::string FIELD_TAG_REMOVE;
+	const static std::string FIELD_RT_ADD;
+	const static std::string FIELD_PPL_ADD;
+	const static std::string FIELD_TAG_ADD;
+
+	const static std::string PRIORITY_HIGH_ABBREV;
+	const static std::string PRIORITY_HIGH_FULL;
+	const static std::string PRIORITY_MEDIUM_ABBREV;
+	const static std::string PRIORITY_MEDIUM_FULL;
+	const static std::string PRIORITY_LOW_ABBREV;
+	const static std::string PRIORITY_LOW_FULL;
+
+	const static std::string STATUS_UNDONE;
+	const static std::string STATUS_DONE;
+	const static std::string STATUS_OVERDUE;
+
+	const static std::string TYPE_TIMED;
+	const static std::string TYPE_DEADLINE;
+
+    const static std::string ERROR_TIME_FORMAT;
+	const static std::string ERROR_DUPLICATE;
+
+	const static char		 NOTATION_COMMA;
+	const static char		 NOTATION_HASH;
+	const static char		 NOTATION_SPACE;
+	const static char		 NOTATION_SLASH;
+	const static char		 NOTATION_COLON;
+	const static char		 NOTATION_ACCENT_GRAVE;
+
+
+	const static int		 INCREMENT_BY_ONE;
+	const static int		 UNINITIALIZED_TIME;
+	const static int		 DEFAULT_TIME;
+	const static int		 DEFAULT_YEAR;
+	const static int		 DEFAULT_MONTH;
+
+	const static int		 UPPER_LIMIT_YEAR;
+	const static int		 UPPER_LIMIT_MONTH;
+	const static int		 UPPER_LIMIT_DAY;
+	const static int		 UPPER_LIMIT_HOUR;
+	const static int		 UPPER_LIMIT_MINUTE;
+	const static int		 LOWER_LIMIT_YEAR;
+	const static int		 CURRENT_CENTURY;
+	const static int		 DEFAULT_CTIME_BASE_YEAR;
+
+	const static int		 ELEMENT_ZERO;
+	const static int		 ELEMENT_ONE;
+	const static int		 ELEMENT_TWO;
+	const static int		 ELEMENT_THREE;
+	const static int		 START_LOOP_VALUE;
+	const static int		 START_POSITION_VALUE;
+
+	const static int		 EMPTY_STRING;
+	const static int		 START_POSITION;
+	const static int		 DUMMY_VALUE;
+	const static int		 CHANGE_BY_ONE;
+	const static int		 CHANGE_BY_TWO;
+	 
+	//APIs
+	bool                             setGeneralMessage        ( std::string command, bool&isSuccessful,std::string& content,std::string regexTemplete);
+	bool                             setNoParameterMessage    ( std::string command, bool&isSuccessful,std::string regexTemplate);
+	bool	                         setRemindTimesMessage    ( std::string command, bool&isSuccessful,std::list<std::time_t>& content,std::string regexTemplate);
+	bool	                         setTagsMessage           ( std::string command, bool&isSuccessful,std::list<std::string>& content, std::string regexTemplate);	
+	bool	                         setParticipantsMessage   ( std::string command, bool&isSuccessful,std::list<std::string>& content, std::string regexTemplate);
+	bool			                 setTaskStateMessage      ( std::string command, bool&isSuccessful,TP::TASK_STATE& content);
+	bool			                 setTaskTypeMessage       ( std::string command, bool&isSuccessful,TP::TASK_TYPE& content);
+	bool				             setDueDateMessage        ( std::string command, bool&isSuccessful,std::time_t& content);
+    bool				             setFromDateMessage       ( std::string command, bool&isSuccessful,std::time_t& content);	
+	bool				             setToDateMessage         ( std::string command, bool&isSuccessful,std::time_t& content);
+	bool			                 setPriorityMessage       ( std::string command, bool&isSuccessful,TP::PRIORITY& content);	
+	int	                             getIndexMessage          ( std::string command, bool&isSuccessful);
+private:
+	//local functions
+	bool                             isDueExistance           ( std::string &field,  std::string command, std::smatch match, bool& isSuccessful );
+	bool                             isToExistance            ( std::string command, std::smatch match, std::string &field, bool& isSuccessful );
+	bool                             isFromExistance          ( std::string command, std::smatch match, std::string &field, bool& isSuccessful );
+	bool                             checkTimeValidity        ( int year, bool& isSuccessful, int month, int day, int hour, int min );
+	bool                             integerConverter         ( std::string& required, int& number);	
+	bool                             checkDuplicate           ( std::string command, std::string cmdTemplate,int startPosition, int matchLength);
+	bool                             checkKeyWord             ( std::string command, int position);       
+	void                             convertToTime            ( std::string timeStr, std::time_t &result,bool&isSuccessful);
+	bool							 extractField             ( std::string command, std::smatch & match, std::regex extractTemplate, std::string& extracted);	
+	int                              extractTagMessage        ( std::string &field,  std::string &subStirng, std::smatch &match, std::list<std::string>&tagList, int count, std::regex extractTemplate );	
+	std::time_t                      setTime                  ( std::string commandStr, bool&isSuccessful,bool& isDue);
+	std::vector<std::string>         extractNoParameterMessage( std::string command, std::string regexTemplate,int &count); 
+	std::string                      toUpper                  ( std::string str);
+	std::string                      trim                     ( std::string content);
+	void                             setUnitializeTime        ( int &year, struct tm &timeinfo, int &month, int &day, bool& isDue, int &hour, int &min );
+	void                             extractTimeWithTwoSlash  ( std::string field, std::string &content, bool &isSuccessful, int& day, int& month, int &year, int& hour, int& min );
+	void                             extractTimeWithOneSlash  ( std::string field, std::string &content, bool& isSuccessful, int& day, int& month, int& hour, int& min );
+	void                             extractTimeWithZeroSlash ( std::string &field, std::string &content, bool& isSuccessful, int& day, int& hour, int& min );
+	void							 extractQuotedMessage     ( std::string commandStr, std::string& preContent);
+};
+
+#endif
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.h
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_Delete.cpp
+	 */
+
+/*
+ *
+=================================================================
+=================================================================
+ *
+ *  Filename: Interpreter_Delete.cpp    
+ *  
+ *  Version V0.5
+ *  Created 15/10/13 12:00
+ *
+ *  Author: An Jiangze(A0105729A)(FUNCTIONALITY),Li Zixuan(A0096582R)(REFACTORING)
+ *  Organization: NUS,SOC
+ *
+==================================================================
+==================================================================
+ */
+
+#include "Interpreter_Delete.h"
+
+using namespace TP;
+using namespace std;
+
+//AN JIANGZE  LI ZIXUAN 
+
+Command* Interpreter_Delete:: interpretDelete(Command_Del*commandType,string commandStr, Messenger &response, bool &flag){
+
+	stringstream extractContent(commandStr);
+	string content;
+	getline(extractContent,content,NOTATION_ACCENT_GRAVE);
+	content.clear();
+	getline(extractContent,content,NOTATION_ACCENT_GRAVE);
+	commandType->setName(content);
+	response.setCommandType(DEL);
+	response.setStatus(SUCCESS);
+	return (Command*)commandType;
+
+}
+
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_Delete.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_Delete.h
+	 */
+
+/*
+ *
+=================================================================
+=================================================================
+ *
+ *  Filename: Interpreter_Delete.h    
+ *  
+ *  Version V0.5
+ *  Created 15/10/13 12:00
+ *
+ *  Author: An Jiangze(A0105729A),Li Zixuan(A0096582R)
+ *  Organization: NUS,SOC
+ *
+==================================================================
+==================================================================
+ */
+
+
+#ifndef _INTERPRETER_DELETE_H_
+#define _INTERPRETER_DELETE_H_
+#include "Interpreter_base.h"
+
+class Interpreter_Delete: public Interpreter_base
+{
+
+
+public:
+	Interpreter_Delete(){};
+	~Interpreter_Delete(){};
+
+	Command*          interpretDelete             ( Command_Del*commandType,std::string commandStr, Messenger &response, bool &flag);
+	int	              getIndexMessage             ( std::string command,bool&flag)  { return Interpreter_base::getIndexMessage(command,flag); }
+};
+
+#endif
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_Delete.h
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_Find.cpp
+	 */
+
+/*
+ *
+=================================================================
+=================================================================
+ *
+ *  Filename: Interpreter_Find.cpp  
+ *  
+ *  Version V0.5
+ *  Created 15/10/13 12:00
+ *
+ *  Author: An Jiangze(A0105729A)(FUNCTIONALITY),Li Zixuan(A0096582R)(REFACTORING)
+ *  Organization: NUS,SOC
+ *
+==================================================================
+==================================================================
+ */
+
+
+#include "Interpreter_Find.h"
+#include "Natty.h"
+
+using namespace std;
+using namespace TP;
+
+const int PULLED_DOWN_HOUR=0;
+const int PULLED_DOWN_MIN=0;
+const int PUSHED_UP_HOUR=23;
+const int PUSHED_UP_MIN=59;
+
+
+Command* Interpreter_Find::interpretFind(Command_Find* commandType, string commandStr, Messenger &response, bool &flag){
+	
+	PRIORITY		contentPriority;
+	string			contentString;
+	list<string>	contentStringList;
+	TASK_STATE		contentTaskState;
+	TASK_TYPE		contentTaskType;
+	time_t			contentTime;
+	list<time_t>	contentTimeList;
+
+	if(setFromDateMessage(commandStr,flag,contentTime)){
+		commandType->setFromDate(contentTime);
+	}
+	if(setToDateMessage(commandStr,flag,contentTime)){
+		commandType->setToDate(contentTime);
+	}
+	if(setParticipantsMessage(commandStr,flag,contentStringList,FIELD_PPL)){
+		commandType->setParticipants(contentStringList);
+	}
+	if(setGeneralMessage(commandStr,flag,contentString,FIELD_NOTE)){
+		commandType->setNote(contentString);
+	}
+	if(setGeneralMessage(commandStr,flag,contentString,FIELD_AT)){
+		commandType->setLocation(contentString);
+	}
+	if(setRemindTimesMessage(commandStr,flag,contentTimeList,FIELD_RT)){
+		commandType->setRemindTimes(contentTimeList);
+	}
+	if(setTagsMessage(commandStr,flag,contentStringList,FIELD_TAG)){
+		commandType->setTags(contentStringList);
+	}
+	if(setGeneralMessage(commandStr,flag,contentString,FIELD_NAME)){
+		commandType->setOptName(contentString);
+	}
+	if(setTaskStateMessage(commandStr,flag,contentTaskState)){
+		commandType->setTaskState(contentTaskState);
+	}
+	if(setTaskTypeMessage(commandStr,flag,contentTaskType)){
+		commandType->setTaskType(contentTaskType);
+	}	
+	if(setPriorityMessage(commandStr,flag,contentPriority)){
+		commandType->setPriority(contentPriority);
+	}
+	
+	if(commandType->getFlagFrom()==true && commandType->getFlagTo()==true){
+		if(commandType->getFromDate()>commandType->getToDate()){
+			flag=false;
+		}
+		//pull up and pull down if FromDate=DueDate
+		if(commandType->getFromDate()==commandType->getToDate()){
+			commandType->setFromDate(pullDownFromDate(commandType->getFromDate()));
+			commandType->setToDate(pushUpToDate(commandType->getToDate()));
+		}
+	}
+
+	if(flag==true){
+		response.setStatus(SUCCESS);
+		response.setCommandType(FIND);
+	}
+	else{ 
+		delete commandType;
+		commandType=NULL;
+	}
+	return (Command*)commandType;
+}
+
+time_t Interpreter_Find::pullDownFromDate(time_t givenTime){
+	struct tm pulledDownTime;
+	localtime_s(&pulledDownTime,&givenTime);
+	pulledDownTime.tm_hour=PULLED_DOWN_HOUR;
+	pulledDownTime.tm_min=PULLED_DOWN_MIN;
+
+	return mktime(&pulledDownTime);
+}
+time_t Interpreter_Find::pushUpToDate(time_t givenTime){
+	struct tm pushedUpTime;
+	localtime_s(&pushedUpTime,&givenTime);
+	pushedUpTime.tm_hour=PUSHED_UP_HOUR;
+	pushedUpTime.tm_min=PUSHED_UP_MIN;
+
+	return mktime(&pushedUpTime);
+}
+
+
+
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_Find.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_Find.h
+	 */
+
+/*
+ *
+=================================================================
+=================================================================
+ *
+ *  Filename: Interpreter_Find.h    
+ *  
+ *  Version V0.5
+ *  Created 15/10/13 12:00
+ *
+ *  Author: An Jiangze(A0105729A),Li Zixuan(A0096582R)
+ *  Organization: NUS,SOC
+ *
+==================================================================
+==================================================================
+ */
+
+#ifndef _INTERPRETER_FIND_H_
+#define _INTERPRETER_FIND_H_
+
+#include "Interpreter_base.h"
+#include "Natty.h"
+
+class Interpreter_Find: public Interpreter_base{
+private:
+	std::time_t		   pullDownFromDate                   ( std::time_t givenTime);
+	std::time_t		   pushUpToDate                       ( std::time_t givenTime);
+public:
+	Interpreter_Find                                      (){};
+	~Interpreter_Find                                     (){};
+    Command*           interpretFind                      ( Command_Find* commandType, std::string commandStr, Messenger &response, bool &flag);
+};
+#endif
+
+
+
+
+
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_Find.h
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_Mod.cpp
+	 */
+
+/*
+ *
+=================================================================
+=================================================================
+ *
+ *  Filename: Interpreter_Mod.cpp 
+ *  
+ *  Version V0.5
+ *  Created 15/10/13 12:00
+ *
+ *  Author: An Jiangze(A0105729A)(FUNCTIONALITY),Li Zixuan(A0096582R)(REFACTORING)
+ *  Organization: NUS,SOC
+ *
+==================================================================
+==================================================================
+ */
+
+#include "Interpreter_Mod.h"
+
+using namespace std;
+using namespace TP;
+
+Command* Interpreter_Mod ::interpretModify(Command_Mod* commandType, string commandStr, Messenger &response, bool &flag){
+
+	PRIORITY		contentPriority;
+	string			contentString;
+	list<string>	contentStringList;
+	TASK_STATE		contentTaskState;
+	TASK_TYPE		contentTaskType;
+	time_t			contentTime;
+	list<time_t>	contentTimeList;
+
+	if(setDueDateMessage(commandStr,flag,contentTime)){		
+		commandType->setDueDate(contentTime);		
+	}		
+	if(setFromDateMessage(commandStr,flag,contentTime)){
+		commandType->setFromDate(contentTime);
+	}
+	if(setToDateMessage(commandStr,flag,contentTime)){
+		commandType->setToDate(contentTime);
+	}
+	if(setParticipantsMessage(commandStr,flag,contentStringList,FIELD_PPL)){
+		commandType->setParticipants(contentStringList);
+	}
+	if(setGeneralMessage(commandStr,flag,contentString,FIELD_NOTE)){
+		commandType->setNote(contentString);
+	}
+	if(setGeneralMessage(commandStr,flag,contentString,FIELD_AT)){
+		commandType->setLocation(contentString);
+	}
+	if(setRemindTimesMessage(commandStr,flag,contentTimeList,FIELD_RT)){
+		commandType->setRemindTimes(contentTimeList);
+	}
+	if(setPriorityMessage(commandStr,flag,contentPriority)){
+		commandType->setPriority(contentPriority);
+	}
+	if(setTagsMessage(commandStr,flag,contentStringList,FIELD_TAG)){
+		commandType->setTags(contentStringList);
+	}
+	if(setGeneralMessage(commandStr,flag,contentString,FIELD_NAME)){
+		commandType->setOptName(contentString);
+	}
+	if(setTaskStateMessage(commandStr,flag,contentTaskState)){
+		commandType->setTaskState(contentTaskState);
+	}
+	if(setNoParameterMessage(commandStr,flag,FIELD_DUE_REMOVE)){
+		commandType->setFlagRemoveDue();
+	}
+	if(setNoParameterMessage(commandStr,flag,FIELD_FROM_REMOVE)){
+		commandType->setFlagRemoveFrom();
+	}
+	if(setNoParameterMessage(commandStr,flag,FIELD_TO_REMOVE)){
+		commandType->setFlagRemoveTo();
+	}
+	if(setNoParameterMessage(commandStr,flag,FIELD_RT_REMOVE_ALL)){
+		commandType->setFlagRemoveAllRemindTimes();
+	}
+	if(setNoParameterMessage(commandStr,flag,FIELD_PPL_REMOVE_ALL)){
+		commandType->setFlagRemoveAllParticipants();
+	}
+	if(setNoParameterMessage(commandStr,flag,FIELD_TAG_REMOVE_ALL)){
+		commandType->setFlagRemoveAllTags();
+	}
+	if(setRemindTimesMessage(commandStr,flag, contentTimeList,FIELD_RT_REMOVE)){
+		commandType->setRemoveRemindTimes(contentTimeList);
+	}
+	if(setParticipantsMessage(commandStr,flag, contentStringList,FIELD_PPL_REMOVE)){
+		commandType->setRemoveParticipants(contentStringList);
+	}
+	else if(setTagsMessage(commandStr,flag, contentStringList,FIELD_TAG_REMOVE)){
+		commandType->setRemoveTags(contentStringList);
+	}
+	if(setRemindTimesMessage(commandStr,flag, contentTimeList,FIELD_RT_ADD)){
+		commandType->setAddRemindTimes(contentTimeList);
+	}
+	if(setParticipantsMessage(commandStr,flag, contentStringList,FIELD_PPL_ADD)){
+		commandType->setAddParticipants(contentStringList);
+	}
+	if(setTagsMessage(commandStr,flag, contentStringList,FIELD_TAG_ADD)){
+		commandType->setAddTags(contentStringList);
+	}
+
+	if(commandType->getFlagFrom()==true && commandType->getFlagTo()==true){
+		if(commandType->getFromDate()>commandType->getToDate()){
+			flag=false;
+		}
+	}
+
+	if(flag==true){
+		response.setStatus(SUCCESS);
+		response.setCommandType(MOD);
+	}
+	else{
+		delete commandType;
+		commandType=NULL;
+	}
+	return (Command*)commandType;
+}
+
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_Mod.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_Mod.h
+	 */
+
+/*
+ *
+=================================================================
+=================================================================
+ *
+ *  Filename: Interpreter_Mod.h    
+ *  
+ *  Version V0.5
+ *  Created 15/10/13 12:00
+ *
+ *  Author: An Jiangze(A0105729A),Li Zixuan(A0096582R)
+ *  Organization: NUS,SOC
+ *
+==================================================================
+==================================================================
+ */
+
+
+#ifndef _INTERPRETER_MOD_H_
+#define _INTERPRETER_MOD_H_
+#include "Interpreter_base.h"
+
+
+class Interpreter_Mod: public Interpreter_base
+{
+public:
+	Interpreter_Mod(){};
+	~Interpreter_Mod(){};
+
+	Command*                  interpretModify             ( Command_Mod* commandType, std::string commandStr, Messenger &response, bool &flag);
+};
+
+#endif
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_Mod.h
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_Redo.cpp
+	 */
+
+/*
+ *
+=================================================================
+=================================================================
+ *
+ *  Filename: Interpreter_Redo.cpp   
+ *  
+ *  Version V0.5
+ *  Created 15/10/13 12:00
+ *
+ *  Author: An Jiangze(A0105729A)(FUNCTIONALITY),Li Zixuan(A0096582R)(REFACTORING)
+ *  Organization: NUS,SOC
+ *
+==================================================================
+==================================================================
+ */
+
+#include "Interpreter_Redo.h"
+
+using namespace TP;
+using namespace std;
+
+Command* Interpreter_Redo::interpretRedo(Command_Redo*commandType,string commandStr, Messenger &response, bool &flag){
+
+	response.setCommandType(REDO);
+	response.setStatus(SUCCESS);
+	return (Command*)commandType;
+
+}
+
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_Redo.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_Redo.h
+	 */
+
+/*
+ *
+=================================================================
+=================================================================
+ *
+ *  Filename: Interpreter_Redo.h    
+ *  
+ *  Version V0.5
+ *  Created 15/10/13 12:00
+ *
+ *  Author: An Jiangze(A0105729A),Li Zixuan(A0096582R)
+ *  Organization: NUS,SOC
+ *
+==================================================================
+==================================================================
+ */
+
+
+#ifndef _INTERPRETER_REDO_H
+#define _INTERPRETER_REDO_H_
+#include "Interpreter_base.h"
+
+class Interpreter_Redo: public Interpreter_base
+{
+
+public:
+	Interpreter_Redo(){};
+	~Interpreter_Redo(){};
+
+	Command*                interpretRedo            ( Command_Redo*commandType,std::string commandStr, Messenger &response, bool &flag);
+
+    
+};
+
+
+#endif
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_Redo.h
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_Undo.cpp
+	 */
+
+/*
+ *
+=================================================================
+=================================================================
+ *
+ *  Filename: Interpreter_Undo.cpp 
+ *  
+ *  Version V0.5
+ *  Created 15/10/13 12:00
+ *
+ *  Author: An Jiangze(A0105729A)(FUNCTIONALITY),Li Zixuan(A0096582R)(REFACTORING)
+ *  Organization: NUS,SOC
+ *
+==================================================================
+==================================================================
+ */
+
+#include "Interpreter_Undo.h"
+
+using namespace std;
+using namespace TP;
+
+Command* Interpreter_Undo::interpretUndo(Command_Undo*commandType,string commandStr, Messenger &response, bool &flag){
+	response.setCommandType(UNDO);
+	response.setStatus(SUCCESS);
+	return (Command*)commandType;
+}
+
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_Undo.cpp
+
+
+
+
+

@@ -1,0 +1,1888 @@
+//@author: a0100124j
+
+
+
+	/**
+	 * origin: C:\Users\a0102016\Desktop\asd\Logger.cpp
+	 */
+
+
+const int	 Logger::CONFIG_DETAILS_SIZE					= 3;
+const int	 Logger::FILENAME								= 0;
+const int	 Logger::CLASS_TO_MONITOR						= 1;
+const int	 Logger::MIN_LEVEL_TO_LOG						= 2;
+	
+const string Logger::CONFIG_FILE_NAME						= "../configLogger.txt";
+
+const string	Logger::DEFAULT_UNCONFIGURED_VALUE			= "";
+const string	Logger::DEFAULT_LOG_FILE_NAME				= "TaskPadLog.txt";
+const string	Logger::DEFAULT_CLASS_TO_MONITOR			= "";
+const string	Logger::DEFAULT_LEVEL_TO_LOG				= "INFOLOG";
+const string	Logger::DEFAULT_LOG_MESSAGE_LINKER			= ": ";
+const string	Logger::DEFAULT_KEY_VALUE_DELIMITER			= " ";
+const string	Logger::DEFAULT_INFO_LOG_IDENTIFIER			= "\t\t\t";
+const string	Logger::DEFAULT_NOTICE_LOG_IDENTIFIER		= "\t\t";
+const string	Logger::DEFAULT_WARNING_LOG_IDENTIFIER		= "\t";
+const string	Logger::DEFAULT_ERROR_LOG_IDENTIFIER		= "";
+const string	Logger::DEFAULT_FATAL_LOG_IDENTIFIER		= LOG_TYPE_STRING[FATALLOG] + DEFAULT_LOG_MESSAGE_LINKER;
+const LOG_TYPE	Logger::DEFAULT_LOGTYPE_TO_USE				= INFOLOG;
+
+const string	Logger::MESSAGE_ERROR_FATAL_LOG				= "Fatal log occurred!";
+const string	Logger::MESSAGE_START_LOG					= "Logging Started at: ";
+
+
+
+const string Logger::CONFIG_LABEL_LIST[CONFIG_DETAILS_SIZE]				= {"FileName:","ClasstoMonitor:","MinLogLevel:"};
+const string Logger::CONFIG_DEFAULT_VALUES_LIST[CONFIG_DETAILS_SIZE]	= 
+						{DEFAULT_LOG_FILE_NAME,DEFAULT_CLASS_TO_MONITOR,DEFAULT_LEVEL_TO_LOG};
+
+string Logger::_configDetailList[CONFIG_DETAILS_SIZE]			= 
+						{DEFAULT_UNCONFIGURED_VALUE,DEFAULT_UNCONFIGURED_VALUE,DEFAULT_UNCONFIGURED_VALUE};
+
+Logger* Logger::logger;
+
+
+
+Logger::Logger() {
+}
+
+Logger* Logger::getLogger () {
+	bool isFirstTimeToGetLogger = (logger == NULL);
+
+	if(isFirstTimeToGetLogger) {
+		initialiseLogger();
+	}
+	return logger;
+}
+
+void Logger::initialiseLogger() {
+	createLogger();
+
+	logger->configureLogger();
+	logger->printStartMessage();
+}
+
+/****************************************************/
+/************* Initialisation Methods ***************/
+/****************************************************/
+
+void Logger::createLogger () {
+	static Logger theOne;
+	logger = &theOne;
+}
+
+void Logger::configureLogger() {
+	loadConfigData();
+	setDefaultValues();
+	extractMinLevelToMonitor();
+	openLogFileToWrite();
+}
+
+void Logger::printStartMessage() {
+	string curTime = getCurTime();
+	logger->_logWriter << MESSAGE_START_LOG << curTime << endl;
+}
+
+void Logger::openLogFileToWrite() {
+	logger->_logWriter.open(_configDetailList[FILENAME]);
+}
+
+/****************************************************/
+/************** Configuration Methods ***************/
+/****************************************************/
+
+void Logger::loadConfigData() {
+	ifstream configFile(CONFIG_FILE_NAME);
+	string configLabel;
+	string configData;
+	string configLine;
+
+	while(configFile.is_open() && configFile.good()) {
+		getline(configFile,configLine);
+		extractInfo(configLine, configLabel,configData);
+		saveExtractedInfo (configLabel, configData);
+	}
+}
+
+void Logger::extractInfo(const string& configLine,string& configLabel,string& configData) {
+	configLabel = getNewLabel(configLine);
+	configData	= getNewData(configLine);
+
+	return;
+}
+
+void Logger::saveExtractedInfo	(const string& configLabel, const string& configData) {
+	for(int i = 0;i<CONFIG_DETAILS_SIZE;i++) {
+		if(configLabel == CONFIG_LABEL_LIST[i]) {
+			_configDetailList[i] = configData;
+			break;
+		}
+	}
+}
+
+void Logger::setDefaultValues()
+{
+	//set the default values for those which are still empty strings
+	for(int i=0; i<CONFIG_DETAILS_SIZE;i++) {
+		if(_configDetailList[i] == DEFAULT_UNCONFIGURED_VALUE) {
+			_configDetailList[i] = CONFIG_DEFAULT_VALUES_LIST[i];
+		}
+	}
+
+	return;
+}
+
+void Logger::extractMinLevelToMonitor() {
+	for (LOG_TYPE logType = INFOLOG; logType < LOG_TYPE_COUNT; logType = static_cast<LOG_TYPE>(logType + 1)) {
+		if(LOG_TYPE_STRING[logType] == _configDetailList[MIN_LEVEL_TO_LOG]) {
+			_minLevelToLog = logType;
+			break;
+		}
+	}
+}
+
+string Logger::getNewLabel(string newLine) {
+	string label;
+	stringstream tempStream(newLine);
+
+	tempStream >> label;
+
+	return label;
+}
+
+string Logger::getNewData(string newLine) {
+	string newData = DEFAULT_UNCONFIGURED_VALUE;
+	int pos = newLine.find_first_of(DEFAULT_KEY_VALUE_DELIMITER);
+
+	if(pos != string::npos) {
+		newData = newLine.substr(pos+1);
+	}
+
+	return newData;
+}
+
+string Logger::getCurTime()	{
+	char logTime[40];
+	time_t rawTime = time(0);
+	tm curTimeTm;
+	localtime_s(&curTimeTm, &rawTime);
+	strftime(logTime, 40, "%d-%m-%Y",&curTimeTm);
+
+	return logTime;
+}
+
+void Logger::log (string callingClass, string message, LOG_TYPE logType) {
+	if(isToBeLogged(callingClass,logType)) {
+		string completeMessage = callingClass + DEFAULT_LOG_MESSAGE_LINKER + message;
+		logTheMessage(completeMessage, logType);
+	}
+
+	return;
+}
+
+bool Logger::isToBeLogged(string callingClass, LOG_TYPE logType) {
+	bool isOfDesiredLevel = static_cast<int>(logType) >= static_cast<int>(_minLevelToLog);
+	bool isOfDesiredClass = (_configDetailList[CLASS_TO_MONITOR].empty()) || (_configDetailList[CLASS_TO_MONITOR] == callingClass);
+
+	return isOfDesiredClass && isOfDesiredLevel;
+}
+
+void Logger::logTheMessage(string message, LOG_TYPE logType) {
+	switch(logType) {
+		case INFOLOG:
+			logInfo(message);
+			break;
+		case NOTICELOG:
+			logNotice(message);
+			break;
+		case WARNINGLOG:
+			logWarning(message);
+			break;
+		case ERRORLOG:
+			logError(message);
+			break;
+		case FATALLOG:
+			logFatal(message);
+			throw FatalLogException(MESSAGE_ERROR_FATAL_LOG);
+			break;
+	}
+}
+
+void Logger::logInfo (string message) {
+	_logWriter << DEFAULT_INFO_LOG_IDENTIFIER << message << endl;
+}
+void Logger::logNotice (string message) {
+	_logWriter << DEFAULT_NOTICE_LOG_IDENTIFIER << message << endl;
+}
+void Logger::logWarning (string message) {
+	_logWriter << DEFAULT_WARNING_LOG_IDENTIFIER << message << endl;
+}
+void Logger::logError (string message) {
+	_logWriter << message << endl;
+}
+void Logger::logFatal (string message) {
+	_logWriter << DEFAULT_FATAL_LOG_IDENTIFIER << message << endl;
+}
+
+Logger::~Logger() {
+	this->_logWriter.close();
+}
+	// End of segment: C:\Users\a0102016\Desktop\asd\Logger.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\a0102016\Desktop\asd\Manager.cpp
+	 */
+
+Manager::Manager() {
+	_taskDS					= new Datastore;
+	_logger					= Logger::getLogger();
+	_storage				= new Storage(_taskDS);
+	_executor				= new Executor(*_taskDS);
+	_interpreter			= new Interpreter;
+	_response				= Messenger();
+	_cmd					= NULL;
+	_lastSuccessfulFindCmd	= NULL;
+}
+
+Messenger Manager::refreshList() {
+	_logger->log(CLASS_NAME, "entering refreshList()");
+
+	_executor->executeCommand(_lastSuccessfulFindCmd,_response);
+	return _response;
+}
+
+list<Task> Manager::getCurrentReminders	() {
+	_logger->log(CLASS_NAME, "entering getCurrentReminders()");
+
+	return _executor->getCurrentReminders();
+}
+
+void Manager::syncTaskList (const list<Task>& taskList) {
+	_response.setList(taskList);
+}
+
+void Manager::syncTask (const Task& task) {
+	_response.setTask(task);
+}
+
+void Manager::resetStatus() {
+	_logger->log(CLASS_NAME, "entering resetStatus()", NOTICELOG);
+
+	removePreviousCommand();
+	removeLastSuccessfulFindCommand();
+	_currentPeriod = pair<tm,tm>();
+	_response.resetMessenger();
+	tm todayTm = getTodayTm();
+	tm nextDayTm = getNextDayTm(todayTm);
+	setCurrPeriod(todayTm,nextDayTm);
+}
+
+Messenger Manager::processCommand(const string& newCommand) {
+	_logger->log(CLASS_NAME, "processing Command");
+
+	switch(_response.getStatus()) {
+		case INTERMEDIATE:
+			/* empty and falls through*/
+		case ERR_INTER:
+			handleIntermediateScenarioCommands(newCommand);
+			break;
+		default:
+			removePreviousCommand();
+			handleNormalScenarioCommands(newCommand);
+			break;
+	}
+	saveChanges();
+
+	_logger -> log(CLASS_NAME, "leaving processCommand() \n");
+	return _response;
+}
+
+/*
+ * Saves the changed Task by calling the API of the storage class
+ */
+
+void Manager::saveChanges()
+{
+	if(isNotSuccessfulCommand()) return;
+
+	_logger->log(CLASS_NAME,"saving changes");
+
+	switch(_cmd->getCommandType()) {
+		case ADD:
+			/* empty and falls through*/
+		case MOD:
+			/* empty and falls through*/
+		case DEL:
+			try {
+				_storage->save(_response.getTask(), _cmd->getCommandType());
+			}
+			catch(BaseException be) {
+				setResponseToError(ERR,be.what());
+			}
+			break;
+		case FIND:
+				updateLastSuccessfulFindCommand();
+			break;
+		default:
+			break;
+	}
+}
+
+/**
+ * Deletes the previously created command and,
+ * returns the memory to the system
+ */
+void Manager::removePreviousCommand() {
+	if(_cmd != NULL) {
+		delete _cmd;
+		_cmd = NULL;
+	}
+	return;
+}
+
+void Manager::updateLastSuccessfulFindCommand	() {
+	 removeLastSuccessfulFindCommand();
+
+	 _lastSuccessfulFindCmd	= new Command_Find;
+	*(_lastSuccessfulFindCmd) = *(_cmd);
+
+}
+
+void Manager::removeLastSuccessfulFindCommand() {
+	if(_lastSuccessfulFindCmd != NULL) {
+		delete _lastSuccessfulFindCmd;
+		_lastSuccessfulFindCmd = NULL;
+	}
+	return;
+}
+
+/**
+ * Handles the 3 types of commands that can be given in a normal scenario
+ * They are:
+ * - An index (for displaying the details of a task)
+ * - A command with an index (non-ambiguous mod/delete commands)
+ * - A generic command (an ambiguous command of any type)
+ *
+*/
+void Manager::handleNormalScenarioCommands(string newCommand) {
+	_logger->log(CLASS_NAME,"handling normal scenario command");
+
+	if (!interpretCommand(newCommand)) return;
+
+	if(isShowCommand()) {
+		_logger->log(CLASS_NAME,"index given by user",NOTICELOG);
+		storeIndexFromCommandToClassAttribute();
+		handleShowCommand();
+	}
+	else if (isCommandWithIndexGiven()) {
+		_logger->log(CLASS_NAME,"command with index given by user",NOTICELOG);
+		storeIndexFromCommandToClassAttribute();
+		handleCommandWithIndex();
+	}
+	else  {
+		_logger->log(CLASS_NAME,"generic command given by user",NOTICELOG);
+		handleGenericCommand();
+	}
+	return;
+}
+
+bool Manager::interpretCommand(string newCommand) {
+	_cmd = _interpreter->interpretCommand(newCommand,_response);
+	return hasNoInterpretationError();
+}
+
+/**
+ * This handles the scenario where an ambiguous mod/del was done and 
+ * the user was given a list of similar tasks to choose the actual one he was talking about
+ * Accepts:
+ * - Only index
+ */
+void Manager::handleIntermediateScenarioCommands(string newCommand) {
+	Command* backupCommand = _cmd;
+	interpretCommand(newCommand);
+
+	if(isIndexGiven()) {
+		removePreviousCommand();
+		_cmd = backupCommand;
+		_response.setStatus(INTERMEDIATE);
+		_response.setCommandType(_cmd->getCommandType());
+		handleIntermediateIndexCommand();
+	}
+	else {
+		removePreviousCommand();
+		_cmd = backupCommand;
+		_response.setStatus(INTERMEDIATE);
+		_response.setCommandType(_cmd->getCommandType());
+		setResponseToError(ERR_INTER, MESSAGE_INDEX_NOT_GIVEN);
+	}
+	return;
+}
+
+void Manager::handleShowCommand() {
+	if(isIndexWithinRange()) {
+		_response.setInt(_index);
+		_response.setStatus(DISPLAY);
+	}
+	else {
+		setResponseToError(ERR, MESSAGE_INDEX_OUT_OF_RANGE);
+	}
+}
+
+void Manager::handleIntermediateIndexCommand() {
+	if(isIndexWithinRange()) {
+		insertActualIndexIntoCommand();
+		_executor->executeCommand(_cmd,_response);
+	}
+	else {
+		setResponseToError(ERR_INTER, MESSAGE_INDEX_OUT_OF_RANGE);
+	}
+}
+
+void Manager::handleCommandWithIndex()
+{
+	if(isIndexWithinRange()) {
+		insertActualIndexIntoCommand();
+		_executor->executeCommand(_cmd,_response);
+
+		if(hasNoError()) {
+			editTaskListInResponse();
+			_response.setStatus(SUCCESS_INDEXED_COMMAND);
+		}
+	}
+	else {
+		setResponseToError(ERR, MESSAGE_INDEX_OUT_OF_RANGE);
+	}
+}
+
+void Manager::handleGenericCommand()
+{
+	if(hasNoInterpretationError()) {
+		_executor->executeCommand(_cmd,_response);
+	}
+}
+
+void Manager::editTaskListInResponse()
+{
+	assert(isDeleteCommand() || isModifyCommand());
+
+	list<Task> tempList = _response.getList();
+	list<Task>::iterator lit = tempList.begin();
+	advance (lit,(_index - 1));
+
+	if(isDeleteCommand()) {
+		tempList.erase(lit);
+	}
+	else if(isModifyCommand()) {
+		(*lit) = _response.getTask();
+	}
+	_response.setList(tempList);
+	return;
+}
+
+bool Manager::isIndexGiven() {
+	if(isShowCommand()) {
+		storeIndexFromCommandToClassAttribute();
+		return true;
+	}
+
+	return false;
+}
+
+bool Manager::isCommandWithIndexGiven() {
+	bool isModifyCommandWithIndex = false, isDeleteCommandWithIndex = false;
+
+	switch (_cmd->getCommandType()) {
+		case MOD:
+			isModifyCommandWithIndex = isIndexedModifyCommand();
+			break;
+		case DEL:
+			isDeleteCommandWithIndex = isIndexedDeleteCommand();
+			break;
+		default:
+			break;
+	}
+
+	if(isModifyCommandWithIndex || isDeleteCommandWithIndex) {
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+bool Manager::isIndexedModifyCommand() {
+	Command_Mod tempCommand = *((Command_Mod *) _cmd);
+	return tempCommand.getFlagIndex();
+}
+
+bool Manager::isIndexedDeleteCommand() {
+	Command_Del tempCommand = *((Command_Del *) _cmd);
+	return tempCommand.getFlagIndex();
+}
+
+bool Manager::isIndexWithinRange() {
+	int sizeOfCurrentList = _response.getList().size();
+	return (sizeOfCurrentList >= _index && _index > 0);
+}
+
+void Manager::insertActualIndexIntoCommand() {
+	assert(_cmd != NULL);
+	assert(isModifyCommand() || isDeleteCommand());
+
+	unsigned long long actualIndex = getActualIndexOfTask();
+
+	switch(_cmd->getCommandType()) {
+		case MOD:
+			insertActualIndexIntoModifyCommand(actualIndex);
+			break;
+		case DEL:
+			insertActualIndexIntoDeleteCommand(actualIndex);
+			break;
+	}
+}
+
+void Manager::insertActualIndexIntoDeleteCommand(unsigned long long& actualIndex) {
+	Command_Del* tempCommand = (Command_Del *) _cmd;
+	tempCommand->setCreatedTime(actualIndex);
+	return;
+}
+
+void Manager::insertActualIndexIntoModifyCommand(unsigned long long& actualIndex) {
+	Command_Mod* tempCommand = (Command_Mod *) _cmd;
+	tempCommand->setCreatedTime(actualIndex);
+	return;
+}
+
+Task Manager::getAffectedTask() const {
+	list<Task> tempList = _response.getList();
+	list<Task>::iterator it = tempList.begin();
+	advance(it,(_index-1));
+
+	return (*it);
+}
+
+unsigned long long Manager::getActualIndexOfTask() const {
+	Task chosenTask = getAffectedTask();
+	unsigned long long createdTime = chosenTask.getIndex();
+	return createdTime;
+}
+
+void Manager::storeIndexFromCommandToClassAttribute() {
+	assert(isModifyCommand() || isDeleteCommand() || isShowCommand());
+
+	switch (_cmd->getCommandType()) {
+	case MOD:
+			storeIndexFromModCommandToClassAttribute();
+			break;
+		case DEL:
+			storeIndexFromDelCommandToClassAttribute();
+			break;
+		case SHOW:
+			storeIndexFromShowCommandToClassAttribute();
+			break;
+	}
+	return;
+}
+
+void Manager::storeIndexFromModCommandToClassAttribute() {
+	Command_Mod* cmdTemp = (Command_Mod*) _cmd;
+	_index = cmdTemp->getIndex();
+}
+
+void Manager::storeIndexFromDelCommandToClassAttribute() {
+	Command_Del* cmdTemp = (Command_Del*) _cmd;
+	_index = cmdTemp->getIndex();
+}
+void Manager::storeIndexFromShowCommandToClassAttribute() {
+	Command_Show* cmdTemp = (Command_Show*) _cmd;
+	_index = cmdTemp->getIndex();
+}
+
+string Manager::createFindCommand(tm startTm, tm endTm) {
+	string startTmStr = getStrFromTm(startTm);
+	string endTmStr = getStrFromTm(endTm);
+
+	return "find from `" + startTmStr + " midnight` to `" + endTmStr + " 11:59pm`";
+}
+
+string Manager::getStrFromTm(tm timeInfo) {
+	char todayCharArray [80];
+
+	strftime (todayCharArray,80,"%d/%m/%Y",&timeInfo);
+
+	//convert the char array to a string
+	string today(todayCharArray);
+
+	return today;
+}
+
+tm Manager::getTodayTm() {
+	time_t rawtime;
+	struct tm * timeInfo;
+
+	//get the time right now, convert it to a string in the format DD/MM/YYYY
+	time (&rawtime);
+	timeInfo = localtime (&rawtime);
+
+	return *timeInfo;
+}
+
+bool Manager::hasInterpretationError() {
+	return !hasNoInterpretationError();
+}
+
+bool Manager::hasNoInterpretationError() {
+	 return hasNoError();
+}
+
+bool Manager::hasNoError() {
+	if(_response.getStatus() == ERR || _response.getStatus() == ERR_INTER) {
+		return false;
+	}
+	else {
+		return true;
+	}
+}
+
+bool Manager::isNotSuccessfulCommand() {
+	if(_response.getStatus() == SUCCESS || _response.getStatus() == SUCCESS_INDEXED_COMMAND) {
+		return false;
+	}
+	return true;
+}
+
+/*********************************************************/
+/************* NAVIGATION RELATED METHODS ****************/
+/*********************************************************/
+
+Messenger Manager::getTodayTasks() {
+	tm todayTm = getTodayTm();
+	tm nextDayTm = getNextDayTm(todayTm);
+	setCurrPeriod(todayTm,nextDayTm);
+
+	return processCommand(FIND_TODAY_TASKS_COMMAND);
+}
+
+Messenger Manager::getNextPeriodTasks(PERIOD_TYPE pType) {
+	tm currTm = _currentPeriod.second;
+	tm nextTm = getNextTm(pType, currTm);
+
+	bool canAdvanceToNextPeriod = (mktime(&nextTm) != mktime(&currTm));
+
+	if(canAdvanceToNextPeriod) {
+		setCurrPeriod(currTm,nextTm);
+		string command = createFindCommand(currTm,nextTm);
+		return processCommand(command);
+	}
+	else {
+		setResponseToError(ERR,MESSAGE_DATE_LIMIT_REACHED);
+		return _response;
+	}
+}
+
+Messenger Manager::getPrevPeriodTasks(PERIOD_TYPE pType) {
+	tm currTm = _currentPeriod.first;
+	tm prevTm = getPrevTm(pType, currTm);
+	bool canAdvanceToPrevPeriod = mktime(&prevTm) != mktime(&currTm);
+
+	if(canAdvanceToPrevPeriod) {
+		setCurrPeriod(prevTm, currTm);
+		string command = createFindCommand(prevTm, currTm);
+		return processCommand(command);
+	}
+	else {
+		setResponseToError(ERR,MESSAGE_DATE_LIMIT_REACHED);
+		return _response;
+	}
+}
+
+void Manager::setResponseToError(const STATUS& status, const string& message) {
+	_response.setStatus(status);
+	_response.setErrorMsg(message);
+	return;
+}
+
+pair<tm,tm> Manager::getCurrentPeriod() {
+	return _currentPeriod;
+}
+
+tm Manager::getNextTm(const PERIOD_TYPE& pType, tm currTm) {
+	tm nextTm;
+	switch(pType) {
+		case DAY:
+			nextTm = getNextDayTm(currTm);
+			break;
+		case WEEK:
+			nextTm = getNextWeekTm(currTm);
+			break;
+		case MONTH:
+			nextTm = getNextMonthTm(currTm);
+			break;
+	}
+
+	return nextTm;
+}
+
+tm Manager::getNextDayTm(tm currTm) {
+	time_t intermediateResult;
+	currTm.tm_mday += DAY_UNIT_OF_TIME;
+
+	intermediateResult = mktime(&currTm);
+
+	if(currTm.tm_year == UPPER_END_OF_TIME) {
+		currTm.tm_mday -= DAY_UNIT_OF_TIME;
+		intermediateResult = mktime(&currTm);
+	}
+
+	return *localtime(&intermediateResult);
+}
+
+tm Manager::getNextWeekTm(tm currTm) {
+	time_t intermediateResult;
+	currTm.tm_mday += WEEK_UNIT_OF_TIME;
+	intermediateResult = mktime(&currTm);
+
+	if(currTm.tm_year == UPPER_END_OF_TIME) {
+		currTm.tm_mday -= WEEK_UNIT_OF_TIME;
+		intermediateResult = mktime(&currTm);
+	}
+	
+	return *localtime(&intermediateResult);
+}
+
+tm Manager::getNextMonthTm(tm currTm) {
+	time_t intermediateResult;
+	currTm.tm_mon += MONTH_UNIT_OF_TIME;
+	intermediateResult = mktime(&currTm);
+	
+	if(currTm.tm_year == UPPER_END_OF_TIME) {
+		currTm.tm_mon -= MONTH_UNIT_OF_TIME;
+		intermediateResult = mktime(&currTm);
+	}
+
+	return *localtime(&intermediateResult);
+}
+
+tm Manager::getPrevTm(const PERIOD_TYPE& pType, tm currTm) {
+	tm prevTm;
+	switch(pType) {
+		case DAY:
+			prevTm = getPrevDayTm(currTm);
+			break;
+		case WEEK:
+			prevTm = getPrevWeekTm(currTm);
+			break;
+		case MONTH:
+			prevTm = getPrevMonthTm(currTm);
+			break;
+	}
+	return prevTm;
+}
+
+tm Manager::getPrevDayTm(tm currTm) {
+	time_t intermediateResult;
+	currTm.tm_mday -= DAY_UNIT_OF_TIME;
+
+	intermediateResult = mktime(&currTm);
+
+	if(currTm.tm_year == LOWER_END_OF_TIME) {
+		currTm.tm_mday += DAY_UNIT_OF_TIME;
+		intermediateResult = mktime(&currTm);
+	}
+
+	return *localtime(&intermediateResult);
+}
+
+tm Manager::getPrevWeekTm(tm currTm) {
+	time_t intermediateResult;
+	currTm.tm_mday -= WEEK_UNIT_OF_TIME;
+	intermediateResult = mktime(&currTm);
+
+	if(currTm.tm_year == LOWER_END_OF_TIME) {
+		currTm.tm_mday += WEEK_UNIT_OF_TIME;
+		intermediateResult = mktime(&currTm);
+	}
+	
+	return *localtime(&intermediateResult);
+}
+
+tm Manager::getPrevMonthTm(tm currTm) {
+	time_t intermediateResult;
+	currTm.tm_mon -= MONTH_UNIT_OF_TIME;
+	intermediateResult = mktime(&currTm);
+
+	if(currTm.tm_year == LOWER_END_OF_TIME) {
+		currTm.tm_mon += MONTH_UNIT_OF_TIME;
+		intermediateResult = mktime(&currTm);
+	}
+	
+	return *localtime(&intermediateResult);
+}
+
+void Manager::setCurrPeriod(tm startTm, tm endTm) {
+	_currentPeriod = pair<tm,tm>(startTm,endTm);
+}
+
+//validators
+bool Manager::isDeleteCommand() {
+	return (_cmd->getCommandType() == DEL);
+}
+
+bool Manager::isModifyCommand() {
+	return (_cmd->getCommandType() == MOD);
+}
+
+bool Manager::isShowCommand() {
+	return _response.getCommandType() == SHOW;
+}
+
+Manager::~Manager() {
+	_storage->save(_taskDS);
+
+	if(_taskDS != NULL) {
+		delete _taskDS;
+		_taskDS = NULL;
+	}
+
+	if(_interpreter != NULL) {
+		delete _interpreter;
+		_interpreter = NULL;
+	}
+
+	if(_executor != NULL) {
+		delete _executor;
+		_executor = NULL;
+	}
+
+	if(_storage != NULL) {
+		delete _storage;
+		_storage = NULL;
+	}
+
+	removePreviousCommand				();
+	removeLastSuccessfulFindCommand		();
+	_response.resetMessenger			();
+}
+
+	// End of segment: C:\Users\a0102016\Desktop\asd\Manager.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\a0102016\Desktop\asd\Messenger.cpp
+	 */
+
+
+const int				Messenger::DEFAULT_INDEX_VALUE = -1;
+const TP::STATUS		Messenger::DEFAULT_STATUS_VALUE = SUCCESS;
+const TP::COMMAND_TYPE	Messenger::DEFAULT_COMMAND_TYPE_VALUE = UNDEFINED;
+const Task				Messenger::DEFAULT_TASK_VALUE = Task();
+const list<Task>		Messenger::DEFAULT_TASK_LIST_VALUE = list<Task>();
+const std::string		Messenger::DEFAULT_ERROR_MESSAGE_VALUE = "";
+
+// constructor
+Messenger::Messenger(COMMAND_TYPE commandType,STATUS status, list<Task> resultList, Task resultTask, int index, string errorMsg) {
+	this->_status = status;
+	this->_resultList = resultList;
+	this->_resultTask = resultTask;
+	this->_errorMsg = errorMsg;
+	this->_index = index;
+	this->_commandType = commandType;
+}
+
+//getter methods
+
+string Messenger::getErrorMsg()  const {
+	return this->_errorMsg;
+}
+
+STATUS Messenger::getStatus() const {
+	return this->_status;
+}
+
+list<Task> Messenger::getList() const
+{
+	return this->_resultList;
+}
+
+int Messenger::getIndex()  const
+{
+	return this->_index;
+}
+
+COMMAND_TYPE Messenger::getCommandType() const
+{
+	return this->_commandType;
+}
+
+Task Messenger::getTask() const
+{
+	return this->_resultTask;
+}
+
+//setter methods
+
+void Messenger::setErrorMsg(const string& errorMsg)
+{
+	this->_errorMsg = errorMsg;
+}
+
+void Messenger::setStatus(const STATUS& status)
+{
+	this->_status = status;
+}
+
+void Messenger::setList(const list<Task>& result)
+{
+	this->_resultList = result;
+}
+
+void Messenger::setInt(const int& index)
+{
+	this->_index = index;
+}
+
+void Messenger::setCommandType(const COMMAND_TYPE& commandType)
+{
+	this->_commandType = commandType;
+}
+
+void Messenger::setTask(const Task& task)
+{
+	this->_resultTask = task;
+}
+
+void Messenger::resetMessenger()
+{
+	this->setInt			(DEFAULT_INDEX_VALUE);
+	this->setStatus			(DEFAULT_STATUS_VALUE);
+	this->setErrorMsg		(DEFAULT_ERROR_MESSAGE_VALUE);
+	this->setList			(DEFAULT_TASK_LIST_VALUE);
+	this->setTask			(DEFAULT_TASK_VALUE);
+	this->setCommandType	(DEFAULT_COMMAND_TYPE_VALUE);
+}
+	// End of segment: C:\Users\a0102016\Desktop\asd\Messenger.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\a0102016\Desktop\asd\Storage.cpp
+	 */
+
+
+const string Storage::_fileName = "TaskPad.txt";
+
+Storage::Storage(StorableTaskDatastore* taskDS) {
+	_logger = Logger::getLogger();
+	_logger->log("Storage","in constructor");
+	QDir temp;
+	if (!temp.cd(QString("Tasks")))
+	{
+		temp.mkdir("Tasks");
+	}
+
+	_loader = NULL;
+	_saver = NULL;
+	this->load(taskDS);
+}
+
+bool Storage::save (StorableTaskDatastore* taskDS) {
+	_saver = new TaskSaverText;
+
+	_saver->save(taskDS,_fileName);
+
+	delete _saver;
+	_saver = NULL;
+
+	return true;
+}
+
+bool Storage::save(const Task& task, const TP::COMMAND_TYPE& cType) {
+	_saver = new TaskSaverText;
+
+	_saver->save(task,cType);
+
+	delete _saver;
+	_saver = NULL;
+
+	return true;
+}
+
+void Storage::load (StorableTaskDatastore* taskDS) {
+	_loader = new TaskLoaderText(taskDS);
+
+	_loader->load(_fileName);
+
+	delete _loader;
+	_loader = NULL;
+
+	return;
+}
+
+Storage::~Storage() {
+	//Empty
+	QDir temp(QString::fromStdString("Tasks"));
+	temp.removeRecursively();
+}
+#endif
+	// End of segment: C:\Users\a0102016\Desktop\asd\Storage.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\a0102016\Desktop\asd\TaskFileHandler.cpp
+	 */
+
+
+const string TaskFileHandler::TASK_DIRECTORY				= "Tasks\\";
+const string TaskFileHandler::TASK_FILE_EXTENSION			= ".task";
+const string TaskFileHandler::TASK_DELETED_FILE_EXTENSION	= ".deltask";
+
+const string TaskFileHandler::LABEL_START_OF_TASK			= "StartOfTask";
+const string TaskFileHandler::LABEL_NAME					= "name:";
+const string TaskFileHandler::LABEL_INDEX					= "index:";
+const string TaskFileHandler::LABEL_DUE_DATE				= "due:";
+const string TaskFileHandler::LABEL_FROM_DATE				= "from:";
+const string TaskFileHandler::LABEL_TO_DATE					= "to:";
+const string TaskFileHandler::LABEL_LOCATION				= "at:";
+const string TaskFileHandler::LABEL_PARTICIPANT				= "ppl:";
+const string TaskFileHandler::LABEL_NOTE					= "note:";
+const string TaskFileHandler::LABEL_PRIORITY				= "impt:";
+const string TaskFileHandler::LABEL_TAG						= "#:";
+const string TaskFileHandler::LABEL_REMINDER_TIME			= "rt:";
+const string TaskFileHandler::LABEL_STATE					= "state:";
+const string TaskFileHandler::LABEL_END_OF_TASK				= "EndOfTask";
+
+string TaskFileHandler::getTaskFilePath	(const Task& task) {
+	string taskFileTitle	= getFileTitle(task);
+	string taskFilePath		= TASK_DIRECTORY + taskFileTitle + TASK_FILE_EXTENSION;
+
+	return taskFilePath;
+}
+
+string TaskFileHandler::getDeletedTaskFilePath	(const Task& task) {
+	string taskFileTitle	= getFileTitle(task);
+	string taskFilePath		= TASK_DIRECTORY + taskFileTitle + TASK_DELETED_FILE_EXTENSION;
+
+	return taskFilePath;
+}
+
+string TaskFileHandler::getFileTitle (const Task& task) {
+	stringstream tempStream;
+	tempStream << (task.getIndex());
+
+	return tempStream.str();
+}
+
+	// End of segment: C:\Users\a0102016\Desktop\asd\TaskFileHandler.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\a0102016\Desktop\asd\TaskLoader.cpp
+	 */
+
+
+const string TaskLoader::MESSAGE_FILE_OPENING_ERROR = "A file used for handling changes could not be opened to load!";
+const string TaskLoader::MESSAGE_FILE_CLOSING_ERROR = "A file used by the program could not be closed!";
+const string TaskLoader::MESSAGE_RESTART_ADVICE		= "Please restart the program to prevent unintentional loss of data";
+
+void TaskLoader::openFile(const std::string& fileName,
+						  std::ios_base::openmode oMode) 
+{
+	try {
+		this->_fileReader.open(fileName,oMode);
+	}
+	catch (std::ifstream::failure e) {
+		throw FileHandlingException(MESSAGE_FILE_OPENING_ERROR + MESSAGE_RESTART_ADVICE);
+	}
+}
+
+void TaskLoader::closeFile() {
+	try {
+		_fileReader.close(); 
+	}
+	catch (std::ifstream::failure e) {
+		throw FileHandlingException(MESSAGE_FILE_CLOSING_ERROR + MESSAGE_RESTART_ADVICE);
+	}
+}
+	// End of segment: C:\Users\a0102016\Desktop\asd\TaskLoader.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\a0102016\Desktop\asd\TaskLoaderText.cpp
+	 */
+
+
+const string TaskLoaderText::FILTER_FOR_TASK_FILES				= "*.task";
+const string TaskLoaderText::FILTER_FOR_DELETED_TASK_FILES		= "*.deltask";
+const string TaskLoaderText::DEFAULT_KEY_VALUE_DELIMITER		= " ";
+const string TaskLoaderText::DEFAULT_DATA_VALUE					= "";
+
+TaskLoaderText::TaskLoaderText(StorableTaskDatastore* taskDS) {
+	_logger = Logger::getLogger();
+	_taskDS = taskDS;
+	mkTaskDir();
+}
+
+void TaskLoaderText::mkTaskDir() {
+	QDir temp;
+	if (!temp.cd(QString("Tasks")))
+	{
+		temp.mkdir("Tasks");
+	}
+}
+
+/****************************************************/
+/**************** Public Load API *******************/
+/****************************************************/
+
+void TaskLoaderText::load (const string& fileName) {
+	recoverUnsavedChanges();
+
+	openFile(fileName);
+	loadTaskDS();
+	closeFile();
+	return;
+}
+
+/****************************************************/
+/*************** Recovery Methods *******************/
+/****************************************************/
+
+void TaskLoaderText::recoverUnsavedChanges() {
+	loadDeletedIndices();
+	loadModifiedTasks();
+}
+
+void TaskLoaderText::loadDeletedIndices() {
+	_logger->log("TaskLoaderText","entering loadDeletedIndices");
+
+	//initialise file iterators
+	QDir temp(QString::fromStdString(TASK_DIRECTORY));
+	QStringList filters;
+	filters << FILTER_FOR_DELETED_TASK_FILES.c_str();
+	temp.setNameFilters(filters);
+	QStringList taskFiles = temp.entryList();
+	QStringList::iterator taskFilesIt= taskFiles.begin();
+
+	string nextTaskIndexStr;
+	string nextTaskFile;
+	Task nextTask;
+
+	//iterate through the files and amass deleted indices
+	while(taskFilesIt != taskFiles.end()) {
+		std::string nextTaskFile = temp.filePath(*taskFilesIt).toUtf8().constData();
+		_logger->log("TaskLoaderText","found deleted task file: "+nextTaskFile,NOTICELOG);
+
+		openFile(nextTaskFile);
+		nextTaskIndexStr = getNextLineFromFile();
+		closeFile();
+
+		recoveredDeletedIndices.insert(nextTaskIndexStr);
+		_logger->log("TaskLoaderText","reading deleted tasks file: " + nextTaskIndexStr,NOTICELOG);
+
+		taskFilesIt++;
+		nextTaskIndexStr = "";
+	}	
+}
+
+void TaskLoaderText::loadModifiedTasks() {
+	_logger->log("TaskLoaderText","entering loadModifiedTasks");
+
+	std::string nextTaskFile;
+	Task nextTask;
+
+	//initialise file iterators
+	QDir temp(QString::fromStdString(TASK_DIRECTORY));
+	QStringList filters;
+	filters << FILTER_FOR_TASK_FILES.c_str();
+	temp.setNameFilters(filters);
+	QStringList taskFiles = temp.entryList();
+	QStringList::iterator taskFilesIt= taskFiles.begin();
+
+	//iterate through files and add Tasks
+	while(taskFilesIt != taskFiles.end()) {
+		nextTaskFile = temp.filePath(*taskFilesIt).toUtf8().constData();
+		_logger->log("TaskLoaderText","found task file: "+nextTaskFile,NOTICELOG);
+
+		openFile(nextTaskFile);
+
+		nextTask = getNextTask();
+		validateAndAddTaskToList(nextTask);
+
+		closeFile();
+
+		taskFilesIt++;
+	}
+	return;
+}
+
+/****************************************************/
+/************** Private Load Method *****************/
+/****************************************************/
+
+void TaskLoaderText::loadTaskDS() {
+	_logger->log("TaskLoaderText","entering loadTaskList");
+
+	while(_fileReader.good() && hasNextTask()) {
+		Task nextTask = getNextTask();
+		validateAndAddTaskToList(nextTask);
+		getNextLineFromFile();
+	}
+	return;
+}
+
+void TaskLoaderText::validateAndAddTaskToList(const Task& nextTask) {
+	string taskFilePath = getTaskFilePath(nextTask);
+	if(nextTask.getFlagIndex()) {
+		_taskDS->addTask(nextTask);
+		_logger->log("TaskLoaderText","created proper task from "+taskFilePath,NOTICELOG);
+	}
+	else {
+		_logger->log("TaskLoaderText","flagIndex false for task with fileName "+taskFilePath,NOTICELOG);
+	}
+}
+
+/*****************************************************/
+/************** Task Attribute Loaders ***************/
+/*****************************************************/
+
+Task TaskLoaderText::getNextTask() {
+	_logger->log("TaskLoaderText","entering getNextTask");
+	string newLine;
+	string newLabel;
+	string newData;
+	Task newTask;
+
+	while(_fileReader.good()) {
+
+		newLine		= getNextLineFromFile();
+		newLabel	= getNewLabel(newLine);
+		newData		= getNewData(newLine);
+
+		if(newLabel == LABEL_INDEX) {
+			if(!validateAndCreateTask(newTask, newData)) {
+				break;
+			}
+		}
+		else if(newLabel == LABEL_NAME) {
+			setTaskName(newTask, newData);
+		}
+		else if(newLabel == LABEL_DUE_DATE)	{
+			setTaskDueDate(newTask,newData);
+		}
+		else if(newLabel == LABEL_FROM_DATE) {
+			setTaskFromDate(newTask,newData);
+		}
+		else if(newLabel == LABEL_TO_DATE) {
+			setTaskToDate(newTask,newData);
+		}
+		else if(newLabel == LABEL_LOCATION)	{
+			setTaskLocation(newTask,newData);
+		}
+		else if(newLabel == LABEL_PARTICIPANT) {
+			setTaskParticipant(newTask,newData);
+		}
+		else if(newLabel == LABEL_NOTE) {
+			setTaskNote(newTask,newData);
+		}
+		else if(newLabel == LABEL_PRIORITY)	{
+			setTaskPriority(newTask,newData);
+		}
+		else if(newLabel == LABEL_TAG) {
+			setTaskTag(newTask,newData);
+		}
+		else if(newLabel == LABEL_REMINDER_TIME) {
+			setTaskReminderTime(newTask,newData);
+		}
+		else if(newLabel == LABEL_STATE) {
+			setTaskState(newTask,newData);
+		}
+		else if(newLabel == LABEL_END_OF_TASK) {
+			break;
+		}
+	}
+
+	return newTask;
+}
+
+bool TaskLoaderText::validateAndCreateTask (Task& newTask, const std::string& newData) {
+	bool taskHasBeenDeleted = recoveredDeletedIndices.find(newData) != recoveredDeletedIndices.end();
+
+	if(taskHasBeenDeleted) {
+		_logger->log("TaskLoaderText","deleted task found: " + newData, NOTICELOG);
+		skipThisTask();
+		newTask = Task();
+		return false;
+	}
+	else {
+		try {
+			unsigned long long newIndex = getTaskIndex(newData);
+			newTask = createNewTask(newIndex);
+			_logger->log("TaskLoaderText","created new task with index: " + newData);
+			return true;
+		}
+		catch (string e) {
+			_logger->log("TaskLoaderText","recovered task duplicate in masterFile: " + newData, NOTICELOG);
+			newTask = Task();
+			return false;
+		}
+	}
+}
+
+Task TaskLoaderText::createNewTask(unsigned long long index) {
+	return Task(index);
+}
+
+void TaskLoaderText::setTaskName	(Task& task,string taskName) {
+	task.setName(taskName);
+}
+
+void TaskLoaderText::setTaskDueDate	(Task& task, string dueDateStr) {
+	time_t dueDate = getTimeFromString(dueDateStr);
+	task.setDueDate(dueDate);
+}
+
+void TaskLoaderText::setTaskFromDate(Task& task, string fromDateStr) {
+	time_t fromDate = getTimeFromString(fromDateStr);
+	task.setFromDate(fromDate);
+}
+
+void TaskLoaderText::setTaskToDate(Task& task, string toDateStr) {
+	time_t toDate = getTimeFromString(toDateStr);
+	task.setToDate(toDate);
+}
+
+void TaskLoaderText::setTaskLocation(Task& task, string location) {
+	task.setLocation(location);
+}
+
+void TaskLoaderText::setTaskParticipant(Task& task, string participant) {
+	task.setParticipants(participant,ADD_ELEMENT);
+}
+
+void TaskLoaderText::setTaskNote(Task& task, string note) {
+	task.setNote(note);
+}
+
+void TaskLoaderText::setTaskPriority(Task& task, string taskPriorityStr) {
+	PRIORITY taskPriority = getPriorityFromString(taskPriorityStr);
+	task.setPriority(taskPriority);
+}
+
+void TaskLoaderText::setTaskTag(Task& task, string tag) {
+	task.setTags(tag,ADD_ELEMENT);
+}
+
+void TaskLoaderText::setTaskReminderTime(Task& task, string reminderTimeStr) {
+	time_t reminderTime = getTimeFromString(reminderTimeStr);
+	task.setRemindTimes(reminderTime,ADD_ELEMENT);
+}
+
+void TaskLoaderText::setTaskState(Task& task, string taskStateStr) {
+	TASK_STATE taskState = getTaskStateFromString(taskStateStr);
+	task.setState(taskState);
+}
+
+/****************************************************/
+/****** Helper Functions to Naviagate the File ******/
+/****************************************************/
+
+void TaskLoaderText::skipThisTask() {
+	bool hasEnded = false;
+
+	while(_fileReader.good()) {
+		hasEnded = (getNextLineFromFile() == LABEL_END_OF_TASK);
+
+		if(hasEnded) {
+			break;
+		}
+	}
+}
+
+bool TaskLoaderText::hasNextTask() {
+	bool hasNextTask = false;
+
+	while(_fileReader.good()) {
+		hasNextTask = (getNextLineFromFile() == LABEL_START_OF_TASK);
+
+		if(hasNextTask) {
+			break;
+		}
+	}
+
+	return hasNextTask;
+}
+
+string TaskLoaderText::getNewLabel(string newLine) {
+	string label;
+	stringstream tempStream(newLine);
+
+	tempStream >> label;
+
+	return label;
+}
+
+string TaskLoaderText::getNewData(string newLine) {
+	int pos = newLine.find_first_of(DEFAULT_KEY_VALUE_DELIMITER);
+	if(pos != string::npos) {
+		return newLine.substr(pos+1);
+	}
+	else {
+		return DEFAULT_DATA_VALUE;
+	}
+}
+
+/****************************************************/
+/************** From String Converters **************/
+/****************************************************/
+
+int	TaskLoaderText::getIntFromString (string attribute) {
+	stringstream tempStream(attribute);
+	int returnValue;
+
+	tempStream >> returnValue;
+
+	return returnValue;
+}
+
+unsigned long long TaskLoaderText::getTaskIndex(string indexStr) {
+	return getIndexFromString(indexStr);
+}
+
+unsigned long long TaskLoaderText::getIndexFromString (string attribute) {
+	stringstream tempStream(attribute);
+	unsigned long long returnValue;
+
+	tempStream >> returnValue;
+
+	return returnValue;
+}
+
+time_t TaskLoaderText::getTimeFromString (string attribute) {
+	stringstream tempStream(attribute);
+	time_t returnValue;
+
+	tempStream >> returnValue;
+
+	return returnValue;
+}
+
+PRIORITY TaskLoaderText::getPriorityFromString	(string attribute) {
+	PRIORITY returnValue;
+	for (PRIORITY prio = HIGH; prio < PRIORITY_COUNT; prio = static_cast<PRIORITY>(prio + 1)) {
+		if(attribute == PRIORITY_STRING[prio]) {
+			returnValue = prio;
+			break;
+		}
+	}
+	return returnValue;
+}
+
+TASK_STATE TaskLoaderText::getTaskStateFromString	(string attribute) {
+	TASK_STATE returnValue;
+	for (TASK_STATE state = UNDONE; state < TASK_STATE_COUNT; state = static_cast<TASK_STATE>(state + 1)) {
+		if(attribute == TASK_STATE_STRING[state]) {
+			returnValue = state;
+			break;
+		}
+	}
+
+	return returnValue;
+}
+
+/***************************************************/
+/***************** Actual Reader *******************/
+/***************************************************/
+
+string TaskLoaderText::getNextLineFromFile() {
+	string nextLine;
+	getline(_fileReader,nextLine);
+
+	return nextLine;
+}
+#endif
+	// End of segment: C:\Users\a0102016\Desktop\asd\TaskLoaderText.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\a0102016\Desktop\asd\TaskSaver.cpp
+	 */
+
+
+const string TaskSaver::MESSAGE_FILE_OPENING_ERROR	= "A file used for handling changes could not be opened for saving!";
+const string TaskSaver::MESSAGE_FILE_CLOSING_ERROR	= "A file used by the program could not be closed!";
+const string TaskSaver::MESSAGE_RESTART_ADVICE		= "Please restart the program to prevent unintentional loss of data";
+
+void TaskSaver::openFile(const std::string& fileName,
+						  std::ios_base::openmode oMode) 
+{
+	try {
+		this->_fileWriter.open(fileName,oMode);
+	}
+	catch (std::ifstream::failure e) {
+		throw FileHandlingException(MESSAGE_FILE_OPENING_ERROR + MESSAGE_RESTART_ADVICE);
+	}
+}
+
+void TaskSaver::closeFile() {
+	try {
+		_fileWriter.close(); 
+	}
+	catch (std::ifstream::failure e) {
+		throw FileHandlingException(MESSAGE_FILE_CLOSING_ERROR + MESSAGE_RESTART_ADVICE);
+	}
+}
+	// End of segment: C:\Users\a0102016\Desktop\asd\TaskSaver.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\a0102016\Desktop\asd\TaskSaverText.cpp
+	 */
+
+
+TaskSaverText::TaskSaverText() {
+	_logger = Logger::getLogger();
+	mkTaskDir();
+}
+
+void TaskSaverText::mkTaskDir() {
+	QDir temp;
+	if (!temp.cd(QString("Tasks")))
+	{
+		temp.mkdir("Tasks");
+	}
+}
+
+/****************************************************/
+/*************** Public Save APIs *******************/
+/****************************************************/
+
+void TaskSaverText::save(StorableTaskDatastore* taskDS, const std::string& fileName) {
+	openFile(fileName);
+	saveTaskDS(taskDS);
+	closeFile();
+
+	// remove the quick save files
+	removeTaskFiles();
+	return;
+}
+
+// quick save that creates a new .task file for each task that was edited/added
+// deleted tasks' IDs are recorded in a delete record
+void TaskSaverText::save(const Task& task, const COMMAND_TYPE& cType) {
+	assert(isSaveableCommandType(cType));
+
+	switch(cType) {
+		case DEL:
+			saveDeleteCommand(task);
+			break;
+		default:
+			saveNonDeleteCommands(task);
+			break;
+	}
+	return;
+}
+
+void TaskSaverText::saveNonDeleteCommands (const Task& task) {
+	std::string taskFilePath = getTaskFilePath(task);
+
+	openFile(taskFilePath);
+	saveTask(task);
+	closeFile();
+
+	removeDeletedTaskFile(task);
+}
+void TaskSaverText::saveDeleteCommand(const Task& task) {
+	std::string deletedTaskFilePath = getDeletedTaskFilePath(task);
+
+	openFile(deletedTaskFilePath);
+	writeLineToFile(convertToString(task.getIndex()));
+	closeFile();
+
+	removeTaskFile(task);
+}
+
+void TaskSaverText::removeTaskFile	(const Task& task) {
+	string taskFileName = convertToString(task.getIndex()) + TASK_FILE_EXTENSION;
+	QDir curDir(QString::fromStdString(TASK_DIRECTORY));
+
+	bool test = curDir.remove(QString::fromStdString(taskFileName));
+}
+
+void TaskSaverText::removeDeletedTaskFile (const Task& task) {
+	string taskFileName = convertToString(task.getIndex())+ TASK_DELETED_FILE_EXTENSION;
+	QDir curDir(QString::fromStdString(TASK_DIRECTORY));
+
+	bool test = curDir.remove(QString::fromStdString(taskFileName));
+}
+
+/****************************************************/
+/************** Private Save Methods ****************/
+/****************************************************/
+
+void TaskSaverText::saveTaskDS(StorableTaskDatastore* taskDS) {
+	return saveTaskList(taskDS->getTaskList());
+	/*StorableTaskDatastore::const_iterator* it = taskDS->cbeginPtr();
+
+	while(it != taskDS->cendPtr()) {
+		saveTask(**it);
+		it++;
+	}
+	delete it;
+	*/
+}
+
+void TaskSaverText::saveTaskList(const list<Task>& taskList) {
+	list<Task>::const_iterator it = taskList.begin();
+	while(it != taskList.end()) {
+		saveTask(*it);
+		it++;
+	}
+}
+
+void TaskSaverText::saveTask(const Task& task) {
+	writeLineToFile("");
+
+	saveTaskLevelLabel(LABEL_START_OF_TASK);
+	saveTaskAttributes(task);
+	saveTaskLevelLabel(LABEL_END_OF_TASK);
+
+	return;
+}
+
+/*****************************************************/
+/************** Task Attribute Savers ****************/
+/*****************************************************/
+
+void TaskSaverText::saveTaskAttributes(const Task& tempTask) {
+	saveIndex(tempTask);
+	saveName(tempTask);
+	saveDueDate(tempTask);
+	saveFromDate(tempTask);
+	saveToDate(tempTask);
+	saveLocation(tempTask);
+	saveParticipants(tempTask);
+	saveNote(tempTask);
+	savePriority(tempTask);
+	saveTags(tempTask);
+	saveReminderTimes(tempTask);
+	saveState(tempTask);
+}
+
+void TaskSaverText::saveIndex(const Task& tempTask) {
+	saveAttributeLevelLabel(LABEL_INDEX);
+	writeLineToFile(convertToString(tempTask.getIndex()));
+}
+
+void TaskSaverText::saveName(const Task& tempTask) {
+	_logger->log("TaskSaverText","entering function to saving name");
+	if(tempTask.getFlagName()) {
+		_logger->log("TaskSaverText","saving name attribute",NOTICELOG);
+		saveAttributeLevelLabel(LABEL_NAME);
+		writeLineToFile(tempTask.getName());
+	}
+}
+
+void TaskSaverText::saveDueDate(const Task& tempTask) {
+	if(tempTask.getFlagDueDate()) {
+		saveAttributeLevelLabel(LABEL_DUE_DATE);
+
+		string dueDateStr = convertToString(tempTask.getDueDate());
+		writeLineToFile(dueDateStr);
+	}
+}
+
+void TaskSaverText::saveFromDate(const Task& tempTask) {
+	if(tempTask.getFlagFromDate()) {
+		saveAttributeLevelLabel(LABEL_FROM_DATE);
+
+		string fromDateStr = convertToString(tempTask.getFromDate());
+		writeLineToFile(fromDateStr);
+	}
+}
+
+void TaskSaverText::saveToDate(const Task& tempTask) {
+	if(tempTask.getFlagToDate()) {
+		saveAttributeLevelLabel(LABEL_TO_DATE);
+		
+		string toDateStr = convertToString(tempTask.getToDate());
+		writeLineToFile(toDateStr);
+	}
+}
+
+
+void TaskSaverText::saveLocation(const Task& tempTask) {
+	if(tempTask.getFlagLocation()) {
+		saveAttributeLevelLabel(LABEL_LOCATION);
+		writeLineToFile(tempTask.getLocation());
+	}
+}
+
+void TaskSaverText::saveParticipants(const Task& tempTask) {
+	if(tempTask.getFlagParticipants()) {
+		list<std::string> participantList = tempTask.getParticipants();
+		list<std::string>::iterator pit = participantList.begin();
+		string participant = "";
+
+		while(pit != participantList.end()) {
+			saveAttributeLevelLabel(LABEL_PARTICIPANT);
+
+			participant = (*pit);
+			writeLineToFile(participant);
+
+			pit++;
+		}
+	}
+}
+
+void TaskSaverText::saveNote(const Task& tempTask) {
+	if(tempTask.getFlagNote()) {
+		saveAttributeLevelLabel(LABEL_NOTE);
+		writeLineToFile(tempTask.getNote());
+	}
+}
+
+void TaskSaverText::savePriority(const Task& tempTask) {
+	saveAttributeLevelLabel(LABEL_PRIORITY);
+
+	string priorityStr = convertToString(tempTask.getPriority());
+	writeLineToFile(priorityStr);
+}	
+
+void TaskSaverText::saveTags(const Task& tempTask) {
+	if(tempTask.getFlagTags()) {
+		list<std::string> tagsList = tempTask.getTags();
+		list<std::string>::iterator tagit = tagsList.begin();
+		string tag = "";
+
+		while(tagit != tagsList.end()) {
+			saveAttributeLevelLabel(LABEL_TAG);
+
+			tag = (*tagit);
+			writeLineToFile(tag);
+			tagit++;
+		}
+	}
+}
+
+void TaskSaverText::saveReminderTimes(const Task& tempTask) {
+	if(tempTask.getFlagRemindTimes()) {
+		list<time_t> reminderList = tempTask.getRemindTimes();
+		list<time_t>::iterator rtit = reminderList.begin();
+		string reminderStr = "";
+
+		while(rtit != reminderList.end()) {
+			saveAttributeLevelLabel(LABEL_REMINDER_TIME);
+
+			reminderStr = convertToString(*rtit);
+			writeLineToFile(reminderStr);
+			rtit++;
+		}
+	}
+}
+
+void TaskSaverText::saveState(const Task& tempTask) {
+	saveAttributeLevelLabel(LABEL_STATE);
+
+	string stateStr = convertToString(tempTask.getState());
+	writeLineToFile(stateStr);
+}
+
+/****************************************************/
+/************** To String Converters ****************/
+/****************************************************/
+
+string TaskSaverText::convertToString(int num) {
+	stringstream tmpstream;
+	tmpstream << (num);
+	return tmpstream.str();
+}
+
+string TaskSaverText::convertToString(unsigned long long index) {
+	stringstream tmpstream;
+	tmpstream << (index);
+	return tmpstream.str();
+}
+
+string TaskSaverText::convertToString(time_t time) {
+	stringstream ss;
+	ss << (time);
+	return ss.str();
+}
+
+string TaskSaverText::convertToString(PRIORITY priority) {
+	return PRIORITY_STRING[priority];
+}
+
+string TaskSaverText::convertToString(TASK_STATE state) {
+	return TASK_STATE_STRING[state];
+}
+
+/*********************************************************/
+/********** Quick Save/Delete Record Managers ************/
+/*********************************************************/
+
+void TaskSaverText::removeTaskFiles() {
+	QDir temp(QString::fromStdString(TASK_DIRECTORY));
+	temp.removeRecursively();
+	QDir curDir;
+	curDir.mkdir(TASK_DIRECTORY.c_str());
+}
+
+/****************************************************/
+/***************** Actual Writers *******************/
+/****************************************************/
+
+void TaskSaverText::saveTaskLevelLabel(std::string LabelStr) {
+	writeLineToFile(LabelStr);
+}
+
+void TaskSaverText::saveAttributeLevelLabel(string LabelStr) {
+	writeLineToFile(LabelStr,false);
+}
+
+void TaskSaverText::writeLineToFile(string line, bool newLine) {
+	if(newLine)
+		_fileWriter << line << endl;
+	else
+		_fileWriter << line << " ";
+}
+
+/****************************************************/
+/***************** Helper functions *****************/
+/****************************************************/
+
+bool TaskSaverText::isSaveableCommandType(COMMAND_TYPE cType) {
+	return (cType == DEL || cType == MOD || cType == ADD);
+}
+
+#endif
+	// End of segment: C:\Users\a0102016\Desktop\asd\TaskSaverText.cpp
+
+
+
+
+

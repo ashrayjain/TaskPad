@@ -1,0 +1,545 @@
+//@author: a0096582r
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+	 */
+
+vector<string> Interpreter_base::extractNoParameterMessage(string command, string regexTemplate,int& count){
+	string field;
+	smatch match;
+	string::const_iterator startPos = command.begin();
+	string::const_iterator endPos = command.end();
+	int startIndex=START_POSITION;
+	vector<string>result;
+	regex extractTemplate(regexTemplate);
+	if (regex_search(startPos,endPos, match, extractTemplate)){
+		field=match[START_POSITION];
+	}
+	while(!field.empty()){
+		if(checkKeyWord(command,startIndex+match.position())==true){
+			result.push_back(field);
+			count++;
+		}	
+		startIndex=startIndex+match.position()+CHANGE_BY_ONE;
+		startPos=startPos+match.position()+CHANGE_BY_ONE;
+		field.clear();
+		if(startPos!=endPos){
+			if (regex_search(startPos,endPos, match, extractTemplate)){
+				field=match[START_POSITION];
+			}
+		}
+	}
+	return result;
+}
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+	 */
+
+string Interpreter_base::toUpper(string str){
+	transform(str.begin(), str.end(), str.begin(), ::toupper);
+	return str;
+}
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+	 */
+
+void Interpreter_base::extractTimeWithZeroSlash(string &timeMessage, string &content, bool& isSuccessful, int& day, int& hour, int& min )
+{
+	int countSpace=EMPTY_ITEM;
+	for(int i=START_POSITION;i<timeMessage.length();i++){
+		if(timeMessage.at(i)==NOTATION_SPACE){
+			countSpace++;
+		}
+	}
+	//time format dd hh:mm
+	if(countSpace==ONE_ITEM){
+		stringstream extract(timeMessage);
+		getline(extract,content,NOTATION_SPACE);
+		if(!content.empty()){
+			isSuccessful=integerConverter(content,day);
+		}
+		else{
+			isSuccessful=false;
+		}
+		content.clear();
+		getline(extract,content,NOTATION_COLON);
+		if(!content.empty()){
+			isSuccessful=integerConverter(content,hour);
+		}
+		content.clear();
+		getline(extract,content);
+		if(!content.empty()){
+			isSuccessful=integerConverter(content,min);
+		}
+	}
+	//time format hh/mm
+	else if(countSpace==EMPTY_ITEM){
+		stringstream extract(timeMessage);
+		getline(extract,content,NOTATION_COLON);
+		if(!content.empty()){
+			isSuccessful=integerConverter(content,hour);
+		}
+		content.clear();
+		getline(extract,content);
+		if(!content.empty()){
+			isSuccessful=integerConverter(content,min);
+		}
+	}
+	else{
+		isSuccessful=false;
+	}
+	return;
+}
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+	 */
+
+void Interpreter_base::extractTimeWithOneSlash(string timeMessage, string &content, bool& isSuccessful, int& day, int& month, int& hour, int& min )
+{
+	//time format dd/mm hh:mm
+	stringstream extract(timeMessage);
+	content.clear();
+	getline(extract,content,NOTATION_SLASH);  
+	isSuccessful=integerConverter(content,day);
+	content.clear();
+	getline(extract,content,NOTATION_SPACE); 
+	isSuccessful=integerConverter(content,month);
+	content.clear();
+	getline(extract,content,NOTATION_COLON);
+	if(!content.empty()){
+		isSuccessful=integerConverter(content,hour);
+	}
+	content.clear();
+	getline(extract,content);
+	if(!content.empty()){
+		isSuccessful=integerConverter(content,min);
+	}
+	return;
+}
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+	 */
+
+void Interpreter_base::extractTimeWithTwoSlash(string timeMessage, string &content, bool &isSuccessful, int& day, int& month, int &year, int& hour, int& min )
+{
+	//time format dd/mm/yy hh:mm
+	stringstream extract(timeMessage);
+	content.clear();
+	getline(extract,content,NOTATION_SLASH);  
+	isSuccessful=integerConverter(content,day);
+	content.clear();
+	getline(extract,content,NOTATION_SLASH); 
+	isSuccessful=integerConverter(content,month);
+	content.clear();
+	getline(extract,content,NOTATION_SPACE); 
+	isSuccessful=integerConverter(content,year);
+	if(year<100)year=year+CURRENT_CENTURY;
+	content.clear();
+	getline(extract,content,NOTATION_COLON);
+	if(!content.empty()){
+		isSuccessful=integerConverter(content,hour);
+	}
+	content.clear();
+	getline(extract,content);
+	if(!content.empty()){
+		isSuccessful=integerConverter(content,min);
+	}
+	return;
+}
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+	 */
+
+bool Interpreter_base::checkTimeValidity(int year, bool& isSuccessful, int month, int day, int hour, int min ){
+	if(year>UPPER_LIMIT_YEAR || year<LOWER_LIMIT_YEAR)
+		isSuccessful=false;
+	else if(month>UPPER_LIMIT_MONTH)
+		isSuccessful=false;
+	else if(day>UPPER_LIMIT_DAY)
+		isSuccessful=false;
+	else if(hour>UPPER_LIMIT_HOUR)
+		isSuccessful=false;
+	else if(min>UPPER_LIMIT_MINUTE)
+		isSuccessful=false;
+	return isSuccessful;
+}
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+	 */
+
+bool Interpreter_base::isFromExistance(string command, smatch match, string &field, bool& isSuccessful ){
+	regex checkFrom(FIELD_FROM);
+	if (regex_search(command, match, checkFrom)){
+		field=match[START_POSITION];
+	}
+	if(!field.empty()){
+		isSuccessful=false;
+	}	
+	return isSuccessful;
+}
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+	 */
+
+bool Interpreter_base::isDueExistance(string &field, string command, smatch match, bool& isSuccessful ){
+	regex checkDue(FIELD_DUE);
+	field.clear();
+	if (regex_search(command, match, checkDue)){
+		field=match[START_POSITION];
+	}
+	if(!field.empty())isSuccessful=false;
+	return isSuccessful;
+}
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+	 */
+
+bool Interpreter_base::isToExistance(string command, smatch match, string &field, bool& isSuccessful ){
+	regex checkTo(FIELD_TO);
+	if (regex_search(command, match, checkTo)){
+		field=match[START_POSITION];
+	}
+	if(!field.empty()){
+		isSuccessful=false;
+	}	
+	return isSuccessful;
+}
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+	 */
+
+int Interpreter_base::extractTagMessage(string &field, string &subString, smatch &match, list<string> &tagList, int count, regex extractTemplate ){
+	while(!field.empty()){
+		if(checkKeyWord(subString,match.position())==true){
+			string tagContent;
+			stringstream extract(field);
+			getline(extract,tagContent,NOTATION_HASH);
+			tagContent.clear();
+			getline(extract,tagContent,NOTATION_SPACE);
+			if(!tagContent.empty()){
+				tagList.push_back(tagContent);
+			}
+			count++;
+		}	
+		subString=subString.substr(match.position()+CHANGE_BY_ONE);
+		field.clear();
+		if (regex_search(subString, match, extractTemplate)){
+			field=match[START_POSITION];
+		}
+	}	
+	return count;
+}
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+	 */
+
+void Interpreter_base::extractQuotedMessage(string field, string& QuotedMessage){
+
+	stringstream extract(field);
+	getline(extract,QuotedMessage,NOTATION_ACCENT_GRAVE);
+	QuotedMessage.clear();
+	getline(extract,QuotedMessage,NOTATION_ACCENT_GRAVE);
+	return;
+}
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Interpreter_base.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\UnitTest\test_Interpreter.cpp
+	 */
+
+#include "stdafx.h"
+#include "CppUnitTest.h"
+
+#include "../TaskPad_library/Interpreter.h"
+#include "../TaskPad_library/Messenger.h"
+#include "../TaskPad_library/Command.h"
+
+using namespace Microsoft::VisualStudio::CppUnitTestFramework;
+using namespace std;
+
+//valid command
+const string ADD_CASE_1="add `test` ppl `jiangze` note `CS2103` at `nus`";
+const string ADD_CASE_2="add `test` impt `H` #: #:P #T.T";
+const string ADD_CASE_3="add `test` impt `low`";
+const string ADD_CASE_4="add `test` note `study`";
+const string ADD_CASE_5="add `test` #a #b #c note `_|_`";
+const string ADD_CASE_6="add `test` at `nus`  note `  note   `";
+//invalid command
+const string ADD_CASE_7="add `test` note `nus` note `111`";
+const string ADD_CASE_8="add `test` at `home` at `wc`";
+const string ADD_CASE_9="add `test` 10";
+const string ADD_CASE_10="add `test` dddddddd";
+//valid command
+const string MOD_CASE_1="mod `test` ppl `jiangze` note `CS2103` at `nus`";
+const string MOD_CASE_2="mod `test` impt `H` #: #:P #T.T";
+const string MOD_CASE_3="mod 1 at `home`";
+const string MOD_CASE_4="mod  exact `test` note `study`";
+const string MOD_CASE_5="mod  exact `test`";
+const string MOD_CASE_6="mod `test` at `nus` -pplall";
+const string MOD_CASE_7="mod `test` -ppl `a`";
+const string MOD_CASE_8="mod `test` -from";
+const string MOD_CASE_9="mod `test` -due";
+const string MOD_CASE_10="mod `test` -rtall";
+//invalid command
+const string MOD_CASE_11="mod `test` note `dd` note `123`";
+const string MOD_CASE_12="mod `test` at `home` at `nus`";
+const string MOD_CASE_13="mod `test` 1111";
+const string MOD_CASE_14="mod `test` dddddddd";
+const string MOD_CASE_15="mod exact exact";
+//valid command
+const string FIND_CASE_1="find name `test`";
+const string FIND_CASE_2="find undone";
+const string FIND_CASE_3="find #123";
+const string FIND_CASE_4="find timed";
+const string FIND_CASE_5="find floating";
+const string FIND_CASE_6="find overdue";
+//invalid command
+const string FIND_CASE_7="find duee `tomorrow`";
+const string FIND_CASE_8="find `test`";
+const string FIND_CASE_9="find timed timed";
+const string FIND_CASE_10="find `test` dddddddd";
+
+//valid command
+const string DEL_CASE_1="del `test`";
+const string DEL_CASE_2="del exact `test`";
+const string DEL_CASE_3="del 1"; 
+
+const int VALID_COMMAND = 2;
+const int INVALID_COMMAND = 0;
+
+namespace UnitTest
+{
+	TEST_CLASS(test_Interpreter)
+	{
+	public:
+
+
+		TEST_METHOD(Interpreter_Add)
+		{
+			// TODO: Your test code here
+
+			Interpreter test;
+			Command* testCommand;  
+
+			Messenger response;
+
+			//CASE 1 to 6 are valid, 7 to 10 are invalid	
+			testCommand=test.interpretCommand(ADD_CASE_1,response);
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(ADD_CASE_2,response);
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(ADD_CASE_3,response);
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(ADD_CASE_4,response);
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(ADD_CASE_5,response);
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(ADD_CASE_6,response);
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(ADD_CASE_7,response);
+			Assert::AreEqual(INVALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(ADD_CASE_8,response);
+			Assert::AreEqual(INVALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(ADD_CASE_9,response);
+			Assert::AreEqual(INVALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(ADD_CASE_10,response);
+			Assert::AreEqual(INVALID_COMMAND,(int)response.getStatus());
+
+		}
+
+
+		TEST_METHOD(Interpreter_Mod)
+		{
+
+			//Case 1 to 10 are valid, 11 to 15 are invalid
+			Interpreter test;
+			Command* testCommand;  
+			Messenger response;
+
+			testCommand=test.interpretCommand(MOD_CASE_1,response);
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(MOD_CASE_2,response);
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(MOD_CASE_3,response);
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(MOD_CASE_4,response);
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(MOD_CASE_5,response);
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(MOD_CASE_6,response);
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(MOD_CASE_7,response);
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(MOD_CASE_8,response);
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(MOD_CASE_9,response);
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(MOD_CASE_10,response);
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(MOD_CASE_11,response);
+			Assert::AreEqual(INVALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(MOD_CASE_12,response);
+			Assert::AreEqual(INVALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(MOD_CASE_13,response);
+			Assert::AreEqual(INVALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(MOD_CASE_14,response);
+			Assert::AreEqual(INVALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(MOD_CASE_15,response);
+			Assert::AreEqual(INVALID_COMMAND,(int)response.getStatus());
+
+		}
+
+
+		TEST_METHOD(Interpreter_Find)
+		{
+			Interpreter test;
+			Command* testCommand;  
+			Messenger response;
+
+
+			//CASE 1 to 6 are valid, 7 to 10 are invalid	
+			testCommand=test.interpretCommand(FIND_CASE_1,response);
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(FIND_CASE_2,response);
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(FIND_CASE_3,response);
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(FIND_CASE_4,response);
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(FIND_CASE_5,response);
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(FIND_CASE_6,response);
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(FIND_CASE_7,response);
+			Assert::AreEqual(INVALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(FIND_CASE_8,response);
+			Assert::AreEqual(INVALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(FIND_CASE_9,response);
+			Assert::AreEqual(INVALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(FIND_CASE_10,response);
+			Assert::AreEqual(INVALID_COMMAND,(int)response.getStatus());
+
+		}		
+
+		TEST_METHOD(Interpreter_DEL){
+			Interpreter test;
+			Command* testCommand;  
+			Messenger response;
+			testCommand=test.interpretCommand(DEL_CASE_1,response);
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(DEL_CASE_2,response);
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
+
+			testCommand=test.interpretCommand(DEL_CASE_3,response);
+			Assert::AreEqual(VALID_COMMAND,(int)response.getStatus());
+
+
+		}
+
+	};
+}
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\UnitTest\test_Interpreter.cpp
+
+
+
+
+

@@ -1,0 +1,4006 @@
+//@author: a0102016e
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Command.cpp
+	 */
+
+/*
+*=====================================================================================
+*
+*       Filename:  Command.cpp
+*
+*        Version:  1.0
+*        Created:  09/21/13 16:13:09
+*
+*         Author:  XIE KAI (A0102016E), gigikie@gmail.com
+*   Organization:  NUS, SoC
+*
+*=====================================================================================
+*/
+
+#include "Command.h"
+
+using namespace std;
+using namespace TP;
+
+const bool				Command::DEFAULT_FLAG					= UNCHANGED;
+const COMMAND_TYPE		Command::DEFAULT_COMMAND_TYPE			= UNDEFINED;
+const PRIORITY			Command::DEFAULT_PRIORITY				= MEDIUM;
+const TASK_STATE		Command::DEFAULT_TASK_STATE				= UNDONE;//undone
+const TASK_TYPE			Command::DEFAULT_TASK_TYPE				= FLOATING;
+const string			Command::DEFAULT_STRING					= "";
+const list<string>		Command::DEFAULT_LIST_OF_STRING			= list<string>();
+const time_t			Command::DEFAULT_TIME					= -1;
+const list<time_t>		Command::DEFAULT_REMIND_TIME			= list<time_t>();
+const int				Command::DEFAULT_INDEX					= -1;
+const unsigned long long Command::DEFAULT_CREATED_TIME			= 0;
+
+void Command::init()
+{
+	//flags init
+	FLAG_index			                            = DEFAULT_FLAG;
+	FLAG_exact			                            = DEFAULT_FLAG;
+	FLAG_name			                            = DEFAULT_FLAG;
+	FLAG_optName		                            = DEFAULT_FLAG;
+	FLAG_due			                            = DEFAULT_FLAG;
+	FLAG_removeDue									= DEFAULT_FLAG;
+	FLAG_from			                            = DEFAULT_FLAG;
+	FLAG_removeFrom									= DEFAULT_FLAG;
+	FLAG_to				                            = DEFAULT_FLAG;
+	FLAG_removeTo									= DEFAULT_FLAG;
+	FLAG_location		                            = DEFAULT_FLAG;
+	FLAG_participants	                            = DEFAULT_FLAG;
+	FLAG_removeParticipants							= DEFAULT_FLAG;
+	FLAG_addParticipants							= DEFAULT_FLAG;
+	FLAG_removeAllParticipants						= DEFAULT_FLAG;
+	FLAG_note			                            = DEFAULT_FLAG;
+	FLAG_priority		                            = DEFAULT_FLAG;
+	FLAG_tags			                            = DEFAULT_FLAG;
+	FLAG_removeTags									= DEFAULT_FLAG;
+	FLAG_addTags									= DEFAULT_FLAG;
+	FLAG_removeAllTags								= DEFAULT_FLAG;
+	FLAG_remindTime		                            = DEFAULT_FLAG;
+	FLAG_removeRemindTime							= DEFAULT_FLAG;
+	FLAG_addRemindTime								= DEFAULT_FLAG;
+	FLAG_removeAllRemindTimes						= DEFAULT_FLAG;
+	FLAG_taskState		                            = DEFAULT_FLAG;
+	FLAG_createdTime	                            = DEFAULT_FLAG;
+	FLAG_taskType		                            = DEFAULT_FLAG;
+
+	//fields init
+	_type				                            = DEFAULT_COMMAND_TYPE;
+	_index				                            = DEFAULT_INDEX;
+	_name				                            = DEFAULT_STRING;
+	_optName			                            = DEFAULT_STRING;
+	_dueDate			                            = DEFAULT_TIME;
+	_fromDate			                            = DEFAULT_TIME;
+	_toDate				                            = DEFAULT_TIME;
+	_location			                            = DEFAULT_STRING;
+	_participants		                            = DEFAULT_LIST_OF_STRING;
+	_removeParticipants								= DEFAULT_LIST_OF_STRING;
+	_addParticipants								= DEFAULT_LIST_OF_STRING;
+	_note				                            = DEFAULT_STRING;
+	_priority			                            = DEFAULT_PRIORITY;
+	_tags				                            = DEFAULT_LIST_OF_STRING;
+	_removeTags										= DEFAULT_LIST_OF_STRING;
+	_addTags										= DEFAULT_LIST_OF_STRING;
+	_remindTime			                            = DEFAULT_REMIND_TIME;
+	_removeRemindTime								= DEFAULT_REMIND_TIME;
+	_addRemindTime									= DEFAULT_REMIND_TIME;
+	_taskState			                            = DEFAULT_TASK_STATE;
+	_createdTime		                            = DEFAULT_CREATED_TIME;
+	_taskType			                            = DEFAULT_TASK_TYPE;
+}
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Command.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Command.h
+	 */
+
+/*
+ * =====================================================================================
+ *
+ *       Filename:  Command.h
+ *
+ *        Version:  1.0
+ *        Created:  09/21/13 16:13:09
+ *
+ *         Author:  XIE KAI (A0102016E), gigikie@gmail.com
+ *   Organization:  NUS, SoC
+ *
+ * =====================================================================================
+ */
+
+
+/*
+ *		How to use these classes
+ *
+ *		1. in class Interpreter
+ *		once you know it's certain command, like command Add, you need to 'new Command_Add()', then
+ *		set its properties/fields according to user input, e.g.:
+ *		
+ *		Command_Add* cmd_add = new Command_Add();
+ *		cmd_add->setName(taskName);//name in command Add is compulsory
+ *		if( user input contains dueDate )
+ *			cmd_add->setDueDate(dueDate);
+ *
+ *		at the end, you will return this cmd_add pointer.
+ *
+ * = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+ *
+ *		in class Executor:
+ *		first you need to check command's commandType, then dynamically cast it down to certain command, e.g.:
+ *
+ *		Command_Add* cmd_add;
+ *		//cmd's class is Command
+ *		if( cmd->getCommandType() == Command::ADD )
+ *			cmd_add = dynamic_cast<Command_Add*>(cmd);
+ *		
+ *		then you need to check its certain flag, and get certain field data, e.g.:
+ *
+ *		std::time_t dueDate;
+ *		if( cmd_add->getFlagDue() )
+ *			dueDate = cmd_add->getDueDate();
+ *
+ *		at the end, you must *DELETE* its pointer.
+ *		delete cmd;
+ *
+ */
+
+
+#include <list>
+#include <string>
+#include <ctime>
+#include "Enum.h"
+#include "Command_Add.h"
+#include "Command_Mod.h"
+#include "Command_Del.h"
+#include "Command_Find.h"
+#include "Command_Undo.h"
+#include "Command_Redo.h"
+#include "Command_Show.h"
+
+#ifndef TASKPAD_COMMAND_H
+#define TASKPAD_COMMAND_H
+
+/*
+ *=======================
+ 
+	Command Base class
+ 
+ *=======================
+ */
+class Command
+{
+public:
+	virtual					~Command() = 0			{};
+	TP::COMMAND_TYPE		getCommandType()		{ return _type; }
+	
+protected:
+	//init
+	void init();
+	void setCommandType(TP::COMMAND_TYPE type)		{ _type = type; }
+
+	//getter for fields
+	int						getIndex()				{ return _index;			 }
+	std::string				getName()				{ return _name;				 }
+	std::string				getOptName()			{ return _optName;			 }
+	std::time_t				getDueDate()			{ return _dueDate;			 }
+	std::time_t				getFromDate()			{ return _fromDate;			 }
+	std::time_t				getToDate()				{ return _toDate;			 }
+	std::string				getLocation()			{ return _location;			 }
+	std::list<std::string>	getParticipants()		{ return _participants;		 }
+	std::list<std::string>	getRemoveParticipants()	{ return _removeParticipants;}
+	std::list<std::string>	getAddParticipants()	{ return _addParticipants;	 }
+	std::string				getNote()				{ return _note;				 }
+	TP::PRIORITY			getPriority()			{ return _priority;			 }
+	std::list<std::string>	getTags()				{ return _tags;				 }
+	std::list<std::string>	getRemoveTags()			{ return _removeTags;		 }
+	std::list<std::string>	getAddTags()			{ return _addTags;			 }
+	std::list<std::time_t>	getRemindTimes()		{ return _remindTime;		 }
+	std::list<std::time_t>	getRemoveRemindTimes()	{ return _removeRemindTime;	 }
+	std::list<std::time_t>	getAddRemindTimes()		{ return _addRemindTime;	 }
+	TP::TASK_STATE			getTaskState()			{ return _taskState;		 }
+	TP::TASK_TYPE			getTaskType()			{ return _taskType;			 }
+	unsigned long long		getCreatedTime()		{ return _createdTime;		 }
+	
+	//setter for fields
+	void setIndex(int idx)							     { _index		      = idx;		FLAG_index		= TP::EDITED;       }
+	void setName(std::string name)					     { _name			  = name;		FLAG_name		= TP::EDITED;       }
+	void setOptName(std::string name)				     { _optName		      = name;		FLAG_optName	= TP::EDITED;       }
+	void setDueDate(std::time_t dueDate)			     { _dueDate		      = dueDate;	FLAG_due		= TP::EDITED;       }
+	void setFromDate(std::time_t fromDate)			     { _fromDate		  = fromDate;	FLAG_from		= TP::EDITED;       }
+	void setToDate(std::time_t toDate)				     { _toDate		      = toDate;	    FLAG_to			= TP::EDITED;       }
+	void setLocation(std::string location)			     { _location		  = location;	FLAG_location	= TP::EDITED;       }
+	void setParticipants(std::list<std::string> ppl)     { _participants	  = ppl;		FLAG_participants= TP::EDITED;      }
+	void setRemoveParticipants(std::list<std::string>ppl){_removeParticipants = ppl;        FLAG_removeParticipants= TP::EDITED;}
+	void setAddParticipants(std::list<std::string>ppl)   {_addParticipants    = ppl;	    FLAG_addParticipants = TP::EDITED;  }
+	void setNote(std::string note)					     { _note			  = note;		FLAG_note		= TP::EDITED;       }
+	void setPriority(TP::PRIORITY priority)			     { _priority		  = priority;	FLAG_priority	= TP::EDITED;       }
+	void setTags(std::list<std::string> tags)		     { _tags			  = tags;		FLAG_tags		= TP::EDITED;       }
+	void setRemoveTags(std::list<std::string> tags)	     { _removeTags	      = tags;		FLAG_removeTags	= TP::EDITED;       }
+	void setAddTags(std::list<std::string> tags)         { _addTags	          = tags;		FLAG_addTags	= TP::EDITED;		}
+	void setRemindTimes(std::list<std::time_t> time)     { _remindTime	      = time;		FLAG_remindTime	= TP::EDITED;       }
+	void setRemoveRemindTimes(std::list<std::time_t>time){_removeRemindTime   = time;       FLAG_removeRemindTime = TP::EDITED; }
+	void setAddRemindTimes(std::list<std::time_t>time)   {_addRemindTime      = time;	    FLAG_addRemindTime = TP::EDITED;    }
+	void setTaskState(TP::TASK_STATE state)			     { _taskState	      = state;	    FLAG_taskState	= TP::EDITED;       }
+	void setTaskType(TP::TASK_TYPE type)			     { _taskType		  = type;		FLAG_taskType	= TP::EDITED;       }
+	void setCreatedTime(unsigned long long ctime)	     { _createdTime	      = ctime;	    FLAG_createdTime= TP::EDITED;       }
+
+	//getter for flags
+	bool getFlagIndex()								{ return FLAG_index;			    }
+	bool getFlagExact()								{ return FLAG_exact;			    }
+	bool getFlagName()								{ return FLAG_name;				    }
+	bool getFlagOptName()							{ return FLAG_optName;			    }
+	bool getFlagDue()								{ return FLAG_due;				    }
+	bool getFlagRemoveDue()							{ return FLAG_removeDue;		    }
+	bool getFlagFrom()								{ return FLAG_from;				    }
+	bool getFlagRemoveFrom()						{ return FLAG_removeFrom;		    }
+	bool getFlagTo()								{ return FLAG_to;				    }
+	bool getFlagRemoveTo()							{ return FLAG_removeTo;			    }
+	bool getFlagLocation()							{ return FLAG_location;			    }
+	bool getFlagParticipants()						{ return FLAG_participants;		    }
+	bool getFlagRemoveParticipants()				{ return FLAG_removeParticipants;   }
+	bool getFlagAddParticipants()					{ return FLAG_addParticipants;	    }
+	bool getFlagRemoveAllParticipants()				{ return FLAG_removeAllParticipants;}
+	bool getFlagNote()								{ return FLAG_note;				    }
+	bool getFlagPriority()							{ return FLAG_priority;			    }
+	bool getFlagTags()								{ return FLAG_tags;				    }
+	bool getFlagRemoveTags()						{ return FLAG_removeTags;		    }
+	bool getFlagAddTags()							{ return FLAG_addTags;				}
+	bool getFlagRemoveAllTags()						{ return FLAG_removeAllTags;	    }
+	bool getFlagRemindTimes()						{ return FLAG_remindTime;		    }
+	bool getFlagRemoveRemindTimes()					{ return FLAG_removeRemindTime;	    }
+	bool getFlagAddRemindTimes()					{ return FLAG_addRemindTime;	    }
+	bool getFlagRemoveAllRemindTimes()				{ return FLAG_removeAllRemindTimes; }
+	bool getFlagTaskState()							{ return FLAG_taskState;		    }
+	bool getFlagTaskType()							{ return FLAG_taskType;			    }
+	bool getFlagCreatedTime()						{ return FLAG_createdTime;		    }
+
+	//setter for flags
+	void setFlagExact()								{ FLAG_exact = TP::EDITED;		          }
+	void setFlagRemoveDue()							{ FLAG_removeDue = TP::EDITED;	          }
+	void setFlagRemoveFrom()						{ FLAG_removeFrom = TP::EDITED;	          }
+	void setFlagRemoveTo()							{ FLAG_removeTo = TP::EDITED;	          }
+	void setFlagRemoveAllTags()						{ FLAG_removeAllTags = TP::EDITED;        }
+	void setFlagRemoveAllParticipants()				{ FLAG_removeAllParticipants = TP::EDITED;}
+	void setFlagRemoveAllRemindTimes()				{ FLAG_removeAllRemindTimes = TP::EDITED; }
+
+private:
+	//default values
+	static const bool								DEFAULT_FLAG;
+	static const TP::COMMAND_TYPE					DEFAULT_COMMAND_TYPE;
+	static const TP::PRIORITY						DEFAULT_PRIORITY;
+	static const TP::TASK_STATE						DEFAULT_TASK_STATE;
+	static const TP::TASK_TYPE						DEFAULT_TASK_TYPE;
+	static const std::string						DEFAULT_STRING;
+	static const std::list<std::string>				DEFAULT_LIST_OF_STRING;
+	static const std::time_t						DEFAULT_TIME;
+	static const std::list<std::time_t>				DEFAULT_REMIND_TIME;
+	static const int								DEFAULT_INDEX;
+	static const unsigned long long					DEFAULT_CREATED_TIME;
+	
+	//flags
+	bool FLAG_index;
+	bool FLAG_exact;
+	bool FLAG_name;
+	bool FLAG_optName;
+	bool FLAG_due;
+	bool FLAG_removeDue;
+	bool FLAG_from;
+	bool FLAG_removeFrom;
+	bool FLAG_to;
+	bool FLAG_removeTo;
+	bool FLAG_location;
+	bool FLAG_participants;
+	bool FLAG_removeParticipants;
+	bool FLAG_addParticipants;
+	bool FLAG_removeAllParticipants;
+	bool FLAG_note;
+	bool FLAG_priority;
+	bool FLAG_tags;
+	bool FLAG_removeTags;
+	bool FLAG_addTags;
+	bool FLAG_removeAllTags;
+	bool FLAG_remindTime;
+	bool FLAG_removeRemindTime;
+	bool FLAG_addRemindTime;
+	bool FLAG_removeAllRemindTimes;
+	bool FLAG_taskState;
+	bool FLAG_createdTime;
+	bool FLAG_taskType;
+
+	//fields
+	TP::COMMAND_TYPE								_type;
+	int												_index;
+	std::string										_name;
+	std::string										_optName;
+	std::time_t										_dueDate;
+	std::time_t										_fromDate;
+	std::time_t										_toDate;
+	std::string										_location;
+	std::list<std::string>							_participants;
+	std::list<std::string>							_removeParticipants;
+	std::list<std::string>							_addParticipants;
+	std::string										_note;
+	TP::PRIORITY									_priority;//high | medium | low
+	std::list<std::string>							_tags;
+	std::list<std::string>							_removeTags;
+	std::list<std::string>							_addTags;
+	std::list<std::time_t>							_remindTime;
+	std::list<std::time_t>							_removeRemindTime;
+	std::list<std::time_t>							_addRemindTime;
+	TP::TASK_STATE									_taskState;//done | undone
+	unsigned long long								_createdTime;
+	TP::TASK_TYPE									_taskType;//timed | deadline | floating
+};
+
+#endif
+
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Command.h
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\CommandBar.cpp
+	 */
+
+/*
+ * =====================================================================================
+ *
+ *       Filename:  CommandBar.cpp
+ *
+ *           Note:  CommandBar class handles all the issues of command input textbox, which
+ * are used in MainWindow and QuickAddWindow
+ *
+ *        Version:  1.0
+ *        Created:  10/21/13 16:13:09
+ *
+ *         Author:  XIE KAI (A0102016E), gigikie@gmail.com
+ *   Organization:  NUS, SoC
+ *
+ * =====================================================================================
+ */
+
+#include "CommandBar.h"
+#include <QShortcut>
+#include <QMimeData>
+#include "Highlighter.h"
+
+const int CommandBar::TOO_LONG		= 777;
+const int CommandBar::MAX_LENGTH	= 777;
+const QStringList CommandBar::COMMAND_LIST = QStringList() \
+	<< "add ``" << "mod" << "del" << "find" << "undo" <<     \
+	"redo";
+const QStringList CommandBar::KEYWORD_LIST = QStringList() \
+	<< "name ``" << "by ``" << "due ``" << "from ``" << "to ``" << "location ``" << "place ``" << "at ``" << \
+	"with ``" << "ppl ``" << "note ``" << "priority ``" << "impt ``" << "rt ``" << "remind ``" << "done" << \
+	"undone" <<  "exact ``";
+const QStringList CommandBar::KEYWORD_LIST_REMOVE = QStringList() \
+	<< "by" << "due" << "from" << "to" << "with ``" << "ppl ``" << "pplall" << "rt ``" << "remind ``" \
+	<< "rtall";
+const QStringList CommandBar::KEYWORD_LIST_ADD = QStringList() \
+	<< "with ``" << "ppl ``" << "rt ``" << "remind ``";
+const QStringList CommandBar::KEYWORD_LIST_FIND = QStringList() \
+	<< "name ``" << "from ``" << "to ``" << "location ``" << "place ``" << "at ``" << "with ``" << "ppl ``" \
+	<< "note ``" << "priority ``" << "impt ``" << "rt ``" << "remind ``" << "overdue" << "done" << "undone" <<  \
+	"deadline" << "timed" << "floating" << "exact name ``";
+const char*	  CommandBar::NEW_LINE                     = "\n";
+const QString CommandBar::SPACE                        = " ";
+const QString CommandBar::INCLUDE_QUOTE_LEFT_PAIR      = "(\\w+ ``)|( ``)|(``)";
+const QString CommandBar::SINGLE_QUOTATION_MARK        = "'";
+const QString CommandBar::QUOTE_LEFT                   = "`";
+const QString CommandBar::QUOTE_LEFT_PAIR              = "`(.*)`";
+const QString CommandBar::EMPTY                        = "";
+const QString CommandBar::HOTKEY_TEMPLATE_ADD          = "add `__NAME__` due `__DATE__` impt `__PRIORITY__` "\
+	"at `__WHERE__` ppl `__PARTICIPANTS__` #__TAGS__ rt `__REMINDTIME__` note `__NOTE__`";
+const QString CommandBar::HOTKEY_TEMPLATE_ADD_TIMED    = "add `__NAME__` from `__DATE__` to `__DATE__` impt `"\
+	"__PRIORITY__` at `__WHERE__` ppl `__PARTICIPANTS__` #__TAGS__ rt `__REMINDTIME__` note `__NOTE__`";
+const QString CommandBar::HOTKEY_TEMPLATE_MOD_DONE     = "mod __INDEX__ done";
+const QString CommandBar::HOTKEY_TEMPLATE_MOD_BY_NAME  = "mod `__NAME__` name `__MODIFIEDNAME__` from `__DATE"\
+	"__` to `__DATE__` impt `__PRIORITY__` at `__WHERE__` ppl `__PARTICIPANTS__` #__TAGS__ rt `__REMINDTIME__"\
+	"` note `__NOTE__` __DONE__";
+const QString CommandBar::HOTKEY_TEMPLATE_MOD_BY_INDEX = "mod __INDEX__ name `__MODIFIEDNAME__` from `__DATE_"\
+	"_` to `__DATE__` impt `__PRIORITY__` at `__WHERE__` ppl `__PARTICIPANTS__` #__TAGS__ rt `__REMINDTIME__`"\
+	" note `__NOTE__` __DONE__";
+const QString CommandBar::HOTKEY_TEMPLATE_DEL_BY_NAME  = "del `__NAME__`";
+const QString CommandBar::HOTKEY_TEMPLATE_DEL_BY_INDEX = "del __INDEX__";
+const QString CommandBar::HOTKEY_TEMPLATE_FIND         = "find name `__NAME__` from `__DATE__` to `__DATE__` "\
+	"impt `__PRIORITY__` at `__WHERE__` ppl `__PARTICIPANTS__` note `__NOTE__`";
+const QString CommandBar::HOTKEY_TEMPLATE_UNDO         = "undo";
+const QString CommandBar::HOTKEY_TEMPLATE_REDO         = "redo";
+const QString CommandBar::HOTKEY_TEMPLATE_BLANK        = "__[A-Z]+__";
+
+CommandBar::CommandBar(QWidget *parent)
+:QTextEdit(parent), inputHistory_undo(), inputHistory_redo(){
+	initRegExp();
+	initWidgets();
+	initConnections();
+}
+
+void CommandBar::initRegExp(){
+	hotkeyTemplate.setPattern(HOTKEY_TEMPLATE_BLANK);
+	hotkeyTemplate.setPatternSyntax(QRegExp::RegExp2);
+	REGEXP_quoteLeftPairs.setPattern(QUOTE_LEFT_PAIR);
+	REGEXP_quoteLeftPairs.setPatternSyntax(QRegExp::RegExp2);
+	REGEXP_quoteLeftPairs.setMinimal(true);
+}
+
+void CommandBar::initWidgets(){
+	initState();
+	initModel();
+	initCompleter();
+}
+
+//Highlighter will be deleted by its parent (class CommandBar)
+//No memory leak here, it's just a Qt's feature.
+//DO NOT DELETE IT! otherwise you delete it twice and abort.
+void CommandBar::initState(){
+	autoCompleteToggle(true);
+	hotkeyTemplateMode = false;
+	autoCompleteMode = false;
+	(void) new Highlighter(document());
+}
+
+//Model is used by Completer to produce words to complete what users type
+void CommandBar::initModel(){
+	model = new QStringListModel(this);
+	produceCommandModel();
+}
+
+void CommandBar::initCompleter(){
+	completer = new QCompleter(this);
+	completer->setWidget(this);
+	completer->setCompletionMode(QCompleter::InlineCompletion);
+	completer->setModel(model);
+	completer->setModelSorting(QCompleter::UnsortedModel);
+	completer->setCaseSensitivity(Qt::CaseInsensitive);
+	completer->setWrapAround(true);
+}
+
+//all QShortcut will be deleted by their parent (class CommandBar) automatically
+//it's a Qt feature. 
+//DO NOT DELETE THEM! otherwise you delete them twice and abort.
+void CommandBar::initConnections(){
+	const char* NEW_DEADLINE_TASK    = "Ctrl+N";
+	const char* NEW_TIMED_TASK       = "Ctrl+Shift+N";
+	const char* MOD_TASK_DONE        = "Ctrl+M";
+	const char* MOD_TASK_BY_NAME     = "Ctrl+Alt+Shift+M";
+	const char* MOD_TASK_BY_INDEX    = "Ctrl+Shift+M";
+	const char* DEL_TASK_BY_NAME     = "Ctrl+Shift+D";
+	const char* DEL_TASK_BY_INDEX    = "Ctrl+D";
+	const char* FIND_TASK            = "Ctrl+F";
+	const char* UNDO                 = "Ctrl+U";
+	const char* REDO                 = "Ctrl+R";
+	const char* JUMP_BACK_PREV_BLANK = "Shift+Tab";
+
+	connect(this, SIGNAL(textChanged()), this, SLOT(performCompletion()));
+	newDeadlineTask = new QShortcut(QKeySequence(NEW_DEADLINE_TASK), this, SLOT(createTemplateAdd()));
+	newTimedTask    = new QShortcut(QKeySequence(NEW_TIMED_TASK), this, SLOT(createTemplateAddTimed()));
+	modifyDone      = new QShortcut(QKeySequence(MOD_TASK_DONE), this, SLOT(createTemplateModDone()));
+	modifyByName    = new QShortcut(QKeySequence(MOD_TASK_BY_NAME), this, SLOT(createTemplateModByName()));
+	modifyByIndex   = new QShortcut(QKeySequence(MOD_TASK_BY_INDEX), this, SLOT(createTemplateModByIndex()));
+	delByName       = new QShortcut(QKeySequence(DEL_TASK_BY_NAME), this, SLOT(createTemplateDelByName()));
+	delByIndex      = new QShortcut(QKeySequence(DEL_TASK_BY_INDEX), this, SLOT(createTemplateDelByIndex()));
+	find            = new QShortcut(QKeySequence(FIND_TASK), this, SLOT(createTemplateFind()));
+	undo            = new QShortcut(QKeySequence(UNDO), this, SLOT(createTemplateUndo()));
+	redo            = new QShortcut(QKeySequence(REDO), this, SLOT(createTemplateRedo()));
+	(void)            new QShortcut(QKeySequence(JUMP_BACK_PREV_BLANK), this, SLOT(hkTemplateGoBackwards()));
+}
+
+QString CommandBar::getCurrentLine(){
+	QRegExp regex(HOTKEY_TEMPLATE_BLANK);
+	QString result = toPlainText();
+	result.replace(regex, EMPTY);
+	return result;
+}
+
+//push current line into input history
+//then user can use up/down arrow to read thru them
+void CommandBar::pushCurrentLine(){
+	QString currentInput = toPlainText();
+	if(currentInput != EMPTY){
+		while(!inputHistory_redo.isEmpty()){
+			QString input = inputHistory_redo.pop();
+			inputHistory_undo.push(input);
+		}
+		inputHistory_undo.push(currentInput);
+		clear();
+	}
+}
+
+//it's used by MACRO:
+//#define TEXT_EDIT_BEGIN	autoCompleteToggle(false);
+//#define TEXT_EDIT_END		autoCompleteToggle(true);
+//#define TURN_OFF_AC		autoCompleteToggle(false);
+//#define TURN_ON_AC		autoCompleteToggle(true);
+//make the coding more readable :p
+void CommandBar::autoCompleteToggle(bool flag){
+	autoCompleteFlag = flag;
+}
+
+//when textChanged, this function will be called by textChanged signal
+void CommandBar::performCompletion(){
+	produceModel();
+	if(getCurrentLine().length() > TOO_LONG){
+		handleTextTooLong();
+	}
+	else if(autoCompleteFlag && isRHSEmpty()){
+			QString completionPrefix = getWordUnderCursor();
+			if (!completionPrefix.isEmpty() &&
+				isLastCharLetter(completionPrefix)){
+					performCompletion(completionPrefix);
+			}
+	}
+}
+
+bool CommandBar::isRHSEmpty(){
+	bool isRHSaSpace = hasKeywordNearby(SPACE, QTextCursor::Right);
+	bool isAtTheEndOfLine = textCursor().position() == getCurrentLine().length();
+	return isRHSaSpace || isAtTheEndOfLine;
+}
+
+void CommandBar::produceModel(){
+	//produce empty model if within `` or after #..
+	if(isWithinPairOfQuoteLeft() || hasSharpAtStartOfWord()){
+		model->setStringList(QStringList());
+	}//produce keyword model for -xxx keyword
+	else if(!isWithinPairOfQuoteLeft() && hasMinusAtStartOfWord()){
+		model->setStringList(KEYWORD_LIST_REMOVE);
+	}//produce keyword model for +xxx keyword
+	else if(!isWithinPairOfQuoteLeft() && hasPlusAtStartOfWord()){
+		model->setStringList(KEYWORD_LIST_ADD);
+	}
+	else if(containsCommand()){
+		//special keyword model for command Find
+		if(isCommandFind())
+			produceKeywordModel_forFind();
+		else//normal keyword model for all kinds of command
+			produceKeywordModel();
+	}
+	else{//produce command model
+		produceCommandModel();
+	}
+}
+
+void CommandBar::produceCommandModel(){
+	model->setStringList(COMMAND_LIST);
+}
+
+void CommandBar::produceKeywordModel(){
+	model->setStringList(KEYWORD_LIST);
+}
+
+void CommandBar::produceKeywordModel_forFind(){
+	model->setStringList(KEYWORD_LIST_FIND);
+}
+
+bool CommandBar::isLastCharLetter(QString str){
+	const int END_INDEX = str.length() - 1;
+	bool result = str.at(END_INDEX).isLetter();
+	return result;
+}
+
+//just remove the too-long text, and move the cursor to the end of line
+void CommandBar::handleTextTooLong(){
+	QString currContent = getCurrentLine();
+	QTextCursor cursor = textCursor();
+	cursor.movePosition(QTextCursor::EndOfLine);
+	int pos = cursor.position();
+	currContent.remove(MAX_LENGTH, pos);
+	setText(currContent);
+	setTextCursor(cursor);
+}
+
+void CommandBar::performCompletion(const QString &completionPrefix){
+	const int NOT_FOUND = 0;
+	if (completionPrefix != completer->completionPrefix()){
+		completer->setCompletionPrefix(completionPrefix);
+	}
+	if (completer->completionCount() > NOT_FOUND){
+		insertCompletion(completer->currentCompletion());
+	}
+}
+
+void CommandBar::insertCompletion(const QString &completion){
+	const int NOT_FOUND = 0;
+	QTextCursor cursor = textCursor();
+	int numberOfCharsToComplete = completion.length() - completer->completionPrefix().length();
+	if(numberOfCharsToComplete > NOT_FOUND){
+		//start auto-complete
+		int insertionPosition = cursor.position();
+		//select the input text, override later
+		cursor.movePosition(QTextCursor::StartOfWord, QTextCursor::KeepAnchor);
+		//in case of auto-complete infinite loop
+		TEXT_EDIT_BEGIN
+		cursor.insertHtml( completion );
+		TEXT_EDIT_END
+		//back to previous cursor position
+		cursor.setPosition(insertionPosition);
+		//move cursor to end of completion
+		cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, numberOfCharsToComplete);
+		setTextCursor(cursor);
+		autoCompleteMode = true;
+	}
+}
+
+//make copy or paste data from Web plain
+void CommandBar::insertFromMimeData(const QMimeData *source){
+	if(source->hasText()){
+		makeTextPlain(source);
+	}
+}
+
+void CommandBar::makeTextPlain( const QMimeData * source ){
+	QString strToInsert = source->text();
+	strToInsert.replace(QRegExp(NEW_LINE), EMPTY);
+	insertPlainText(strToInsert);
+}
+
+bool CommandBar::containsQuoteLeftPair(QString str){
+	const int NOT_FOUND = -1;
+	QRegExp regex(INCLUDE_QUOTE_LEFT_PAIR);
+	int index = regex.indexIn(str);
+	return index != NOT_FOUND;
+}
+
+bool CommandBar::isWithinPairOfQuoteLeft(){
+	bool result = false;
+	QVector<QPair<int, int> > quoteLeftPositions = getQuoteLeftPositions();
+	for(int i = 0; i < quoteLeftPositions.size(); i++){
+		int leftQuoteLeftPos = quoteLeftPositions[i].first;
+		int rightQuoteLeftPos = quoteLeftPositions[i].second;
+		int currentPos = textCursor().position();
+		if(leftQuoteLeftPos < currentPos && currentPos <= rightQuoteLeftPos){
+			result = true;
+			break;
+		}
+	}
+	return result;
+}
+
+//produce pairs of Quote Lefts:
+//Assumption made: if the number of QL is odd, the last QL is neglected
+QVector<QPair<int, int> > CommandBar::getQuoteLeftPositions(){
+	const int NOT_FOUND = -1;
+	QString	currentLine = getCurrentLine();
+	int index = REGEXP_quoteLeftPairs.indexIn(currentLine);
+	QVector<QPair<int, int> > result;
+
+	while (index > NOT_FOUND) {
+		int length = REGEXP_quoteLeftPairs.matchedLength();
+		int first_pos = index;
+		int second_pos = index + length - 1;
+		int next = index + length;
+		result.push_back(QPair<int, int>(first_pos, second_pos));
+		index = REGEXP_quoteLeftPairs.indexIn(currentLine, next);
+	}
+
+	return result;
+}
+
+//handling of odd number of QL will use this function
+bool CommandBar::isEvenQuoteLefts(){
+	const int NOT_FOUND = -1;
+	const int EVEN = 2;
+	int count = 0;
+	int pos = 0;
+	QRegExp REGEXP_ql(QUOTE_LEFT);
+	QString currentLine = getCurrentLine();
+	
+	while ((pos = REGEXP_ql.indexIn(currentLine, pos)) != NOT_FOUND) {
+		++count;
+		pos += REGEXP_ql.matchedLength();
+	}
+	QVector<QPair<int, int> > quoteLeftPositions = getQuoteLeftPositions();
+	return count == quoteLeftPositions.size() * EVEN;
+}
+
+bool CommandBar::isHotkeyTemplateMode(){
+	bool result = true;
+	QTextCursor cursor = textCursor();
+
+	cursor.movePosition(QTextCursor::Start);
+	QTextCursor result_cursor = document()->find(hotkeyTemplate, cursor);
+	if(result_cursor.isNull()){
+		result = false;
+	}
+	return result;
+}
+
+QString CommandBar::getWordUnderCursor(){
+	QTextCursor cursor = textCursor();
+	cursor.select(QTextCursor::WordUnderCursor);
+	QString completionPrefix = cursor.selectedText();
+
+	return completionPrefix;
+}
+
+//check whether has a certain keyword next to the cursor
+bool CommandBar::hasKeywordNearby(QString keyword, QTextCursor::MoveOperation direction){
+	QTextCursor cursor = textCursor();
+	cursor.movePosition(direction, QTextCursor::KeepAnchor);
+	QString str = cursor.selectedText();
+
+	return str == keyword;
+}
+
+bool CommandBar::hasQuoteLeft_RHS(){
+	return hasKeywordNearby(QUOTE_LEFT, QTextCursor::Right);
+}
+
+bool CommandBar::hasQuoteLeft_LHS(){
+	return hasKeywordNearby(QUOTE_LEFT, QTextCursor::Left);
+}
+
+bool CommandBar::hasKeywordAtStartOfWord(const char* keyword){
+	QTextCursor cursor = textCursor();
+	cursor.movePosition(QTextCursor::StartOfWord);
+	cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
+	QString str = cursor.selectedText();
+
+	return str == keyword;
+}
+
+bool CommandBar::hasSharpAtStartOfWord(){
+	const char* SHARP = "#";
+	return hasKeywordAtStartOfWord(SHARP);
+}
+
+bool CommandBar::hasPlusAtStartOfWord(){
+	const char* PLUS = "+";
+	return hasKeywordAtStartOfWord(PLUS);
+}
+
+bool CommandBar::hasMinusAtStartOfWord(){
+	const char* MINUS = "-";
+	return hasKeywordAtStartOfWord(MINUS);
+}
+
+//clear a character next to the cursor
+void CommandBar::clearCharNearby(QTextCursor::MoveOperation direction){
+	QTextCursor cursor = textCursor();
+	cursor.movePosition(direction, QTextCursor::KeepAnchor);
+	cursor.removeSelectedText();
+	setTextCursor(cursor);
+}
+
+void CommandBar::clearCharRHS(){
+	clearCharNearby(QTextCursor::Right);
+}
+
+void CommandBar::clearCharLHS(){
+	clearCharNearby(QTextCursor::Left);
+}
+
+bool CommandBar::isCommandFind(){
+	const char* CMD_FIND = "find ";
+	QString currentLine = getCurrentLine();
+	return currentLine.startsWith(CMD_FIND, Qt::CaseInsensitive);
+}
+
+bool CommandBar::containsCommand(){
+	const QString CMD_PATTERN = "^(add|mod|del|find|undo|redo) ";
+	const int UNFOUND = -1;
+	QString currentLine = textCursor().block().text();
+	QRegExp regex(CMD_PATTERN);
+	int index = regex.indexIn(currentLine);
+
+	return index != UNFOUND;
+}
+
+//******************************
+//ENTRANCE of KEY PRESS HANDLING
+//******************************
+void CommandBar::keyPressEvent(QKeyEvent*event){
+	bool isHandled = handleKeyPress(event);
+	if(!isHandled){
+		QTextEdit::keyPressEvent(event);
+	}
+}
+
+bool CommandBar::handleKeyPress(QKeyEvent*event){
+	bool isHandled = false;
+	switch(event->key()){
+	case Qt::Key_QuoteLeft:
+		if(event->modifiers() != Qt::ShiftModifier)
+			handleKeyQuoteLeft(&isHandled);
+		break;
+	case Qt::Key_Escape:
+			handleKeyEscape(&isHandled);
+		break;
+	case Qt::Key_Tab:
+			handleKeyTab(&isHandled);
+		break;
+	case Qt::Key_Space:
+			handleKeySpace(&isHandled);
+		break;
+	case Qt::Key_Delete:
+			handleKeyDelete(&isHandled);
+		break;
+	case Qt::Key_Backspace:
+			handleKeyBackspace(&isHandled);
+		break;
+	case Qt::Key_Left:
+	case Qt::Key_Right:
+		if(event->modifiers() == Qt::ShiftModifier)
+			handleKeyLeftOrRight();
+		break;
+	case Qt::Key_Up:
+			handleKeyUp();
+		break;
+	case Qt::Key_Down:
+			handleKeyDown();
+		break;
+	default:
+			handleKeyDefault();
+		break;
+	}
+	return isHandled;
+}
+
+void CommandBar::handleKeyQuoteLeft(bool *isHandled){
+	TURN_OFF_AC
+	QTextCursor cursor = textCursor();
+	//in auto-completion, press QL will move the cursor between ``, if 
+	//the model has `` pair
+	if(autoCompleteMode && containsQuoteLeftPair(cursor.selectedText())){
+		cursor.clearSelection();
+		cursor.movePosition(QTextCursor::Left);
+		autoCompleteMode = false;
+	}//if the model does not have `` pair, insert `` at the back of it
+	else if(autoCompleteMode && cursor.selectedText() != EMPTY){
+		cursor.clearSelection();
+		cursor.insertText(SPACE + QUOTE_LEFT + QUOTE_LEFT);
+		cursor.movePosition(QTextCursor::Left, QTextCursor::MoveAnchor);
+		autoCompleteMode = false;
+	}//normal processing
+	else if(!autoCompleteMode && cursor.selectedText() != EMPTY){
+		cursor.removeSelectedText();
+		cursor.insertText(QUOTE_LEFT + QUOTE_LEFT);
+		cursor.movePosition(QTextCursor::Left, QTextCursor::MoveAnchor);
+	}//if within ``, and has a ` next to the cursor (RHS), then go across it
+	else if(isWithinPairOfQuoteLeft() && hasQuoteLeft_RHS()){
+		cursor.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor);
+		cursor.insertText(SPACE);
+	}//if not within ``, and has even number of QL, insert ``
+	else if(!isWithinPairOfQuoteLeft() && isEvenQuoteLefts()){
+		cursor.insertText(QUOTE_LEFT + QUOTE_LEFT);
+		cursor.movePosition(QTextCursor::Left, QTextCursor::MoveAnchor);
+	}
+	else{//other case, just insert `
+		cursor.insertText(QUOTE_LEFT);
+	}
+	setTextCursor(cursor);
+	*isHandled = true;
+}
+
+void CommandBar::handleKeyEscape(bool *isHandled){
+	QTextCursor cursor = textCursor();
+	TEXT_EDIT_BEGIN
+	cursor.removeSelectedText();
+	TEXT_EDIT_END
+	setTextCursor(cursor);
+	*isHandled = true;
+}
+
+//used by shift+tab
+void CommandBar::hkTemplateGoBackwards(){
+	QTextCursor cursor = textCursor();
+	if(isHotkeyTemplateMode()){
+		handleHotKeyGoBackwards();
+	}
+}
+
+void CommandBar::handleHotKeyGoBackwards(){
+	lastTimeCursor = document()->find(hotkeyTemplate, textCursor(), QTextDocument::FindBackward);
+	if(lastTimeCursor.isNull()){
+		moveCursor(QTextCursor::End);
+		lastTimeCursor = document()->find(hotkeyTemplate, textCursor(), QTextDocument::FindBackward);
+		if(lastTimeCursor.isNull()){
+			hotkeyTemplateMode = false;
+		}
+	}
+	if(!(lastTimeCursor.isNull())){
+		int length = lastTimeCursor.selectedText().length();
+		lastTimeCursor.clearSelection();
+		lastTimeCursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor, length);
+		setTextCursor(lastTimeCursor);
+	}
+}
+
+void CommandBar::handleHotKeyGoForwards(){
+	lastTimeCursor = document()->find(hotkeyTemplate, textCursor());
+	if(lastTimeCursor.isNull()){
+		moveCursor(QTextCursor::Start);
+		lastTimeCursor = document()->find(hotkeyTemplate, textCursor());
+		if(lastTimeCursor.isNull()){
+			hotkeyTemplateMode = false;
+		}
+	}
+	if(!(lastTimeCursor.isNull())){
+		setTextCursor(lastTimeCursor);
+		int length = lastTimeCursor.selectedText().length();
+		lastTimeCursor.clearSelection();
+		lastTimeCursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor, length);
+		setTextCursor(lastTimeCursor);
+	}
+}
+
+void CommandBar::handleKeyTab(bool *isHandled){
+	TURN_OFF_AC
+	QTextCursor cursor = textCursor();
+	if(isHotkeyTemplateMode()){
+		handleHotKeyGoForwards();
+		*isHandled = true;
+	}
+	else{
+		//auto complete the keyword model in auto-complete mode
+		if(autoCompleteMode && containsQuoteLeftPair(cursor.selectedText())){
+			cursor.clearSelection();
+			cursor.movePosition(QTextCursor::Left);
+			autoCompleteMode = false;
+		}//normal processing
+		else if(!autoCompleteMode && cursor.selectedText() != EMPTY){
+			cursor.removeSelectedText();
+			cursor.insertText(SPACE);
+		}//move across the quote left `
+		else if(hasQuoteLeft_RHS()){
+			cursor.movePosition(QTextCursor::Right);
+			cursor.insertText(SPACE);
+		}//just insert a space
+		else{
+			cursor.clearSelection();
+			cursor.insertText(SPACE);
+		}
+		*isHandled = true;
+		setTextCursor(cursor);
+	}
+}
+
+void CommandBar::handleKeySpace(bool *isHandled){
+	TURN_OFF_AC
+	QTextCursor cursor = textCursor();
+	if(cursor.hasSelection() && autoCompleteMode){
+		//auto complete the keyword model in auto-complete mode, if it has ``
+		if(containsQuoteLeftPair(cursor.selectedText())){
+			cursor.clearSelection();
+			cursor.movePosition(QTextCursor::Left);
+		}//otherwise just insert a space
+		else{
+			cursor.clearSelection();
+			cursor.insertText(SPACE);
+		}
+		autoCompleteMode = false;
+		*isHandled = true;
+		setTextCursor(cursor);
+	}
+}
+
+void CommandBar::handleKeyDelete(bool *isHandled){
+	TURN_OFF_AC
+	//if cursor is within ``, like `<cursor>`, delete both ``
+	if(isWithinPairOfQuoteLeft() && hasQuoteLeft_RHS() && hasQuoteLeft_LHS())
+		clearCharLHS();
+}
+
+void CommandBar::handleKeyBackspace(bool *isHandled){
+	TURN_OFF_AC
+	//if cursor is within ``, like `<cursor>`, delete both ``
+	if(isWithinPairOfQuoteLeft() && hasQuoteLeft_RHS() && hasQuoteLeft_LHS())
+		clearCharRHS();
+}
+
+void CommandBar::handleKeyLeftOrRight(){
+	autoCompleteMode = false;
+}
+
+//handle user input history
+//refer to pushCurrentLine
+void CommandBar::handleKeyUp(){
+	if(!inputHistory_undo.isEmpty()){
+		QString lastInput = inputHistory_undo.pop();
+		inputHistory_redo.push(lastInput);
+		clear();
+		TEXT_EDIT_BEGIN
+		insertHtml(inputHistory_redo.top());
+		TEXT_EDIT_END
+	}
+}
+
+//handle user input history
+//refer to pushCurrentLine
+void CommandBar::handleKeyDown(){
+	if(!inputHistory_redo.isEmpty()){
+		QString prevInput = inputHistory_redo.pop();
+		inputHistory_undo.push(prevInput);
+		clear();
+		if(!inputHistory_redo.isEmpty()){
+			TEXT_EDIT_BEGIN
+			insertHtml(inputHistory_redo.top());
+			TEXT_EDIT_END
+		}
+		else{
+			TEXT_EDIT_BEGIN
+			insertHtml(EMPTY);
+			TEXT_EDIT_END
+		}
+	}
+}
+
+void CommandBar::handleKeyDefault(){
+	TURN_ON_AC
+}
+
+void CommandBar::mousePressEvent(QMouseEvent *event){
+	autoCompleteMode = false;
+	QTextEdit::mousePressEvent(event);
+}
+
+//create a hotkey template according to templateStr
+//hotkey template is a quite useful feature that inserts the templateStr for user,
+//then the user can use tab/shift-tab to go thru any blanks and start typing, without
+//need to type all the sentence
+//btw, blank is defined as "__[A-Z]+__"
+void CommandBar::createTemplate(QString templateStr){
+	pushCurrentLine();
+	TEXT_EDIT_BEGIN
+	insertPlainText(templateStr);
+	TEXT_EDIT_END
+	moveCursor(QTextCursor::Start);
+	lastTimeCursor = document()->find(hotkeyTemplate, textCursor());
+	if(!lastTimeCursor.isNull())
+		setTextCursor(lastTimeCursor);
+	hotkeyTemplateMode = true;
+}
+
+void CommandBar::createTemplateAdd(){
+	createTemplate(HOTKEY_TEMPLATE_ADD);
+}
+
+void CommandBar::createTemplateAddTimed(){
+	createTemplate(HOTKEY_TEMPLATE_ADD_TIMED);
+}
+
+void CommandBar::createTemplateModDone(){
+	createTemplate(HOTKEY_TEMPLATE_MOD_DONE);
+}
+
+void CommandBar::createTemplateModByName(){
+	createTemplate(HOTKEY_TEMPLATE_MOD_BY_NAME);
+}
+
+void CommandBar::createTemplateModByIndex(){
+	createTemplate(HOTKEY_TEMPLATE_MOD_BY_INDEX);
+}
+
+void CommandBar::createTemplateDelByName(){
+	createTemplate(HOTKEY_TEMPLATE_DEL_BY_NAME);
+}
+
+void CommandBar::createTemplateDelByIndex(){
+	createTemplate(HOTKEY_TEMPLATE_DEL_BY_INDEX);
+}
+
+void CommandBar::createTemplateFind(){
+	createTemplate(HOTKEY_TEMPLATE_FIND);
+}
+
+void CommandBar::createTemplateUndo(){
+	createTemplate(HOTKEY_TEMPLATE_UNDO);
+}
+
+void CommandBar::createTemplateRedo(){
+	createTemplate(HOTKEY_TEMPLATE_REDO);
+}
+
+//in quick add window, only template add is allowed
+void CommandBar::setQuickAddMode(){
+	modifyDone->setEnabled(false);
+	modifyByName->setEnabled(false);
+	modifyByIndex->setEnabled(false);
+	delByName->setEnabled(false);
+	delByIndex->setEnabled(false);
+	find->setEnabled(false);
+	undo->setEnabled(false);
+	redo->setEnabled(false);
+}
+
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\CommandBar.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\CommandBar.h
+	 */
+
+/*
+ * =====================================================================================
+ *
+ *       Filename:  CommandBar.h
+ *
+ *           Note:  CommandBar class handles all the issues of command input textbox, which
+ * are used in MainWindow and QuickAddWindow
+ *
+ *        Version:  1.0
+ *        Created:  10/21/13 16:13:09
+ *
+ *         Author:  XIE KAI (A0102016E), gigikie@gmail.com
+ *   Organization:  NUS, SoC
+ *
+ * =====================================================================================
+ */
+
+#ifndef _CMD_BAR_H
+#define _CMD_BAR_H
+
+#include <QtWidgets/QTextEdit>
+#include <QCompleter>
+#include <QStringListModel>
+#include <QKeyEvent>
+#include <QTextBlock>
+#include <QStack>
+
+#define TEXT_EDIT_BEGIN	autoCompleteToggle(false);
+#define TEXT_EDIT_END	autoCompleteToggle(true);
+#define TURN_OFF_AC		autoCompleteToggle(false);
+#define TURN_ON_AC		autoCompleteToggle(true);
+
+class CommandBar: public QTextEdit{
+
+	Q_OBJECT
+
+public:
+	CommandBar(QWidget *parent);
+	QString getCurrentLine();
+	void pushCurrentLine();
+	void setQuickAddMode();
+
+protected slots:
+	void createTemplateAdd();
+	void createTemplateAddTimed();
+	void createTemplateModDone();
+	void createTemplateModByName();
+	void createTemplateModByIndex();
+	void createTemplateDelByName();
+	void createTemplateDelByIndex();
+	void createTemplateFind();
+	void createTemplateUndo();
+	void createTemplateRedo();
+	void performCompletion();
+	void hkTemplateGoBackwards();
+
+private:
+	static const int TOO_LONG;
+	static const int MAX_LENGTH;
+	static const QStringList COMMAND_LIST;
+	static const QStringList KEYWORD_LIST;
+	static const QStringList KEYWORD_LIST_REMOVE;
+	static const QStringList KEYWORD_LIST_ADD;
+	static const QStringList KEYWORD_LIST_FIND;
+	static const char* NEW_LINE;
+	static const QString SPACE;
+	static const QString INCLUDE_QUOTE_LEFT_PAIR;
+	static const QString SINGLE_QUOTATION_MARK;
+	static const QString QUOTE_LEFT;
+	static const QString QUOTE_LEFT_PAIR;
+	static const QString EMPTY;
+	//HOTKEY TEMPLATE RELATED
+	static const QString HOTKEY_TEMPLATE_ADD;
+	static const QString HOTKEY_TEMPLATE_ADD_TIMED;
+	static const QString HOTKEY_TEMPLATE_MOD_DONE;
+	static const QString HOTKEY_TEMPLATE_MOD_BY_NAME;
+	static const QString HOTKEY_TEMPLATE_MOD_BY_INDEX;
+	static const QString HOTKEY_TEMPLATE_DEL_BY_NAME;
+	static const QString HOTKEY_TEMPLATE_DEL_BY_INDEX;
+	static const QString HOTKEY_TEMPLATE_FIND;
+	static const QString HOTKEY_TEMPLATE_UNDO;
+	static const QString HOTKEY_TEMPLATE_REDO;
+	static const QString HOTKEY_TEMPLATE_BLANK;
+	//INIT RELATED
+	void initRegExp();
+	void initWidgets();
+	void initState();
+	void initCompleter();
+	void initModel();
+	void initConnections();
+	//AUTO COMPLETION RELATED
+	void autoCompleteToggle(bool flag);
+	bool isRHSEmpty();
+	void performCompletion(const QString&);
+	void handleTextTooLong();
+	QString getWordUnderCursor();
+	bool isLastCharLetter(QString str);
+	bool hasKeywordNearby(QString keyword, QTextCursor::MoveOperation direction);
+	bool hasQuoteLeft_RHS();
+	bool hasQuoteLeft_LHS();
+	bool hasKeywordAtStartOfWord(const char* keyword);
+	bool hasSharpAtStartOfWord();
+	bool hasPlusAtStartOfWord();
+	bool hasMinusAtStartOfWord();
+	void clearCharNearby(QTextCursor::MoveOperation direction);
+	void clearCharRHS();
+	void clearCharLHS();
+	void insertCompletion(const QString &completion);
+	void insertFromMimeData(const QMimeData * source);
+	void makeTextPlain( const QMimeData * source );
+	bool CommandBar::containsQuoteLeftPair(QString str);
+	bool isWithinPairOfQuoteLeft();
+	QVector<QPair<int, int> > getQuoteLeftPositions();
+	bool isEvenQuoteLefts();
+	bool isHotkeyTemplateMode();
+	void createTemplate(QString templateStr);
+	//MODEL RELATED
+	void produceModel();
+	void produceCommandModel();
+	void produceKeywordModel();
+	void produceKeywordModel_forFind();
+	bool isCommandFind();
+	bool containsCommand();
+	//KEY PRESS RELATED
+	void keyPressEvent(QKeyEvent*event);
+	bool handleKeyPress(QKeyEvent*event);
+	void handleKeyQuoteLeft(bool *isHandled);
+	void handleKeyEscape(bool *isHandled);
+	void handleKeyTab(bool *isHandled);
+	void handleHotKeyGoForwards();
+	void handleHotKeyGoBackwards();
+	void handleKeySpace(bool *isHandled);
+	void handleKeyDelete(bool *isHandled);
+	void handleKeyBackspace(bool *isHandled);
+	void handleKeyLeftOrRight();
+	void handleKeyUp();
+	void handleKeyDown();
+	void handleKeyDefault();
+	void mousePressEvent(QMouseEvent *event);
+	//FIELDS
+	bool autoCompleteFlag;
+	bool hotkeyTemplateMode;
+	bool autoCompleteMode;
+	QTextCursor lastTimeCursor;
+	QStringListModel* model;
+	QCompleter* completer;
+	QRegExp hotkeyTemplate;
+	QRegExp REGEXP_quoteLeftPairs;
+	QStack<QString> inputHistory_undo;
+	QStack<QString> inputHistory_redo;
+	//Short cut
+	QShortcut* newDeadlineTask;
+	QShortcut* newTimedTask;
+	QShortcut* modifyDone;
+	QShortcut* modifyByName;
+	QShortcut* modifyByIndex;
+	QShortcut* delByName;
+	QShortcut* delByIndex;
+	QShortcut* find;
+	QShortcut* undo;
+	QShortcut* redo;
+};
+#endif
+
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\CommandBar.h
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Command_Add.h
+	 */
+
+/*
+ *=======================
+ 
+ Command Add
+ 
+ *=======================
+ */
+
+#include "Command.h"
+
+class Command_Add: public Command
+{
+public:
+	Command_Add()	{ init(); setCommandType(TP::ADD); }
+	~Command_Add()	{};
+	
+	//getter for fields
+	std::string					getName()			{ return Command::getName();		}
+	std::time_t					getDueDate()		{ return Command::getDueDate();		}
+	std::time_t					getFromDate()		{ return Command::getFromDate();	}
+	std::time_t					getToDate()			{ return Command::getToDate();		}
+	std::string					getLocation()		{ return Command::getLocation();	}
+	std::list<std::string>		getParticipants()	{ return Command::getParticipants();}
+	std::string					getNote()			{ return Command::getNote();		}
+	TP::PRIORITY				getPriority()		{ return Command::getPriority();	}
+	std::list<std::string>		getTags()			{ return Command::getTags();		}
+	std::list<std::time_t>		getRemindTimes()	{ return Command::getRemindTimes();	}
+	unsigned long long			getCreatedTime()	{ return Command::getCreatedTime(); }
+	
+	//setter for fields
+	void setName(std::string name)					{ Command::setName(name);			}
+	void setDueDate(std::time_t dueDate)			{ Command::setDueDate(dueDate);		}
+	void setFromDate(std::time_t fromDate)			{ Command::setFromDate(fromDate);	}
+	void setToDate(std::time_t toDate)				{ Command::setToDate(toDate);		}
+	void setLocation(std::string location)			{ Command::setLocation(location);	}
+	void setParticipants(std::list<std::string> ppl){ Command::setParticipants(ppl);	}
+	void setNote(std::string note)					{ Command::setNote(note);			}
+	void setPriority(TP::PRIORITY priority)			{ Command::setPriority(priority);	}
+	void setTags(std::list<std::string> tags)		{ Command::setTags(tags);			}
+	void setRemindTimes(std::list<std::time_t> time){ Command::setRemindTimes(time);	}
+	void setCreatedTime(unsigned long long ctime)	{ Command::setCreatedTime(ctime);	}
+	
+	//getter for flags
+	bool getFlagName()								{ return Command::getFlagName();		}
+	bool getFlagDue()								{ return Command::getFlagDue();			}
+	bool getFlagFrom()								{ return Command::getFlagFrom();		}
+	bool getFlagTo()								{ return Command::getFlagTo();			}
+	bool getFlagLocation()							{ return Command::getFlagLocation();	}
+	bool getFlagParticipants()						{ return Command::getFlagParticipants();}
+	bool getFlagNote()								{ return Command::getFlagNote();		}
+	bool getFlagPriority()							{ return Command::getFlagPriority();	}
+	bool getFlagTags()								{ return Command::getFlagTags();		}
+	bool getFlagRemindTimes()						{ return Command::getFlagRemindTimes();	}
+	bool getFlagCreatedTime()						{ return Command::getFlagCreatedTime();	}
+};
+
+#endif
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Command_Add.h
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Command_Del.h
+	 */
+
+/*
+ *=======================
+ 
+ Command Del
+ 
+ *=======================
+ */
+
+#include "Command.h"
+
+class Command_Del: public Command
+{
+public:
+	Command_Del()	{ init(); setCommandType(TP::DEL); }
+	~Command_Del()	{};
+	
+	//getter for fields
+	int							getIndex()			{ return Command::getIndex();		}
+	std::string					getName()			{ return Command::getName();		}
+	unsigned long long			getCreatedTime()	{ return Command::getCreatedTime();	}
+	
+	//setter for fields
+	void setIndex(int idx)							{ Command::setIndex(idx);			}
+	void setName(std::string name)					{ Command::setName(name);			}
+	void setCreatedTime(unsigned long long ctime)	{ Command::setCreatedTime(ctime);	}
+	
+	//getter for flags
+	bool getFlagIndex()								{ return Command::getFlagIndex();		}
+	bool getFlagExact()								{ return Command::getFlagExact();		}
+	bool getFlagCreatedTime()						{ return Command::getFlagCreatedTime(); }
+	
+	//setter for flags
+	void setFlagExact()								{ Command::setFlagExact();				}
+};
+
+#endif
+
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Command_Del.h
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Command_Find.h
+	 */
+
+/*
+ *=======================
+ 
+ Command Find
+ 
+ *=======================
+ */
+
+#include "Command.h"
+
+class Command_Find: public Command
+{
+public:
+	Command_Find()	{ init(); setCommandType(TP::FIND); }
+	~Command_Find()	{};
+	
+	//getter for fields
+	int							getIndex()			{ return Command::getIndex();		}
+	std::string					getOptName()		{ return Command::getOptName();		}
+	std::time_t					getFromDate()		{ return Command::getFromDate();	}
+	std::time_t					getToDate()			{ return Command::getToDate();		}
+	std::string					getLocation()		{ return Command::getLocation();	}
+	std::list<std::string>		getParticipants()	{ return Command::getParticipants();}
+	std::string					getNote()			{ return Command::getNote();		}
+	TP::PRIORITY				getPriority()		{ return Command::getPriority();	}
+	std::list<std::string>		getTags()			{ return Command::getTags();		}
+	std::list<std::time_t>		getRemindTimes()	{ return Command::getRemindTimes();	}
+	TP::TASK_STATE				getTaskState()		{ return Command::getTaskState();	}
+	TP::TASK_TYPE				getTaskType()		{ return Command::getTaskType();	}
+	
+	//setter for fields
+	void setIndex(int idx)							{ Command::setIndex(idx);			}
+	void setOptName(std::string name)				{ Command::setOptName(name);		}
+	void setFromDate(std::time_t fromDate)			{ Command::setFromDate(fromDate);	}
+	void setToDate(std::time_t toDate)				{ Command::setToDate(toDate);		}
+	void setLocation(std::string location)			{ Command::setLocation(location);	}
+	void setParticipants(std::list<std::string> ppl){ Command::setParticipants(ppl);	}
+	void setNote(std::string note)					{ Command::setNote(note);			}
+	void setPriority(TP::PRIORITY priority)			{ Command::setPriority(priority);	}
+	void setTags(std::list<std::string> tags)		{ Command::setTags(tags);			}
+	void setRemindTimes(std::list<std::time_t> time){ Command::setRemindTimes(time);	}
+	void setTaskState(TP::TASK_STATE state)			{ Command::setTaskState(state);		}
+	void setTaskType(TP::TASK_TYPE type)			{ Command::setTaskType(type);		}
+
+	//getter for flags
+	bool getFlagIndex()								{ return Command::getFlagIndex();		}
+	bool getFlagExact()								{ return Command::getFlagExact();		}
+	bool getFlagName()								{ return Command::getFlagName();		}
+	bool getFlagOptName()							{ return Command::getFlagOptName();		}
+	bool getFlagFrom()								{ return Command::getFlagFrom();		}
+	bool getFlagTo()								{ return Command::getFlagTo();			}
+	bool getFlagLocation()							{ return Command::getFlagLocation();	}
+	bool getFlagParticipants()						{ return Command::getFlagParticipants();}
+	bool getFlagNote()								{ return Command::getFlagNote();		}
+	bool getFlagPriority()							{ return Command::getFlagPriority();	}
+	bool getFlagTags()								{ return Command::getFlagTags();		}
+	bool getFlagRemindTimes()						{ return Command::getFlagRemindTimes();	}
+	bool getFlagTaskState()							{ return Command::getFlagTaskState();	}
+	bool getFlagTaskType()							{ return Command::getFlagTaskType();	}
+
+	//setter for flags
+	void setFlagExact()								{ Command::setFlagExact();				}
+};
+
+#endif
+
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Command_Find.h
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Command_Mod.h
+	 */
+
+/*
+ *=======================
+ 
+ Command Mod
+ 
+ *=======================
+ */
+
+#include "Command.h"
+
+class Command_Mod: public Command
+{
+public:
+	Command_Mod()	{ init(); setCommandType(TP::MOD); }
+	~Command_Mod()	{};
+	
+	//getter for fields
+	int							getIndex()			    { return Command::getIndex();		      }
+	std::string					getName()			    { return Command::getName();		      }
+	std::string					getOptName()		    { return Command::getOptName();		      }
+	std::time_t					getDueDate()		    { return Command::getDueDate();		      }
+	std::time_t					getFromDate()		    { return Command::getFromDate();	      }
+	std::time_t					getToDate()			    { return Command::getToDate();		      }
+	std::string					getLocation()		    { return Command::getLocation();	      }
+	std::list<std::string>		getParticipants()	    { return Command::getParticipants();      }
+	std::list<std::string>		getRemoveParticipants()	{ return Command::getRemoveParticipants();}
+	std::list<std::string>		getAddParticipants()	{ return Command::getAddParticipants();	  }
+	std::string					getNote()			    { return Command::getNote();		      }
+	TP::PRIORITY				getPriority()		    { return Command::getPriority();	      }
+	std::list<std::string>		getTags()			    { return Command::getTags();		      }
+	std::list<std::string>		getRemoveTags()		    { return Command::getRemoveTags();	      }
+	std::list<std::string>		getAddTags()			{ return Command::getAddTags();			  }
+	std::list<std::time_t>		getRemindTimes()	    { return Command::getRemindTimes();	      }
+	std::list<std::time_t>		getRemoveRemindTimes()  { return Command::getRemoveRemindTimes(); }
+	std::list<std::time_t>		getAddRemindTimes()	    { return Command::getAddRemindTimes();    }
+	TP::TASK_STATE				getTaskState()		    { return Command::getTaskState();	      }
+	unsigned long long			getCreatedTime()	    { return Command::getCreatedTime();	      }
+	
+	//setter for fields
+	void setIndex(int idx)							     { Command::setIndex(idx);			    }
+	void setName(std::string name)					     { Command::setName(name);			    }
+	void setOptName(std::string name)				     { Command::setOptName(name);		    }
+	void setDueDate(std::time_t dueDate)			     { Command::setDueDate(dueDate);		}
+	void setFromDate(std::time_t fromDate)			     { Command::setFromDate(fromDate);	    }
+	void setToDate(std::time_t toDate)				     { Command::setToDate(toDate);		    }
+	void setLocation(std::string location)			     { Command::setLocation(location);	    }
+	void setParticipants(std::list<std::string> ppl)     { Command::setParticipants(ppl);	    }
+	void setRemoveParticipants(std::list<std::string>ppl){ Command::setRemoveParticipants(ppl); }
+	void setAddParticipants(std::list<std::string>ppl)   { Command::setAddParticipants(ppl);    }
+	void setNote(std::string note)					     { Command::setNote(note);			    }
+	void setPriority(TP::PRIORITY priority)			     { Command::setPriority(priority);	    }
+	void setTags(std::list<std::string> tags)		     { Command::setTags(tags);			    }
+	void setRemoveTags(std::list<std::string> tags)	     { Command::setRemoveTags(tags);		}
+	void setAddTags(std::list<std::string> tags)		 { Command::setAddTags(tags);			}
+	void setRemindTimes(std::list<std::time_t> time)     { Command::setRemindTimes(time);	    }
+	void setRemoveRemindTimes(std::list<std::time_t>time){ Command::setRemoveRemindTimes(time); }
+	void setAddRemindTimes(std::list<std::time_t>time)   { Command::setAddRemindTimes(time);    }
+	void setTaskState(TP::TASK_STATE state)			     { Command::setTaskState(state);		}
+	void setCreatedTime(unsigned long long ctime)	     { Command::setCreatedTime(ctime);	    }
+	
+	//getter for flags
+	bool getFlagIndex()								{ return Command::getFlagIndex();		         }
+	bool getFlagExact()								{ return Command::getFlagExact();		         }
+	bool getFlagName()								{ return Command::getFlagName();		         }
+	bool getFlagOptName()							{ return Command::getFlagOptName();		         }
+	bool getFlagDue()								{ return Command::getFlagDue();			         }
+	bool getFlagRemoveDue()							{ return Command::getFlagRemoveDue();	         }
+	bool getFlagFrom()								{ return Command::getFlagFrom();		         }
+	bool getFlagRemoveFrom()						{ return Command::getFlagRemoveFrom();	         }
+	bool getFlagTo()								{ return Command::getFlagTo();			         }
+	bool getFlagRemoveTo()							{ return Command::getFlagRemoveTo();	         }
+	bool getFlagLocation()							{ return Command::getFlagLocation();	         }
+	bool getFlagParticipants()						{ return Command::getFlagParticipants();         }
+	bool getFlagRemoveParticipants()				{ return Command::getFlagRemoveParticipants();   }
+	bool getFlagAddParticipants()					{ return Command::getFlagAddParticipants();	     }
+	bool getFlagRemoveAllParticipants()				{ return Command::getFlagRemoveAllParticipants();}
+	bool getFlagNote()								{ return Command::getFlagNote();		         }
+	bool getFlagPriority()							{ return Command::getFlagPriority();	         }
+	bool getFlagTags()								{ return Command::getFlagTags();		         }
+	bool getFlagRemoveTags()						{ return Command::getFlagRemoveTags();	         }
+	bool getFlagAddTags()							{ return Command::getFlagAddTags();				 }
+	bool getFlagRemoveAllTags()						{ return Command::getFlagRemoveAllTags();        }
+	bool getFlagRemindTimes()						{ return Command::getFlagRemindTimes();	         }
+	bool getFlagRemoveRemindTimes()					{ return Command::getFlagRemoveRemindTimes();	 }
+	bool getFlagAddRemindTimes()					{ return Command::getFlagAddRemindTimes();	     }
+	bool getFlagRemoveAllRemindTimes()				{ return Command::getFlagRemoveAllRemindTimes(); }
+	bool getFlagTaskState()							{ return Command::getFlagTaskState();	         }
+	bool getFlagCreatedTime()						{ return Command::getFlagCreatedTime();          }
+	
+	//setter for flags
+	void setFlagExact()								{ Command::setFlagExact();				  }
+	void setFlagRemoveDue()							{ Command::setFlagRemoveDue();	          }
+	void setFlagRemoveFrom()						{ Command::setFlagRemoveFrom();	          }
+	void setFlagRemoveTo()							{ Command::setFlagRemoveTo();	          }
+	void setFlagRemoveAllTags()						{ Command::setFlagRemoveAllTags();        }
+	void setFlagRemoveAllParticipants()				{ Command::setFlagRemoveAllParticipants();}
+	void setFlagRemoveAllRemindTimes()				{ Command::setFlagRemoveAllRemindTimes(); }
+};
+
+#endif
+
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Command_Mod.h
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Command_Redo.h
+	 */
+
+/*
+ *=======================
+ 
+ Command Redo
+ 
+ *=======================
+ */
+
+#include "Command.h"
+
+class Command_Redo: public Command
+{
+public:
+	Command_Redo()	{ init(); setCommandType(TP::REDO); }
+	~Command_Redo()	{};
+};
+
+#endif
+
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Command_Redo.h
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Command_Undo.h
+	 */
+
+/*
+ *=======================
+ 
+ Command Undo
+ 
+ *=======================
+ */
+
+#include "Command.h"
+
+class Command_Undo: public Command
+{
+public:
+	Command_Undo()	{ init(); setCommandType(TP::UNDO); }
+	~Command_Undo()	{};
+};
+
+#endif
+
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Command_Undo.h
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Highlighter.cpp
+	 */
+
+/*
+ * =====================================================================================
+ *
+ *       Filename:  Highlighter.cpp
+ *
+ *           Note:  Highlighter class provides highlighting features for command bar
+ *
+ *        Version:  1.0
+ *        Created:  10/21/13 16:13:09
+ *
+ *         Author:  XIE KAI (A0102016E), gigikie@gmail.com
+ *   Organization:  NUS, SoC
+ *
+ * =====================================================================================
+ */
+
+#include "Highlighter.h"
+
+const char* Highlighter::COLOR_BLACK                 = "#232323";
+const char* Highlighter::COLOR_BLUE                  = "#397CD4";
+const char* Highlighter::COLOR_GRAY                  = "#787878";
+const char* Highlighter::COLOR_PURPLE                = "#742894";
+const char* Highlighter::REGEX_COMMAND               = "^(add|mod|del|find|undo|redo)";
+const char* Highlighter::REGEX_KEYWORD               = " exact| name| by| due| from| to| location|"\
+										 "place| at| with| ppl| note| priority| impt"\
+	"| remind| rt| overdue| done| undone| deadline| timed| floating| #| -by| -due"\
+	"| -from| -to| -with(all|[^a])| -ppl(all|[^a])| -remind(all|[^a])| -rt(all|[^a])|"\
+	"-#| \\+with| \\+ppl| \\+remind| \\+rt| \\+#";
+const char* Highlighter::REGEX_QUOTE_LEFT_PAIRS      = "`(.*)`";
+const char* Highlighter::REGEX_HOTKEY_TEMPLATE_BLANK = "__[A-Z]+__";
+
+Highlighter::Highlighter(QTextDocument *parent)
+:QSyntaxHighlighter(parent){
+	setupFormat();
+	setupRegex();
+}
+
+//this function will be called by commandBar to highlight the command and keyword
+void Highlighter::highlightPatterns(const QString &text){
+	for(int i = 0; i < regexForType.size(); i++){//foreach regex
+		const QRegExp &regex = regexForType[i];
+		int index = regex.indexIn(text);
+		while (index > -1) {//foreach regex's occurrence
+			int length = regex.matchedLength();
+			if (i == COMMAND)
+				setFormat(index, length, CommandFormat);
+			else if (i == KEYWORD)
+				setFormat(index, length, KeywordFormat);
+			else if (i == PAIR_QUOTE_LEFT)
+				setFormat(index, length, PairOfQuoteLeftFormat);
+			else if (i == BLANK)
+				setFormat(index, length, BlankFormat);
+			index = regex.indexIn(text, index + length);
+		}
+	}
+}
+
+void Highlighter::setupFormat(){
+	//CommandFormat
+	CommandFormat.setFontWeight(QFont::Bold);
+	CommandFormat.setForeground(QBrush(COLOR_BLACK));
+	//KeywordFormat
+	KeywordFormat.setFontWeight(QFont::Bold);
+	KeywordFormat.setForeground(QBrush(COLOR_BLUE));
+	//PairOfQuoteLeftFormat
+	PairOfQuoteLeftFormat.setFontWeight(QFont::Bold);
+	PairOfQuoteLeftFormat.setForeground(QBrush(COLOR_GRAY));
+	//BlankFormat
+	BlankFormat.setFontWeight(QFont::Bold);
+	BlankFormat.setForeground(QBrush(COLOR_PURPLE));
+}
+
+void Highlighter::setupRegex(){
+	addRegex(COMMAND, REGEX_COMMAND);
+	addRegex(KEYWORD, REGEX_KEYWORD);
+	addRegex(PAIR_QUOTE_LEFT, REGEX_QUOTE_LEFT_PAIRS);
+	addRegex(BLANK, REGEX_HOTKEY_TEMPLATE_BLANK);
+}
+
+void Highlighter::addRegex(HIGHLIGHT_TYPE type, const QString &pattern, bool minimal){
+	QRegExp regex(pattern);
+	regex.setPatternSyntax(QRegExp::RegExp2);
+	regex.setMinimal(minimal);
+	regexForType.push_back(regex);
+}
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Highlighter.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Highlighter.h
+	 */
+
+/*
+ * =====================================================================================
+ *
+ *       Filename:  Highlighter.h
+ *
+ *           Note:  Highlighter class provides highlighting features for command bar
+ *
+ *        Version:  1.0
+ *        Created:  10/21/13 16:13:09
+ *
+ *         Author:  XIE KAI (A0102016E), gigikie@gmail.com
+ *   Organization:  NUS, SoC
+ *
+ * =====================================================================================
+ */
+
+#include <QSyntaxHighlighter>
+#include <QTextCharFormat>
+
+class Highlighter: public QSyntaxHighlighter
+{
+	Q_OBJECT
+
+public:
+	enum HIGHLIGHT_TYPE { COMMAND = 0, KEYWORD = 1, PAIR_QUOTE_LEFT = 2, BLANK = 3 };
+
+	Highlighter(QTextDocument *parent);
+	void highlightBlock(const QString &text){  highlightPatterns(text);   }
+
+private:
+	static const char* COLOR_BLACK;
+	static const char* COLOR_BLUE;
+	static const char* COLOR_GRAY;
+	static const char* COLOR_PURPLE;
+	static const char* REGEX_COMMAND;
+	static const char* REGEX_KEYWORD;
+	static const char* REGEX_QUOTE_LEFT_PAIRS;
+	static const char* REGEX_HOTKEY_TEMPLATE_BLANK;
+
+	void setupFormat();
+	void setupRegex();
+	void addRegex(HIGHLIGHT_TYPE type, const QString &pattern, bool minimal = true);
+	void highlightPatterns(const QString &text);
+
+	QTextCharFormat CommandFormat;
+	QTextCharFormat KeywordFormat;
+	QTextCharFormat PairOfQuoteLeftFormat;
+	QTextCharFormat BlankFormat;
+	QVector<QRegExp> regexForType;
+};
+
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\Highlighter.h
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\ListItemDelegate.cpp
+	 */
+
+/*
+ * =====================================================================================
+ *
+ *       Filename:  ListItemDelegate.cpp
+ *
+ *           Note:  ListItemDelegate class makes item displayed specially for different
+ *	task priority and task state
+ *
+ *        Version:  1.0
+ *        Created:  10/21/13 16:13:09
+ *
+ *         Author:  XIE KAI (A0102016E), gigikie@gmail.com
+ *   Organization:  NUS, SoC
+ *
+ * =====================================================================================
+ */
+
+#include "ListItemDelegate.h"
+
+const int ListItemDelegate::_1ST_COLUMN = 0;
+const int ListItemDelegate::_2ND_COLUMN = 1;
+const int ListItemDelegate::_3RD_COLUMN = 2;
+const QColor ListItemDelegate::WHITE_COLOR = "#ffffff";
+const QColor ListItemDelegate::RED_COLOR = "#FFB4B9";
+const QColor ListItemDelegate::ORANGE_COLOR = "#FDEBA3";
+const QString ListItemDelegate::FONT_SEGOE_UI = QStringLiteral("Segoe UI");
+
+ListItemDelegate::ListItemDelegate( TP::PRIORITY priority, TP::TASK_STATE state, QObject *parent /*= 0*/ ) : QStyledItemDelegate(parent){
+	_taskState = state;
+	_taskPriority = priority;
+}
+
+//make the task align right, normally for the last column
+void ListItemDelegate::alignRight( const QModelIndex &index, QPainter * painter, QStyleOptionViewItemV4 &opt ) const{
+	const int DESIRED_FONT_SIZE = 15;
+	const int X_PT1 = 18, Y_PT1 = 0, X_PT2 = -18, Y_PT2 = -3;
+	
+	QString displayText = index.data().toString();
+	QTextOption alignment(Qt::AlignRight | Qt::AlignVCenter);
+	QFont font;
+	font.setFamily(FONT_SEGOE_UI);
+	font.setPixelSize(DESIRED_FONT_SIZE);
+	QRect drawingRegion = opt.rect;
+	drawingRegion = drawingRegion.adjusted(X_PT1, Y_PT1, X_PT2, Y_PT2);
+	painter->setFont(font);
+	painter->setPen(WHITE_COLOR);
+	painter->drawText(drawingRegion, displayText, alignment);
+}
+
+//paint a strike out, normally for the task name's column
+void ListItemDelegate::paintStrikeOut( QPainter * painter, QStyleOptionViewItemV4 &opt ) const{
+	const int X_PT1 = 5, Y_PT1 = 24, X_PT2 = -5, Y_PT2 = -24;
+
+	QRect drawingRegion = opt.rect;
+	drawingRegion.adjust(X_PT1, Y_PT1, X_PT2, Y_PT2);
+	painter->setPen(WHITE_COLOR);
+	painter->setBrush(QBrush(WHITE_COLOR));
+	painter->drawRect(drawingRegion);
+}
+
+//paint a high priority bar at the left hand side corner, normally for the high priority task
+void ListItemDelegate::paintHighPrioBar( QPainter * painter, QStyleOptionViewItemV4 &opt ) const{
+	const int X_PT1 = -5, Y_PT1 = 0, X_PT2 = -52, Y_PT2 = -2;
+
+	QRect drawingRegion = opt.rect;
+	drawingRegion.adjust(X_PT1, Y_PT1, X_PT2, Y_PT2);
+	painter->setPen(RED_COLOR);
+	painter->setBrush(QBrush(RED_COLOR));
+	painter->drawRect(drawingRegion);
+}
+
+//paint a "!!", normally for the overdue task
+void ListItemDelegate::paintForOverdue( QPainter * painter ) const{
+	const int DESIRED_FONT_SIZE = 18;
+	const int X_PT1 = 0, Y_PT1 = 0, X_PT2 = 0, Y_PT2 = -2;
+	QString displayTextForOVERDUE = "!!";
+	
+	QTextOption alignment(Qt::AlignLeft | Qt::AlignVCenter);
+	QFont font;
+	font.setFamily(FONT_SEGOE_UI);
+	font.setPixelSize(DESIRED_FONT_SIZE);
+	QRect drawingRegion = _opt.rect;
+	drawingRegion = drawingRegion.adjusted(X_PT1, Y_PT1, X_PT2, Y_PT2);
+	painter->setFont(font);
+	painter->setPen(WHITE_COLOR);
+	painter->drawText(drawingRegion, displayTextForOVERDUE, alignment);
+}
+
+//paint a medium priority bar at the left hand side corner, normally for the medium priority task
+void ListItemDelegate::paintMediumPrioBar( QPainter * painter ) const{
+	const int X_PT1 = -5, Y_PT1 = 0, X_PT2 = -52, Y_PT2 = -2;
+
+	QRect drawingRegion = _opt.rect;
+	drawingRegion.adjust(X_PT1, Y_PT1,X_PT2,Y_PT2);
+	painter->setPen(ORANGE_COLOR);
+	painter->setBrush(QBrush(ORANGE_COLOR));
+	painter->drawRect(drawingRegion);
+}
+
+void ListItemDelegate::setupPainting( const QStyleOptionViewItem & option, const QModelIndex & index, QPainter * painter ) const{
+	_opt = option;
+	initStyleOption(&_opt, index);
+	
+	//make the dot-dot rectangle disappear, when select
+	if (_opt.state & QStyle::State_HasFocus)
+		_opt.state = _opt.state ^ QStyle::State_HasFocus;
+	//paint css's style first
+	QStyledItemDelegate::paint(painter, _opt, index);
+}
+
+//must have this function
+//which will be called by MainWindow
+void ListItemDelegate::paint( QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index ) const{
+	setupPainting(option, index, painter);
+	painter->save();
+	if(index.column() == _1ST_COLUMN && _taskPriority == TP::HIGH)
+		paintHighPrioBar(painter, _opt);
+	else if(index.column() == _1ST_COLUMN && _taskPriority == TP::MEDIUM)
+		paintMediumPrioBar(painter);
+	else if(index.column() == _2ND_COLUMN && _taskState == TP::DONE)
+		paintStrikeOut(painter, _opt);
+	else if(index.column() == _2ND_COLUMN && _taskState == TP::OVERDUE)
+		paintForOverdue(painter);
+	else if(index.column() == _3RD_COLUMN)
+		alignRight(index, painter, _opt);
+	painter->restore();
+}
+
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\ListItemDelegate.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\ListItemDelegate.h
+	 */
+
+/*
+ * =====================================================================================
+ *
+ *       Filename:  ListItemDelegate.h
+ *
+ *           Note:  ListItemDelegate class makes item displayed specially for different
+ *	task priority and task state
+ *
+ *        Version:  1.0
+ *        Created:  10/21/13 16:13:09
+ *
+ *         Author:  XIE KAI (A0102016E), gigikie@gmail.com
+ *   Organization:  NUS, SoC
+ *
+ * =====================================================================================
+ */
+
+#include <QStyledItemDelegate>
+#include <QPainter>
+#include "Enum.h"
+
+#ifndef HIGH_PRIORITY_DELEGATE_H
+#define HIGH_PRIORITY_DELEGATE_H
+
+class ListItemDelegate: public QStyledItemDelegate{
+
+	Q_OBJECT
+
+public:
+	ListItemDelegate(TP::PRIORITY priority, TP::TASK_STATE state, QObject *parent = 0);
+	void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+
+private:
+	static const int _1ST_COLUMN;
+	static const int _2ND_COLUMN;
+	static const int _3RD_COLUMN;
+	static const QColor WHITE_COLOR;
+	static const QColor RED_COLOR;
+	static const QColor ORANGE_COLOR;
+	static const QString FONT_SEGOE_UI;
+
+	void setupPainting( const QStyleOptionViewItem & option, const QModelIndex & index, QPainter * painter ) const;
+	void paintHighPrioBar( QPainter * painter, QStyleOptionViewItemV4 &opt ) const;
+	void paintMediumPrioBar( QPainter * painter ) const;
+	void paintStrikeOut( QPainter * painter, QStyleOptionViewItemV4 &opt ) const;
+	void paintForOverdue( QPainter * painter ) const;
+	void alignRight( const QModelIndex &index, QPainter * painter, QStyleOptionViewItemV4 &opt ) const;
+
+	mutable QStyleOptionViewItemV4 _opt;
+	TP::TASK_STATE _taskState;
+	TP::PRIORITY _taskPriority;
+	
+};
+#endif
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\ListItemDelegate.h
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\MainWindow.cpp
+	 */
+
+/*
+ * =====================================================================================
+ *
+ *       Filename:  mainwindow.cpp
+ *
+ *           Note:  MainWindow class handles all UI logic for main window of TaskPad
+ *        Version:  1.0
+ *        Created:  09/21/13 16:13:09
+ *
+ *         Author:  XIE KAI (A0102016E), gigikie@gmail.com
+ *   Organization:  NUS, SoC
+ *
+ * =====================================================================================
+ */
+
+#include "MainWindow.h"
+#include <QPropertyAnimation>
+#include <QMouseEvent>
+#include <QMessageBox>
+#include <QTextBlock>
+#include <QShortcut>
+#include <QGraphicsOpacityEffect>
+#include <QTimer>
+#include <cassert>
+#include "CommandBar.h"
+#include "Enum.h"
+#include "Logger.h"
+#include "libqxt/qxtglobalshortcut.h"
+#include "ListItemDelegate.h"
+#include "QuickAddWindow.h"
+#include "Manager.h"
+
+using namespace std;
+using namespace TP;
+
+const double MainWindow::DESIRED_TRANSPARENT_OPACITY	= 0.4;
+const int   MainWindow::LENGTH_TOO_LONG					= 77;
+const int   MainWindow::STEP							= 1;
+const char* MainWindow::MIDNIGHT						= "00:00";
+const char* MainWindow::DELIMITTER						= ", ";
+const char* MainWindow::NEGLECTED						= "...";
+const char* MainWindow::TODAY_VIEW						= "Today";
+const char* MainWindow::INBOX_VIEW						= "Inbox";
+const char* MainWindow::REMINDERS_VIEW					= "Reminders";
+const char* MainWindow::DATE_DD_MM						= "dd/MM";
+const char* MainWindow::DATE_DD_MM_YY					= "dd/MM/yy";
+const char* MainWindow::DATE_DD_MM_YYYY					= "dd/MM/yyyy";
+const char* MainWindow::DATE_HH_MM						= "hh:mm";
+const char* MainWindow::DATE_DD_MM_HH_MM				= "dd/MM hh:mm";
+const char* MainWindow::DATE_DD_MM_YYYY_HH_MM			= "dd/MM/yyyy hh:mm";
+const char* MainWindow::DATE_YEAR						= "yyyy";
+const char* MainWindow::EMPTY                           = "";
+const char* MainWindow::DUE_STR							= "Due ";
+const char* MainWindow::FROM_STR						= "From ";
+const char* MainWindow::TO_STR							= "To ";
+const char* MainWindow::FROM_TO_STR						= " to ";
+const char* MainWindow::NEW_LINE                        = "\n";
+const char* MainWindow::DEFAULT_WIN_TITLE               = "TaskPad";
+const char* MainWindow::DEFAULT_STATUS_BAR_TEXT         = "Ready";
+const char* MainWindow::DEFAULT_DETAILS_VIEW_TEXT       = "Task's Details";
+const char* MainWindow::SUCCESS_DETAILS_ADD_TEXT        = "Added Task's Details";
+const char* MainWindow::SUCCESS_DETAILS_MOD_TEXT        = "Modified Task's Details";
+const char* MainWindow::SUCCESS_DETAILS_DEL_TEXT        = "Deleted Task's Details";
+const char* MainWindow::SUCCESS_DETAILS_UNDO_TEXT       = "Undo Task's Details";
+const char* MainWindow::SUCCESS_DETAILS_REDO_TEXT       = "Redo Task's Details";
+const char* MainWindow::SUCCESS_STATUS_BAR_ADD_TEXT     = "Task added successfully";
+const char* MainWindow::SUCCESS_STATUS_BAR_DEL_TEXT     = "Task deleted successfully";
+const char* MainWindow::SUCCESS_STATUS_BAR_MOD_TEXT     = "Task modified successfully";
+const char* MainWindow::SUCCESS_STATUS_BAR_FIND_TEXT    = "Searched successfully";
+const char* MainWindow::SUCCESS_STATUS_BAR_UNDO_TEXT    = "Undo successfully";
+const char* MainWindow::SUCCESS_STATUS_BAR_REDO_TEXT    = "Redo successfully";
+const char* MainWindow::SUCCESS_STATUS_BAR_DISPLAY_TEXT = "Task displayed successfully";
+const char* MainWindow::SUCCESS_NAV_LABEL_FIND_CMD		= "Search Results";
+const char* MainWindow::INTERMEDIATE_NAV_LABEL_INTERMEDIATE_STAGE = "Select a task by typing its index";
+const char* MainWindow::INTERMEDIATE_STATUS_BAR_INTERMEDIATE_STAGE = "Multiple results were found";
+const char* MainWindow::ERROR_NAV_LABLE_INTERMEDIATE_STAGE = "Select a task by typing its index";
+const char* MainWindow::ERROR_STATUS_BAR_INTERMEDIATE_STAGE = "Wrong input. Kindly press ECS to cancel";
+const char* MainWindow::ERROR_ONLY_SUPPORT_ADD_N_DISPLAY_ONE_CMD = "Only Add Command and Display 1 are supported";
+
+/************************************************************************/
+/*                        INITIALIZATION                                */
+/************************************************************************/
+
+MainWindow::MainWindow(QWidget *parent)
+:QMainWindow(parent){
+	logStart();
+
+	setupUI();
+	setupDependency();
+	getToday();
+}
+
+void MainWindow::setupUI(){
+	ui.setupUi(this);
+	customisedUi();
+	installEventFilter();
+}
+
+
+//************************************
+// Method: customisedUi
+// Description: 1. make window metro
+// style (borderless). 2. beautify tasklist
+// column width
+//************************************
+void MainWindow::customisedUi(){
+	const int _1ST_COLUMN = 0;
+	const int _2ND_COLUMN = 1;
+	const int DESIRED_1ST_COL_WIDTH = 70;
+	const int DESIRED_2ND_COL_WIDTH = 220;
+
+	detailsViewOpacity = DESIRED_TRANSPARENT_OPACITY;
+	//make window frameless and background transparent
+	this->setWindowFlags(Qt::FramelessWindowHint);
+	this->setAttribute(Qt::WA_TranslucentBackground, true);
+
+	ui.errorBgWidget->setHidden(true);
+	ui.TaskList->header()->resizeSection(_1ST_COLUMN, DESIRED_1ST_COL_WIDTH);
+	ui.TaskList->header()->resizeSection(_2ND_COLUMN, DESIRED_2ND_COL_WIDTH);
+}
+
+void MainWindow::installEventFilter(){
+	ui.CloseButton->installEventFilter(this);
+	ui.MinimizeButton->installEventFilter(this);
+	ui.HelpButton->installEventFilter(this);
+	ui.AboutButton->installEventFilter(this);
+	ui.cmdBar->installEventFilter(this);
+	ui.TaskList->installEventFilter(this);
+}
+
+void MainWindow::setupDependency(){
+	setupTimer();
+	setupTrayIcon();
+	setupConnection();
+	setupHotkeys();
+	setupScheduler();
+}
+
+//Timer will be deleted by its parent (MainWindow) automatically
+//DONT DELETE IT! otherwise you will delete it twice and abort the app
+void MainWindow::setupTimer(){
+	const int CYCLE_ONE_MIN = 60000;
+	timer = new QTimer(this);
+	timer->start(CYCLE_ONE_MIN);
+}
+
+void MainWindow::setupTrayIcon(){
+	const char* TRAY_ICON_PATH = ":/MainWindow/Resources/logo.png";
+	isQuickAddOpen = false;
+
+	trayIcon = new QSystemTrayIcon(this);
+	trayIcon->setIcon(QIcon(TRAY_ICON_PATH));
+	trayIcon->show();
+	trayIcon->setToolTip(DEFAULT_WIN_TITLE);
+}
+
+void MainWindow::setupConnection(){
+	//call showReminder every 60 sec
+	connect(timer, SIGNAL(timeout()),this, SLOT(showReminder()));
+	//handleShowReminder when try msgbox is clicked in reminder mode
+	connect(trayIcon, SIGNAL(messageClicked()),this, SLOT(handleShowReminder()));
+	//show mainwindow when click tray icon
+	connect(trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, 
+		SLOT(iconIsActived(QSystemTrayIcon::ActivationReason)));
+	//close mainwindow when click close button
+	connect(ui.CloseButton, SIGNAL(clicked()), this, SLOT(close()));
+	//minimize mainwindow when click minimum button
+	connect(ui.MinimizeButton, SIGNAL(clicked()), this, SLOT(showMinimized()));
+	//show about window
+	connect(ui.AboutButton, SIGNAL(clicked()), this, SLOT(about()));
+	//show help window
+	connect(ui.HelpButton, SIGNAL(clicked()), this, SLOT(help()));
+	//handle selected task in the list
+	connect(ui.TaskList, SIGNAL(itemSelectionChanged()), this, SLOT(handleListSelection()));
+}
+
+void MainWindow::setupHotkeys(){
+	setupGlobalHotkeys();
+	setupWinDisplayHotkeys();
+	setupDateNavHotkeys();
+}
+
+//scOpenQuickAddWin will be deleted automatically by Qt
+//DONT DELETE scOpenQuickAddWin! otherwise you will delete it twice and abort the app
+void MainWindow::setupGlobalHotkeys(){
+	const char* OPEN_QUICK_ADD_WIN = "Alt+`";
+	const char* OPEN_MAIN_WIN = "Ctrl+Alt+t";
+	QxtGlobalShortcut * scOpenQuickAddWin = new QxtGlobalShortcut(QKeySequence(OPEN_QUICK_ADD_WIN), this);
+	connect(scOpenQuickAddWin, SIGNAL(activated()),this, SLOT(showQuickAddWindow()));
+	QxtGlobalShortcut * scOpenMainWin = new QxtGlobalShortcut(QKeySequence(OPEN_MAIN_WIN), this);
+	connect(scOpenMainWin, SIGNAL(activated()),this, SLOT(showWindow()));
+}
+
+//all QShortcut will be deleted automatically by Qt
+//DONT DELETE THEM! otherwise you will delete them twice and abort the app
+void MainWindow::setupWinDisplayHotkeys(){
+	const char* SHOW_REMINDER_RIGHT_NOW = "F5";
+	const char* MINIMIZE_MAIN_WIN = "Ctrl+H";
+	const char* SHOW_TODAY_1 = "Ctrl+T";
+	const char* SHOW_TODAY_2 = "Alt+1";
+	const char* SHOW_INBOX_1 = "Ctrl+I";
+	const char* SHOW_INBOX_2 = "Alt+2";
+	(void) new QShortcut(QKeySequence(SHOW_REMINDER_RIGHT_NOW), this, SLOT(showReminder()));
+	(void) new QShortcut(QKeySequence(MINIMIZE_MAIN_WIN), this, SLOT(showMinimized()));
+	(void) new QShortcut(QKeySequence(SHOW_TODAY_1), this, SLOT(getToday()));
+	(void) new QShortcut(QKeySequence(SHOW_TODAY_2), this, SLOT(getToday()));
+	(void) new QShortcut(QKeySequence(SHOW_INBOX_1), this, SLOT(getInbox()));
+	(void) new QShortcut(QKeySequence(SHOW_INBOX_2), this, SLOT(getInbox()));
+}
+
+//all QShortcut will be deleted automatically by Qt
+//DONT DELETE THEM! otherwise you will delete them twice and abort the app
+void MainWindow::setupDateNavHotkeys(){
+	const char* SHOW_NEXT_DAY = "Alt+D";
+	const char* SHOW_NEXT_WEEK = "Alt+W";
+	const char* SHOW_NEXT_MONTH = "Alt+M";
+	const char* SHOW_PREV_DAY = "Alt+Shift+D";
+	const char* SHOW_PREV_WEEK = "Alt+Shift+W";
+	const char* SHOW_PREV_MONTH = "Alt+Shift+M";
+	(void) new QShortcut(QKeySequence(SHOW_NEXT_DAY), this, SLOT(showNextDay()));
+	(void) new QShortcut(QKeySequence(SHOW_PREV_DAY), this, SLOT(showPrevDay()));
+	(void) new QShortcut(QKeySequence(SHOW_NEXT_WEEK), this, SLOT(showNextWeek()));
+	(void) new QShortcut(QKeySequence(SHOW_PREV_WEEK), this, SLOT(showPrevWeek()));
+	(void) new QShortcut(QKeySequence(SHOW_NEXT_MONTH), this, SLOT(showNextMonth()));
+	(void) new QShortcut(QKeySequence(SHOW_PREV_MONTH), this, SLOT(showPrevMonth()));
+}
+
+
+//************************************
+// Method:    setupScheduler
+// Note: Business logic setup here
+//************************************
+void MainWindow::setupScheduler(){
+	scheduler = new Manager();
+}
+
+//************************************
+// Method:    setupQuickAddWindow
+// Note: **no need to delete quickAddWindowPtr,
+// it will be deleted automatically. Otherwise
+// abort, since delete twice!**
+//************************************
+void MainWindow::setupQuickAddWindow(){
+	quickAddWindowPtr = new QuickAddWindow();
+	quickAddWindowPtr->setAttribute(Qt::WA_DeleteOnClose);
+}
+
+void MainWindow::setupQuickAddConnection(){
+	QuickAddWindow *qa = (QuickAddWindow*) quickAddWindowPtr;
+	connect(qa, SIGNAL(windowClosed()), this, SLOT(closeQuickAddWindow()));
+	connect(qa, SIGNAL(requestSubmitted(QString)), this, SLOT(handleQuickAddRequest(QString)));
+}
+
+/************************************************************************/
+/*                            DESTRUCTOR                                */
+/************************************************************************/
+
+MainWindow::~MainWindow(){
+	logEnd();
+	dispose();
+}
+
+void MainWindow::dispose(){
+	//must hide trayIcon before window exits
+	trayIcon->hide();
+	delete scheduler;
+	scheduler = NULL;
+}
+
+void MainWindow::closeQuickAddWindow(){
+	disposeQuickAddWindow();
+}
+
+void MainWindow::disposeQuickAddWindow(){
+	disposeQuickAddConnection();
+	quickAddWindowPtr->close();
+	setIsQuickAddOpen(false);
+}
+
+//must disconnect when quit the quick add window
+void MainWindow::disposeQuickAddConnection(){
+	QuickAddWindow *qa = (QuickAddWindow*) quickAddWindowPtr;
+	disconnect(qa, SIGNAL(windowClosed()), this, SLOT(closeQuickAddWindow()));
+	disconnect(qa, SIGNAL(requestSubmitted(QString)), this, SLOT(handleQuickAddRequest(QString)));
+}
+
+/************************************************************************/
+/*                        WINDOW DISPLAY                                */
+/************************************************************************/
+
+void MainWindow::iconIsActived(QSystemTrayIcon::ActivationReason){
+	showWindow();
+}
+
+void MainWindow::showWindow(){
+	show();
+	setWindowState(Qt::WindowActive);
+	ui.cmdBar->setFocus();
+}
+
+void MainWindow::showReminder(){
+	QString output;
+	list<Task> reminderList = scheduler->getCurrentReminders();
+	if(!reminderList.empty()){
+		setCurrRemindTime();
+		output = prepareTrayMsg(reminderList, output);
+		showTrayMsg(output, REMINDERS_VIEW);
+		setFromReminder(true);
+	}
+}
+
+QString MainWindow::prepareTrayMsg(list<Task> &reminderList, QString output){
+	const char* FIRST_ONE = "1. ";
+	const char* SPLITTER = ". ";
+
+	list<Task>::iterator iter = reminderList.begin();
+	output += FIRST_ONE;
+	output += iter->getName().c_str();
+	advance(iter, STEP);
+	for(int i = 2; 
+		iter != reminderList.end();
+		advance(iter, STEP), i++){
+		output += NEW_LINE;
+		output += QString::number(i) + SPLITTER;
+		output += iter->getName().c_str();
+	}
+	return output;
+}
+
+void MainWindow::showQuickAddWindow(){
+	if(!isQuickAddOpen){
+		setIsQuickAddOpen(true);
+		setupQuickAddWindow();
+		setupQuickAddConnection();
+		quickAddWindowPtr->show();
+	}
+}
+
+void MainWindow::showNextDay(){
+	const char* NEXT_DAY_STR = "Next Day: ";
+	handleDateNavigation(DAY, NEXT_DAY_STR);
+}
+
+void MainWindow::showNextWeek(){
+	const char* NEXT_WEEK_STR = "Next Week: ";
+	handleDateNavigation(WEEK, NEXT_WEEK_STR);
+}
+
+void MainWindow::showNextMonth(){
+	const char* NEXT_MONTH_STR = "Next Month: ";
+	handleDateNavigation(MONTH, NEXT_MONTH_STR);
+}
+
+void MainWindow::showPrevDay(){
+	const char* PREV_DAY_STR = "Prev. Day: ";
+	handleDateNavigation(DAY, PREV_DAY_STR, true);
+}
+
+void MainWindow::showPrevWeek(){
+	const char* PREV_WEEK_STR = "Prev. Week: ";
+	handleDateNavigation(WEEK, PREV_WEEK_STR, true);
+}
+
+void MainWindow::showPrevMonth(){
+	const char* PREV_MONTH_STR = "Prev. Month: ";
+	handleDateNavigation(MONTH, PREV_MONTH_STR, true);
+}
+
+void MainWindow::showTrayMsg(QString msg, QString title){
+	isFromReminder = false;
+	trayIcon->showMessage(title, msg);
+}
+
+void MainWindow::about(){
+	const QString DESCRIPTION = \
+		"<b>TaskPad</b> is a simple, elegant and revolutionary task organiser designed specifically for power users. " 
+		"It empowers the user with 4 basic yet comprehensive functions to Add, Modify, Find and Delete tasks. " 
+		"Add and Modify offer a comprehensive list of parameters that neatly catalogues the specifications of" 
+		"the tasks while Find is a flexible tool that can retrieve a task according to any of its parameters. "
+		"Delete is just a one-line wonder that performs what it is meant to do. TaskPad also has Hot Key Templating: " 
+		"all 4 functions are made simple with intuitive hotkeys that calls the full command template with clear " 
+		"instructions.<br /><br />"
+		"<b>TaskPad Team</b>: ASHRAY JAIN, XIE KAI, AN JIANGZE, THYAGESH M., LI ZIXUAN.";
+	popMsgBox(DEFAULT_WIN_TITLE, DESCRIPTION);
+}
+
+void MainWindow::help(){
+	const QString HOTKEY_LIST = \
+		"<b>Commands</b><br />"
+		"add, mod, del, find, undo, redo<br /><br />"
+		"<b>Global Hotkeys</b><br />"
+		"Alt + ` 			        : open quick add window<br />"
+		"Ctrl + Alt + T 		    : open main window<br />"
+		"<br />"
+		"<b>Local Hotkeys</b><br />"
+		"<b>Quick Add window</b><br />"
+		"ESC			            : exit window<br />"
+		"<br />"
+		"<b>Mainwindow</b><br />"
+		"Ctrl + H 		            : hide main window<br />"
+		"Ctrl + T 		            : show Today's view<br />"
+		"Ctrl + I			        : show Inbox's view<br />"
+		"Alt + 1 			        : show Today's view<br />"
+		"Alt + 2 			        : show Inbox's view<br />"
+		"// Date Navigation<br />"
+		"Alt + D 		            : show next day<br />"
+		"Alt + Shift + D 		    : show prev. day<br />"
+		"Alt + W 		            : show next week<br />"
+		"Alt + Shift + W 	        : show prev. day<br />"
+		"Alt + M 		            : show next month<br />"
+		"Alt + Shift + M 		    : show prev. month<br />"
+		"<br />"
+		"<b>CommandBar</b><br />"
+		"// Hotkey Template<br />"
+		"Ctrl + N		            : new deadline task<br />"
+		"Ctrl + Shift + N 	        : new timed task<br />"
+		"Ctrl + M 		            : modify task as done<br />"
+		"Ctrl + Shift + M 	        : modify task by index<br />"
+		"Ctrl + Alt + Shift + M 	: modify task by name<br />"
+		"Ctrl + D 		            : delete task by index<br />"
+		"Ctrl + Shift + D 	        : delete task by name<br />"
+		"Ctrl + F 		            : find task<br />"
+		"Ctrl + U 		            : undo<br />"
+		"Ctrl + R 		            : redo<br />"
+		"Tab/Space 		            : auto complete<br />"
+		"<br />"
+		"// in HotKey Template mode<br />"
+		"Tab 			            : jump to next blank<br />"
+		"Shift + Tab 		        : jump to prev. blank;<br /><br />"
+		"For more information, kindly refer to our<br />"
+		"<a href=\"http://bit.ly/HEdCw4\">Project Manual</a>";
+	popMsgBox(DEFAULT_WIN_TITLE, HOTKEY_LIST);
+}
+
+void MainWindow::popMsgBox(QString title, QString description){
+	QMessageBox msgBox;
+	msgBox.setWindowTitle(title);
+	msgBox.setText(description);
+	msgBox.exec();
+}
+
+/************************************************************************/
+/*                              HANDLERS                                */
+/************************************************************************/
+
+void MainWindow::getToday(){
+	reset();
+	//cannot be in the Intermediate stage
+	assert(!isIntermediateStage);
+	Messenger msg = scheduler->getTodayTasks();
+	handleGetToday(msg);
+}
+
+void MainWindow::getInbox(){
+	const char* GET_INBOX_CMD_STR = "find floating undone";
+	reset();
+	//cannot be in the Intermediate stage
+	assert(!isIntermediateStage);
+	Messenger msg = scheduler->processCommand(GET_INBOX_CMD_STR);
+	handleGetInbox(msg);
+}
+
+
+//************************************
+// Method:    reset
+// Note: to avoid influence from Intermediate
+// stage, we will call this function
+//************************************
+void MainWindow::reset(){
+	scheduler->resetStatus();
+	ui.cmdBar->clear();
+	isIntermediateStage = false;
+}
+
+void MainWindow::handleDateNavigation(TP::PERIOD_TYPE periodType, QString listTitle, bool isPrevious){
+	Messenger msg;
+	if(isPrevious)
+		msg = scheduler->getPrevPeriodTasks(periodType);
+	else
+		msg = scheduler->getNextPeriodTasks(periodType);
+
+	pair<tm, tm> period;
+	switch (msg.getStatus()){
+	case SUCCESS:
+		period = scheduler->getCurrentPeriod();
+		listTitle += getTimePeriodStr(period);
+		updateMainView(msg, listTitle);
+		handleOneItemList(msg);
+		break;
+	case ERR:
+		handleMsg_ERROR(msg);
+		break;
+	}
+}
+
+//************************************
+// Method:    getTimePeriodStr
+// Note: result of this will be used in
+// date navigation
+//************************************
+QString MainWindow::getTimePeriodStr(pair<tm, tm> period){
+	const char* SPLITTER = " - ";
+	QDateTime fromDate = QDateTime::fromTime_t(mktime(&period.first));
+	QDateTime toDate = QDateTime::fromTime_t(mktime(&period.second));
+	QString fromStr = fromDate.toString(DATE_DD_MM_YYYY);
+	QString toStr = toDate.toString(DATE_DD_MM_YYYY);
+	return fromStr + SPLITTER + toStr;
+}
+
+void MainWindow::handleGetToday(Messenger msg){
+	updateMainView(msg, TODAY_VIEW);
+}
+
+void MainWindow::handleGetInbox(Messenger msg){
+	updateMainView(msg, INBOX_VIEW);
+}
+
+void MainWindow::handleQuickAddRequest(QString requestStr){
+	if(isCommandAdd(requestStr) || isEqualOne(requestStr)){
+		getToday();
+		Messenger msg = scheduler->processCommand(requestStr.toStdString());
+		switch (msg.getStatus()){
+		case TP::ERR:
+			handleQA_ERROR(requestStr, msg);
+			break;
+		case TP::SUCCESS:
+			handleQA_SUCCESS();
+			break;
+		case TP::DISPLAY:
+			handleQA_DISPLAY(msg);
+			break;
+		}
+	}
+	else
+		showTrayMsg(ERROR_ONLY_SUPPORT_ADD_N_DISPLAY_ONE_CMD);
+}
+
+
+//************************************
+// Method:    isCommandAdd
+// Note: only allow cmd add for quick 
+// add window
+//************************************
+bool MainWindow::isCommandAdd(QString requestStr){
+	const int CANT_FIND = -1;
+	const QString COMMAND_ADD = "^add.*";
+	const QRegExp REGEX_CMD_ADD(COMMAND_ADD);
+	return REGEX_CMD_ADD.indexIn(requestStr) != CANT_FIND;
+}
+
+bool MainWindow::isEqualOne(QString &requestStr){
+	return requestStr.toInt() == 1;
+}
+
+void MainWindow::handleShowReminder(){
+	if(isFromReminder){
+		reset();
+		//cannot be in the Intermediate stage
+		assert(!isIntermediateStage);
+		string findCurrRtTasks = getFindRtCmd();
+		Messenger msg = scheduler->processCommand(findCurrRtTasks);
+		updateMainView(msg, REMINDERS_VIEW);
+		handleOneItemList(msg);
+		showWindow();
+		setFromReminder(false);
+	}
+}
+
+std::string MainWindow::getFindRtCmd(){
+	string currRemindTimeStr = currRemindTime.toString(DATE_DD_MM_YYYY_HH_MM).toStdString();
+	const string FIND_CURR_REMIND_TASKS = "find rt `" + currRemindTimeStr + "` undone";
+	return FIND_CURR_REMIND_TASKS;
+}
+
+void MainWindow::handleMessenger(Messenger msg){
+	switch (msg.getStatus()){
+	case ERR:
+		handleMsg_ERROR(msg);
+		break;
+	case ERR_INTER:
+		handleMsg_ERROR_INTERMEDIATE();
+		break;
+	case SUCCESS:
+		handleMsg_SUCCESS(msg);
+		break;
+	case INTERMEDIATE:
+		handleMsg_INTERMEDIATE(msg);
+		break;
+	case DISPLAY:
+		handleDisplay(msg);
+		break;
+	case SUCCESS_INDEXED_COMMAND:
+		handleMsg_SUCCESS_INDEXED_CMD(msg);
+		break;
+	}
+}
+
+void MainWindow::handleListSelection(){
+	QList<QTreeWidgetItem*> list = ui.TaskList->selectedItems();
+	if(!list.isEmpty()){
+		QTreeWidgetItem* item = ui.TaskList->selectedItems().front();
+		int listIndex = ui.TaskList->indexOfTopLevelItem(item);
+		int actualIndex = listIndex + 1;
+		if(!isIntermediateStage){
+			QString indexStr = QString::number(actualIndex);
+			Messenger msg = scheduler->processCommand(indexStr.toStdString());
+			handleDisplay(msg, true);
+		}
+		else{//Intermediate Stage
+			std::list<Task>::iterator iter = intermediateList.begin();
+			advance(iter, listIndex);
+			updateDetails(*iter);
+		}
+	}
+}
+
+void MainWindow::unselectAllItems(){
+	for(int i = 0; i < ui.TaskList->topLevelItemCount(); i++){
+		QTreeWidgetItem* itemToUnselect = ui.TaskList->topLevelItem(i);
+		ui.TaskList->setItemSelected(itemToUnselect, false);
+	}
+}
+
+void MainWindow::selectItemAt( int index ){
+	int actualIndex = index;
+	int listIndex = actualIndex - 1;
+	QTreeWidgetItem* itemToShow = ui.TaskList->topLevelItem(listIndex);
+	ui.TaskList->setItemSelected(itemToShow, true);
+}
+
+void MainWindow::handleDisplay(Messenger msg, bool callFromSignal){
+	int actualIndex = msg.getIndex();
+	int listIndex = actualIndex - 1;
+	assert(actualIndex > 0);//need be positive and starts from 1
+
+	list<Task> tmp_list = msg.getList();
+	list<Task>::iterator iter = tmp_list.begin();
+	advance(iter, listIndex);
+	//in case of causing loop, check whether from signal event calling
+	if(!callFromSignal){
+		unselectAllItems();
+		selectItemAt(actualIndex);
+	}
+	updateStatusBar(SUCCESS_STATUS_BAR_DISPLAY_TEXT);
+	updateDetailsLabel();
+	updateDetails(*iter);
+}
+
+void MainWindow::handleQA_ERROR(QString requestStr, Messenger &msg){
+	if(!isEqualOne(requestStr)){
+		showTrayMsg(msg.getErrorMsg().c_str());
+		displayErrorView();
+	}
+	else{
+		closeQuickAddWindow();
+		showWindow();
+	}
+}
+
+void MainWindow::handleQA_SUCCESS(){
+	const char* SUCCESS_QA_MSG_ADDED = "Added";
+	closeQuickAddWindow();
+	refresh();
+	showTrayMsg(SUCCESS_QA_MSG_ADDED);
+	showReminder();
+}
+
+void MainWindow::handleQA_DISPLAY(Messenger msg){
+	closeQuickAddWindow();
+	handleDisplay(msg);
+	showWindow();
+}
+
+void MainWindow::handleMsg_ERROR(Messenger &msg){
+	updateStatusBar(msg.getErrorMsg().c_str());
+	displayErrorView();
+}
+
+void MainWindow::handleMsg_ERROR_INTERMEDIATE(){
+	updateNavLabel(ERROR_NAV_LABLE_INTERMEDIATE_STAGE);
+	updateStatusBar(ERROR_STATUS_BAR_INTERMEDIATE_STAGE);
+	displayErrorView();
+}
+
+void MainWindow::handleMsg_SUCCESS(Messenger &msg){
+	switch(msg.getCommandType()){
+	case TP::ADD:
+		updateForCmdExec(SUCCESS_STATUS_BAR_ADD_TEXT, SUCCESS_DETAILS_ADD_TEXT, msg);
+		showReminder();
+		break;
+	case TP::DEL:
+		updateForCmdExec(SUCCESS_STATUS_BAR_DEL_TEXT, SUCCESS_DETAILS_DEL_TEXT, msg);
+		break;
+	case TP::MOD:
+		updateForCmdExec(SUCCESS_STATUS_BAR_MOD_TEXT, SUCCESS_DETAILS_MOD_TEXT, msg);
+		showReminder();
+		break;
+	case TP::FIND:
+		updateMainView(msg, SUCCESS_NAV_LABEL_FIND_CMD, SUCCESS_STATUS_BAR_FIND_TEXT);
+		handleOneItemList(msg);
+		break;
+	case TP::UNDO:
+		updateForCmdExec(SUCCESS_STATUS_BAR_UNDO_TEXT, SUCCESS_DETAILS_UNDO_TEXT, msg);
+		break;
+	case TP::REDO:
+		updateForCmdExec(SUCCESS_STATUS_BAR_REDO_TEXT, SUCCESS_DETAILS_REDO_TEXT, msg);
+		break;
+	}
+	isIntermediateStage = false;
+}
+
+void MainWindow::handleMsg_INTERMEDIATE(Messenger msg){
+	updateMainView(msg, INTERMEDIATE_NAV_LABEL_INTERMEDIATE_STAGE, 
+		INTERMEDIATE_STATUS_BAR_INTERMEDIATE_STAGE);
+	isIntermediateStage = true;
+	intermediateList = msg.getList();
+}
+
+void MainWindow::handleMsg_SUCCESS_INDEXED_CMD(Messenger &msg){
+	switch (msg.getCommandType()){
+	case TP::MOD:
+		updateForCmdExec(SUCCESS_STATUS_BAR_MOD_TEXT, SUCCESS_DETAILS_MOD_TEXT, msg);
+		showReminder();
+		break;
+	case TP::DEL:
+		updateForCmdExec(SUCCESS_STATUS_BAR_DEL_TEXT, SUCCESS_DETAILS_DEL_TEXT, msg);
+		break;
+	}
+}
+
+void MainWindow::refresh(){
+	Messenger refreshedMsg = scheduler->refreshList();
+	updateList(refreshedMsg.getList());
+}
+
+//************************************
+// Method:    handleOneItemList
+// Note: if list has only one item,
+// display it directly
+//************************************
+void MainWindow::handleOneItemList(Messenger &msg, QString detailsLabel /*= "Task's Details" */){
+	const int ONLY_ONE = 1;
+	if(msg.getList().size() == ONLY_ONE){
+		msg.setTask(msg.getList().front());
+		scheduler->syncTask(msg.getList().front());
+		updateDetailsView(msg, detailsLabel);
+	}
+}
+
+/************************************************************************/
+/*                              UPDATERS                                */
+/************************************************************************/
+
+void MainWindow::updateNavLabel(QString str){
+	if(str != INTERMEDIATE_NAV_LABEL_INTERMEDIATE_STAGE)
+		navTitleOfLastTime = str;
+	ui.Navigation_taskList->setText(str);
+}
+
+void MainWindow::updateDetailsLabel(QString str /*= "Task's Details"*/){
+	ui.Navigation_detailsView->setText(str);
+}
+
+void MainWindow::updateList(std::list<Task> result){
+	QTreeWidgetItem* item = NULL;
+	ui.TaskList->clear();
+	int count = 1;
+	for(std::list<Task>::const_iterator iter = result.begin();
+		iter != result.end();
+		std::advance(iter, STEP)){
+		item = extractTask(count, *iter);
+		ui.TaskList->addTopLevelItem(item);
+		count++;
+	}
+}
+
+void MainWindow::updateDetails(Task task){
+	setDetailsViewOpacity100();
+	setNameLabel(task);
+	setPriorityLabel(task);
+	setDueOrFromToLabel(task);
+	setLocationLabel(task);
+	setParticipantsLabel(task);
+	setTagsLabel(task);
+	setRemindTimesLabel(task);
+	setNoteLabel(task);
+}
+
+void MainWindow::clearDetails(){
+	setDetailsViewOpacity40();
+	clearStrikeOut();
+	updateDetailsLabel();
+	setDetailsViewEmpty();
+}
+
+void MainWindow::clearStrikeOut(){
+	QFont nameFont = ui.name->font();
+	nameFont.setStrikeOut(false);
+	ui.name->setFont(nameFont);
+}
+
+void MainWindow::updateStatusBar(QString str){
+	ui.StatusBar->setText(str);
+}
+
+void MainWindow::updateMainView(Messenger &msg, QString listTitle, QString statusBarLabel /*= "Ready" */){
+	clearDetails();
+	updateStatusBar(statusBarLabel);
+	updateNavLabel(listTitle);
+	updateList(msg.getList());
+}
+
+void MainWindow::updateDetailsView(Messenger &msg, QString label /*= "Task's Details"*/){
+	updateDetails(msg.getTask());
+	updateDetailsLabel(label);
+}
+
+void MainWindow::updateForCmdExec(QString statusBarTxt, QString DetailsLabel, Messenger msg){
+	updateNavLabel(navTitleOfLastTime);
+	updateStatusBar(statusBarTxt);
+	updateDetailsView(msg, DetailsLabel);
+	refresh();
+}
+
+/************************************************************************/
+/*                            EXTRACTORS                                */
+/************************************************************************/
+
+QTreeWidgetItem* MainWindow::extractTask(int index, Task task){
+	QStringList strList;
+	switch (task.getTaskType()){
+	case DEADLINE:
+		strList = extractDueDate(task, strList, index);
+		break;
+	case TIMED:
+		strList = extractTimedDate(task, strList, index);
+		break;
+	case FLOATING:
+		strList = extractFloating(index, task);
+		break;
+	}
+	setListItemDelegate(task, index);
+	return new QTreeWidgetItem(strList);
+}
+
+QStringList MainWindow::extractFloating(int index, Task &task){
+	return QStringList() << QString::number(index) << task.getName().c_str() << EMPTY;
+}
+
+QStringList MainWindow::extractTimedDate(Task &task, QStringList strList, int index){
+	QString fromTimeStr, toTimeStr;
+	if(task.getFlagFromDate())
+		fromTimeStr = getFromTimeStr(task, fromTimeStr);
+	if(task.getFlagToDate())
+		toTimeStr = getToDateStr(task, toTimeStr);
+	strList = QStringList() << QString::number(index) << task.getName().c_str() << \
+		fromTimeStr + toTimeStr;
+	return strList;
+}
+
+QString MainWindow::getFromTimeStr(Task &task, QString fromTimeStr){
+	QDateTime fromTime = QDateTime::fromTime_t(task.getFromDate());
+	fromTimeStr = FROM_STR;
+	if(ui.Navigation_taskList->text() == TODAY_VIEW && 
+		fromTime.toString(DATE_DD_MM_YY) == QDateTime::currentDateTime().toString(DATE_DD_MM_YY)){
+		fromTimeStr += fromTime.toString(DATE_HH_MM);
+	}
+	else{
+		if(fromTime.toString(DATE_YEAR) == QDateTime::currentDateTime().toString(DATE_YEAR))
+			fromTimeStr += fromTime.toString(DATE_DD_MM_HH_MM);
+		else
+			fromTimeStr += fromTime.toString(DATE_DD_MM_YYYY);
+	}
+	return fromTimeStr;
+}
+
+QString MainWindow::getToDateStr(Task &task, QString toTimeStr){
+	QDateTime toTime = QDateTime::fromTime_t(task.getToDate());
+	if(task.getFlagFromDate())
+		toTimeStr = FROM_TO_STR;
+	else
+		toTimeStr = TO_STR;
+	if(ui.Navigation_taskList->text() == TODAY_VIEW && 
+		toTime.toString(DATE_DD_MM_YY) == QDateTime::currentDateTime().toString(DATE_DD_MM_YY)){
+		toTimeStr += toTime.toString(DATE_HH_MM);
+	}
+	else{
+		if(toTime.toString(DATE_YEAR) == QDateTime::currentDateTime().toString(DATE_YEAR))
+			toTimeStr += toTime.toString(DATE_DD_MM_HH_MM);
+		else
+			toTimeStr += toTime.toString(DATE_DD_MM_YYYY);
+	}
+	return toTimeStr;
+}
+
+QString MainWindow::getDueDateStr( QDateTime &time, QString dueTimeStr ){
+	if(ui.Navigation_taskList->text() == TODAY_VIEW){
+		if(time.toString(DATE_HH_MM) != MIDNIGHT)
+			dueTimeStr = time.toString(DATE_HH_MM);
+		else
+			dueTimeStr = QString(TODAY_VIEW).toLower();
+	}
+	else{
+		if(time.toString(DATE_YEAR) == QDateTime::currentDateTime().toString(DATE_YEAR))
+			if(time.toString(DATE_HH_MM) != MIDNIGHT)
+				dueTimeStr = time.toString(DATE_DD_MM_HH_MM);
+			else
+				dueTimeStr = time.toString(DATE_DD_MM);
+		else
+			dueTimeStr = time.toString(DATE_DD_MM_YYYY);
+	}
+	return dueTimeStr;
+}
+
+QStringList MainWindow::extractDueDate(Task &task, QStringList strList, int index){
+	QString dueTimeStr;
+	QDateTime time = QDateTime::fromTime_t(task.getDueDate());
+	dueTimeStr = getDueDateStr(time, dueTimeStr);
+	strList = QStringList() << QString::number(index) << task.getName().c_str() << \
+		DUE_STR + dueTimeStr;
+	return strList;
+}
+
+/************************************************************************/
+/*                               SETTERS                                */
+/************************************************************************/
+
+void MainWindow::setCurrRemindTime(){
+	currRemindTime = QDateTime::currentDateTime();
+}
+
+void MainWindow::setFromReminder(bool toggle){
+	isFromReminder = toggle;
+}
+
+void MainWindow::setIsQuickAddOpen(bool toggle){
+	isQuickAddOpen = toggle;
+}
+
+void MainWindow::setHighPriorityDelegate(int index){
+	ui.TaskList->setItemDelegateForRow(index, new ListItemDelegate(HIGH, UNDONE, ui.TaskList));
+}
+
+void MainWindow::setHighPriorityDoneDelegate(int index){
+	ui.TaskList->setItemDelegateForRow(index, new ListItemDelegate(HIGH, DONE, ui.TaskList));
+}
+
+void MainWindow::setHighPriorityOverdueDelegate(int index){
+	ui.TaskList->setItemDelegateForRow(index, new ListItemDelegate(HIGH, OVERDUE, ui.TaskList));
+}
+
+void MainWindow::setMediumPriorityDelegate(int index){
+	ui.TaskList->setItemDelegateForRow(index, new ListItemDelegate(MEDIUM, UNDONE, ui.TaskList));
+}
+
+void MainWindow::setMediumPriorityDoneDelegate(int index){
+	ui.TaskList->setItemDelegateForRow(index, new ListItemDelegate(MEDIUM, DONE, ui.TaskList));
+}
+
+void MainWindow::setMediumPriorityOverdueDelegate(int index){
+	ui.TaskList->setItemDelegateForRow(index, new ListItemDelegate(MEDIUM, OVERDUE, ui.TaskList));
+}
+
+void MainWindow::setNormalDelegate(int index){
+	ui.TaskList->setItemDelegateForRow(index, new ListItemDelegate(LOW, UNDONE, ui.TaskList));
+}
+
+void MainWindow::setNormalDoneDelegate(int index){
+	ui.TaskList->setItemDelegateForRow(index, new ListItemDelegate(LOW, DONE, ui.TaskList));
+}
+
+void MainWindow::setNormalOverdueDelegate(int index){
+	ui.TaskList->setItemDelegateForRow(index, new ListItemDelegate(LOW, OVERDUE, ui.TaskList));
+}
+
+void MainWindow::setListItemDelegate(Task &task, int index){
+	int listIndex = index - 1;
+	//for HIGH prio
+	setForHighPrioItem(task, listIndex);
+	//for MEDIUM
+	setForMediumPrioItem(task, listIndex);
+	//for LOW
+	setForLowPrioItem(task, listIndex);
+}
+
+void MainWindow::setForHighPrioItem( Task &task, int listIndex ){
+	if     (task.getPriority() == HIGH   && task.getState() == UNDONE)
+		setHighPriorityDelegate(listIndex);
+	else if(task.getPriority() == HIGH   && task.getState() == DONE)
+		setHighPriorityDoneDelegate(listIndex);
+	else if(task.getPriority() == HIGH   && task.getState() == OVERDUE)
+		setHighPriorityOverdueDelegate(listIndex);
+}
+
+void MainWindow::setForMediumPrioItem( Task &task, int listIndex ){
+	if     (task.getPriority() == MEDIUM && task.getState() == UNDONE)
+		setMediumPriorityDelegate(listIndex);
+	else if(task.getPriority() == MEDIUM && task.getState() == DONE)
+		setMediumPriorityDoneDelegate(listIndex);
+	else if(task.getPriority() == MEDIUM && task.getState() == OVERDUE)
+		setMediumPriorityOverdueDelegate(listIndex);
+}
+
+void MainWindow::setForLowPrioItem( Task &task, int listIndex ){
+	if     (task.getPriority() == LOW && task.getState() == UNDONE)
+		setNormalDelegate(listIndex);
+	else if(task.getPriority() == LOW && task.getState() == DONE)
+		setNormalDoneDelegate(listIndex);
+	else if(task.getPriority() == LOW && task.getState() == OVERDUE)
+		setNormalOverdueDelegate(listIndex);
+}
+
+void MainWindow::setDetailsViewEmpty(){
+	setLabelEmpty(ui.name);
+	setLabelEmpty(ui.dueOrFromTo);
+	setLabelEmpty(ui.location);
+	setLabelEmpty(ui.participants);
+	setLabelEmpty(ui.tags);
+	setLabelEmpty(ui.remindTime);
+	setLabelEmpty(ui.note);
+}
+
+//************************************
+//    SETTERS FOR DETAILS (BELOW)
+//************************************
+void MainWindow::setDetailsViewOpacity40(){
+	const char* PROPERTY_OPACITY = "opacity";
+	const int ANIMATE_DURATION = 330;
+
+	QGraphicsOpacityEffect* opacityEffect = new QGraphicsOpacityEffect(this);
+	opacityEffect->setOpacity(detailsViewOpacity);
+	ui.DetailsView->setGraphicsEffect(opacityEffect);
+	QPropertyAnimation *animation = new QPropertyAnimation(opacityEffect, PROPERTY_OPACITY);
+	animation->setDuration(ANIMATE_DURATION);
+	animation->setStartValue(detailsViewOpacity);
+	animation->setEndValue(DESIRED_TRANSPARENT_OPACITY);
+	animation->start(QAbstractAnimation::DeleteWhenStopped);
+	detailsViewOpacity = DESIRED_TRANSPARENT_OPACITY;
+}
+
+void MainWindow::displayErrorView(){
+	const char* PROPERTY_OPACITY = "opacity";
+	const double NON_TRANSPARENT = 1.0;
+	const double TRANSPARENT = 0.0;
+	const int ANIMATE_DURATION = 1200;
+
+	QGraphicsOpacityEffect* opacityEffect = new QGraphicsOpacityEffect(this);
+	opacityEffect->setOpacity(NON_TRANSPARENT);
+	ui.errorBgWidget->setGraphicsEffect(opacityEffect);
+	ui.errorBgWidget->setHidden(false);
+	QPropertyAnimation *animation = new QPropertyAnimation(opacityEffect, PROPERTY_OPACITY);
+	animation->setDuration(ANIMATE_DURATION);
+	animation->setStartValue(NON_TRANSPARENT);
+	animation->setEndValue(TRANSPARENT);
+	animation->start(QAbstractAnimation::DeleteWhenStopped);
+}
+
+void MainWindow::setDetailsViewOpacity100(){
+	const double NON_TRANSPARENT = 1.0;
+	ui.DetailsView->setGraphicsEffect(NULL);
+	detailsViewOpacity = NON_TRANSPARENT;
+}
+
+void MainWindow::setNameLabel(Task &task){
+	const char* OVERDUE_SIGN = "!! ";
+	QFont nameFont = ui.name->font();
+	nameFont.setStrikeOut(false);
+
+	setLabelText(ui.name, task.getName().c_str());
+
+	if(task.getState() == TP::OVERDUE)
+		ui.name->setText(OVERDUE_SIGN + ui.name->text());
+	else if(task.getState() == TP::DONE)
+		nameFont.setStrikeOut(true);
+	ui.name->setFont(nameFont);
+}
+
+void MainWindow::setPriorityLabel(Task &task){
+	const char* HIGH_PRIO_BG = "QWidget#DetailsView{\n"
+		"	background-image:url(:/MainWindow/Resources/details_high_bg.png);\n"
+		"}";
+	const char* MEDIUM_PRIO_BG = "QWidget#DetailsView{\n"
+		"	background-image:url(:/MainWindow/Resources/details_normal_bg.png);\n"
+		"}";
+	const char* LOW_PRIO_BG = "QWidget#DetailsView{\n"
+		"	background-image:url(:/MainWindow/Resources/details_low_bg.png);\n"
+		"}";
+
+	switch (task.getPriority()){
+	case HIGH:
+		ui.DetailsView->setStyleSheet(QLatin1String(HIGH_PRIO_BG));
+		break;
+	case MEDIUM:
+		ui.DetailsView->setStyleSheet(QLatin1String(MEDIUM_PRIO_BG));
+		break;
+	case LOW:
+		ui.DetailsView->setStyleSheet(QLatin1String(LOW_PRIO_BG));
+		break;
+	}
+}
+
+void MainWindow::setDueDateLabel(Task &task){
+	QDateTime time = QDateTime::fromTime_t(task.getDueDate());
+	if(time.toString(DATE_HH_MM) == MIDNIGHT)
+		ui.dueOrFromTo->setText(DUE_STR + time.toString(DATE_DD_MM_YYYY));
+	else
+		ui.dueOrFromTo->setText(DUE_STR + time.toString(DATE_DD_MM_YYYY_HH_MM));
+}
+
+void MainWindow::setTimedLabel(Task &task){
+	QString fromTimeStr, toTimeStr;
+	if(task.getFlagFromDate()){
+		QDateTime fromTime = QDateTime::fromTime_t(task.getFromDate());
+		fromTimeStr = FROM_STR + fromTime.toString(DATE_DD_MM_YYYY_HH_MM);
+	}
+	if(task.getFlagToDate()){
+		QDateTime toTime = QDateTime::fromTime_t(task.getToDate());
+		if(task.getFlagFromDate())
+			toTimeStr = FROM_TO_STR + toTime.toString(DATE_DD_MM_YYYY_HH_MM);
+		else
+			toTimeStr = TO_STR + toTime.toString(DATE_DD_MM_YYYY_HH_MM);
+	}
+	ui.dueOrFromTo->setText(fromTimeStr + toTimeStr);
+}
+
+void MainWindow::setFloatingLabel(){
+	setLabelEmpty(ui.dueOrFromTo);
+}
+
+void MainWindow::setDueOrFromToLabel(Task &task){
+	switch (task.getTaskType()){
+	case DEADLINE:
+		setDueDateLabel(task);
+		break;
+	case TIMED:
+		setTimedLabel(task);
+		break;
+	case FLOATING:
+		setFloatingLabel();
+		break;
+	}
+	ui.dueOrFromTo->setToolTip(ui.dueOrFromTo->text());
+}
+
+void MainWindow::setLocationLabel(Task &task){
+	const char* AT = "@";
+
+	if(task.getFlagLocation())
+		setLabelText(ui.location, (AT + task.getLocation()).c_str());
+	else
+		setLabelEmpty(ui.location);
+}
+
+void MainWindow::setParticipantsLabel(Task &task){
+	if(task.getFlagParticipants()){
+		QString participants;
+		list<string> listOfParticipants =  task.getParticipants();
+		list<string>::iterator iter = listOfParticipants.begin();
+		participants += iter->c_str();
+		iter++;
+		for(;iter != listOfParticipants.end();
+			advance(iter, STEP)){
+				participants += DELIMITTER;
+				participants += iter->c_str();
+		}
+		setLabelText(ui.participants, participants);
+	}
+	else{
+		setLabelEmpty(ui.participants);
+	}
+}
+
+void MainWindow::setTagsLabel(Task &task){
+	const char* SHARP = "#";
+
+	if(task.getFlagTags()){
+		QString tags;
+		list<string> listOfTags = task.getTags();
+		list<string>::iterator iter = listOfTags.begin();
+		tags += SHARP;
+		tags += iter->c_str();
+		iter++;
+		for(;iter != listOfTags.end();
+			advance(iter, STEP)){
+				tags += DELIMITTER;
+				tags += SHARP;
+				tags += iter->c_str();
+		}
+		setLabelText(ui.tags, tags);
+	}
+	else{
+		setLabelEmpty(ui.tags);
+	}
+}
+
+void MainWindow::setRemindTimesLabel(Task &task){
+	const char* REMIND_ME_STR = "Remind me : ";
+
+	if(task.getFlagRemindTimes()){
+		QString remindTimes;
+		list<time_t> listOfRemindTimes = task.getRemindTimes();
+		list<time_t>::iterator iter = listOfRemindTimes.begin();
+		remindTimes += QDateTime::fromTime_t(*iter).toString(DATE_DD_MM_YYYY_HH_MM);
+		iter++;
+		for(;iter != listOfRemindTimes.end();
+			advance(iter, STEP)){
+				remindTimes += DELIMITTER;
+				remindTimes += QDateTime::fromTime_t(*iter).toString(DATE_DD_MM_YYYY_HH_MM);
+		}
+		setLabelText(ui.remindTime, REMIND_ME_STR + remindTimes);
+	}
+	else{
+		setLabelEmpty(ui.remindTime);
+	}
+}
+
+void MainWindow::setLabelText(QLineEdit *label, QString text){
+	label->setText(text);
+	if(label->text().length() < LENGTH_TOO_LONG)
+		label->setToolTip(label->text());
+	else
+		label->setToolTip(label->text().left(LENGTH_TOO_LONG) + NEGLECTED);
+}
+
+void MainWindow::setLabelEmpty(QLineEdit *label){
+	label->setText(EMPTY);
+	label->setToolTip(EMPTY);
+}
+
+void MainWindow::setLabelText(QPlainTextEdit *label, QString text){
+	label->setPlainText(text);
+	if(label->toPlainText().length() < LENGTH_TOO_LONG)
+		label->setToolTip(label->toPlainText());
+	else
+		label->setToolTip(label->toPlainText().left(LENGTH_TOO_LONG) + NEGLECTED);
+}
+
+void MainWindow::setLabelEmpty(QPlainTextEdit *label){
+	label->setPlainText(EMPTY);
+	label->setToolTip(EMPTY);
+}
+
+void MainWindow::setNoteLabel(Task &task){
+	if(task.getFlagNote())
+		setLabelText(ui.note, task.getNote().c_str());
+	else
+		setLabelEmpty(ui.note);
+}
+
+/************************************************************************/
+/*                        WINDOW EVENT RELATED                          */
+/************************************************************************/
+
+bool MainWindow::eventFilter(QObject* watched, QEvent* event){
+	bool ret = true;
+	if(watched == ui.CloseButton || watched == ui.MinimizeButton ||
+		watched == ui.HelpButton || watched == ui.AboutButton){
+		if(event->type() != QEvent::MouseMove){
+			ret = QObject::eventFilter(watched, event);//normal processing
+		}
+	}
+	else if(watched == ui.cmdBar && 
+		event->type() == QEvent::KeyPress){
+			ret = handleKeyPressInCmdBar(ret, watched, event);
+	}
+	else{
+		ret = QObject::eventFilter(watched, event);//normal processing
+	}
+	return ret;
+}
+
+void MainWindow::keyPressEvent(QKeyEvent* event){
+	if(event->modifiers() != Qt::ControlModifier)
+		ui.cmdBar->setFocus();
+	if(event->key() == Qt::Key_Escape)
+		getToday();
+	QMainWindow::keyPressEvent(event);
+}
+
+void MainWindow::changeEvent(QEvent* event){
+	runInBackground(event);
+	QMainWindow::changeEvent(event);
+}
+
+void MainWindow::runInBackground(QEvent* event){
+	const int RIGHT_AWAY = 0;
+	if(event->type()==QEvent::WindowStateChange){
+		if(windowState() == Qt::WindowMinimized){
+			QTimer::singleShot(RIGHT_AWAY, this, SLOT(hide()));
+		}
+	}
+}
+
+//************************************
+// Method:    mousePressEvent
+// Note: impl darg & move for borderless
+// window
+//************************************
+void MainWindow::mousePressEvent(QMouseEvent *event){
+	this->windowPosition = this->pos();
+	this->mousePressPosition = event->globalPos();
+}
+
+void MainWindow::mouseMoveEvent(QMouseEvent *event){
+	this->mouseMovePosition = event->globalPos();
+	QPoint distanceToMove = this->mouseMovePosition - this->mousePressPosition + this->windowPosition;
+	this->move(distanceToMove);   
+}
+
+bool MainWindow::handleKeyPressInCmdBar( bool ret, QObject* watched, QEvent* event ){
+	QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+	if(keyEvent->key() == Qt::Key_Escape){
+		getToday();
+	}
+	else if(keyEvent->key() == Qt::Key_Return || keyEvent->key() == Qt::Key_Enter){
+		handleKeyEnter();
+	}
+	else{
+		ret = QObject::eventFilter(watched, event);//normal processing
+	}
+	return ret;
+}
+
+void MainWindow::handleKeyEnter(){
+	QString currentInput = ui.cmdBar->getCurrentLine();
+	ui.cmdBar->pushCurrentLine();
+	if(!currentInput.isEmpty()){
+		string inputStdString = currentInput.toLocal8Bit().constData();
+		Messenger msg = scheduler->processCommand(inputStdString);
+		handleMessenger(msg);
+	}
+}
+
+void MainWindow::logStart(){
+	const char* MAINWINDOW_NAME = "MainWindow";
+	const char* START_INFO = "UI starts";
+	::Logger* logger = ::Logger::getLogger();
+	logger->log(MAINWINDOW_NAME, START_INFO, INFOLOG);
+}
+
+void MainWindow::logEnd(){
+	const char* MAINWINDOW_NAME = "MainWindow";
+	const char* END_INFO = "UI ends";
+	::Logger* logger = ::Logger::getLogger();
+	logger->log(MAINWINDOW_NAME, END_INFO, INFOLOG);
+}
+
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\MainWindow.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\MainWindow.h
+	 */
+
+/*
+ * =====================================================================================
+ *
+ *       Filename:  mainwindow.h
+ *
+ *           Note:  MainWindow class handles all UI logic for main window of TaskPad
+ *        Version:  1.0
+ *        Created:  09/21/13 16:13:09
+ *
+ *         Author:  XIE KAI (A0102016E), gigikie@gmail.com
+ *   Organization:  NUS, SoC
+ *
+ * =====================================================================================
+ */
+
+#ifndef MAINWINDOW_H
+#define MAINWINDOW_H
+
+#include <QSystemTrayIcon>
+#include <QDateTime>
+#include <list>
+#include "Task.h"
+#include "Messenger.h"
+#include "./GeneratedFiles/ui_mainwindow.h"
+
+class CommandBar;
+class Manager;
+
+class MainWindow : public QMainWindow{
+	Q_OBJECT
+
+public:
+	MainWindow                                 (QWidget *parent = 0);
+	~MainWindow                                (); 
+
+protected slots:
+	//Pop MsgBox*********************************
+	void          about                        ();
+	void          help                         ();
+	//Window Display*****************************
+	void          showWindow                   ();
+	void          iconIsActived                (QSystemTrayIcon::ActivationReason);
+	void          showReminder                 ();
+	void          handleShowReminder           ();
+	void          showQuickAddWindow           ();
+	void          closeQuickAddWindow          ();
+	void          handleQuickAddRequest        (QString requestStr);
+	void          handleListSelection          ();
+	//Date Navigation****************************
+	void          getToday                     ();
+	void          getInbox                     ();
+	void          showNextDay                  ();
+	void          showNextWeek                 ();
+	void          showNextMonth                ();
+	void          showPrevDay                  ();
+	void          showPrevWeek                 ();
+	void          showPrevMonth                ();
+
+private:
+	//Static Val*********************************
+	static        const double DESIRED_TRANSPARENT_OPACITY;
+	static        const int	  LENGTH_TOO_LONG;
+	static        const int   STEP;
+	static        const char* MIDNIGHT;
+	static        const char* DELIMITTER;
+	static        const char* NEGLECTED;
+	static        const char* TODAY_VIEW;
+	static        const char* INBOX_VIEW;
+	static        const char* REMINDERS_VIEW;
+	static        const char* DATE_DD_MM;
+	static        const char* DATE_DD_MM_YY;
+	static        const char* DATE_DD_MM_YYYY;
+	static        const char* DATE_HH_MM;
+	static        const char* DATE_DD_MM_HH_MM;
+	static        const char* DATE_DD_MM_YYYY_HH_MM;
+	static        const char* DATE_YEAR;
+	static        const char* EMPTY;
+	static        const char* DUE_STR;
+	static        const char* FROM_STR;
+	static        const char* TO_STR;
+	static        const char* FROM_TO_STR;
+	static        const char* NEW_LINE;
+	static        const char* DEFAULT_WIN_TITLE;
+	static        const char* DEFAULT_STATUS_BAR_TEXT;
+	static        const char* DEFAULT_DETAILS_VIEW_TEXT;
+	static        const char* SUCCESS_DETAILS_ADD_TEXT;
+	static        const char* SUCCESS_DETAILS_MOD_TEXT;
+	static        const char* SUCCESS_DETAILS_DEL_TEXT;
+	static        const char* SUCCESS_DETAILS_UNDO_TEXT;
+	static        const char* SUCCESS_DETAILS_REDO_TEXT;
+	static        const char* SUCCESS_STATUS_BAR_ADD_TEXT;
+	static        const char* SUCCESS_STATUS_BAR_MOD_TEXT;
+	static        const char* SUCCESS_STATUS_BAR_DEL_TEXT;
+	static        const char* SUCCESS_STATUS_BAR_FIND_TEXT;
+	static        const char* SUCCESS_STATUS_BAR_UNDO_TEXT;
+	static        const char* SUCCESS_STATUS_BAR_REDO_TEXT;
+	static        const char* SUCCESS_STATUS_BAR_DISPLAY_TEXT;
+	static        const char* SUCCESS_NAV_LABEL_FIND_CMD;
+	static        const char* INTERMEDIATE_NAV_LABEL_INTERMEDIATE_STAGE;
+	static        const char* INTERMEDIATE_STATUS_BAR_INTERMEDIATE_STAGE;
+	static        const char* ERROR_NAV_LABLE_INTERMEDIATE_STAGE;
+	static        const char* ERROR_STATUS_BAR_INTERMEDIATE_STAGE;
+	static        const char* ERROR_ONLY_SUPPORT_ADD_N_DISPLAY_ONE_CMD;
+	//Init***************************************
+	void          setupUI                      ();
+	void          setupDependency              ();
+	void          setupScheduler               ();
+	void          setupTrayIcon                ();
+	void          setupTimer                   ();
+	void          setupHotkeys                 ();
+	void          setupWinDisplayHotkeys       ();
+	void          setupDateNavHotkeys          ();
+	void          setupGlobalHotkeys           ();
+	void          setupConnection              ();
+	void          installEventFilter           ();
+	void          customisedUi                 ();
+	//Destroy************************************
+	void          dispose                      ();
+	//Tray Related*******************************
+	QString       prepareTrayMsg               (std::list<Task> &reminderList, QString output);
+	void          showTrayMsg                  (QString msg, QString title = DEFAULT_WIN_TITLE);
+	bool          isCommandAdd                 (QString requestStr);
+	bool          isEqualOne                   (QString &requestStr);
+	//View Related*******************************
+	void          reset                        ();
+	void          updateStatusBar              (QString str);
+	void          displayErrorView             ();
+	//--Task List Related************************
+	void          updateMainView               (Messenger &msg, QString listTitle, QString statusBarLabel = DEFAULT_STATUS_BAR_TEXT);
+	void          updateNavLabel               (QString str);
+	void          updateList                   (std::list<Task> result);
+	QTreeWidgetItem* extractTask               (int index, Task task);
+	void          setListItemDelegate          (Task &task, int index);
+	void          setForLowPrioItem            ( Task &task, int listIndex );
+	void          setForMediumPrioItem         ( Task &task, int listIndex );
+	void          setForHighPrioItem           ( Task &task, int listIndex );
+	QStringList   extractFloating              (int index, Task &task);
+	QStringList   extractTimedDate             (Task &task, QStringList strList, int index);
+	QString       getToDateStr                 (Task &task, QString toTimeStr);
+	QString       getFromTimeStr               (Task &task, QString fromTimeStr);
+	QStringList   extractDueDate               (Task &task, QStringList strList, int index);
+	QString       getDueDateStr                (QDateTime &time, QString dueTimeStr);
+	void          setNormalDelegate            (int index);
+	void          setNormalDoneDelegate        (int index);
+	void          setNormalOverdueDelegate     (int index);
+	void          setHighPriorityDelegate      (int index);
+	void          setHighPriorityDoneDelegate  (int index);
+	void          setHighPriorityOverdueDelegate (int index);
+	void          setMediumPriorityDelegate(int index);
+	void          setMediumPriorityDoneDelegate  (int index);
+	void          setMediumPriorityOverdueDelegate(int index);
+	//--Details Related**************************
+	void          updateDetailsView            (Messenger &msg, QString detailsLabel = DEFAULT_DETAILS_VIEW_TEXT);
+	void          handleOneItemList            (Messenger &msg, QString detailsLabel = DEFAULT_DETAILS_VIEW_TEXT);
+	void          updateDetailsLabel           (QString str = DEFAULT_DETAILS_VIEW_TEXT);
+	void          clearDetails                 ();
+	void          clearStrikeOut               ();
+	void          setDetailsViewEmpty          ();
+	void          setDetailsViewOpacity40      ();
+	void          setDetailsViewOpacity100     ();
+	void          updateDetails                (Task task);
+	void          setNoteLabel                 (Task &task);
+	void          setRemindTimesLabel          (Task &task);
+	void          setTagsLabel                 (Task &task);
+	void          setParticipantsLabel         (Task &task);
+	void          setLocationLabel             (Task &task);
+	void          setDueOrFromToLabel          (Task &task);
+	void          setFloatingLabel             ();
+	void          setTimedLabel                (Task &task);
+	void          setDueDateLabel              (Task &task);
+	void          setPriorityLabel             (Task &task);
+	void          setNameLabel                 (Task &task);
+	void          setLabelText                 (QLineEdit *label, QString text);
+	void          setLabelEmpty                (QLineEdit *label);
+	void          setLabelText                 (QPlainTextEdit *label, QString text);
+	void          setLabelEmpty                (QPlainTextEdit *label);
+	//Msg Handling*******************************
+	void          handleGetToday               (Messenger msg);
+	void          handleGetInbox               (Messenger msg);
+	void          handleMessenger              (Messenger msg);
+	void          handleMsg_SUCCESS_INDEXED_CMD(Messenger &msg);
+	void          handleMsg_INTERMEDIATE       (Messenger msg);
+	void          handleMsg_SUCCESS            (Messenger &msg);
+	void          handleMsg_ERROR_INTERMEDIATE ();
+	void          handleMsg_ERROR              (Messenger &msg);
+	void          handleDisplay                (Messenger msg, bool callFromSignal = false);
+	void          selectItemAt                 (int index);
+	void          unselectAllItems             ();
+	void          handleDateNavigation         (TP::PERIOD_TYPE period, QString listTitle, bool isPrevious = false);
+	void          updateForCmdExec             (QString statusBarTxt, QString DetailsLabel, Messenger msg);
+	void          refresh                      ();
+	//Quick Add Window Related*******************
+	void          setupQuickAddConnection      ();
+	void          setupQuickAddWindow          ();
+	void          setIsQuickAddOpen            (bool toggle);
+	void          setFromReminder              (bool toggle);
+	void          setCurrRemindTime            ();
+	std::string   getFindRtCmd                 ();
+	void          disposeQuickAddWindow        ();
+	void          disposeQuickAddConnection    ();
+	void          handleQA_DISPLAY             (Messenger msg);
+	void          handleQA_SUCCESS             ();
+	void          handleQA_ERROR               (QString requestStr, Messenger &msg);
+	QString       getTimePeriodStr             (std::pair<tm, tm> period);
+	//Other**************************************
+	void          popMsgBox                    (QString title, QString description);
+	void          keyPressEvent                (QKeyEvent*event);
+	void          changeEvent                  (QEvent* event);
+	void          runInBackground              (QEvent* event);
+	bool          eventFilter                  (QObject* watched, QEvent* event);
+	bool          handleKeyPressInCmdBar       ( bool ret, QObject* watched, QEvent* event );
+	void          handleKeyEnter               ();
+	void          mousePressEvent              (QMouseEvent *event);
+	void          mouseMoveEvent               (QMouseEvent *event);
+	void          logEnd                       ();
+	void          logStart                     ();
+	//Main Widgets******************************
+	Ui::MainWindowClass ui;
+	QSystemTrayIcon*    trayIcon;
+	//State*************************************
+	QTimer*             timer;
+	QDateTime           currRemindTime;
+	QDialog*            quickAddWindowPtr;
+	QPoint              windowPosition;
+	QPoint              mousePressPosition;
+	QPoint              mouseMovePosition;
+	double              detailsViewOpacity;
+	std::list<Task>     intermediateList;
+	QString             navTitleOfLastTime;
+	//State Flag********************************
+	bool                isQuickAddOpen;
+	bool                isFromReminder;
+	bool                isIntermediateStage;
+	//Logic's entrance**************************
+	Manager*            scheduler;
+};
+
+#endif // MAINWINDOW_H
+
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\MainWindow.h
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\QuickAddWindow.cpp
+	 */
+
+/*
+ * =====================================================================================
+ *
+ *       Filename:  QuickAddWindow.cpp
+ *
+ *    Description:	Quick Add window allows user to add a new task quickly, without opening
+ *	the mainwindow.
+ *
+ *        Version:  1.0
+ *        Created:  10/21/13 16:13:09
+ *
+ *         Author:  XIE KAI (A0102016E), gigikie@gmail.com
+ *   Organization:  NUS, SoC
+ *
+ * =====================================================================================
+ */
+
+#include "QuickAddWindow.h"
+
+QuickAddWindow::QuickAddWindow(QWidget *parent):QDialog(parent){
+	setupUi();
+	customisedUi();
+}
+
+bool QuickAddWindow::eventFilter(QObject* watched, QEvent* event){
+	bool FILTERED = true;
+
+	if(watched == ui.cmdBar &&
+		event->type() == QEvent::KeyPress){
+		FILTERED = handleKeyEvent(FILTERED, watched, event);
+	}
+	else{
+		//normal processing
+		FILTERED = QObject::eventFilter(watched, event);
+	}
+	return FILTERED;
+}
+
+void QuickAddWindow::customisedUi(){
+	setWindowFlags(Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint | Qt::Dialog | Qt::Popup);
+	setAttribute(Qt::WA_TranslucentBackground);
+	setWindowState(Qt::WindowActive);
+}
+
+void QuickAddWindow::mousePressEvent(QMouseEvent *event){
+	this->windowPosition = this->pos();
+	this->mousePressPosition = event->globalPos();
+}
+
+void QuickAddWindow::mouseMoveEvent(QMouseEvent *event){
+	this->mouseMovePosition = event->globalPos();
+	QPoint distanceToMove = this->mouseMovePosition - this->mousePressPosition + this->windowPosition;
+	this->move(distanceToMove);   
+}
+
+void QuickAddWindow::emitRequest(QString requestStr){
+	//notify the parent, there is a request submitted by user
+	emit requestSubmitted(requestStr);
+}
+
+void QuickAddWindow::emitWindowClosed(){
+	//notify the parent, to close the quick add window
+	emit windowClosed();
+}
+
+void QuickAddWindow::setupUi()
+{
+	ui.setupUi(this);
+	ui.cmdBar->installEventFilter(this);
+	ui.cmdBar->setQuickAddMode();
+}
+
+bool QuickAddWindow::handleKeyEvent( bool &FILTERED, QObject* watched, QEvent* event ){
+	QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+	if(keyEvent->key() == Qt::Key_Escape){
+		handleKeyEscape();
+	}
+	else if(keyEvent->key() == Qt::Key_Return || keyEvent->key() == Qt::Key_Enter){
+		handleKeyEnter();
+	}
+	else{
+		//normal processing
+		FILTERED = QObject::eventFilter(watched, event);
+	}
+	return FILTERED;
+}
+
+void QuickAddWindow::handleKeyEscape(){
+	emitWindowClosed();
+	//wait for parent window to close it
+}
+
+void QuickAddWindow::handleKeyEnter(){
+	QString currentInput = ui.cmdBar->getCurrentLine();
+	ui.cmdBar->pushCurrentLine();
+	if(!currentInput.isEmpty()){
+		emitRequest(currentInput);
+		//wait for parent window to decide whether close it or not
+	}
+}
+
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\QuickAddWindow.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\QuickAddWindow.h
+	 */
+
+/*
+ * =====================================================================================
+ *
+ *       Filename:  QuickAddWindow.h
+ *
+ *    Description:	Quick Add window allows user to add a new task quickly, without opening
+ *	the mainwindow.
+ *
+ *        Version:  1.0
+ *        Created:  10/21/13 16:13:09
+ *
+ *         Author:  XIE KAI (A0102016E), gigikie@gmail.com
+ *   Organization:  NUS, SoC
+ *
+ * =====================================================================================
+ */
+
+#ifndef QUICKADD_WINDOW_H
+#define QUICKADD_WINDOW_H
+
+#include "./GeneratedFiles/ui_quickadd_window.h"
+#include "MainWindow.h"
+
+class QuickAddWindow: public QDialog{
+
+	Q_OBJECT
+
+public:
+	QuickAddWindow(QWidget *parent = 0);
+
+signals:
+	void requestSubmitted(QString requestStr);
+	void windowClosed();
+
+private:
+	void setupUi();
+	void customisedUi();
+	bool eventFilter(QObject* watched, QEvent* event);
+	bool handleKeyEvent( bool &FILTERED, QObject* watched, QEvent* event);
+	void handleKeyEnter();
+	void handleKeyEscape();
+	bool isCommandAdd(QString requestStr);
+	void mousePressEvent(QMouseEvent *event);
+	void mouseMoveEvent(QMouseEvent *event);
+	void emitRequest(QString requestStr);
+	void emitWindowClosed();
+
+	Ui::QuickAddWindowClass ui;
+	QPoint windowPosition;
+	QPoint mousePressPosition;
+	QPoint mouseMovePosition;
+};
+
+#endif // QUICKADD_WINDOW_H
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\TaskPad_library\QuickAddWindow.h
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\UnitTest\test_Command.cpp
+	 */
+
+#include "stdafx.h"
+#include "CppUnitTest.h"
+#include "../TaskPad_library/Command.h"
+
+using namespace Microsoft::VisualStudio::CppUnitTestFramework;
+using namespace std;
+
+namespace UnitTest{		
+	TEST_CLASS(test_Command){
+	public:
+		
+		TEST_METHOD(cmd_Add){
+			const char* BEST_NAME_EVER = "FML 2014";
+
+			//TC0: Command_Add converts to Command
+			//Assume it happens in Interpreter
+			Command_Add* cmdAddInInterpreter = new Command_Add();
+			//compulsory field
+			cmdAddInInterpreter->setName(BEST_NAME_EVER);
+			cmdAddInInterpreter->setDueDate(time(NULL));
+			//to return by Interpreter
+			Command* cmd = cmdAddInInterpreter;
+			Assert::AreEqual(static_cast<int>(TP::ADD), static_cast<int>(cmd->getCommandType()));
+
+			//TC1: Command converts back to Command_Add
+			//Assume it happens in Executor
+			Command_Add* cmdAddInExecutor;
+			bool isDueDateSet = false;
+			if( cmd->getCommandType() == TP::ADD )
+				cmdAddInExecutor = dynamic_cast<Command_Add*>(cmd);
+			if( cmdAddInExecutor->getFlagDue() )
+				isDueDateSet = true;
+			Assert::AreEqual(true, isDueDateSet);
+			Assert::AreEqual((string)BEST_NAME_EVER, cmdAddInExecutor->getName());
+			
+			delete cmd;
+		}
+
+		TEST_METHOD(cmd_Modify){
+			//TC0 test Priority
+			Command* cmd = new Command_Mod();
+			Assert::AreEqual(static_cast<int>(TP::MOD), static_cast<int>(cmd->getCommandType()));
+			
+			Command_Mod* cmd_mod = dynamic_cast<Command_Mod*>(cmd);
+			cmd_mod->setPriority(TP::HIGH);
+			Assert::AreEqual(cmd_mod->getFlagPriority(), true);
+
+			delete cmd;
+		}
+
+		TEST_METHOD(cmd_Delete){
+			//TC0 test Exact Flag
+			Command* cmd = new Command_Del();
+			Assert::AreEqual(static_cast<int>(TP::DEL), static_cast<int>(cmd->getCommandType()));
+
+			Command_Del* cmd_del = dynamic_cast<Command_Del*>(cmd);
+			cmd_del->setFlagExact();
+			Assert::AreEqual(cmd_del->getFlagExact(), true);
+
+			delete cmd;
+		}
+
+		TEST_METHOD(cmd_Find){
+			//TC0 test From and To date
+			Command* cmd = new Command_Find();
+			Assert::AreEqual(static_cast<int>(TP::FIND), static_cast<int>(cmd->getCommandType()));
+
+			Command_Find* cmd_find = dynamic_cast<Command_Find*>(cmd);
+			time_t currTime = time(NULL);
+			cmd_find->setFromDate(currTime);
+			cmd_find->setToDate(currTime);
+			Assert::IsTrue(cmd_find->getFromDate() == cmd_find->getToDate());
+			Assert::IsTrue(cmd_find->getFlagFrom());
+			Assert::IsTrue(cmd_find->getFlagTo());
+
+			delete cmd;
+		}
+
+		TEST_METHOD(cmd_Undo){
+			//TC0
+			Command* cmd = new Command_Undo();
+			Assert::AreEqual(static_cast<int>(TP::UNDO), static_cast<int>(cmd->getCommandType()));
+
+			delete cmd;
+		}
+
+		TEST_METHOD(cmd_Redo){
+			//TC0
+			Command* cmd = new Command_Redo();
+			Assert::AreEqual(static_cast<int>(TP::REDO), static_cast<int>(cmd->getCommandType()));
+
+			delete cmd;
+		}
+
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\UnitTest\test_Command.cpp
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\UnitTest\test_System.cpp
+	 */
+
+#include "stdafx.h"
+#include "CppUnitTest.h"
+#include "../TaskPad_library/Manager.h"
+#include "../TaskPad_library/Task.h"
+#include "../TaskPad_library/Messenger.h"
+#include "../TaskPad_library/Enum.h"
+#include <string>
+
+using namespace Microsoft::VisualStudio::CppUnitTestFramework;
+using namespace std;
+using namespace TP;
+
+namespace UnitTest{
+	TEST_CLASS(test_System_Test){
+	public:
+		
+		TEST_METHOD(System_Testing_Basic_CRUD){
+			////*************************************** simple test
+			////use case:
+			////1. user add a task
+			////2. user delete the added task
+			////
+			////TC0: WORK FLOW ADD
+			Manager scheduler;
+			const char* TC0_TASK_NAME = "Project Kai Testing";
+			const char* TEST_ADD_SIMPLE_TASK = "add `Project Kai Testing`";
+			Messenger msg = scheduler.processCommand(TEST_ADD_SIMPLE_TASK);
+			Assert::AreEqual((int)msg.getStatus(), (int) SUCCESS);
+			Assert::AreEqual((int)msg.getCommandType(), (int)ADD);
+			Assert::AreEqual(msg.getTask().getName(), (string)TC0_TASK_NAME);
+
+			////TC1: WORK FLOW DEL
+			const char* TEST_DEL_SIMPLE_TASK = "del exact `Project Kai Testing`";
+			msg = scheduler.processCommand(TEST_DEL_SIMPLE_TASK);
+			Assert::AreEqual((int)msg.getStatus(), (int)SUCCESS);
+			Assert::AreEqual((int)msg.getCommandType(), (int)DEL);
+			Assert::AreEqual(msg.getTask().getName(), (string)TC0_TASK_NAME);
+
+			////***************************************
+			////use case:
+			////1. user add a task
+			////2. user modify the added task's note
+			////3. user undo the modification
+			////4. user redo the modification
+			////5. user comes to find a tag
+			////6. user deleted the task
+			////
+			////TC2: WORK FLOW ADD 2
+			const char* TEST_ADD_TASK_ID_2 = "add `Project22 Kai Testing` note `TEST NOTE` #KaiTesting";
+			const char* TC2_TASK_NAME = "Project22 Kai Testing";
+			const char* TC2_NOTE = "TEST NOTE";
+			msg = scheduler.processCommand(TEST_ADD_TASK_ID_2);
+			Assert::AreEqual((int)msg.getStatus(), (int)SUCCESS);
+			Assert::AreEqual((int)msg.getCommandType(), (int)ADD);
+			Assert::AreEqual(msg.getTask().getName(), (string)TC2_TASK_NAME);
+			Assert::AreEqual(msg.getTask().getNote(), (string)TC2_NOTE);
+
+			////TC3: WORK FLOW MOD
+			const char* TEST_MOD_TASK_ID_2 = "mod exact `Project22 Kai Testing` note `TEST NOTE2`";
+			const char* TC3_NOTE = "TEST NOTE2";
+			msg = scheduler.processCommand(TEST_MOD_TASK_ID_2);
+			Assert::AreEqual((int)msg.getStatus(), (int)SUCCESS);
+			Assert::AreEqual((int)msg.getCommandType(), (int)MOD);
+			Assert::AreEqual(msg.getTask().getNote(), (string)TC3_NOTE);
+
+			////TC4: UNDO
+			const char* TEST_UNDO_CMD_MOD = "undo";
+			msg = scheduler.processCommand(TEST_UNDO_CMD_MOD);
+			Assert::AreEqual((int)msg.getStatus(), (int)SUCCESS);
+			Assert::AreEqual((int)msg.getCommandType(), (int)UNDO);
+			Assert::AreEqual(msg.getTask().getNote(), (string)TC2_NOTE);
+
+			////TC5: REDO
+			const char* TEST_REDO_CMD_MOD = "redo";
+			msg = scheduler.processCommand(TEST_REDO_CMD_MOD);
+			Assert::AreEqual((int)msg.getStatus(), (int)SUCCESS);
+			Assert::AreEqual((int)msg.getCommandType(), (int)REDO);
+			Assert::AreEqual(msg.getTask().getNote(), (string)TC3_NOTE);
+
+			////TC6: FIND
+			const char* TEST_FIND_TAG = "find #KaiTesting";
+			msg = scheduler.processCommand(TEST_FIND_TAG);
+			Assert::AreEqual((int)msg.getStatus(), (int)SUCCESS);
+			Assert::AreEqual((int)msg.getCommandType(), (int)FIND);
+			Assert::AreEqual(msg.getList().front().getName(), (string)TC2_TASK_NAME);
+
+			////reset
+			scheduler.resetStatus();
+
+			////TC7: DEL 2
+			const char* TEST_DEL_EXACT = "del exact `Project22 Kai Testing`";
+			msg = scheduler.processCommand(TEST_DEL_EXACT);
+			Assert::AreEqual((int)msg.getStatus(), (int)SUCCESS);
+			Assert::AreEqual((int)msg.getCommandType(),(int) DEL);
+			Assert::AreEqual(msg.getTask().getName(), (string)TC2_TASK_NAME);
+		}
+	};
+}
+	// End of segment: C:\Users\Giki\Documents\Visual Studio 2012\Projects\CS2103_F12_1C\UnitTest\test_System.cpp
+
+
+
+
+
