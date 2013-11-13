@@ -3,8 +3,27 @@
 
 
 	/**
-	 * origin: C:\Users\a0102016\Desktop\asd\Datastore.cpp
+	 * origin: .\TaskPad_library\Datastore.cpp
 	 */
+
+/*
+ * =====================================================================================
+ *
+ *       Filename:  Datastore.cpp
+ *
+ *        Version:  1.0
+ *        Created:  10/25/13 00:22:00
+ *
+ *         Author:  ASHRAY JAIN (A0105199B), ashrayj11@gmail.com
+ *   Organization:  NUS, SoC
+ *
+ * =====================================================================================
+ */
+
+#include "Datastore.h"
+
+using namespace std;
+using namespace TP;
 
 
 void Datastore::clearRedoStack() {
@@ -320,15 +339,274 @@ list<string> Datastore::getLowerStrList(list<string> strList) {
 		lowerStrList.push_back(getLowerStr(*i));
 	return lowerStrList;
 }
-	// End of segment: C:\Users\a0102016\Desktop\asd\Datastore.cpp
+	// End of segment: .\TaskPad_library\Datastore.cpp
 
 
 
 
 
 	/**
-	 * origin: C:\Users\a0102016\Desktop\asd\Datastore_List.cpp
+	 * origin: .\TaskPad_library\Datastore.h
 	 */
+
+/*
+ * =====================================================================================
+ *
+ *       Filename:  Datastore.h
+ *
+ *        Version:  1.0
+ *        Created:  10/25/13 00:22:00
+ *
+ *         Author:  ASHRAY JAIN (A0105199B), ashrayj11@gmail.com
+ *   Organization:  NUS, SoC
+ *
+ * =====================================================================================
+ */
+
+#ifndef TASKPAD_DATASTORE_H
+#define TASKPAD_DATASTORE_H
+
+#include <list>
+#include <stack>
+#include <algorithm>
+#include <unordered_map>
+#include "Task.h"
+#include "Command.h"
+#include "Messenger.h"
+#include "StorableTaskDatastore.h"
+#include "Datastore_List.h"
+
+
+class Datastore: public StorableTaskDatastore {
+private:
+	typedef Datastore_List Datastore_Type;
+	Datastore_Base*										_ds;
+	std::unordered_map<unsigned long long, Task*>		_indexHash;
+	std::unordered_map<std::string, std::list<Task*>>	_hashTagsHash;
+	std::unordered_map<std::time_t, std::list<Task*>>	_remindTimesHash;
+	std::stack<std::pair<Command*, Task>>				_undoStack;
+	std::stack<std::pair<Command*, Task>>				_redoStack;
+	Task												_interimTask;
+
+	void					clearRedoStack();
+	void					clearUndoStack();
+
+	void					handleHashTagPtrs			(Task &newTask, const std::list<std::string> &hashTagsList);
+	void					handleExistingHashTag		(std::list<std::list<Task*>::iterator> &newHashTagPtrs, 
+														 Task &newTask, std::list<Task*> &hashTag);
+	void					handleNewHashTag			(std::list<std::list<Task*>::iterator> &newHashTagPtrs, 
+														 Task &newTask, std::list<std::string>::const_iterator &hashTag);
+	void					handleRemindTimesPtrs		(Task &newTask, const std::list<std::time_t> &remindTimesList);
+	void					handleExistingRemindTime	(std::list<std::list<Task*>::iterator> &newRemindTimesPtrs, 
+														 Task &newTask, std::list<Task*> &remindTime);
+	void					handleNewRemindTime			(std::list<std::list<Task*>::iterator> &newRemindTimesPtrs, 
+														 Task &newTask, std::list<std::time_t>::const_iterator &remindTime);
+	void					deleteHashTags				(Task &task);
+	void					deleteRemindTimes			(Task &task);
+	void					modifyTaskWithPtr			(Task &oldTask, Command_Mod* cmd);
+	void					handleHashTagsModify		(Task &oldTask, const std::list<std::string> &newTags);
+	void					handleRemindTimesModify		(Task &oldTask, const std::list<std::time_t> &newRemindTimes);
+	void					handleAddRemoveParticipants	(Task &task, std::list<std::string> &participants,
+														 TP::LIST_OP op);
+	void					handleAddRemoveRemindTimes	(Task &task, std::list<std::time_t> &remindTimes,
+														 TP::LIST_OP op);
+	std::list<std::string>	getTagsListDifference		(const std::list<std::string> &taskTags,
+														 const std::list<std::string> &tagsToRemove) const;
+
+	void	stackModCmdForUndo			(Command* cmd, Messenger &response);
+	void	stackAddCmdForUndo			(Command* cmd, Messenger &response);
+	void	stackDelCmdForUndo			(Command* cmd, Messenger &response);
+
+
+
+public:
+	Datastore()		{ _ds = new Datastore_Type();								}
+	~Datastore()	{ clearRedoStack(); clearUndoStack(); delete _ds; _ds = NULL;	}
+
+	// Utility functions
+	static std::string				getLowerStr		(std::string str);
+	static std::list<std::string>	getLowerStrList	(std::list<std::string> strList);
+
+	class const_iterator: public StorableTaskDatastore::const_iterator {
+        public:
+			const_iterator()											{ i = NULL; }
+			~const_iterator()											{ 
+				if (i != NULL) {
+					delete i;
+					i = NULL; 
+				} 
+			}
+			const_iterator(Datastore_Type::const_iterator* it): i(it)	{ }
+			const_iterator(Datastore::const_iterator &rhs)				{ this->i = new Datastore_Type::const_iterator(*(rhs.i)); }
+			typedef const_iterator self_type;
+            typedef Task value_type;
+            typedef Task& reference;
+            typedef Task* pointer;
+			typedef std::bidirectional_iterator_tag iterator_category;
+            typedef int difference_type;
+			void operator++()													{ i->operator++(); }
+			void operator++(int junk)											{ i->operator++(junk); }
+			void operator--()													{ i->operator--(); }
+			void operator--(int junk)											{ i->operator--(junk); }
+			const Task& operator*()												{ return i->operator*(); }
+			const Task* operator->()											{ return i->operator->(); }
+			bool operator==(const StorableTaskDatastore::const_iterator* rhs)	{ return *i==dynamic_cast<const Datastore::const_iterator*>(rhs)->i; }
+			bool operator!=(const StorableTaskDatastore::const_iterator* rhs)	{ return *i!=dynamic_cast<const Datastore::const_iterator*>(rhs)->i; }
+			bool operator==(const Datastore::const_iterator* rhs)				{ return *i==(rhs)->i; }
+			bool operator!=(const Datastore::const_iterator* rhs)				{ return *i!=(rhs)->i; }
+			bool operator==(const Datastore::const_iterator rhs)				{ return *i==rhs.i; }
+			bool operator!=(const Datastore::const_iterator rhs)				{ return *i!=rhs.i; }
+
+
+	private:
+		Datastore_Type::const_iterator* i;
+    };
+
+	std::list<Task>					getTaskList(){ return _ds->getAllTasks();	}
+
+	void							addTask						(const Task &newTask);
+	void							deleteTask					(const unsigned &pos);
+	void							deleteTask					(Datastore::const_iterator i);
+	Task							modifyTask					(const unsigned &pos, Command_Mod* cmd);
+	Task							modifyTask					(Datastore::const_iterator i, Command_Mod *cmd);
+	Task							modifyTaskWithIndex			(const unsigned long long index, Command_Mod* cmd);
+	Task							indexHashSearch				(unsigned long long indexToSearch);
+	bool							isIndexPresent				(unsigned long long indexToSearch);
+	std::list<Task>					getTasksWithHash			(std::string hash);
+	std::list<Task>					getTasksWithRemindTimes		(std::time_t remindTime);
+	void							addCmdForUndo				(Command* cmd, Messenger &response);
+	bool							nothingToUndo				() { return _undoStack.empty(); }
+	bool							nothingToRedo				() { return _redoStack.empty(); }
+	std::pair<Command*, Task>		getNextUndoCmd				() { return _undoStack.top();	}
+	std::pair<Command*, Task>		getNextRedoCmd				() { return _redoStack.top();	}
+	void							transferRedoCmdToUndo		(); 
+	void							transferUndoCmdToRedo		();
+
+	Datastore::const_iterator* cbeginPtr();
+	Datastore::const_iterator* cendPtr	();
+	Datastore::const_iterator  cbegin	();
+	Datastore::const_iterator  cend		();
+	
+	unsigned size() { return _ds->size(); }
+	
+};
+
+#endif
+
+	// End of segment: .\TaskPad_library\Datastore.h
+
+
+
+
+
+	/**
+	 * origin: .\TaskPad_library\Datastore_Base.h
+	 */
+
+/*
+ * =====================================================================================
+ *
+ *       Filename:  Datastore_Base.h
+ *
+ *        Version:  1.0
+ *        Created:  10/28/13 15:47:28
+ *
+ *         Author:  ASHRAY JAIN (A0105199B), ashrayj11@gmail.com
+ *   Organization:  NUS, SoC
+ *
+ * =====================================================================================
+ */
+
+#ifndef TASKPAD_DATASTORE_BASE_H
+#define TASKPAD_DATASTORE_BASE_H
+
+#include <list>
+#include "Task.h"
+
+
+class Datastore_Base {
+public:
+	virtual ~Datastore_Base()=0 {};
+	class iterator {
+        public:
+			typedef iterator self_type;
+            typedef Task value_type;
+            typedef Task& reference;
+            typedef Task* pointer;
+			typedef std::bidirectional_iterator_tag iterator_category;
+            typedef int difference_type;
+			virtual ~iterator()=0 {};
+            virtual void operator++()=0;
+            virtual void operator++(int junk)=0;
+			virtual void operator--()=0;
+            virtual void operator--(int junk)=0;
+            virtual Task& operator*()=0;
+            virtual Task* operator->()=0;
+            virtual bool operator==(const iterator* rhs)=0;
+            virtual bool operator!=(const iterator* rhs)=0;
+    };
+
+	class const_iterator {
+        public:
+			typedef const_iterator self_type;
+            typedef Task value_type;
+            typedef Task& reference;
+            typedef Task* pointer;
+			typedef std::bidirectional_iterator_tag iterator_category;
+            typedef int difference_type;
+			virtual ~const_iterator()=0 {};
+            virtual void operator++()=0;
+            virtual void operator++(int junk)=0;
+			virtual void operator--()=0;
+            virtual void operator--(int junk)=0;
+            virtual const Task& operator*()=0;
+            virtual const Task* operator->()=0;
+            virtual bool operator==(const const_iterator* rhs)=0;
+            virtual bool operator!=(const const_iterator* rhs)=0;
+    };
+
+
+	virtual std::list<Task>getAllTasks()=0;
+	virtual void			addTask(Task newTask)=0;
+	virtual void			deleteTask(iterator* i)=0;
+	virtual Task&			front()=0;
+	virtual Task&			back()=0;
+	virtual iterator*		begin()=0;
+	virtual iterator*		end()=0;
+	virtual const_iterator*	cbegin()=0;
+	virtual const_iterator*	cend()=0;
+	virtual unsigned		size()=0;
+};
+
+#endif
+	// End of segment: .\TaskPad_library\Datastore_Base.h
+
+
+
+
+
+	/**
+	 * origin: .\TaskPad_library\Datastore_List.cpp
+	 */
+
+/*
+ * =====================================================================================
+ *
+ *       Filename:  Datastore_List.cpp
+ *
+ *        Version:  1.0
+ *        Created:  10/28/13 15:47:28
+ *
+ *         Author:  ASHRAY JAIN (A0105199B), ashrayj11@gmail.com
+ *   Organization:  NUS, SoC
+ *
+ * =====================================================================================
+ */
+
+#include "Datastore_List.h"
+
+using namespace std;
+using namespace TP;
 
 
 list<Task> Datastore_List::getAllTasks() {
@@ -340,15 +618,122 @@ list<Task> Datastore_List::getAllTasks() {
 
 
 
-	// End of segment: C:\Users\a0102016\Desktop\asd\Datastore_List.cpp
+	// End of segment: .\TaskPad_library\Datastore_List.cpp
 
 
 
 
 
 	/**
-	 * origin: C:\Users\a0102016\Desktop\asd\Executor.cpp
+	 * origin: .\TaskPad_library\Datastore_List.h
 	 */
+
+/*
+ * =====================================================================================
+ *
+ *       Filename:  Datastore_List.h
+ *
+ *        Version:  1.0
+ *        Created:  10/28/13 15:47:28
+ *
+ *         Author:  ASHRAY JAIN (A0105199B), ashrayj11@gmail.com
+ *   Organization:  NUS, SoC
+ *
+ * =====================================================================================
+ */
+
+#ifndef TASKPAD_DATASTORE_LIST_H
+#define TASKPAD_DATASTORE_LIST_H
+
+#include "Datastore_Base.h"
+
+
+class Datastore_List: public Datastore_Base {
+private:
+	std::list<Task> _db;
+
+public:
+	~Datastore_List() {};
+
+	class iterator: public Datastore_Base::iterator {
+	public:
+		iterator(std::list<Task>::iterator _it): i(_it)				{ }
+		void operator++()											{ i.operator++(); }
+		void operator++(int junk)									{ i.operator++(junk); }
+		void operator--()											{ i.operator--(); }
+		void operator--(int junk)									{ i.operator--(junk); }
+		Task& operator*()											{ return i.operator*(); }
+		Task* operator->()											{ return i.operator->(); }
+		bool operator==(const Datastore_Base::iterator* rhs)		{ return i==dynamic_cast<const Datastore_List::iterator*>(rhs)->i; }
+		bool operator!=(const Datastore_Base::iterator* rhs)		{ return i!=dynamic_cast<const Datastore_List::iterator*>(rhs)->i; }
+		const std::list<Task>::iterator& getIterator() const		{ return i; }
+	private:
+		std::list<Task>::iterator i;
+	};
+
+	class const_iterator: public Datastore_Base::const_iterator {
+	public:	
+		const_iterator(std::list<Task>::const_iterator _it): i(_it)	{ }
+		void operator++()											{ i.operator++(); }
+		void operator++(int junk)									{ i.operator++(junk); }
+		void operator--()											{ i.operator--(); }
+		void operator--(int junk)									{ i.operator--(junk); }
+		const Task& operator*()										{ return i.operator*(); }
+		const Task* operator->()									{ return i.operator->(); }
+		bool operator==(const Datastore_Base::const_iterator* rhs)	{ return i==dynamic_cast<const Datastore_List::const_iterator*>(rhs)->i; }
+		bool operator!=(const Datastore_Base::const_iterator* rhs)	{ return i!=dynamic_cast<const Datastore_List::const_iterator*>(rhs)->i; }
+		std::list<Task>::const_iterator getIterator()				{ return i; }
+	private:
+		std::list<Task>::const_iterator i;
+	};
+	
+	std::list<Task>					getAllTasks();
+	void							addTask(Task newTask)					{ _db.push_back(newTask); }
+	void							deleteTask(Datastore_Base::iterator* i)	{ (*i)->freeIndex(); _db.erase(dynamic_cast<Datastore_List::iterator*>(i)->getIterator()); }
+	Task&							front()									{ return _db.front(); }
+	Task&							back()									{ return _db.back(); }
+	Datastore_List::iterator*		begin()									{ return new Datastore_List::iterator(_db.begin()); }
+	Datastore_List::iterator*		end()									{ return new Datastore_List::iterator(_db.end()); }
+	Datastore_List::const_iterator*	cbegin()								{ return new Datastore_List::const_iterator(_db.cbegin()); }
+	Datastore_List::const_iterator*	cend()									{ return new Datastore_List::const_iterator(_db.cend()); }
+	unsigned						size()									{ return _db.size(); }
+};
+
+#endif
+	// End of segment: .\TaskPad_library\Datastore_List.h
+
+
+
+
+
+	/**
+	 * origin: .\TaskPad_library\Executor.cpp
+	 */
+
+/*
+ * =====================================================================================
+ *
+ *       Filename:  Executor.cpp
+ *
+ *        Version:  1.0
+ *        Created:  09/25/13 00:22:00
+ *
+ *         Author:  ASHRAY JAIN (A0105199B), ashrayj11@gmail.com
+ *   Organization:  NUS, SoC
+ *
+ * =====================================================================================
+ */
+
+#include "Executor.h"
+#include "Executor_Add.h"
+#include "Executor_Del.h"
+#include "Executor_Mod.h"
+#include "Executor_Find.h"
+#include "Executor_Undo.h"
+#include "Executor_Redo.h"
+
+using namespace std;
+using namespace TP;
 
 
 list<Task> Executor::getCurrentReminders() {
@@ -426,15 +811,80 @@ bool Executor::isCmdSuccessful(const Messenger &response) const {
 	return response.getStatus() == TP::STATUS::SUCCESS;
 }
 
-	// End of segment: C:\Users\a0102016\Desktop\asd\Executor.cpp
+	// End of segment: .\TaskPad_library\Executor.cpp
 
 
 
 
 
 	/**
-	 * origin: C:\Users\a0102016\Desktop\asd\Executor_Add.cpp
+	 * origin: .\TaskPad_library\Executor.h
 	 */
+
+/*
+ * =====================================================================================
+ *
+ *       Filename:  Executor.h
+ *
+ *        Version:  1.0
+ *        Created:  09/25/13 00:22:00
+ *
+ *         Author:  ASHRAY JAIN (A0105199B), ashrayj11@gmail.com
+ *   Organization:  NUS, SoC
+ *
+ * =====================================================================================
+ */
+
+#include <list>
+#include "Datastore.h"
+
+
+class Task;
+class Messenger;
+class Executor_Base;
+class Command;
+
+class Executor
+{
+public:
+	Executor(Datastore &ds):_ds(ds),_executor(NULL)		{ }
+	void executeCommand	(Command* &cmd, Messenger &response);
+	std::list<Task>	getCurrentReminders	();
+
+protected:
+	Executor_Base* _executor;
+	Datastore	&_ds;
+	void		executeCommandWithoutUndoRedo	(Command* cmd, Messenger &response);
+	bool		isCmdSuccessful					(const Messenger &response) const;	
+};
+	// End of segment: .\TaskPad_library\Executor.h
+
+
+
+
+
+	/**
+	 * origin: .\TaskPad_library\Executor_Add.cpp
+	 */
+
+/*
+ * =====================================================================================
+ *
+ *       Filename:  Executor_Add.cpp
+ *
+ *        Version:  1.0
+ *        Created:  11/02/13 13:47:00
+ *
+ *         Author:  ASHRAY JAIN (A0105199B), ashrayj11@gmail.com
+ *   Organization:  NUS, SoC
+ *
+ * =====================================================================================
+ */
+
+#include "Executor_Add.h"
+
+using namespace std;
+using namespace TP;
 
 
 const unsigned			Executor_Add::RT_MIN_H_ARR[]				= {5, 15, 30, 60};
@@ -532,15 +982,84 @@ list<time_t> Executor_Add::getRemindTimesFromMinutesBefore(const unsigned minute
 	}
 	return remindTimesList;
 }
-	// End of segment: C:\Users\a0102016\Desktop\asd\Executor_Add.cpp
+	// End of segment: .\TaskPad_library\Executor_Add.cpp
 
 
 
 
 
 	/**
-	 * origin: C:\Users\a0102016\Desktop\asd\Executor_Base.cpp
+	 * origin: .\TaskPad_library\Executor_Add.h
 	 */
+
+/*
+ * =====================================================================================
+ *
+ *       Filename:  Executor_Add.h
+ *
+ *        Version:  1.0
+ *        Created:  11/02/13 13:47:00
+ *
+ *         Author:  ASHRAY JAIN (A0105199B), ashrayj11@gmail.com
+ *   Organization:  NUS, SoC
+ *
+ * =====================================================================================
+ */
+
+#ifndef TASKPAD_EXECUTOR_ADD_H
+#define TASKPAD_EXECUTOR_ADD_H
+
+#include "Executor_Base.h"
+
+
+class Executor_Add: public Executor_Base {
+public:
+	void executeCommand	(Command* cmd, Messenger &response, Datastore &ds);
+private:
+	static const unsigned RT_MIN_H_ARR[];
+	static const unsigned RT_MIN_M_ARR[];
+	static const unsigned RT_MIN_L_ARR[];
+
+	bool					isValidAddCmd					(Command_Add* cmd, Messenger &response);
+	Task					formTaskFromAddCmd				(Command_Add* cmd);
+	void					setDefaultRemindTimes			(Task &task);
+	void					setDefaultRemindTimesPriorityH	(Task &task);
+	void					setDefaultRemindTimesPriorityM	(Task &task);
+	void					setDefaultRemindTimesPriorityL	(Task &task);
+	std::list<std::time_t>	getRemindTimesFromMinutesBefore	(const unsigned minutesBeforeList[], 
+															 const int N, 
+															 const std::time_t &deadline) const;
+};
+#endif
+
+	// End of segment: .\TaskPad_library\Executor_Add.h
+
+
+
+
+
+	/**
+	 * origin: .\TaskPad_library\Executor_Base.cpp
+	 */
+
+/*
+ * =====================================================================================
+ *
+ *       Filename:  Executor_Base.cpp
+ *
+ *        Version:  1.0
+ *        Created:  11/02/13 13:47:00
+ *
+ *         Author:  ASHRAY JAIN (A0105199B), ashrayj11@gmail.com
+ *   Organization:  NUS, SoC
+ *
+ * =====================================================================================
+ */
+
+#include "Executor_Base.h"
+
+using namespace std;
+using namespace TP;
 
 
 const unsigned			Executor_Base::EMPTY_LIST_SIZE				= 0;
@@ -587,15 +1106,100 @@ void Executor_Base::setErrorWithErrMsg(Messenger &response, const string errMsg)
 	response.setErrorMsg(errMsg);
 }
 
-	// End of segment: C:\Users\a0102016\Desktop\asd\Executor_Base.cpp
+	// End of segment: .\TaskPad_library\Executor_Base.cpp
 
 
 
 
 
 	/**
-	 * origin: C:\Users\a0102016\Desktop\asd\Executor_Del.cpp
+	 * origin: .\TaskPad_library\Executor_Base.h
 	 */
+
+/*
+ * =====================================================================================
+ *
+ *       Filename:  Executor_Base.h
+ *
+ *        Version:  1.0
+ *        Created:  11/02/13 13:47:00
+ *
+ *         Author:  ASHRAY JAIN (A0105199B), ashrayj11@gmail.com
+ *   Organization:  NUS, SoC
+ *
+ * =====================================================================================
+ */
+
+#ifndef TASKPAD_EXECUTOR_BASE_H
+#define TASKPAD_EXECUTOR_BASE_H
+
+#include <string>
+#include <cstring>
+#include <list>
+#include <unordered_set>
+#include "Task.h"
+#include "Messenger.h"
+#include "Command.h"
+#include "Datastore.h"
+
+
+class Executor_Base {
+protected:
+
+	// Class constants
+	static const unsigned		EMPTY_LIST_SIZE;
+	static const unsigned		SINGLE_RESULT_LIST_SIZE;
+	static const std::string	NAME_NOT_FOUND_ERROR;
+	static const std::string	INVALID_INDEX_ERROR;
+	static const std::string	UNDOSTACK_EMPTY_MSG;
+	static const std::string	REDOSTACK_EMPTY_MSG;
+	static const std::string	MODIFY_SAME_NAME_ERROR;
+	static const std::string	INVALID_FROMDATE_ERROR;
+	static const std::string	INVALID_TODATE_ERROR;
+	static const std::string	INVALID_FROMDATE_TODATE_ERROR;
+	static const std::string	NAME_NOT_SPECIFIED_ERROR;
+
+	// Setters for Messenger to return
+	void setOpSuccessTask			(const Task &retTask, Messenger &response);
+	void setOpSuccessTaskList		(const std::list<Task>& results, Messenger &response);
+	void setOpIntermediateTaskList	(const std::list<Task> &results, Messenger &response);
+	void setIndexNotFound			(const unsigned long long &index, Messenger &response);
+	void setNameNotFound			(const std::string &name, Messenger &response);
+	void setErrorWithErrMsg			(Messenger &response, const std::string errMsg);
+
+public:
+	virtual ~Executor_Base			()=0  {};
+	virtual void executeCommand		(Command* cmd, Messenger &response, Datastore &ds)=0;
+};
+#endif
+	// End of segment: .\TaskPad_library\Executor_Base.h
+
+
+
+
+
+	/**
+	 * origin: .\TaskPad_library\Executor_Del.cpp
+	 */
+
+/*
+ * =====================================================================================
+ *
+ *       Filename:  Executor_Del.cpp
+ *
+ *        Version:  1.0
+ *        Created:  11/02/13 13:47:00
+ *
+ *         Author:  ASHRAY JAIN (A0105199B), ashrayj11@gmail.com
+ *   Organization:  NUS, SoC
+ *
+ * =====================================================================================
+ */
+
+#include "Executor_Del.h"
+
+using namespace std;
+using namespace TP;
 
 
 void Executor_Del::executeCommand(Command* cmd, Messenger &response, Datastore &ds) {
@@ -676,15 +1280,76 @@ void Executor_Del::selectAppropriateDeleteResponse(const list<Task> &matchingRes
 	else
 		setOpIntermediateTaskList(matchingResults, response);
 }
-	// End of segment: C:\Users\a0102016\Desktop\asd\Executor_Del.cpp
+	// End of segment: .\TaskPad_library\Executor_Del.cpp
 
 
 
 
 
 	/**
-	 * origin: C:\Users\a0102016\Desktop\asd\Executor_Find.cpp
+	 * origin: .\TaskPad_library\Executor_Del.h
 	 */
+
+/*
+ * =====================================================================================
+ *
+ *       Filename:  Executor_Del.h
+ *
+ *        Version:  1.0
+ *        Created:  11/02/13 13:47:00
+ *
+ *         Author:  ASHRAY JAIN (A0105199B), ashrayj11@gmail.com
+ *   Organization:  NUS, SoC
+ *
+ * =====================================================================================
+ */
+
+#ifndef TASKPAD_EXECUTOR_DEL_H
+#define TASKPAD_EXECUTOR_DEL_H
+
+#include "Executor_Base.h"
+
+
+class Executor_Del: public Executor_Base {
+public:
+	void executeCommand						(Command* cmd, Messenger &response, Datastore &ds);
+private:
+	void deleteTaskByIndex					(const unsigned long long &index, Messenger &reponse, Datastore &ds);	
+	void deleteTaskByName					(const std::string &name, Messenger &reponse, const bool &exactFlag, Datastore &ds);
+	void deleteByExactName					(const std::string &name, Messenger &response, Datastore &ds);
+	void deleteByApproxName					(const std::string &name, Messenger &response, Datastore &ds);
+	void selectAppropriateDeleteResponse	(const std::list<Task> &matchingResults, const std::list<Task> &caseInsensitiveResults, 
+											 const std::string &name, Messenger &response, Datastore &ds);
+};
+#endif
+	// End of segment: .\TaskPad_library\Executor_Del.h
+
+
+
+
+
+	/**
+	 * origin: .\TaskPad_library\Executor_Find.cpp
+	 */
+
+/*
+ * =====================================================================================
+ *
+ *       Filename:  Executor_Find.cpp
+ *
+ *        Version:  1.0
+ *        Created:  11/02/13 13:47:00
+ *
+ *         Author:  ASHRAY JAIN (A0105199B), ashrayj11@gmail.com
+ *   Organization:  NUS, SoC
+ *
+ * =====================================================================================
+ */
+
+#include "Executor_Find.h"
+
+using namespace std;
+using namespace TP;
 
 
 void Executor_Find::executeCommand(Command* cmd, Messenger &response, Datastore &ds) {
@@ -929,15 +1594,101 @@ bool Executor_Find::sortTaskByFromTimeComparator(const Task &first, const Task &
 	return (first.getFromDate() < second.getFromDate());
 }
 
-	// End of segment: C:\Users\a0102016\Desktop\asd\Executor_Find.cpp
+	// End of segment: .\TaskPad_library\Executor_Find.cpp
 
 
 
 
 
 	/**
-	 * origin: C:\Users\a0102016\Desktop\asd\Executor_Mod.cpp
+	 * origin: .\TaskPad_library\Executor_Find.h
 	 */
+
+/*
+ * =====================================================================================
+ *
+ *       Filename:  Executor_Find.h
+ *
+ *        Version:  1.0
+ *        Created:  11/02/13 13:47:00
+ *
+ *         Author:  ASHRAY JAIN (A0105199B), ashrayj11@gmail.com
+ *   Organization:  NUS, SoC
+ *
+ * =====================================================================================
+ */
+
+#ifndef TASKPAD_EXECUTOR_FIND_H
+#define TASKPAD_EXECUTOR_FIND_H
+
+#include "Executor_Base.h"
+
+
+class Executor_Find: public Executor_Base {
+public:
+	void executeCommand(Command* cmd, Messenger &response, Datastore &ds);
+private:
+	void			formTaskFromFindCmd			(Command_Find* cmd, Task &newTask);
+	void			findByIndex					(const unsigned long long index, Messenger &response, Datastore &ds);
+	void			findGeneral					(Command_Find* cmd, Messenger &response, Datastore &ds);
+	void			runSearch					(const Task &taskToCompare, std::list<Task> &results, std::string substringName, 
+												 std::set<Task> &customData, bool customDataSet, Datastore &ds);
+	void			findByTags					(Command_Find* cmd, Messenger &response);
+	void			getCustomDataRangeByTags	(std::set<Task> &customDataRange, std::list<std::string> &tags, Datastore &ds);
+	void			getCustomDataRangeByRT		(std::set<Task> &customDataRange, std::list<time_t> &remindTimes, Datastore &ds);
+	void			filterResponseListByType	(Messenger &response, std::list<TP::TASK_TYPE> &types);
+	void			runSearchWithTask			(const Task &taskToCompare,	std::list<Task> &results, Datastore &ds);
+	void			runSearchWithTask			(const Task &taskToCompare, std::list<Task> &results, 
+												 std::string substringName, Datastore &ds);
+	void			runSearchWithTask			(const Task &taskToCompare,	std::list<Task> &results,
+												 std::set<Task> &customData);
+	void			runSearchWithTask			(const Task &taskToCompare, std::list<Task> &results, 
+												 std::string substringName, std::set<Task> &customData);
+	bool			taskMatch					(const Task& lhs, const Task& rhs);
+	bool			taskStatesNotEqual			(const TP::TASK_STATE &lhs, const TP::TASK_STATE &rhs) const;
+	bool			participantsMatchFound		(const std::list<std::string> &rhsParticipants, 
+												 const std::list<std::string> &lhsParticipants) const;
+	bool			invalidDateChk				(const Task &lhs, const Task &rhs) const;
+	bool			validDateBound				(const time_t &fromTime, const time_t &toTime, const Task &lhs) const;
+	bool			chkFromDateBound			(const time_t &fromTime, const Task &lhs) const;
+	bool			chkToDateBound				(const time_t &toTime, const Task &lhs) const;
+	std::list<Task> getSortListByPriority		(std::list<Task> &taskList);
+	std::list<Task> getSortListByFromTime		(std::list<Task> &taskList);
+
+	// Custom Comparator for sorting Tasks by Priority
+	static bool sortTaskByPriorityComparator	(const Task &first, const Task &second);
+	static bool sortTaskByFromTimeComparator	(const Task &first, const Task &second); 
+};
+#endif
+
+	// End of segment: .\TaskPad_library\Executor_Find.h
+
+
+
+
+
+	/**
+	 * origin: .\TaskPad_library\Executor_Mod.cpp
+	 */
+
+/*
+ * =====================================================================================
+ *
+ *       Filename:  Executor_Mod.cpp
+ *
+ *        Version:  1.0
+ *        Created:  11/02/13 13:47:00
+ *
+ *         Author:  ASHRAY JAIN (A0105199B), ashrayj11@gmail.com
+ *   Organization:  NUS, SoC
+ *
+ * =====================================================================================
+ */
+
+#include "Executor_Mod.h"
+
+using namespace std;
+using namespace TP;
 
 
 void Executor_Mod::executeCommand(Command* cmd, Messenger &response, Datastore &ds) {
@@ -1036,15 +1787,78 @@ bool Executor_Mod::isModCmdValid(Command_Mod* cmd, const Task& task, Messenger &
 	}
 	return true;
 }
-	// End of segment: C:\Users\a0102016\Desktop\asd\Executor_Mod.cpp
+	// End of segment: .\TaskPad_library\Executor_Mod.cpp
 
 
 
 
 
 	/**
-	 * origin: C:\Users\a0102016\Desktop\asd\Executor_Redo.cpp
+	 * origin: .\TaskPad_library\Executor_Mod.h
 	 */
+
+/*
+ * =====================================================================================
+ *
+ *       Filename:  Executor_Mod.h
+ *
+ *        Version:  1.0
+ *        Created:  11/02/13 13:47:00
+ *
+ *         Author:  ASHRAY JAIN (A0105199B), ashrayj11@gmail.com
+ *   Organization:  NUS, SoC
+ *
+ * =====================================================================================
+ */
+
+#ifndef TASKPAD_EXECUTOR_MOD_H
+#define TASKPAD_EXECUTOR_MOD_H
+
+#include "Executor_Base.h"
+
+
+class Executor_Mod: public Executor_Base {
+public:
+	void executeCommand					(Command* cmd, Messenger &response, Datastore &ds);
+private:
+	void modifyByIndex					(Command_Mod* cmd, Messenger &response, Datastore &ds);
+	void modifyByName					(Command_Mod* cmd, Messenger &response, Datastore &ds);
+	void modifyByExactName				(Command_Mod* cmd, Messenger &response, Datastore &ds);
+	void modifyByApproxName				(Command_Mod* cmd, Messenger &response, Datastore &ds);
+	void selectAppropriateModifyResponse(const std::list<Task> &matchingResults, 
+										 const std::list<Task> &caseInsensitiveResults,
+										 Command_Mod* cmd, Messenger &response, Datastore &ds);
+	bool isModCmdValid					(Command_Mod* cmd, const Task& task, Messenger &response);
+};
+#endif
+	// End of segment: .\TaskPad_library\Executor_Mod.h
+
+
+
+
+
+	/**
+	 * origin: .\TaskPad_library\Executor_Redo.cpp
+	 */
+
+/*
+ * =====================================================================================
+ *
+ *       Filename:  Executor_Redo.cpp
+ *
+ *        Version:  1.0
+ *        Created:  11/02/13 13:47:00
+ *
+ *         Author:  ASHRAY JAIN (A0105199B), ashrayj11@gmail.com
+ *   Organization:  NUS, SoC
+ *
+ * =====================================================================================
+ */
+
+#include "Executor_Redo.h"
+
+using namespace std;
+using namespace TP;
 
 
 void Executor_Redo::executeCommand(Command* cmd, Messenger &response, Datastore &ds) {
@@ -1068,15 +1882,75 @@ Command* Executor_Redo::getRedoCommandToExecute() {
 	return _redoCommandToExecute;
 }
 
-	// End of segment: C:\Users\a0102016\Desktop\asd\Executor_Redo.cpp
+	// End of segment: .\TaskPad_library\Executor_Redo.cpp
 
 
 
 
 
 	/**
-	 * origin: C:\Users\a0102016\Desktop\asd\Executor_Undo.cpp
+	 * origin: .\TaskPad_library\Executor_Redo.h
 	 */
+
+/*
+ * =====================================================================================
+ *
+ *       Filename:  Executor_Redo.h
+ *
+ *        Version:  1.0
+ *        Created:  11/02/13 13:47:00
+ *
+ *         Author:  ASHRAY JAIN (A0105199B), ashrayj11@gmail.com
+ *   Organization:  NUS, SoC
+ *
+ * =====================================================================================
+ */
+
+#ifndef TASKPAD_EXECUTOR_REDO_H
+#define TASKPAD_EXECUTOR_REDO_H
+
+#include "Executor_Base.h"
+
+
+class Executor_Redo: public Executor_Base {
+public:
+	Executor_Redo()	{ _redoCommandToExecute = NULL; }
+	~Executor_Redo(){ }
+
+	void		executeCommand					(Command* cmd, Messenger &response, Datastore &ds);
+	Command*	getRedoCommandToExecute			();
+private:
+	Command*	_redoCommandToExecute;
+};
+#endif
+	// End of segment: .\TaskPad_library\Executor_Redo.h
+
+
+
+
+
+	/**
+	 * origin: .\TaskPad_library\Executor_Undo.cpp
+	 */
+
+/*
+ * =====================================================================================
+ *
+ *       Filename:  Executor_Undo.cpp
+ *
+ *        Version:  1.0
+ *        Created:  11/02/13 13:47:00
+ *
+ *         Author:  ASHRAY JAIN (A0105199B), ashrayj11@gmail.com
+ *   Organization:  NUS, SoC
+ *
+ * =====================================================================================
+ */
+
+#include "Executor_Undo.h"
+
+using namespace std;
+using namespace TP;
 
 
 void Executor_Undo::executeCommand(Command* cmd, Messenger &response, Datastore &ds) {
@@ -1185,15 +2059,269 @@ void Executor_Undo::getCmdForSubtractingCmdFromTask(Command_Mod* subtractCmd, Co
 	if(cmd->getFlagTaskState())
 		subtractCmd->setTaskState(task.getState());
 }
-	// End of segment: C:\Users\a0102016\Desktop\asd\Executor_Undo.cpp
+	// End of segment: .\TaskPad_library\Executor_Undo.cpp
 
 
 
 
 
 	/**
-	 * origin: C:\Users\a0102016\Desktop\asd\Task.cpp
+	 * origin: .\TaskPad_library\Executor_Undo.h
 	 */
+
+/*
+ * =====================================================================================
+ *
+ *       Filename:  Executor_Undo.h
+ *
+ *        Version:  1.0
+ *        Created:  11/02/13 13:47:00
+ *
+ *         Author:  ASHRAY JAIN (A0105199B), ashrayj11@gmail.com
+ *   Organization:  NUS, SoC
+ *
+ * =====================================================================================
+ */
+
+#ifndef TASKPAD_EXECUTOR_UNDO_H
+#define TASKPAD_EXECUTOR_UNDO_H
+
+#include "Executor_Base.h"
+
+
+class Executor_Undo: public Executor_Base {
+public:
+	Executor_Undo()	{ _undoCommandToExecute = NULL; }
+	~Executor_Undo(){ }
+
+	void		executeCommand					(Command* cmd, Messenger &response, Datastore &ds);
+	Command*	getUndoCommandToExecute			();
+private:
+	Command*	getTransposeCommand				(Command* cmd, Task &task);
+	Command*	getTransposeCommand				(Command_Add* cmd, Task &task);
+	Command*	getTransposeCommand				(Command_Del* cmd, Task &task);
+	Command*	getTransposeCommand				(Command_Mod* cmd, Task &task);
+	void		getCmdForSubtractingCmdFromTask	(Command_Mod* subtractCmd, Command_Mod* cmd, Task &task);
+	void		formAddCmdFromTask				(Task &task, Command_Add* cmd);
+	Command*	_undoCommandToExecute;
+};
+#endif
+	// End of segment: .\TaskPad_library\Executor_Undo.h
+
+
+
+
+
+	/**
+	 * origin: .\TaskPad_library\Natty.cpp
+	 */
+
+#include "Natty.h"
+
+natty* natty::_natty = NULL;
+//char* natty::JVM_OPTIONS = "-Djava.class.path=./Natty;.Natty/natty;./Natty/natty/natty-0.8.jar;./Natty/natty/ical4j-1.0.2.jar;./Natty/natty/antlr-runtime-3.2.jar;./Natty/natty/antlr-2.7.7.jar"; 
+char* natty::JVM_OPTIONS = "-Djava.class.path=./Natty;.Natty/natty;./Natty/natty/natty.jar"; 
+LPCWSTR natty::DLL_LOCATION = L"./Natty/bin/client/jvm.dll"; 
+char* natty::CLASS_TO_LOAD = "DateParser";
+char* natty::SIGNATURE = "(Ljava/lang/String;)Ljava/lang/String;";
+char* natty::METHOD_TO_CALL = "parse";
+char* natty::DLL_NOT_FOUND = "Java Virtual Machine DLL file missing!";
+char* natty::JVM_LOAD_ERROR = "JVM could not be loaded!";
+char* natty::CLASS_NOT_FOUND = "Java Class not found!";
+char* natty::JNI_CREATEVM = "JNI_CreateJavaVM";
+
+natty::natty() {
+	jvmOptions[0].optionString = JVM_OPTIONS;
+	memset(&vmArgs, 0, sizeof(vmArgs));
+	vmArgs.version = JNI_VERSION_1_6;
+	vmArgs.nOptions = 1;
+	vmArgs.options = jvmOptions;
+	hVM = LoadLibrary(DLL_LOCATION);
+	if (hVM == NULL)
+		throw(DLL_NOT_FOUND);
+	typedef jint (CALLBACK *fpCJV)(JavaVM**, void**, JavaVMInitArgs*);
+	fpCJV CreateJavaVM = (fpCJV)::GetProcAddress(hVM, JNI_CREATEVM);
+
+	jvmCreated = CreateJavaVM(&jVM, (void**)&jEnv, &vmArgs);
+	
+	if (jvmCreated == JNI_ERR)
+		throw(JVM_LOAD_ERROR);
+	else {
+		parseClass = jEnv->FindClass(CLASS_TO_LOAD);
+		if(parseClass == 0)
+			throw(CLASS_NOT_FOUND);
+	}
+}
+
+natty::~natty() {
+	FreeLibrary(hVM);
+	jVM->DestroyJavaVM();
+}
+
+std::string natty::parseDateTime(std::string commandStr) {
+	if(parseClass != 0) {
+		jmethodID mid = jEnv->GetStaticMethodID(parseClass, METHOD_TO_CALL, SIGNATURE);
+		if(mid != 0){
+			jstring data = (jstring)jEnv->CallStaticObjectMethod(parseClass, mid, jEnv->NewStringUTF(commandStr.c_str()));
+			if(data != NULL){
+				const char *str= jEnv->GetStringUTFChars(data, 0);
+				std::string result = std::string(str);
+				if(result != std::string())
+					commandStr = result;
+				jEnv->ReleaseStringUTFChars(data, str);
+			}
+		}
+	}
+	return commandStr;
+}
+
+natty& natty::getNatty() {
+	if(_natty == NULL)
+	{
+		static natty theOne;
+		_natty = &theOne;
+	}
+	return *_natty;
+}
+	// End of segment: .\TaskPad_library\Natty.cpp
+
+
+
+
+
+	/**
+	 * origin: .\TaskPad_library\Natty.h
+	 */
+
+#ifndef TASKPAD_NATTY_H
+#define TASKPAD_NATTY_H
+
+#include "./Natty/jni.h"
+#include <Windows.h>
+#include <string>
+#include <cstring>
+
+class natty {
+private:
+	static char* JVM_OPTIONS;
+	static LPCWSTR DLL_LOCATION;
+	static char* CLASS_TO_LOAD;
+	static char* SIGNATURE;
+	static char* METHOD_TO_CALL;
+	static char* DLL_NOT_FOUND;
+	static char* JVM_LOAD_ERROR;
+	static char* CLASS_NOT_FOUND;
+	static char* JNI_CREATEVM;
+	JavaVMOption jvmOptions[1];
+	JNIEnv* jEnv;
+	JavaVM* jVM;
+	JavaVMInitArgs vmArgs;
+	long jvmCreated;
+	jclass parseClass;
+	HINSTANCE hVM;
+	static natty* _natty;
+	natty();
+	~natty();
+public:
+	std::string parseDateTime(std::string commandStr);
+	static natty& getNatty();
+};
+#endif
+	// End of segment: .\TaskPad_library\Natty.h
+
+
+
+
+
+	/**
+	 * origin: .\TaskPad_library\StorableTaskDatastore.h
+	 */
+
+/*
+ * =====================================================================================
+ *
+ *		Filename:  StorableTaskDatastore.h
+ *
+ *      Version:  1.0
+ *
+ *      Authors:  Thyaegsh Manikandan (A0100124J), Ashray Jain (A0105199B)
+ *		Organization:  NUS, SoC
+ *
+ * =====================================================================================
+
+ ** Gist of File Contents:
+  *
+  * This file defines the necessary functions that a TaskDataStore needs to 
+  * have in order to be saved to and loaded from the file system. It also 
+  * helps to hide the rest of the APIs of a Datastore implemenentation
+  * from the Storage Component.
+ */
+
+#ifndef _STORABLE_DSTORE_H_
+#define _STORABLE_DSTORE_H_
+
+#include <list>
+#include "Task.h"
+
+
+class StorableTaskDatastore {
+	public:
+		virtual std::list<Task>	getTaskList	()=0;
+		virtual void			addTask		(const Task&)=0;
+
+		class const_iterator {
+			public:
+				typedef const_iterator self_type;
+				typedef Task value_type;
+				typedef Task& reference;
+				typedef Task* pointer;
+				typedef std::bidirectional_iterator_tag iterator_category;
+				typedef int difference_type;
+				virtual ~const_iterator()=0 {};
+				virtual void operator++()=0;
+				virtual void operator++(int junk)=0;
+				virtual void operator--()=0;
+				virtual void operator--(int junk)=0;
+				virtual const Task& operator*()=0;
+				virtual const Task* operator->()=0;
+				virtual bool operator==(const const_iterator* rhs)=0;
+				virtual bool operator!=(const const_iterator* rhs)=0;
+		};
+
+		virtual StorableTaskDatastore::const_iterator* cbeginPtr	()=0;
+		virtual StorableTaskDatastore::const_iterator* cendPtr		()=0;
+
+
+		virtual ~StorableTaskDatastore()=0 {};
+};
+#endif
+	// End of segment: .\TaskPad_library\StorableTaskDatastore.h
+
+
+
+
+
+	/**
+	 * origin: .\TaskPad_library\Task.cpp
+	 */
+
+/*
+ * =====================================================================================
+ *
+ *       Filename:  Task.cpp
+ *
+ *        Version:  1.0
+ *        Created:  09/23/13 17:32:00
+ *
+ *         Author:  ASHRAY JAIN (A0105199B), ashrayj11@gmail.com
+ *   Organization:  NUS, SoC
+ *
+ * =====================================================================================
+ */
+
+#include "Task.h"
+
+using namespace std;
 
 
 set<unsigned long long>				Task::listOfAllIndices;
@@ -1356,7 +2484,797 @@ void Task::removeSingleTagOccurrence(string &toRemove) {
 
 
 
-	// End of segment: C:\Users\a0102016\Desktop\asd\Task.cpp
+	// End of segment: .\TaskPad_library\Task.cpp
+
+
+
+
+
+	/**
+	 * origin: .\TaskPad_library\Task.h
+	 */
+
+/*
+ * =====================================================================================
+ *
+ *       Filename:  Task.h
+ *
+ *        Version:  1.0
+ *        Created:  09/23/13 17:32:00
+ *
+ *         Author:  ASHRAY JAIN (A0105199B), ashrayj11@gmail.com
+ *   Organization:  NUS, SoC
+ *
+ * =====================================================================================
+ */
+
+#ifndef TASKPAD_TASK_H
+#define TASKPAD_TASK_H
+
+#include <list>
+#include <string>
+#include <ctime>
+#include <chrono>
+#include <set>
+#include "Enum.h"
+
+
+
+/*
+ *=======================
+ 
+    Task Base class
+ 
+ *=======================
+ */
+
+class Task
+{
+public:
+    // Default Constructor
+    Task()								{ defaultTaskInit(false); }
+	// Constructor that takes in the task name
+	Task(std::string nameTo)			{ defaultTaskInit(); setName(nameTo); }
+    // Constructor that takes in the index for the task
+    // Note: Throws Exception on invalid index
+    Task(unsigned long long indexToPut)	{ defaultTaskInit(indexToPut); }
+	
+	// Overloaded Operators
+	bool operator<	(const Task& a) const { return this->getIndex() < a.getIndex();  }
+	bool operator==	(const Task& a) const { return this->getIndex() == a.getIndex(); }
+	bool operator<=	(const Task& a) const { return !operator>(a);					 }
+	bool operator>=	(const Task& a) const { return !operator<(a);					 }
+	bool operator!=	(const Task& a) const { return !operator==(a);					 }
+	bool operator>	(const Task& a) const { return this->getIndex() > a.getIndex();  }
+
+	// Default Attributes Values
+	static const unsigned long long						DEFAULT_INDEX;
+	static const std::string							DEFAULT_NAME;
+	static const std::string							DEFAULT_LOCATION;
+	static const std::string							DEFAULT_NOTE;
+	static const TP::PRIORITY							DEFAULT_PRIORITY;
+	static const std::list<std::string>					DEFAULT_PARTICIPANTS;
+	static const std::list<std::string>					DEFAULT_TAGS;
+	static const std::list<std::list<Task*>::iterator>	DEFAULT_HASHTAG_PTRS;
+	static const std::list<std::time_t>					DEFAULT_REMINDTIMES;
+	static const std::list<std::list<Task*>::iterator>	DEFAULT_REMINDTIMES_PTRS;
+	static const std::time_t							DEFAULT_FROMDATE;
+	static const std::time_t							DEFAULT_TODATE;
+	static const TP::TASK_STATE							DEFAULT_STATE;	
+	static const TP::TASK_TYPE							DEFAULT_TYPE;
+
+    // Getter Functions common to all Tasks
+    TP::TASK_TYPE			getTaskType()		const { return _taskType;			}
+    std::string				getName()			const { return _taskName;			}		
+    std::string				getLocation()		const { return _taskLocation;		}
+    std::string				getNote()			const { return _taskNote;			}
+    std::list<std::string>	getParticipants()	const { return _taskParticipants;	}
+    std::list<std::string>	getTags()			const { return _taskTags;			}
+    std::list<std::time_t>	getRemindTimes()	const { return _taskRemindTimes;	}
+    TP::TASK_STATE			getState()			const { return _taskState;			}
+    TP::PRIORITY			getPriority()		const { return _taskPriority;		}
+    unsigned long long		getIndex()			const { return _taskIndex;			}
+    std::time_t				getFromDate()		const { return _taskFromDate;		}
+    std::time_t				getToDate()			const { return _taskToDate;			}
+    std::time_t				getDueDate()		const { return _taskFromDate;		}
+	
+	std::list<std::list<Task*>::iterator>	getHashTagPtrs()		{ return _hashTagPtrs;			}
+	std::list<std::list<Task*>::iterator>	getRemindTimesPtrs()	{ return _remindTimesPtrs;		}
+	
+	void freeIndex()												{ listOfAllIndices.erase(_taskIndex);	}	
+	static void flushAllIndices()									{ listOfAllIndices.clear();				}
+    
+	// Setter Functions common to all Tasks
+	void setName(std::string newName)								{ _taskName			= newName;			flagName			= _taskName	!= DEFAULT_NAME;				}		
+    void setLocation(std::string newLocation)						{ _taskLocation		= newLocation;		flagLocation		= _taskLocation	!= DEFAULT_LOCATION;		}
+	void setNote(std::string newNote)								{ _taskNote			= newNote;			flagNote			= _taskNote	!= DEFAULT_NOTE;				}
+    void setRemindTimes(std::list<std::time_t> newRemindTimes)		{ _taskRemindTimes	= newRemindTimes;	flagRemindTimes		= _taskRemindTimes != DEFAULT_REMINDTIMES;	}
+    void setParticipants(std::list<std::string> newParticipants)	{ _taskParticipants = newParticipants;	flagParticipants	= _taskParticipants != DEFAULT_PARTICIPANTS;}
+    void setTags(std::list<std::string> newTags)					{ _taskTags			= newTags;			flagTags			= _taskTags	!= DEFAULT_TAGS;				}
+	void setPriority(TP::PRIORITY newPriority)						{ _taskPriority		= newPriority;		flagPriority		= true;										}
+	void setState(TP::TASK_STATE newState)							{ _taskState		= newState;			flagState			= true;										}	
+        
+    void setRemindTimes(std::time_t newRemindTime, TP::LIST_OP op);
+    void setParticipants(std::string newParticipant, TP::LIST_OP op);
+    void setTags(std::string newTag, TP::LIST_OP op);
+    
+    void setFromDate(std::time_t newFromDate);
+    void setToDate(std::time_t newToDate);
+    void setDueDate(std::time_t newDueDate);
+    
+	void setHashTagPtrs(std::list<std::list<Task*>::iterator> newHashTagPtrs)			{ _hashTagPtrs = newHashTagPtrs; }
+	void setRemindTimesPtrs(std::list<std::list<Task*>::iterator> newRemindTimesPtrs)	{ _remindTimesPtrs = newRemindTimesPtrs; }
+
+    // Flag Getter Functions common to all Tasks
+    bool getFlagName()			const { return flagName;			}
+    bool getFlagLocation()		const { return flagLocation;		}
+    bool getFlagParticipants()	const { return flagParticipants;	}
+    bool getFlagNote()			const { return flagNote;			}
+    bool getFlagTags()			const { return flagTags;			}
+    bool getFlagRemindTimes()	const { return flagRemindTimes;		}
+    bool getFlagFromDate()		const { return flagFromDate;		}
+    bool getFlagToDate()		const { return flagToDate;			}
+	bool getFlagState()			const { return flagState;			}
+	bool getFlagPriority()		const { return flagPriority;		}
+	bool getFlagDueDate()		const { return flagFromDate && flagToDate && _taskFromDate == _taskToDate;	}
+	bool getFlagIndex()			const { return _taskIndex!=DEFAULT_INDEX;       }
+
+protected:
+	// Task Class Constants
+	static const std::string							INDEX_INVALID_ERROR;
+	
+    // Set of All currently used indices
+    static std::set<unsigned long long> listOfAllIndices;
+
+    // Default Task Initialization
+	void defaultTaskInit(bool createIndex = true);
+    void defaultTaskInit(unsigned long long indexToPut);
+    void initFlags();
+    void initTaskAttributes();
+    
+    // General helper functions
+    bool isIndexInList(unsigned long long index)	{ return listOfAllIndices.find(index) != listOfAllIndices.end();	}
+    void setTaskType(TP::TASK_TYPE taskType)		{ _taskType = taskType;	}
+    void handleDatesChange();
+	void removeSingleRTOccurrence(std::time_t &toRemove);
+	void removeSingleParticipansOccurrence(std::string &toRemove);
+	void removeSingleTagOccurrence(std::string &toRemove);
+
+    // Task Attributes
+    TP::TASK_TYPE			_taskType;
+    std::string				_taskName;
+    std::string				_taskLocation;
+    std::string				_taskNote;
+    TP::PRIORITY			_taskPriority;
+    std::list<std::string>	_taskParticipants;
+    std::list<std::string>	_taskTags;
+    std::list<std::time_t>	_taskRemindTimes;
+    std::time_t				_taskFromDate;
+    std::time_t				_taskToDate;
+    TP::TASK_STATE			_taskState;
+    unsigned long long		_taskIndex;
+	
+	// Ptrs to hash table for hashtags
+	std::list<std::list<Task*>::iterator>	_hashTagPtrs;
+	std::list<std::list<Task*>::iterator>	_remindTimesPtrs;
+
+    // Task Attribute Flags
+    bool flagName;
+    bool flagFromDate;
+    bool flagToDate;
+    bool flagLocation;
+    bool flagParticipants;
+    bool flagNote;
+    bool flagPriority;
+    bool flagTags;
+    bool flagRemindTimes;
+    bool flagState;
+};
+
+#endif
+
+	// End of segment: .\TaskPad_library\Task.h
+
+
+
+
+
+	/**
+	 * origin: .\UnitTest\Executor_Datastore_stub.cpp
+	 */
+
+#include "stdafx.h"
+#include "Executor_Datastore_stub.h"
+
+using namespace std;
+
+void Executor_Datastore_stub::addTask(const Task &newTask) {
+	_ds.push_back(newTask); 
+	Command_Del* tmp_del = new Command_Del();
+	Command_Add* tmp_add = new Command_Add();
+	tmp_del->setName("Test Task");
+	delete undoCmd.first;
+	delete redoCmd.first;
+	undoCmd = pair<Command*, Task>(tmp_del, Task());
+	redoCmd = pair<Command*, Task>(tmp_add, Task());
+}
+
+	// End of segment: .\UnitTest\Executor_Datastore_stub.cpp
+
+
+
+
+
+	/**
+	 * origin: .\UnitTest\Executor_Datastore_stub.h
+	 */
+
+#ifndef _EXECUTOR_DS_STUB_H_
+#define _EXECUTOR_DS_STUB_H_
+
+#include <list>
+#include "../TaskPad_library/Datastore.h"
+
+class Executor_Datastore_stub : public Datastore {
+private:
+	std::list<Task> _ds;
+	std::pair<Command*, Task> undoCmd;
+	std::pair<Command*, Task> redoCmd;
+public:
+	Executor_Datastore_stub() {
+		undoCmd = std::pair<Command*, Task>(new Command_Add(), Task());
+		redoCmd = std::pair<Command*, Task>(new Command_Add(), Task());
+	}
+	~Executor_Datastore_stub() {
+		delete undoCmd.first;
+		delete redoCmd.first;
+	}
+
+	class const_iterator: public Datastore::const_iterator {
+		public:	
+			const_iterator(std::list<Task>::const_iterator _it): i(_it)			{ }
+			~const_iterator()													{ }
+			const_iterator(Executor_Datastore_stub::const_iterator &rhs)		{ this->i = rhs.i; }
+			void operator++()													{ i.operator++(); }
+			void operator++(int junk)											{ i.operator++(junk); }
+			void operator--()													{ i.operator--(); }
+			void operator--(int junk)											{ i.operator--(junk); }
+			const Task& operator*()												{ return i.operator*(); }
+			const Task* operator->()											{ return i.operator->(); }
+			bool operator==(const Executor_Datastore_stub::const_iterator& rhs)	{ return i==rhs.i; }
+			bool operator!=(const Executor_Datastore_stub::const_iterator& rhs)	{ return i!=rhs.i; }
+			std::list<Task>::const_iterator getIterator()						{ return i; }
+		private:
+			std::list<Task>::const_iterator i;
+	};
+
+	std::list<Task>	 		 getTaskList			()												{ return _ds; }
+	void					 addTask				(const Task &newTask);
+	void					 deleteTask				(Executor_Datastore_stub::const_iterator i)		{ _ds.erase(i.getIterator()); }
+	Task					 modifyTask				(Datastore::const_iterator i, Command_Mod *cmd)	{ return *i;}
+	Task					 indexHashSearch		(unsigned long long indexToSearch)				{ return _ds.back(); }
+	bool					 isIndexPresent			(unsigned long long indexToSearch)				{ return false; }
+	std::list<Task>			 getTasksWithHash		(std::string hash)								{ return std::list<Task>(); }
+	std::list<Task>			 getTasksWithRemindTimes(std::time_t remindTime)						{ return std::list<Task>(); }
+	void					 addCmdForUndo			(Command* cmd, Messenger &response)				{ return; }
+	std::pair<Command*, Task>getNextUndoCmd			()												{ return undoCmd;	}	
+	std::pair<Command*, Task>getNextRedoCmd			()												{ return redoCmd;	}
+	void					 transferRedoCmdToUndo	()												{ return; }
+	void					 transferUndoCmdToRedo	()												{ return; }
+
+	Executor_Datastore_stub::const_iterator  cbegin()	{ return Executor_Datastore_stub::const_iterator(_ds.cbegin()); }
+	Executor_Datastore_stub::const_iterator  cend()		{ return Executor_Datastore_stub::const_iterator(_ds.cend()); }
+
+	unsigned size() { 
+		int test = _ds.size();
+		return _ds.size(); }
+};
+#endif
+
+	// End of segment: .\UnitTest\Executor_Datastore_stub.h
+
+
+
+
+
+	/**
+	 * origin: .\UnitTest\test_Executor.cpp
+	 */
+
+#include "stdafx.h"
+#include "CppUnitTest.h"
+#include "../TaskPad_library/Executor.h"
+#include "../TaskPad_library/Datastore.h"
+
+using namespace Microsoft::VisualStudio::CppUnitTestFramework;
+using namespace std;
+
+namespace UnitTest
+{
+
+	TEST_CLASS(test_Executor)
+	{
+	private:
+		Datastore ds;
+		list<Task> data;
+
+	public:
+		TEST_METHOD_INITIALIZE(Generate_Test_Data)
+		{
+			Task::flushAllIndices();
+			
+			time_t now = time(NULL);
+
+			Task testTask_1 = Task(1);
+			testTask_1.setName("Test Task 1");
+			testTask_1.setDueDate(now + 864000);
+			testTask_1.setLocation("Someplace");
+			testTask_1.setNote("This is a sample note!");
+			testTask_1.setParticipants(list<string>(5, "Participant X"));
+			testTask_1.setPriority(TP::PRIORITY::HIGH);
+			testTask_1.setRemindTimes(now + 432000, TP::LIST_OP::ADD_ELEMENT);
+			testTask_1.setRemindTimes(now + 691000, TP::LIST_OP::ADD_ELEMENT);
+			
+			ds.addTask(testTask_1);
+			//data.push_back(testTask_1);
+
+			Task testTask_2 = Task(2);
+			testTask_2.setName("Test Task 2");
+			testTask_2.setDueDate(now + 1664000);
+			testTask_2.setLocation("Someplace elsewhere");
+			testTask_2.setNote("This is another sample note!");
+			testTask_2.setParticipants(list<string>(3, "Participant X"));
+			testTask_2.setPriority(TP::PRIORITY::LOW);
+			testTask_2.setRemindTimes(now + 1032000, TP::LIST_OP::ADD_ELEMENT);
+			
+			ds.addTask(testTask_2);
+			//data.push_back(testTask_2);
+
+			Task testTask_3 = Task(3);
+			testTask_3.setName("Test Task 3");
+			testTask_3.setLocation("Another location");
+			testTask_3.setNote("This is the final sample note!");
+			testTask_3.setParticipants(list<string>(2, "Participant X"));
+			testTask_3.setRemindTimes(now + 232000, TP::LIST_OP::ADD_ELEMENT);
+			
+			ds.addTask(testTask_3);
+			//data.push_back(testTask_3);
+		}
+		
+		TEST_METHOD_CLEANUP(Clean_Up)
+		{
+			while(ds.size()!=0)
+				ds.deleteTask(ds.cbegin());
+		}
+
+		TEST_METHOD(Execute_Add_Command_Test)
+		{
+			
+			Command* testCmd = new Command_Add();
+			Command_Add* testAddCmd = dynamic_cast<Command_Add*>(testCmd);
+			time_t now = time(NULL);
+			Executor testExecutor(ds);
+			Messenger testResponse;
+			
+			testAddCmd->setName("Test Task");
+			testAddCmd->setDueDate(now + 864000);
+			testAddCmd->setLocation("Someplace");
+			testAddCmd->setNote("This is a sample note!");
+			testAddCmd->setTags(list<string>(1, "#testhashtag"));
+			testAddCmd->setParticipants(list<string>(5, "Participant X"));
+			testAddCmd->setPriority(TP::PRIORITY::HIGH);
+			testAddCmd->setRemindTimes(list<time_t>(1, now + 432000));
+			
+			testExecutor.executeCommand(testCmd, testResponse);
+			
+			Datastore::const_iterator i = ds.cend();
+			i--;
+			Assert::IsTrue(string("Test Task") == i->getName());
+			Assert::IsTrue((now + 864000) == i->getDueDate());
+			Assert::IsTrue(string("Someplace") == i->getLocation());
+			Assert::IsTrue(string("This is a sample note!") == i->getNote());
+			Assert::IsTrue(list<string>(1, "#testhashtag") == i->getTags());
+			Assert::IsTrue(list<string>(5, "Participant X") == i->getParticipants());
+			Assert::IsTrue(TP::PRIORITY::HIGH == i->getPriority());
+			Assert::IsTrue(list<time_t>(1, now + 432000) == i->getRemindTimes());
+			delete testCmd;
+			
+		}
+
+		TEST_METHOD(Execute_Del_Command_Test)
+		{
+			Command* testCmd = new Command_Del();
+			Command_Del* testDelCmd = dynamic_cast<Command_Del*>(testCmd);
+			Executor testExecutor(ds);
+			Messenger testResponse;
+
+			Datastore::const_iterator i = ds.cend();
+			i--;
+			testDelCmd->setCreatedTime(i->getIndex());
+			testExecutor.executeCommand(testCmd, testResponse);
+			Assert::IsTrue(2 == ds.size());
+
+			testDelCmd->setCreatedTime(time(NULL));
+			testExecutor.executeCommand(testCmd, testResponse);
+			Assert::IsTrue(TP::STATUS::ERR==testResponse.getStatus());
+
+			Command* testCmd_2 = new Command_Del();
+			Command_Del* testDelCmd_2 = dynamic_cast<Command_Del*>(testCmd_2);
+			testDelCmd_2->setName("Test Task 1");
+			testExecutor.executeCommand(testCmd_2, testResponse);
+			Assert::IsTrue(1 == ds.size());
+
+			Command* testCmd_3 = new Command_Del();
+			Command_Del* testDelCmd_3 = dynamic_cast<Command_Del*>(testCmd_3);
+			testDelCmd_3->setName("Test Task 2");
+			testDelCmd_3->setFlagExact();
+			testExecutor.executeCommand(testCmd_3, testResponse);
+			Assert::IsTrue(0 == ds.size());
+
+			delete testCmd;
+			delete testCmd_2;
+			delete testCmd_3;
+		}
+
+		TEST_METHOD(Execute_Mod_Command_Test)
+		{
+			Command* testCmd = new Command_Mod();
+			Command_Mod* testModCmd = dynamic_cast<Command_Mod*>(testCmd);
+			Executor testExecutor(ds);
+			Messenger testResponse;
+
+			Datastore::const_iterator i = ds.cend();
+			i--;
+			testModCmd->setCreatedTime(i->getIndex());
+			testModCmd->setOptName("New Task Name");
+			testModCmd->setTaskState(TP::TASK_STATE::DONE);
+			testExecutor.executeCommand(testCmd, testResponse);
+			Assert::IsTrue("New Task Name" == i->getName());
+			Assert::IsTrue(TP::TASK_STATE::DONE == i->getState());
+
+			testModCmd->setCreatedTime(time(NULL));
+			testExecutor.executeCommand(testCmd, testResponse);
+			Assert::IsTrue(TP::STATUS::ERR==testResponse.getStatus());
+
+			Datastore::const_iterator j = ds.cbegin();
+			j++;
+			time_t now = time(NULL);
+			Command* testCmd_2 = new Command_Mod();
+			Command_Mod* testModCmd_2 = dynamic_cast<Command_Mod*>(testCmd_2);
+			testModCmd_2->setName("Test Task 2");
+			testModCmd_2->setFlagExact();
+			testModCmd_2->setTags(list<string>(1, "#hashtag"));
+			testModCmd_2->setRemindTimes(list<time_t>(1, now + 32000));
+			testModCmd_2->setTaskState(TP::TASK_STATE::DONE);
+			testExecutor.executeCommand(testCmd_2, testResponse);
+			Assert::IsTrue(list<string>(1, "#hashtag") == j->getTags());
+			Assert::IsTrue(list<time_t>(1, now + 32000) == j->getRemindTimes());
+			Assert::IsTrue(TP::TASK_STATE::DONE == j->getState());
+			
+			delete testCmd;
+			delete testCmd_2;
+		}
+
+		TEST_METHOD(Execute_Find_Command_Test)
+		{
+			Command* testCmd = new Command_Find();
+			Command_Find* testFindCmd = dynamic_cast<Command_Find*>(testCmd);
+			time_t now = time(NULL);
+			Executor testExecutor(ds);
+			Messenger testResponse;
+
+			testFindCmd->setOptName("Test Task");
+			testFindCmd->setFlagExact();
+
+			testExecutor.executeCommand(testCmd, testResponse);
+			Assert::IsTrue(0 == testResponse.getList().size());
+			
+			testFindCmd->setOptName("Test Task 1");
+			testExecutor.executeCommand(testCmd, testResponse);
+			Assert::IsTrue(1 == testResponse.getList().size());
+			
+			Command* testCmd_2 = new Command_Find();
+			Command_Find* testFindCmd_2 = dynamic_cast<Command_Find*>(testCmd_2);
+
+			testFindCmd_2->setOptName("Test");
+			testExecutor.executeCommand(testCmd_2, testResponse);
+			Assert::IsTrue(3 == testResponse.getList().size());
+			
+			testFindCmd_2->setToDate(time(NULL) + 2000000);
+			testExecutor.executeCommand(testCmd_2, testResponse);
+			Assert::IsTrue(0 == testResponse.getList().size());
+			
+			testFindCmd_2->setTaskType(TP::TASK_TYPE::DEADLINE);
+			testFindCmd_2->setFromDate(time(NULL) - 100000);
+			testExecutor.executeCommand(testCmd_2, testResponse);
+			Assert::IsTrue(2 == testResponse.getList().size());
+			
+			Command* testCmd_3 = new Command_Find();
+			Command_Find* testFindCmd_3 = dynamic_cast<Command_Find*>(testCmd_3);
+
+			testFindCmd_3->setIndex(2);
+			testExecutor.executeCommand(testCmd_3, testResponse);
+			Assert::IsTrue(2 == testResponse.getTask().getIndex());
+
+			Command* testCmd_4 = new Command_Find();
+			Command_Find* testFindCmd_4 = dynamic_cast<Command_Find*>(testCmd_4);
+
+			testFindCmd_4->setTaskType(TP::TASK_TYPE::FLOATING);
+			testExecutor.executeCommand(testCmd_4, testResponse);
+			Assert::IsTrue(1 == testResponse.getList().size());
+
+			testFindCmd_4->setTaskType(TP::TASK_TYPE::DEADLINE);
+			testFindCmd_4->setFromDate(time(NULL) - 1000000);
+			testExecutor.executeCommand(testCmd_4, testResponse);
+			Assert::IsTrue(2 == testResponse.getList().size());
+			delete testCmd;
+			delete testCmd_2;
+			delete testCmd_3;
+			delete testCmd_4;
+		}
+		
+		TEST_METHOD(Execute_Undo_Redo_Command_Test)
+		{
+			Command* testCmd = new Command_Add();
+			Command_Add* testAddCmd = dynamic_cast<Command_Add*>(testCmd);
+			time_t now = time(NULL);
+			Executor testExecutor(ds);
+			Messenger testResponse;
+			
+			testAddCmd->setName("Test Task");
+			testAddCmd->setDueDate(now + 864000);
+			testAddCmd->setLocation("Someplace");
+			testAddCmd->setNote("This is a sample note!");
+			testAddCmd->setTags(list<string>(1, "#testhashtag"));
+			testAddCmd->setParticipants(list<string>(5, "Participant X"));
+			testAddCmd->setPriority(TP::PRIORITY::HIGH);
+			testAddCmd->setRemindTimes(list<time_t>(1, now + 432000));
+			
+			testExecutor.executeCommand(testCmd, testResponse);
+			delete testCmd;
+			
+			testCmd = new Command_Undo();
+			Command_Undo* testUndoCmd = dynamic_cast<Command_Undo*>(testCmd);
+			testExecutor.executeCommand(testCmd, testResponse);
+			delete testCmd;
+
+			testCmd = new Command_Find();
+			Command_Find* testFindCmd = dynamic_cast<Command_Find*>(testCmd);
+
+			testFindCmd->setOptName("Test Task");
+			testFindCmd->setFlagExact();
+
+			testExecutor.executeCommand(testCmd, testResponse);
+			Assert::IsTrue(0 == testResponse.getList().size());
+			delete testCmd;
+
+			testCmd = new Command_Redo();
+			Command_Redo* testRedoCmd = dynamic_cast<Command_Redo*>(testCmd);
+			testExecutor.executeCommand(testCmd, testResponse);
+			delete testCmd;
+
+			testCmd = new Command_Find();
+			testFindCmd = dynamic_cast<Command_Find*>(testCmd);
+
+			testFindCmd->setOptName("Test Task");
+			testFindCmd->setFlagExact();
+
+			testExecutor.executeCommand(testCmd, testResponse);
+			Assert::IsTrue(1 == testResponse.getList().size());
+			delete testCmd;
+		}
+	};
+}
+	// End of segment: .\UnitTest\test_Executor.cpp
+
+
+
+
+
+	/**
+	 * origin: .\UnitTest\test_Task.cpp
+	 */
+
+#include "stdafx.h"
+#include "CppUnitTest.h"
+#include "../TaskPad_library/Task.h"
+
+using namespace Microsoft::VisualStudio::CppUnitTestFramework;
+using namespace std;
+
+namespace UnitTest
+{
+	static const time_t			now						= time(NULL);
+	static const string			PARTICIPANT_NAME		= "Participant X";
+	static const string			TAG_NAME				= "Tag";
+	static const time_t			REMIND_TIME				= now + 4000;
+	static const string			TEST_TASK_NAME			= "Test Task";
+	static const string			TEST_TASK_LOCATION		= "Someplace";
+	static const string			TEST_TASK_NOTE			= "This is a sample note!";
+	static const list<string>	TEST_TASK_PARTICIPANTS	= list<string>(5, "Participant X");
+	static const list<string>	TEST_TASK_TAGS			= list<string>(1, "Tag");
+	static const time_t			TEST_TASK_DUE_DATE		= now + 864000;
+	static const time_t			TEST_TASK_FROM_DATE		= now + 1864000;
+	static const time_t			TEST_TASK_TO_DATE		= now - 464000;
+	static const TP::PRIORITY	TEST_TASK_PRIORITY		= TP::PRIORITY::HIGH;
+	static const time_t			TEST_TASK_REMIND_TIME	= now + 4000;
+	static const time_t			TEST_TASK_PAST_DUE_DATE	= now - 864000;
+	static const time_t			TEST_TASK_PAST_FROM_DATE= now - 464000;
+	static const time_t			TEST_TASK_PAST_TO_DATE	= now - 1864000;
+
+	
+
+	TEST_CLASS(test_Task)
+	{
+	private:
+		void compareTaskAttributes(Task &lhs, Task &rhs) {
+			Assert::IsTrue(lhs.getName()==rhs.getName());
+			Assert::IsTrue(lhs.getIndex()==rhs.getIndex());
+			Assert::IsTrue(lhs.getLocation()==rhs.getLocation());
+			Assert::IsTrue(lhs.getNote()==rhs.getNote());
+			Assert::IsTrue(lhs.getPriority()==rhs.getPriority());
+			Assert::IsTrue(lhs.getParticipants()==rhs.getParticipants());
+			Assert::IsTrue(lhs.getTags()==rhs.getTags());
+			Assert::IsTrue(lhs.getHashTagPtrs()==rhs.getHashTagPtrs());
+			Assert::IsTrue(lhs.getRemindTimes()==rhs.getRemindTimes());
+			Assert::IsTrue(lhs.getRemindTimesPtrs()==rhs.getRemindTimesPtrs());
+			Assert::IsTrue(lhs.getFromDate()==rhs.getFromDate());
+			Assert::IsTrue(lhs.getToDate()==rhs.getToDate());
+			Assert::IsTrue(lhs.getState()==rhs.getState());
+			Assert::IsTrue(lhs.getTaskType()==rhs.getTaskType());
+		}
+
+	public:
+		TEST_METHOD_CLEANUP(Clean_Up)
+		{
+			Task::flushAllIndices();
+		}
+		
+		TEST_METHOD(Task_Default_Values_Test)
+		{
+			Task t = Task();
+			// Attribute Testing
+			Assert::IsTrue(t.getName()==Task::DEFAULT_NAME);
+			Assert::IsTrue(t.getIndex()==Task::DEFAULT_INDEX);
+			Assert::IsTrue(t.getLocation()==Task::DEFAULT_LOCATION);
+			Assert::IsTrue(t.getNote()==Task::DEFAULT_NOTE);
+			Assert::IsTrue(t.getPriority()==Task::DEFAULT_PRIORITY);
+			Assert::IsTrue(t.getParticipants()==Task::DEFAULT_PARTICIPANTS);
+			Assert::IsTrue(t.getTags()==Task::DEFAULT_TAGS);
+			Assert::IsTrue(t.getHashTagPtrs()==Task::DEFAULT_HASHTAG_PTRS);
+			Assert::IsTrue(t.getRemindTimes()==Task::DEFAULT_REMINDTIMES);
+			Assert::IsTrue(t.getRemindTimesPtrs()==Task::DEFAULT_REMINDTIMES_PTRS);
+			Assert::IsTrue(t.getFromDate()==Task::DEFAULT_FROMDATE);
+			Assert::IsTrue(t.getToDate()==Task::DEFAULT_TODATE);
+			Assert::IsTrue(t.getState()==Task::DEFAULT_STATE);
+			Assert::IsTrue(t.getTaskType()==Task::DEFAULT_TYPE);
+			
+			// Flag Testing
+			Assert::IsFalse(t.getFlagName());
+			Assert::IsFalse(t.getFlagIndex());
+			Assert::IsFalse(t.getFlagLocation());
+			Assert::IsFalse(t.getFlagNote());
+			Assert::IsFalse(t.getFlagPriority());
+			Assert::IsFalse(t.getFlagParticipants());
+			Assert::IsFalse(t.getFlagTags());
+			Assert::IsFalse(t.getFlagRemindTimes());
+			Assert::IsFalse(t.getFlagFromDate());
+			Assert::IsFalse(t.getFlagToDate());
+			Assert::IsFalse(t.getFlagState());
+		}
+
+		TEST_METHOD(Task_Normal_Deadline_Test)
+		{
+			Task t = Task(TEST_TASK_NAME);
+			t.setDueDate(TEST_TASK_DUE_DATE);
+			Assert::IsTrue(t.getTaskType()==TP::DEADLINE);
+		}
+		
+		TEST_METHOD(Task_Normal_Floating_Test)
+		{
+			Task t = Task(TEST_TASK_NAME);
+			Assert::IsTrue(t.getTaskType()==TP::FLOATING);
+		}
+		
+		TEST_METHOD(Task_Normal_Timed_Test)
+		{
+			Task t = Task(TEST_TASK_NAME);
+			t.setFromDate(TEST_TASK_FROM_DATE);
+			t.setToDate(TEST_TASK_TO_DATE);
+			Assert::IsTrue(t.getTaskType()==TP::TIMED);
+		}
+		
+		TEST_METHOD(Task_Type_Stress_Test)
+		{
+			Task t = Task(TEST_TASK_NAME);
+			t.setFromDate(TEST_TASK_FROM_DATE);
+			t.setToDate(TEST_TASK_TO_DATE);
+			t.setDueDate(TEST_TASK_DUE_DATE);
+			Assert::IsTrue(t.getTaskType()==TP::DEADLINE);
+			t.setFromDate(TEST_TASK_FROM_DATE);
+			Assert::IsTrue(t.getTaskType()==TP::TIMED);
+			t.setToDate(TEST_TASK_TO_DATE);
+			Assert::IsTrue(t.getTaskType()==TP::TIMED);
+			t.setFromDate(Task::DEFAULT_FROMDATE);
+			t.setToDate(Task::DEFAULT_TODATE);
+			Assert::IsTrue(t.getTaskType()==TP::FLOATING);
+		}
+		
+		TEST_METHOD(Task_State_Undone_Overdue_Test)
+		{
+			Task t = Task(TEST_TASK_NAME);
+			t.setDueDate(TEST_TASK_DUE_DATE);
+			Assert::IsTrue(t.getState()==TP::UNDONE);
+			t.setDueDate(TEST_TASK_PAST_DUE_DATE);
+			Assert::IsTrue(t.getState()==TP::OVERDUE);
+			t.setFromDate(TEST_TASK_PAST_FROM_DATE);
+			Assert::IsTrue(t.getState()==TP::OVERDUE);
+			t.setFromDate(TEST_TASK_FROM_DATE);
+			t.setToDate(TEST_TASK_FROM_DATE);
+			Assert::IsTrue(t.getState()==TP::UNDONE);
+		}
+		
+		TEST_METHOD(Task_Valid_Index_Test)
+		{
+			Task t = Task(1);
+			try {
+				Task _t = Task(2);
+				Assert::IsTrue(true);
+			}
+			catch(string s) {
+				Assert::IsTrue(false);
+			}
+			Task::flushAllIndices();
+		}
+		
+		TEST_METHOD(Task_Invalid_Index_Test)
+		{
+			Task t = Task(1);
+			try {
+				Task _t = Task(1);
+				Assert::IsTrue(false);
+			}
+			catch(string s) {
+				Assert::IsTrue(true);
+			}
+			Task::flushAllIndices();
+		}
+		
+		TEST_METHOD(Task_Add_Remove_Participant_Test)
+		{
+			Task t = Task(1);
+			t.setParticipants(TEST_TASK_PARTICIPANTS);
+			t.setParticipants(PARTICIPANT_NAME, TP::REMOVE_ELEMENT);
+			Assert::IsTrue(t.getParticipants()==list<string>(4, PARTICIPANT_NAME));
+			t.setParticipants(PARTICIPANT_NAME, TP::ADD_ELEMENT);
+			t.setParticipants(PARTICIPANT_NAME, TP::ADD_ELEMENT);
+			Assert::IsTrue(t.getParticipants()==list<string>(6, PARTICIPANT_NAME));
+		}
+		
+		TEST_METHOD(Task_Add_Remove_Tags_Test)
+		{
+			Task t = Task(1);
+			t.setTags(TEST_TASK_TAGS);
+			t.setTags(TAG_NAME, TP::REMOVE_ELEMENT);
+			Assert::IsTrue(t.getTags()==list<string>());
+			t.setTags(TAG_NAME, TP::ADD_ELEMENT);
+			Assert::IsTrue(t.getTags()==list<string>(1, TAG_NAME));
+		}
+		
+		TEST_METHOD(Task_Add_Remove_RemindTimes_Test)
+		{
+			Task t = Task(1);
+			t.setRemindTimes(list<time_t>(1, TEST_TASK_REMIND_TIME));
+			t.setRemindTimes(REMIND_TIME, TP::REMOVE_ELEMENT);
+			Assert::IsTrue(t.getRemindTimes()==list<time_t>());
+			t.setRemindTimes(REMIND_TIME, TP::ADD_ELEMENT);
+			t.setRemindTimes(REMIND_TIME, TP::ADD_ELEMENT);
+			Assert::IsTrue(t.getRemindTimes()==list<time_t>(2, REMIND_TIME));
+		}
+		
+	};
+}
+	// End of segment: .\UnitTest\test_Task.cpp
 
 
 
